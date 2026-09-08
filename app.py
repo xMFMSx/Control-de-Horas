@@ -1,3 +1,26 @@
+import os
+import json
+import streamlit as st
+
+# Generar archivos .json automáticamente desde st.secrets en la nube
+if not os.path.exists("client_secret.json") and "client_oauth" in st.secrets:
+    with open("client_secret.json", "w", encoding="utf-8") as f:
+        json.dump({
+            "web": {
+                "client_id": st.secrets["client_oauth"]["client_id"],
+                "project_id": st.secrets["gcp_service_account"]["project_id"],
+                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                "token_uri": "https://oauth2.googleapis.com/token",
+                "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+                "client_secret": st.secrets["client_oauth"]["client_secret"],
+                "javascript_origins": ["https://control-de-horas-mq9pnhrvdgerzovdyyi8zq.streamlit.app"]
+            }
+        }, f)
+
+if not os.path.exists("credenciales.json") and "gcp_service_account" in st.secrets:
+    with open("credenciales.json", "w", encoding="utf-8") as f:
+        json.dump(dict(st.secrets["gcp_service_account"]), f)
+
 import base64
 from datetime import date, datetime, time, timedelta
 import hashlib
