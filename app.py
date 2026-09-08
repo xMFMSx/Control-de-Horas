@@ -1,26 +1,3 @@
-import json
-import streamlit as st
-
-# Carga inteligente de credenciales (Nube vs Local)
-if "client_oauth" in st.secrets:
-    client_secrets_dict = {
-        "web": {
-            "client_id": st.secrets["client_oauth"]["client_id"],
-            "project_id": st.secrets["gcp_service_account"]["project_id"],
-            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-            "token_uri": "https://oauth2.googleapis.com/token",
-            "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-            "client_secret": st.secrets["client_oauth"]["client_secret"],
-            "javascript_origins": ["https://control-de-horas-mq9pnhrvdgerzovdyyi8zq.streamlit.app"]
-        }
-    }
-    creds_dict = dict(st.secrets["gcp_service_account"])
-else:
-    with open("client_secret.json", "r", encoding="utf-8") as f:
-        client_secrets_dict = json.load(f)
-    with open("credenciales.json", "r", encoding="utf-8") as f:
-        creds_dict = json.load(f)
-
 import os
 import json
 import streamlit as st
