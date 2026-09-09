@@ -511,7 +511,19 @@ div[data-testid="stPopoverBody"] div.stButton > button p {
     text-align: left !important;
     font-size: 13px !important;
 }
+
+/* --- CORREGIR SELECTOR DE OBRA EN FORMULARIOS DE DÍAS --- */
+div[data-testid="stExpander"] div[data-testid="stSelectbox"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+}
+div[data-testid="stExpander"] div[data-testid="stSelectbox"] div[data-baseweb="select"] {
+    width: 100% !important;
+    max-width: 100% !important;
+}
 </style>
+
 
 
 
