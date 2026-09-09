@@ -19,6 +19,25 @@ st.set_page_config(
 )
 
 st.markdown("""<style>
+div.stButton > button {
+    height: 28px !important;
+    min-height: 28px !important;
+    max-height: 28px !important;
+    width: 32px !important;
+    min-width: 32px !important;
+    max-width: 32px !important;
+    padding: 0px !important;
+    margin: 0 auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+div.stButton > button p {
+    font-size: 12px !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
 header[data-testid="stHeader"] { display: none !important; }
 #MainMenu { visibility: hidden !important; }
 div[data-testid="stToolbar"] { visibility: hidden !important; }
@@ -33,14 +52,11 @@ div[data-testid="stDecoration"] { display: none !important; }
     padding-bottom: 3rem !important;
 }
 
-div[data-testid="stAppViewBlockContainer"] { transition: none !important; }
-div[data-testid="stAppViewContainer"] > .main { opacity: 1 !important; }
-
 div[data-testid="stExpander"] { width: 100% !important; }
 div[data-testid="stExpander"] summary { width: 100% !important; }
 div[data-testid="stExpander"] summary p {
     font-family: 'Consolas', 'Courier New', monospace !important;
-    font-size: 1.12rem !important;
+    font-size: 0.72rem !important;
     font-weight: 500 !important;
     color: #FFFFFF !important;
     white-space: pre !important;
@@ -48,179 +64,28 @@ div[data-testid="stExpander"] summary p {
 }
 div[data-testid="stExpander"] summary svg { width: 1.2rem !important; height: 1.2rem !important; }
 
-/* Ocultar únicamente la flecha del primer selectbox (engranaje) y hacerlo compacto */
-div.block-container > div:first-child div[data-testid="stSelectbox"] [data-baseweb="select"] svg,
-div[data-testid="stVerticalBlock"] > div:first-child div[data-testid="stSelectbox"] [data-baseweb="select"] svg {
-    display: none !important;
-}
-div.block-container > div:first-child div[data-testid="stSelectbox"],
-div[data-testid="stVerticalBlock"] > div:first-child div[data-testid="stSelectbox"] {
-    max-width: 65px !important;
-}
-
-div[data-testid="stTimeInput"] input::-webkit-datetime-edit-hour-field:not([aria-valuenow]),
-div[data-testid="stTimeInput"] input::-webkit-datetime-edit-minute-field:not([aria-valuenow]),
-div[data-testid="stTimeInput"] input::-webkit-datetime-edit-text { color: transparent !important; }
-div[data-testid="stTimeInput"] input:focus::-webkit-datetime-edit-hour-field,
-div[data-testid="stTimeInput"] input:focus::-webkit-datetime-edit-minute-field,
-div[data-testid="stTimeInput"] input:focus::-webkit-datetime-edit-text { color: #FFFFFF !important; }
-
 div[data-testid="stForm"] { border: none !important; padding: 0 !important; }
 
-.tabla-resumen-header {
-    display: flex;
-    align-items: center;
-    border-top: 1px solid #282d3c;
-    border-bottom: 1px solid #282d3c;
-    padding: 6px 12px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #838c9e;
-    letter-spacing: 0.3px;
-    white-space: nowrap !important;
-    margin-bottom: 0px !important;
-}
-
-div[data-testid="stVerticalBlock"]:has(> div > div[data-testid="element-container"] .fila-tabla-contenido),
-div[data-testid="stVerticalBlock"]:has(.fila-tabla-contenido) {
-    gap: 0px !important;
-}
-
-div[data-testid="element-container"]:has(.fila-tabla-contenido) {
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) {
-    align-items: center !important;
-    min-height: 36px !important;
-    height: 36px !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border-bottom: 1px solid #1c202a;
-    gap: 0 !important;
-}
-
-div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) div[data-testid="column"] {
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-}
-
-.fila-tabla-contenido {
-    display: flex;
-    align-items: center;
-    height: 36px;
-    padding: 0 12px;
-    font-size: 0.90rem;
-    color: #ffffff;
-    white-space: nowrap !important;
-}
-
-div[data-testid="column"]:has(button:has(p:contains("✏️"))) {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 0 !important;
-}
-
-button:has(p:contains("✏️")) {
-    height: 26px !important;
-    min-height: 26px !important;
-    width: 32px !important;
-    padding: 0 !important;
-    background-color: #1a1e29 !important;
-    border: 1px solid #2e3547 !important;
-    border-radius: 6px !important;
-    margin: 0 auto !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-}
-
-button:has(p:contains("✏️")) div[data-testid="stMarkdownContainer"] p {
-    font-size: 13px !important;
-    line-height: 1 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-button:has(p:contains("✏️")):hover {
-    background-color: #262c3b !important;
-    border-color: #40495f !important;
-}
-
-/* Fijar el tamaño y diseño del botón de engranaje para que el zoom no lo deforme */
-div[data-testid="stSelectbox"]:has(input[aria-label="⚙️"]), 
-div[data-testid="stSelectbox"]:has(div[aria-label="⚙️"]) {
-    width: 60px !important;
-    min-width: 60px !important;
-}
-div[data-testid="stSelectbox"] div[data-baseweb="select"] {
-    background-color: #1a1e29 !important;
-    border: 1px solid #2e3547 !important;
-    border-radius: 6px !important;
-}
-
-div[data-testid="stSelectbox"]:has(input[aria-label="⚙️"]), 
-div[data-testid="stSelectbox"]:has(div[aria-label="⚙️"]),
-div.block-container > div:first-child div[data-testid="stSelectbox"] {
-    width: 55px !important;
-    max-width: 55px !important;
-    min-width: 55px !important;
-    height: 38px !important;
-}
-div[data-testid="stSelectbox"] div[data-baseweb="select"] {
-    width: 55px !important;
-    max-width: 55px !important;
-    height: 38px !important;
-    background-color: #1a1e29 !important;
-    border: 1px solid #2e3547 !important;
-    border-radius: 6px !important;
-}
-
-div[data-testid="stSelectbox"]:has(input[aria-label="⚙️"]), 
-div[data-testid="stSelectbox"]:has(div[aria-label="⚙️"]) {
-    min-width: 90px !important;
-}
-
-/* Forzar que los botones de Septiembre y Resumen se queden lado a lado en móviles */
-div[data-testid="stHorizontalBlock"]:has(button:has(p:contains("SEPTIEMBRE"))) {
-    flex-direction: row !important;
-}
-div[data-testid="stHorizontalBlock"]:has(button:has(p:contains("SEPTIEMBRE"))) > div[data-testid="column"] {
-    width: 50% !important;
-    flex: 1 1 50% !important;
-    min-width: 0 !important;
-}
-
-
-/* Forzar que los bloques horizontales de columnas nunca se apilen en dispositivos móviles */
+/* --- DISEÑO MÓVIL: ENTRADA Y SALIDA LADO A LADO, OBRA ABAJO --- */
 @media (max-width: 768px) {
-    div[data-testid="stHorizontalBlock"] {
+    div[data-testid="stExpander"] div[data-testid="stHorizontalBlock"] {
+        display: flex !important;
         flex-direction: row !important;
+        gap: 8px !important;
+        width: 100% !important;
     }
-    div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
-        width: 50% !important;
+    div[data-testid="stExpander"] div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
         flex: 1 1 50% !important;
+        max-width: 50% !important;
         min-width: 0 !important;
     }
-}
-
-/* Ajustar métricas de horas para que no se corten en dispositivos móviles */
-@media (max-width: 768px) {
-    div[data-testid="stHorizontalBlock"]:has(div[data-testid="stMetric"]) {
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 10px !important;
-    }
-    div[data-testid="stHorizontalBlock"]:has(div[data-testid="stMetric"]) > div[data-testid="column"] {
+    div[data-testid="stExpander"] div[data-testid="stSelectbox"] {
         width: 100% !important;
-        flex: 1 1 100% !important;
+        max-width: 100% !important;
+        min-width: 100% !important;
     }
 }
-
-</style>
-""", unsafe_allow_html=True)
+</style>""", unsafe_allow_html=True)
 
 SECRET_KEY = "control_de_horas_firmado_token_2026"
 
@@ -244,7 +109,12 @@ def conectar_libro(reintentos=3):
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
     for intento in range(reintentos):
         try:
-            creds = ServiceAccountCredentials.from_json_keyfile_name("credenciales.json", scope)
+            if "gcp_service_account" in st.secrets:
+                cred_dict = dict(st.secrets["gcp_service_account"])
+                creds = ServiceAccountCredentials.from_json_keyfile_dict(cred_dict, scope)
+            else:
+                creds = ServiceAccountCredentials.from_json_keyfile_name("credenciales.json", scope)
+                
             client = gspread.authorize(creds)
             return client.open("APP DE HORAS")
         except Exception as e:
@@ -464,25 +334,23 @@ else:
         if "vista_actual" not in st.session_state:
             st.session_state["vista_actual"] = "SEPTIEMBRE"
 
-        # Navegación lado a lado mediante Flexbox garantizado
         is_sep = st.session_state["vista_actual"] == "SEPTIEMBRE"
         bg_sep = "#ff4b4b" if is_sep else "#1a1e29"
         border_sep = "#ff4b4b" if is_sep else "#2e3547"
         bg_res = "#ff4b4b" if not is_sep else "#1a1e29"
         border_res = "#ff4b4b" if not is_sep else "#2e3547"
 
-        # Capturamos la sesión actual de la URL si existe para no perderla
         session_actual = st.query_params.get("session", "")
 
         st.markdown(f'''
             <div style="display: flex; gap: 8px; width: 100%; margin-bottom: 1rem;">
                 <form action="" method="get" style="flex: 1; margin: 0;">
                     <input type="hidden" name="session" value="{session_actual}">
-                    <button type="submit" name="nav_vista" value="SEPTIEMBRE" style="width: 100%; background-color: {bg_sep}; border: 1px solid {border_sep}; color: white; padding: 0.6rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer;">📅 SEPTIEMBRE</button>
+                    <button type="submit" name="nav_vista" value="SEPTIEMBRE" style="width: 100%; background-color: {bg_sep}; border: 1px solid {border_sep}; color: white; padding: 0.6rem 0.2rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.82rem; white-space: nowrap; cursor: pointer;">📅 SEPTIEMBRE 2026</button>
                 </form>
                 <form action="" method="get" style="flex: 1; margin: 0;">
                     <input type="hidden" name="session" value="{session_actual}">
-                    <button type="submit" name="nav_vista" value="RESUMEN" style="width: 100%; background-color: {bg_res}; border: 1px solid {border_res}; color: white; padding: 0.6rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer;">📊 RESUMEN DEL MES</button>
+                    <button type="submit" name="nav_vista" value="RESUMEN" style="width: 100%; background-color: {bg_res}; border: 1px solid {border_res}; color: white; padding: 0.6rem 0.2rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.82rem; white-space: nowrap; cursor: pointer;">📊 RESUMEN DEL MES</button>
                 </form>
             </div>
         ''', unsafe_allow_html=True)
@@ -554,26 +422,23 @@ else:
                 })
 
         if st.session_state["vista_actual"] == "SEPTIEMBRE":
-            st.subheader("MES DE SEPTIEMBRE 2026")
+            st.subheader("SEPTIEMBRE 2026")
             
-            # --- TARJETAS FLEXBOX LADO A LADO ---
             val_hn_str = minutos_a_hora_str(total_hn)
             val_hr_str = minutos_a_hora_str(total_hr)
             html_cards = f'''
             <div style="display: flex; gap: 10px; width: 100%; margin-bottom: 1rem;">
                 <div style="flex: 1; min-width: 0; background-color: #0e1117; border: 1px solid #262d3d; border-radius: 8px; padding: 14px;">
-                    <div style="font-size: 0.78rem; color: #838c9e; margin-bottom: 4px; font-weight: 500;">Total Horas Extras (Mes)</div>
+                    <div style="font-size: 0.68rem; color: #838c9e; margin-bottom: 4px; font-weight: 500; white-space: nowrap;">Total Horas Extras (Mes)</div>
                     <div style="font-size: 1.6rem; font-weight: 700; color: #ffffff; white-space: nowrap;">{val_hn_str}</div>
                 </div>
                 <div style="flex: 1; min-width: 0; background-color: #0e1117; border: 1px solid #262d3d; border-radius: 8px; padding: 14px;">
-                    <div style="font-size: 0.78rem; color: #838c9e; margin-bottom: 4px; font-weight: 500;">Total Horas Recargo (Mes)</div>
+                    <div style="font-size: 0.68rem; color: #838c9e; margin-bottom: 4px; font-weight: 500; white-space: nowrap;">Total Horas Recargo (Mes)</div>
                     <div style="font-size: 1.6rem; font-weight: 700; color: #ffffff; white-space: nowrap;">{val_hr_str}</div>
                 </div>
             </div>
             '''
             st.markdown(html_cards, unsafe_allow_html=True)
-            # ------------------------------------
-            
             st.markdown("---")
 
             dias_pendientes = []
@@ -607,14 +472,13 @@ else:
 
                     with st.expander(label):
                         with st.form(key=f"form_dia_{num_dia}"):
-                            c_ent, c_sal, c_ob = st.columns([1, 1, 2])
-
+                            c_ent, c_sal = st.columns(2)
                             with c_ent:
                                 inp_ent = st.time_input("Entrada", value=None, key=f"e_{num_dia}")
                             with c_sal:
                                 inp_sal = st.time_input("Salida", value=None, key=f"s_{num_dia}")
-                            with c_ob:
-                                inp_ob = st.selectbox("Obra / Estado", options=lista_obras, index=None, placeholder="Seleccionar...", key=f"o_{num_dia}")
+
+                            inp_ob = st.selectbox("Obra", options=lista_obras, index=None, placeholder="Seleccionar...", key=f"o_{num_dia}")
 
                             st.write("")
                             col_btn, _ = st.columns([1, 3])
@@ -624,7 +488,7 @@ else:
                             if guardar_btn:
                                 es_especial = inp_ob and inp_ob.strip().upper() in ["PERMISO", "NO TRABAJA"]
                                 if not inp_ob:
-                                    st.warning("⚠️ Debes seleccionar una Obra o Estado.")
+                                    st.warning("⚠️ Debes seleccionar una Obra.")
                                 elif not es_especial and (inp_ent is None or inp_sal is None):
                                     st.warning("⚠️ Debes ingresar Entrada y Salida para las obras normales.")
                                 else:
@@ -649,41 +513,24 @@ else:
                                             st.error(f"Error al guardar: {err}")
 
         elif st.session_state["vista_actual"] == "RESUMEN":
-            st.subheader(f"RESUMEN MENSUAL — {nombre_trabajador}")
+            st.subheader("RESUMEN MENSUAL")
+            
             val_hn_str = minutos_a_hora_str(total_hn)
             val_hr_str = minutos_a_hora_str(total_hr)
+            
             html_cards_res = f"""
             <div style="display: flex; gap: 10px; width: 100%; margin-bottom: 1rem;">
                 <div style="flex: 1; min-width: 0; background-color: #0e1117; border: 1px solid #262d3d; border-radius: 8px; padding: 14px;">
-                    <div style="font-size: 0.78rem; color: #838c9e; margin-bottom: 4px; font-weight: 500;">Total Horas Extras (Mes)</div>
+                    <div style="font-size: 0.68rem; color: #838c9e; margin-bottom: 4px; font-weight: 500; white-space: nowrap;">Total Horas Extras (Mes)</div>
                     <div style="font-size: 1.6rem; font-weight: 700; color: #ffffff; white-space: nowrap;">{val_hn_str}</div>
                 </div>
                 <div style="flex: 1; min-width: 0; background-color: #0e1117; border: 1px solid #262d3d; border-radius: 8px; padding: 14px;">
-                    <div style="font-size: 0.78rem; color: #838c9e; margin-bottom: 4px; font-weight: 500;">Total Horas Recargo (Mes)</div>
+                    <div style="font-size: 0.68rem; color: #838c9e; margin-bottom: 4px; font-weight: 500; white-space: nowrap;">Total Horas Recargo (Mes)</div>
                     <div style="font-size: 1.6rem; font-weight: 700; color: #ffffff; white-space: nowrap;">{val_hr_str}</div>
                 </div>
             </div>
             """
             st.markdown(html_cards_res, unsafe_allow_html=True)
-            
-            # --- TARJETAS FLEXBOX LADO A LADO ---
-            val_hn_str = minutos_a_hora_str(total_hn)
-            val_hr_str = minutos_a_hora_str(total_hr)
-            html_cards_res = f'''
-            <div style="display: flex; gap: 10px; width: 100%; margin-bottom: 1rem;">
-                <div style="flex: 1; min-width: 0; background-color: #0e1117; border: 1px solid #262d3d; border-radius: 8px; padding: 14px;">
-                    <div style="font-size: 0.78rem; color: #838c9e; margin-bottom: 4px; font-weight: 500;">Total Horas Extras (Mes)</div>
-                    <div style="font-size: 1.6rem; font-weight: 700; color: #ffffff; white-space: nowrap;">{val_hn_str}</div>
-                </div>
-                <div style="flex: 1; min-width: 0; background-color: #0e1117; border: 1px solid #262d3d; border-radius: 8px; padding: 14px;">
-                    <div style="font-size: 0.78rem; color: #838c9e; margin-bottom: 4px; font-weight: 500;">Total Horas Recargo (Mes)</div>
-                    <div style="font-size: 1.6rem; font-weight: 700; color: #ffffff; white-space: nowrap;">{val_hr_str}</div>
-                </div>
-            </div>
-            '''
-            st.markdown(html_cards_res, unsafe_allow_html=True)
-            # ------------------------------------
-            
             st.markdown("---")
 
             if "dia_en_edicion" not in st.session_state:
@@ -693,38 +540,37 @@ else:
                 st.markdown("""
                 <div class="tabla-resumen-header">
                     <span style="width: 7%;">DÍA</span>
-                    <span style="width: 12%;">ENTRADA</span>
-                    <span style="width: 12%;">SALIDA</span>
-                    <span style="width: 16%;">HORA EXTRA</span>
-                    <span style="width: 18%;">HORA RECARGO</span>
+                    <span style="width: 14%;">ENT</span>
+                    <span style="width: 14%;">SAL</span>
+                    <span style="width: 18%;">H.EXT</span>
+                    <span style="width: 18%;">H.REC</span>
                     <span style="width: 29%;">OBRA</span>
-                    <span style="width: 6%;"></span>
                 </div>
                 """, unsafe_allow_html=True)
 
                 for r in registros_tabla:
                     d = r["DÍA"]
-                    c_datos, c_btn = st.columns([9.2, 0.8], vertical_alignment="center")
-
-                    with c_datos:
-                        st.markdown(f"""
-                        <div class="fila-tabla-contenido">
-                            <span style="width: 7.6%; font-weight: bold;">{d}</span>
-                            <span style="width: 13.0%;">{r["ENTRADA"]}</span>
-                            <span style="width: 13.0%;">{r["SALIDA"]}</span>
-                            <span style="width: 17.4%;">{r["HORA EXTRA"]}</span>
-                            <span style="width: 19.5%;">{r["HORA RECARGO"]}</span>
-                            <span style="width: 29.5%;">{r["OBRA"]}</span>
-                        </div>
-                        """, unsafe_allow_html=True)
-
-                    with c_btn:
-                        if st.button("✏️", key=f"btn_edit_{d}"):
-                            if st.session_state.get("dia_en_edicion") == d:
-                                st.session_state["dia_en_edicion"] = None
-                            else:
-                                st.session_state["dia_en_edicion"] = d
-                            st.rerun()
+                    col_unica = st.container()
+                    with col_unica:
+                        c_dat, c_b = st.columns([0.88, 0.12], vertical_alignment="center")
+                        with c_dat:
+                            st.markdown(f"""
+                            <div class="fila-tabla-contenido">
+                                <span style="width: 8%; font-weight: bold;">{d}</span>
+                                <span style="width: 15%;">{r["ENTRADA"]}</span>
+                                <span style="width: 15%;">{r["SALIDA"]}</span>
+                                <span style="width: 18%;">{r["HORA EXTRA"]}</span>
+                                <span style="width: 18%;">{r["HORA RECARGO"]}</span>
+                                <span style="width: 26%;">{r["OBRA"]}</span>
+                            </div>
+                            """, unsafe_allow_html=True)
+                        with c_b:
+                            if st.button("✏️", key=f"btn_edit_{d}"):
+                                if st.session_state.get("dia_en_edicion") == d:
+                                    st.session_state["dia_en_edicion"] = None
+                                else:
+                                    st.session_state["dia_en_edicion"] = d
+                                st.rerun()
 
                     if st.session_state.get("dia_en_edicion") == d:
                         datos_d = dict_por_dia.get(d, {})
@@ -734,13 +580,13 @@ else:
                         idx_o = lista_obras.index(val_o) if val_o and val_o in lista_obras else 0
 
                         with st.form(key=f"form_inline_dia_{d}"):
-                            c1e, c2e, c3e = st.columns([1, 1, 2])
+                            c1e, c2e = st.columns(2)
                             with c1e:
                                 edit_ent = st.time_input("Entrada", value=val_e, key=f"re_{d}")
                             with c2e:
                                 edit_sal = st.time_input("Salida", value=val_s, key=f"rs_{d}")
-                            with c3e:
-                                edit_ob = st.selectbox("Obra / Estado", options=lista_obras, index=idx_o, key=f"ro_{d}")
+                            
+                            edit_ob = st.selectbox("Obra", options=lista_obras, index=idx_o, key=f"ro_{d}")
 
                             st.write("")
                             b1, b2 = st.columns(2)
@@ -752,7 +598,7 @@ else:
                             if btn_guardar_edit:
                                 es_especial_edit = edit_ob and edit_ob.strip().upper() in ["PERMISO", "NO TRABAJA"]
                                 if not edit_ob:
-                                    st.warning("⚠️ Debes seleccionar Obra o Estado.")
+                                    st.warning("⚠️ Debes seleccionar Obra.")
                                 elif not es_especial_edit and (edit_ent is None or edit_sal is None):
                                     st.warning("⚠️ Debes completar Entrada y Salida.")
                                 else:
@@ -786,9 +632,3 @@ else:
 
             else:
                 st.info("Aún no tienes jornadas registradas en este mes.")
-
-            st.markdown("---")
-            if st.button("📅 Volver a Septiembre", use_container_width=True):
-                st.session_state["vista_actual"] = "SEPTIEMBRE"
-                st.session_state["dia_en_edicion"] = None
-                st.rerun()
