@@ -547,7 +547,22 @@ div[data-testid="stExpander"] summary p {
         font-size: 0.65rem !important;
     }
 }
+
+/* --- CONTENER ENTRADA Y SALIDA DENTRO DEL EXPANSOR --- */
+@media (max-width: 768px) {
+    div[data-testid="stExpander"] div[data-testid="stHorizontalBlock"] {
+        flex-direction: row !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    div[data-testid="stExpander"] div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+        width: 50% !important;
+        flex: 1 1 50% !important;
+        min-width: 0 !important;
+    }
+}
 </style>
+
 
 
 
