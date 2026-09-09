@@ -997,14 +997,13 @@ else:
 
                     with st.expander(label):
                         with st.form(key=f"form_dia_{num_dia}"):
-                            c_ent, c_sal, c_ob = st.columns([1, 1, 2])
-
+                            c_ent, c_sal = st.columns(2)
                             with c_ent:
                                 inp_ent = st.time_input("Entrada", value=None, key=f"e_{num_dia}")
                             with c_sal:
                                 inp_sal = st.time_input("Salida", value=None, key=f"s_{num_dia}")
-                            with c_ob:
-                                inp_ob = st.selectbox("Obra / Estado", options=lista_obras, index=None, placeholder="Seleccionar...", key=f"o_{num_dia}")
+                            
+                            inp_ob = st.selectbox("Obra / Estado", options=lista_obras, index=None, placeholder="Seleccionar...", key=f"o_{num_dia}")
 
                             st.write("")
                             col_btn, _ = st.columns([1, 3])
