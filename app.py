@@ -596,27 +596,7 @@ div[data-testid="stExpander"] summary p {
     }
 }
 
-/* --- AJUSTAR PROPORCIONES DE ENTRADA, SALIDA Y OBRA --- */
-@media (max-width: 768px) {
-    div[data-testid="stExpander"] div[data-testid="stHorizontalBlock"] {
-        gap: 12px !important;
-    }
-    div[data-testid="stExpander"] div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
-        flex: 1 1 auto !important;
-        min-width: 0 !important;
-    }
-    /* Selector de obra ocupando el 100% real y sin restricciones */
-    div[data-testid="stExpander"] div[data-testid="stSelectbox"] {
-        width: 100% !important;
-        max-width: 100% !important;
-        min-width: 100% !important;
-    }
-    div[data-testid="stExpander"] div[data-baseweb="select"] {
-        width: 100% !important;
-        max-width: 100% !important;
-    }
-}
-</style>
+
 
 
 
@@ -1019,7 +999,7 @@ else:
 
                     with st.expander(label):
                         with st.form(key=f"form_dia_{num_dia}"):
-                            c_ent, c_sal = st.columns([1.1, 1.1])
+                            c_ent, c_sal = st.columns([1, 1])
                             with c_ent:
                                 inp_ent = st.time_input("Entrada", value=None, key=f"e_{num_dia}")
                             with c_sal:
@@ -1137,7 +1117,7 @@ else:
                                 edit_ob = st.selectbox("Obra", options=lista_obras, index=idx_o, key=f"ro_{d}")
 
                             st.write("")
-                            b1, b2 = st.columns([1.1, 1.1])
+                            b1, b2 = st.columns([1, 1])
                             with b1:
                                 btn_guardar_edit = st.form_submit_button("💾 Guardar Cambios", use_container_width=True)
                             with b2:
@@ -1180,3 +1160,35 @@ else:
 
             else:
                 st.info("Aún no tienes jornadas registradas en este mes.")
+/* --- AJUSTAR TAMAÑOS DE ENTRADA, SALIDA Y ANCHO DE OBRA --- */
+@media (max-width: 768px) {
+    /* Contenedor horizontal de hora bien ajustado */
+    div[data-testid="stExpander"] div[data-testid="stHorizontalBlock"] {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 8px !important;
+        width: 100% !important;
+    }
+    div[data-testid="stExpander"] div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+        flex: 1 1 50% !important;
+        max-width: 50% !important;
+        min-width: 0 !important;
+    }
+    
+    /* Forzar que los inputs de tiempo no se desborden */
+    div[data-testid="stExpander"] div[data-testid="stTimeInput"] {
+        max-width: 100% !important;
+    }
+    
+    /* Selector de obra ocupando todo el ancho de forma limpia y holgada */
+    div[data-testid="stExpander"] div[data-testid="stSelectbox"] {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 100% !important;
+    }
+    div[data-testid="stExpander"] div[data-baseweb="select"] {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
+</style>
