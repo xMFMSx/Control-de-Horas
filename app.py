@@ -512,17 +512,19 @@ div[data-testid="stPopoverBody"] div.stButton > button p {
     font-size: 13px !important;
 }
 
-/* --- CORREGIR SELECTOR DE OBRA EN FORMULARIOS DE DÍAS --- */
-div[data-testid="stExpander"] div[data-testid="stSelectbox"] {
+
+/* --- FORZAR ANCHO TOTAL EN SELECTOR DE OBRA --- */
+div[data-testid="stExpander"] div[data-testid="stSelectbox"],
+div[data-testid="stExpander"] div[data-baseweb="select"] {
     width: 100% !important;
     max-width: 100% !important;
     min-width: 100% !important;
 }
-div[data-testid="stExpander"] div[data-testid="stSelectbox"] div[data-baseweb="select"] {
+div[data-testid="stExpander"] div[data-baseweb="select"] > div {
     width: 100% !important;
-    max-width: 100% !important;
 }
 </style>
+
 
 
 
