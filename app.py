@@ -460,7 +460,39 @@ div[data-testid="column"]:has(button:has(p:contains("✏️"))) div.stButton > b
     border-radius: 4px !important;
 }
 
+
+/* --- QUITAR MARCO DEL BOTÓN DEL LÁPIZ --- */
+div[data-testid="column"] button:has(p:contains("✏️")) {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    min-height: unset !important;
+    height: auto !important;
+    width: auto !important;
+}
+div[data-testid="column"] button:has(p:contains("✏️")):hover {
+    background: transparent !important;
+    border: none !important;
+}
+
+/* --- ELIMINAR MARCO TOTAL DEL LÁPIZ --- */
+div[data-testid="column"] button:has(p:contains("✏️")) {
+    all: unset !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    padding: 2px !important;
+}
+div[data-testid="column"] button:has(p:contains("✏️")) p {
+    font-size: 16px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
 </style>
+
+
 """, unsafe_allow_html=True)
 
 SECRET_KEY = "control_de_horas_firmado_token_2026"
@@ -485,7 +517,12 @@ def conectar_libro(reintentos=3):
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
     for intento in range(reintentos):
         try:
-            creds = ServiceAccountCredentials.from_json_keyfile_name("credenciales.json", scope)
+            if "gcp_service_account" in st.secrets:
+                cred_dict = dict(st.secrets["gcp_service_account"])
+                creds = ServiceAccountCredentials.from_json_keyfile_dict(cred_dict, scope)
+            else:
+                creds = ServiceAccountCredentials.from_json_keyfile_name("credenciales.json", scope)
+                
             client = gspread.authorize(creds)
             return client.open("APP DE HORAS")
         except Exception as e:
