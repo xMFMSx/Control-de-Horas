@@ -530,7 +530,25 @@ div[data-testid="stExpander"] summary p {
     font-size: 0.72rem !important;
     font-family: monospace !important;
 }
+
+/* --- FORZAR 3 CAMPOS EN UNA SOLA LÍNEA EN MÓVILES --- */
+@media (max-width: 768px) {
+    div[data-testid="stExpander"] div[data-testid="stHorizontalBlock"] {
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        gap: 6px !important;
+    }
+    div[data-testid="stExpander"] div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+        width: auto !important;
+        flex: 1 1 0% !important;
+        min-width: 0 !important;
+    }
+    div[data-testid="stExpander"] label {
+        font-size: 0.65rem !important;
+    }
+}
 </style>
+
 
 
 
