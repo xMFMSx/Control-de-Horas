@@ -1003,7 +1003,7 @@ else:
                             with c_sal:
                                 inp_sal = st.time_input("Salida", value=None, key=f"s_{num_dia}")
                             
-                            inp_ob = st.selectbox("Obra / Estado", options=lista_obras, index=None, placeholder="Seleccionar...", key=f"o_{num_dia}")
+                            inp_ob = st.selectbox("Obra", options=lista_obras, index=None, placeholder="Seleccionar...", key=f"o_{num_dia}")
 
                             st.write("")
                             col_btn, _ = st.columns([1, 3])
@@ -1112,7 +1112,7 @@ else:
                             with c2e:
                                 edit_sal = st.time_input("Salida", value=val_s, key=f"rs_{d}")
                             with c3e:
-                                edit_ob = st.selectbox("Obra / Estado", options=lista_obras, index=idx_o, key=f"ro_{d}")
+                                edit_ob = st.selectbox("Obra", options=lista_obras, index=idx_o, key=f"ro_{d}")
 
                             st.write("")
                             b1, b2 = st.columns(2)
