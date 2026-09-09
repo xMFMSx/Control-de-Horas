@@ -490,7 +490,20 @@ div[data-testid="column"] button:has(p:contains("✏️")) p {
     margin: 0 !important;
     padding: 0 !important;
 }
+
+/* --- CORREGIR ANCHO DEL MENÚ DESPLEGABLE (POPOVER) --- */
+div[data-testid="stPopoverBody"] {
+    min-width: 220px !important;
+    width: max-content !important;
+}
+div[data-testid="stPopoverBody"] button {
+    width: 100% !important;
+    white-space: nowrap !important;
+    height: 36px !important;
+    min-height: 36px !important;
+}
 </style>
+
 
 
 """, unsafe_allow_html=True)
