@@ -580,7 +580,23 @@ div[data-testid="stExpander"] summary p {
         min-width: 0 !important;
     }
 }
+
+/* --- CORRECCIÓN DEFINITIVA DE COLUMNAS EN FORMULARIOS MÓVILES --- */
+@media (max-width: 768px) {
+    div[data-testid="stExpander"] div[data-testid="stHorizontalBlock"] {
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        gap: 8px !important;
+        width: 100% !important;
+    }
+    div[data-testid="stExpander"] div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+        width: auto !important;
+        flex: 1 1 0% !important;
+        min-width: 0 !important;
+    }
+}
 </style>
+
 
 
 
