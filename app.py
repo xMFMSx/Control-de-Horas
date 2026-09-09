@@ -562,7 +562,26 @@ div[data-testid="stExpander"] summary p {
         min-width: 0 !important;
     }
 }
+
+/* --- CONTENEDOR FLUIDO PARA FORMULARIO DE DÍAS --- */
+@media (max-width: 768px) {
+    div[data-testid="stExpander"] div[data-testid="stForm"] {
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    div[data-testid="stExpander"] div[data-testid="stHorizontalBlock"] {
+        width: 100% !important;
+        display: flex !important;
+        gap: 10px !important;
+    }
+    div[data-testid="stExpander"] div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+        width: 50% !important;
+        flex: 1 1 50% !important;
+        min-width: 0 !important;
+    }
+}
 </style>
+
 
 
 
