@@ -1,78 +1,57 @@
-import json
 import streamlit as st
-
-# Carga inteligente de credenciales (Nube vs Local)
-if "client_oauth" in st.secrets:
-    client_secrets_dict = {
-        "web": {
-            "client_id": st.secrets["client_oauth"]["client_id"],
-            "project_id": st.secrets["gcp_service_account"]["project_id"],
-            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-            "token_uri": "https://oauth2.googleapis.com/token",
-            "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-            "client_secret": st.secrets["client_oauth"]["client_secret"],
-            "javascript_origins": ["https://control-de-horas-mq9pnhrvdgerzovdyyi8zq.streamlit.app"]
-        }
-    }
-    creds_dict = dict(st.secrets["gcp_service_account"])
-else:
-    with open("client_secret.json", "r", encoding="utf-8") as f:
-        client_secrets_dict = json.load(f)
-    with open("credenciales.json", "r", encoding="utf-8") as f:
-        creds_dict = json.load(f)
-
-import os
-import json
-import streamlit as st
-
-# Generar archivos .json automáticamente desde st.secrets en la nube
-if not os.path.exists("client_secret.json") and "client_oauth" in st.secrets:
-    with open("client_secret.json", "w", encoding="utf-8") as f:
-        json.dump({
-            "web": {
-                "client_id": st.secrets["client_oauth"]["client_id"],
-                "project_id": st.secrets["gcp_service_account"]["project_id"],
-                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                "token_uri": "https://oauth2.googleapis.com/token",
-                "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-                "client_secret": st.secrets["client_oauth"]["client_secret"],
-                "javascript_origins": ["https://control-de-horas-mq9pnhrvdgerzovdyyi8zq.streamlit.app"]
-            }
-        }, f)
-
-if not os.path.exists("credenciales.json") and "gcp_service_account" in st.secrets:
-    with open("credenciales.json", "w", encoding="utf-8") as f:
-        json.dump(dict(st.secrets["gcp_service_account"]), f)
-
-import base64
-from datetime import date, datetime, time, timedelta
-import hashlib
-import hmac
-import json
-import time as time_lib
-import urllib.parse
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 import requests
-import streamlit as st
+import json
+import base64
+import hmac
+import hashlib
+from datetime import datetime, date, time, timedelta
+import time as time_lib
+import urllib.parse
 
 st.set_page_config(
     page_title="Control de Horas",
     page_icon="⏱️",
     layout="wide",
-    initial_sidebar_state="collapsed",
+    initial_sidebar_state="expanded",
 )
 
 st.markdown("""<style>
-/* 1. Ocultar barra superior de Streamlit y menus */
+
+/* --- FORZAR TAMAÑO COMPACTO GLOBAL DE BOTONES --- */
+div.stButton > button {
+    height: 28px !important;
+    min-height: 28px !important;
+    max-height: 28px !important;
+    width: 32px !important;
+    min-width: 32px !important;
+    max-width: 32px !important;
+    padding: 0px !important;
+    margin: 0 auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+div.stButton > button p {
+    font-size: 12px !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+div.stButton {
+    min-height: 0px !important;
+    height: auto !important;
+}
+
+
 header[data-testid="stHeader"] { display: none !important; }
 #MainMenu { visibility: hidden !important; }
 div[data-testid="stToolbar"] { visibility: hidden !important; }
 footer { visibility: hidden !important; }
 div[data-testid="stDecoration"] { display: none !important; }
 
-/* 2. Margenes y contenedor */
 .block-container {
     max-width: 95% !important;
     padding-left: 2rem !important;
@@ -84,7 +63,6 @@ div[data-testid="stDecoration"] { display: none !important; }
 div[data-testid="stAppViewBlockContainer"] { transition: none !important; }
 div[data-testid="stAppViewContainer"] > .main { opacity: 1 !important; }
 
-/* 3. Desplegables de Septiembre */
 div[data-testid="stExpander"] { width: 100% !important; }
 div[data-testid="stExpander"] summary { width: 100% !important; }
 div[data-testid="stExpander"] summary p {
@@ -97,7 +75,16 @@ div[data-testid="stExpander"] summary p {
 }
 div[data-testid="stExpander"] summary svg { width: 1.2rem !important; height: 1.2rem !important; }
 
-/* 4. Inputs de tiempo limpios */
+/* Ocultar únicamente la flecha del primer selectbox (engranaje) y hacerlo compacto */
+div.block-container > div:first-child div[data-testid="stSelectbox"] [data-baseweb="select"] svg,
+div[data-testid="stVerticalBlock"] > div:first-child div[data-testid="stSelectbox"] [data-baseweb="select"] svg {
+    display: none !important;
+}
+div.block-container > div:first-child div[data-testid="stSelectbox"],
+div[data-testid="stVerticalBlock"] > div:first-child div[data-testid="stSelectbox"] {
+    max-width: 65px !important;
+}
+
 div[data-testid="stTimeInput"] input::-webkit-datetime-edit-hour-field:not([aria-valuenow]),
 div[data-testid="stTimeInput"] input::-webkit-datetime-edit-minute-field:not([aria-valuenow]),
 div[data-testid="stTimeInput"] input::-webkit-datetime-edit-text { color: transparent !important; }
@@ -107,22 +94,21 @@ div[data-testid="stTimeInput"] input:focus::-webkit-datetime-edit-text { color: 
 
 div[data-testid="stForm"] { border: none !important; padding: 0 !important; }
 
-/* 5. Estructura de Tabla Ultra Compacta (sin separaciones excesivas) */
 .tabla-resumen-header {
     display: flex;
     align-items: center;
     border-top: 1px solid #282d3c;
     border-bottom: 1px solid #282d3c;
-    padding: 6px 12px;
-    font-size: 0.75rem;
+    padding: 4px 2px;
+    font-size: 0.52rem;
     font-weight: 600;
     color: #838c9e;
-    letter-spacing: 0.3px;
+    letter-spacing: 0px;
     white-space: nowrap !important;
     margin-bottom: 0px !important;
+    overflow: hidden;
 }
 
-/* Reduccion estricta de la altura vertical de cada fila */
 div[data-testid="stVerticalBlock"]:has(> div > div[data-testid="element-container"] .fila-tabla-contenido),
 div[data-testid="stVerticalBlock"]:has(.fila-tabla-contenido) {
     gap: 0px !important;
@@ -152,8 +138,8 @@ div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) div[data-testid=
     display: flex;
     align-items: center;
     height: 36px;
-    padding: 0 12px;
-    font-size: 0.90rem;
+    padding: 0 4px;
+    font-size: 0.75rem;
     color: #ffffff;
     white-space: nowrap !important;
 }
@@ -165,19 +151,24 @@ div[data-testid="column"]:has(button:has(p:contains("✏️"))) {
     padding: 0 !important;
 }
 
-/* Boton lapiz nitido */
 button:has(p:contains("✏️")) {
-    height: 26px !important;
-    min-height: 26px !important;
-    width: 32px !important;
+    height: 22px !important;
+    min-height: 22px !important;
+    width: 26px !important;
     padding: 0 !important;
     background-color: #1a1e29 !important;
     border: 1px solid #2e3547 !important;
-    border-radius: 6px !important;
+    border-radius: 4px !important;
     margin: 0 auto !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+}
+button:has(p:contains("✏️")) div[data-testid="stMarkdownContainer"] p {
+    font-size: 11px !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 button:has(p:contains("✏️")) div[data-testid="stMarkdownContainer"] p {
@@ -191,7 +182,286 @@ button:has(p:contains("✏️")):hover {
     background-color: #262c3b !important;
     border-color: #40495f !important;
 }
-</style>""", unsafe_allow_html=True)
+
+/* Fijar el tamaño y diseño del botón de engranaje para que el zoom no lo deforme */
+div[data-testid="stSelectbox"]:has(input[aria-label="⚙️"]), 
+div[data-testid="stSelectbox"]:has(div[aria-label="⚙️"]) {
+    width: 60px !important;
+    min-width: 60px !important;
+}
+div[data-testid="stSelectbox"] div[data-baseweb="select"] {
+    background-color: #1a1e29 !important;
+    border: 1px solid #2e3547 !important;
+    border-radius: 6px !important;
+}
+
+div[data-testid="stSelectbox"]:has(input[aria-label="⚙️"]), 
+div[data-testid="stSelectbox"]:has(div[aria-label="⚙️"]),
+div.block-container > div:first-child div[data-testid="stSelectbox"] {
+    width: 55px !important;
+    max-width: 55px !important;
+    min-width: 55px !important;
+    height: 38px !important;
+}
+div[data-testid="stSelectbox"] div[data-baseweb="select"] {
+    width: 55px !important;
+    max-width: 55px !important;
+    height: 38px !important;
+    background-color: #1a1e29 !important;
+    border: 1px solid #2e3547 !important;
+    border-radius: 6px !important;
+}
+
+div[data-testid="stSelectbox"]:has(input[aria-label="⚙️"]), 
+div[data-testid="stSelectbox"]:has(div[aria-label="⚙️"]) {
+    min-width: 90px !important;
+}
+
+/* Forzar que los botones de Septiembre y Resumen se queden lado a lado en móviles */
+div[data-testid="stHorizontalBlock"]:has(button:has(p:contains("SEPTIEMBRE"))) {
+    flex-direction: row !important;
+}
+div[data-testid="stHorizontalBlock"]:has(button:has(p:contains("SEPTIEMBRE"))) > div[data-testid="column"] {
+    width: 50% !important;
+    flex: 1 1 50% !important;
+    min-width: 0 !important;
+}
+
+
+/* Forzar que los bloques horizontales de columnas nunca se apilen en dispositivos móviles */
+@media (max-width: 768px) {
+    div[data-testid="stHorizontalBlock"]:not(:has(.fila-tabla-contenido)) {
+        flex-direction: row !important;
+    }
+    div[data-testid="stHorizontalBlock"]:not(:has(.fila-tabla-contenido)) > div[data-testid="column"] {
+        width: 50% !important;
+        flex: 1 1 50% !important;
+        min-width: 0 !important;
+    }
+    /* Alineación correcta para la tabla de resumen: datos a la izquierda, botón de edición a la derecha */
+    div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+    div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) > div[data-testid="column"]:first-child {
+        width: 88% !important;
+        flex: 0 0 88% !important;
+    }
+    div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) > div[data-testid="column"]:last-child {
+        width: 10% !important;
+        flex: 0 0 10% !important;
+        display: flex !important;
+        justify-content: flex-end !important;
+    }
+}
+
+/* Ajustar métricas de horas para que no se corten en dispositivos móviles */
+@media (max-width: 768px) {
+    div[data-testid="stHorizontalBlock"]:has(div[data-testid="stMetric"]) {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+    div[data-testid="stHorizontalBlock"]:has(div[data-testid="stMetric"]) > div[data-testid="column"] {
+        width: 100% !important;
+        flex: 1 1 100% !important;
+    }
+}
+
+
+@media (max-width: 768px) {
+    div[data-testid="stHorizontalBlock"]:not(:has(.fila-tabla-contenido)) {
+        flex-direction: row !important;
+    }
+    div[data-testid="stHorizontalBlock"]:not(:has(.fila-tabla-contenido)) > div[data-testid="column"] {
+        width: 50% !important;
+        flex: 1 1 50% !important;
+        min-width: 0 !important;
+    }
+}
+
+/* Forzar que la fila de la tabla mantenga sus proporciones y el botón quede a la derecha */
+div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) > div[data-testid="column"]:first-child {
+    width: 88% !important;
+    flex: 0 0 88% !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) > div[data-testid="column"]:last-child {
+    width: 12% !important;
+    flex: 0 0 12% !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+}
+
+/* Ajuste de precisión para que la tabla no se rompa a 100% de zoom */
+div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) {
+    flex-wrap: nowrap !important;
+    width: 100% !important;
+    gap: 0px !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) > div[data-testid="column"] {
+    flex-shrink: 0 !important;
+}
+
+
+/* --- BOTÓN LÁPIZ COMPACTO --- */
+button:has(p:contains("✏️")) {
+    height: 24px !important;
+    min-height: 24px !important;
+    width: 28px !important;
+    min-width: 28px !important;
+    padding: 0 !important;
+    background-color: #1a1e29 !important;
+    border: 1px solid #2e3547 !important;
+    border-radius: 4px !important;
+    margin: 0 auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+button:has(p:contains("✏️")) div[data-testid="stMarkdownContainer"] p {
+    font-size: 11px !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+
+/* --- REDUCCIÓN REAL DEL BOTÓN LÁPIZ --- */
+div[data-testid="column"]:has(button:has(p:contains("✏️"))) {
+    max-width: 45px !important;
+    min-width: 45px !important;
+}
+div[data-testid="column"]:has(button:has(p:contains("✏️"))) button {
+    height: 24px !important;
+    min-height: 24px !important;
+    width: 28px !important;
+    min-width: 28px !important;
+    padding: 0px !important;
+    margin: 0px auto !important;
+}
+div[data-testid="column"]:has(button:has(p:contains("✏️"))) button p {
+    font-size: 11px !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+
+
+/* --- FORZAR TAMAÑO COMPACTO DEL LÁPIZ --- */
+div[data-testid="column"] button[kind="secondary"], 
+div[data-testid="column"] button {
+    height: 26px !important;
+    min-height: 26px !important;
+    max-height: 26px !important;
+    width: 32px !important;
+    min-width: 32px !important;
+    max-width: 32px !important;
+    padding: 0px !important;
+    margin: 0 auto !important;
+}
+div[data-testid="column"] button div[data-testid="stMarkdownContainer"] p {
+    font-size: 12px !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+
+
+/* --- ACHICAR LÁPIZ DE FORMA DEFINITIVA --- */
+div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) div[data-testid="column"] button {
+    all: unset !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background-color: #1a1e29 !important;
+    border: 1px solid #2e3547 !important;
+    border-radius: 4px !important;
+    width: 24px !important;
+    height: 22px !important;
+    min-width: 24px !important;
+    min-height: 22px !important;
+    cursor: pointer !important;
+    margin: 0 auto !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) div[data-testid="column"] button p {
+    font-size: 11px !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) div[data-testid="column"] button:hover {
+    background-color: #262c3b !important;
+    border-color: #40495f !important;
+}
+
+
+
+/* --- COMPACTAR CONTENEDOR DE BOTÓN EN TABLA --- */
+div[data-testid="column"]:has(button:has(p:contains("✏️"))) {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    padding: 0 !important;
+}
+div[data-testid="column"]:has(button:has(p:contains("✏️"))) div[data-testid="stButton"] {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+div[data-testid="column"]:has(button:has(p:contains("✏️"))) button {
+    height: 28px !important;
+    min-height: 28px !important;
+    width: 32px !important;
+    min-width: 32px !important;
+    padding: 0 !important;
+    background-color: #1a1e29 !important;
+    border: 1px solid #2e3547 !important;
+    border-radius: 6px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+div[data-testid="column"]:has(button:has(p:contains("✏️"))) button p {
+    font-size: 13px !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+
+
+/* --- RECORTE TOTAL DEL CONTENEDOR Y BOTÓN --- */
+div[data-testid="column"]:has(button:has(p:contains("✏️"))) {
+    max-width: 40px !important;
+    min-width: 40px !important;
+    padding: 0 !important;
+}
+div[data-testid="column"]:has(button:has(p:contains("✏️"))) div.stButton {
+    width: 32px !important;
+    height: 30px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+div[data-testid="column"]:has(button:has(p:contains("✏️"))) div.stButton > button {
+    width: 32px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    padding: 0 !important;
+    background-color: #1a1e29 !important;
+    border: 1px solid #2e3547 !important;
+    border-radius: 4px !important;
+}
+
+</style>
+""", unsafe_allow_html=True)
 
 SECRET_KEY = "control_de_horas_firmado_token_2026"
 
@@ -210,25 +480,6 @@ def verificar_token(token: str):
     except Exception:
         return None
     return None
-
-CLIENT_SECRETS_FILE = "client_secret.json"
-try:
-    with open(CLIENT_SECRETS_FILE, "r", encoding="utf-8") as f:
-        datos_oauth = json.load(f)
-        cfg = datos_oauth.get("web") or datos_oauth.get("installed")
-        CLIENT_ID = cfg["client_id"]
-        CLIENT_SECRET = cfg["client_secret"]
-except Exception as e:
-    st.error(f"Error al leer '{CLIENT_SECRETS_FILE}': {e}")
-    st.stop()
-
-# REDIRECT_URI dinámico para PC y Celular
-try:
-    host_actual = st.context.headers.get("Host", "localhost:8501")
-    proto = "https" if "streamlit.app" in host_actual else "http"
-    REDIRECT_URI = f"{proto}://{host_actual}"
-except Exception:
-    REDIRECT_URI = "http://localhost:8501"
 
 def conectar_libro(reintentos=3):
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
@@ -276,10 +527,24 @@ def cargar_obras():
         libro = conectar_libro()
         hoja_o = libro.worksheet("OBRAS")
         filas = hoja_o.get_all_values()[1:]
-        obras = [r[1].strip() for r in filas if len(r) > 1 and r[1].strip()]
-        return obras if obras else ["LOTE 1", "LOTE 4", "LOTE 11", "MONTESSORI"]
+        obras_brutas = [r[1].strip() for r in filas if len(r) > 1 and r[1].strip()]
+        
+        obras_unicas = []
+        vistas = set()
+        for o in obras_brutas:
+            if o.upper() not in vistas:
+                vistas.add(o.upper())
+                obras_unicas.append(o)
+                
+        lista_final = obras_unicas if obras_unicas else ["LOTE 1", "LOTE 4", "LOTE 11", "MONTESSORI"]
+        
+        for opc_especial in ["PERMISO", "NO TRABAJA"]:
+            if not any(o.upper() == opc_especial for o in lista_final):
+                lista_final.append(opc_especial)
+                
+        return lista_final
     except Exception:
-        return ["LOTE 1", "LOTE 4", "LOTE 11", "MONTESSORI"]
+        return ["LOTE 1", "LOTE 4", "LOTE 11", "MONTESSORI", "PERMISO", "NO TRABAJA"]
 
 FERIADOS = ["2026-09-18", "2026-09-19", "2026-09-20"]
 DIAS_MAP = {
@@ -310,90 +575,166 @@ def str_a_time(texto: str):
     except Exception:
         return None
 
-query_params = st.query_params
+def validar_usuario(correo_ingresado, password_ingresada):
+    try:
+        libro = conectar_libro()
+        hoja_t = libro.worksheet("TRABAJADORES")
+        registros = hoja_t.get_all_values()[1:]
+        
+        for fila in registros:
+            if len(fila) < 3:
+                continue
+            nombre = fila[0].strip()
+            correo_db = fila[1].strip()
+            password_db = fila[2].strip()
+            
+            if correo_ingresado.lower() == correo_db.lower() and password_ingresada == password_db:
+                return True, nombre
+                
+        return False, None
+    except Exception as e:
+        st.error(f"Error al conectar con la base de datos: {e}")
+        return False, None
 
-if "session" in query_params:
+query_params = st.query_params
+if "session" in query_params and not st.session_state.get("autenticado"):
     correo_token = verificar_token(query_params["session"])
     if correo_token:
-        st.session_state["user_email"] = correo_token
+        usuarios_map = cargar_trabajadores()
+        if correo_token.lower() in usuarios_map:
+            st.session_state["autenticado"] = True
+            st.session_state["user_email"] = correo_token.lower()
+            st.session_state["nombre_usuario"] = usuarios_map[correo_token.lower()]
 
-if "editar_dia" in query_params:
-    del query_params["editar_dia"]
+if "autenticado" not in st.session_state:
+    st.session_state.autenticado = False
+if "nombre_usuario" not in st.session_state:
+    st.session_state.nombre_usuario = ""
+if "user_email" not in st.session_state:
+    st.session_state.user_email = ""
+if "cambiando_password" not in st.session_state:
+    st.session_state.cambiando_password = False
 
-if "code" in query_params and "user_email" not in st.session_state:
-    auth_code = query_params["code"]
-    token_url = "https://oauth2.googleapis.com/token"
-    payload = {
-        "code": auth_code,
-        "client_id": CLIENT_ID,
-        "client_secret": CLIENT_SECRET,
-        "redirect_uri": REDIRECT_URI,
-        "grant_type": "authorization_code",
-    }
-    resp = requests.post(token_url, data=payload).json()
-
-    if "access_token" in resp:
-        info_resp = requests.get(
-            "https://www.googleapis.com/oauth2/v2/userinfo",
-            headers={"Authorization": f"Bearer {resp['access_token']}"}
-        ).json()
-        email_verificado = info_resp.get("email", "").lower().strip()
-        st.session_state["user_email"] = email_verificado
-        st.query_params["session"] = firmar_correo(email_verificado)
-        st.rerun()
-
-if not st.session_state.get("user_email"):
-    st.markdown("### ⏱️ Iniciar Sesión")
-    st.write("Accede con tu cuenta autorizada de Google:")
-    auth_params = {
-        "client_id": CLIENT_ID,
-        "redirect_uri": REDIRECT_URI,
-        "response_type": "code",
-        "scope": "openid email profile",
-        "prompt": "select_account",
-    }
-    login_url = f"https://accounts.google.com/o/oauth2/v2/auth?{urllib.parse.urlencode(auth_params)}"
-    boton_google = f'<a href="{login_url}" target="_self" style="display: block; max-width: 320px; background-color: #4285F4; color: white; text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">🔑 Continuar con Google</a>'
-    st.markdown(boton_google, unsafe_allow_html=True)
+if not st.session_state.autenticado:
+    st.title("🔐 Acceso a APP DE HORAS")
+    st.write("Por favor, ingresa tu correo electrónico y contraseña para continuar.")
+    
+    with st.form("form_login"):
+        correo_input = st.text_input("Correo Electrónico")
+        password_input = st.text_input("Contraseña (Número de Teléfono)", type="password")
+        submit_button = st.form_submit_button("Iniciar Sesión")
+        
+        if submit_button:
+            valido, nombre = validar_usuario(correo_input, password_input)
+            if valido:
+                st.session_state["autenticado"] = True
+                st.session_state["nombre_usuario"] = nombre
+                st.session_state["user_email"] = correo_input.lower()
+                st.query_params["session"] = firmar_correo(correo_input.lower())
+                st.success(f"¡Bienvenido, {nombre}!")
+                st.rerun()
+            else:
+                st.error("Correo o contraseña incorrectos. Verifica tus datos.")
 
 else:
     correo_google = st.session_state["user_email"]
     usuarios_autorizados = cargar_trabajadores()
     lista_obras = cargar_obras()
+    nombre_trabajador = st.session_state.nombre_usuario
+    hoja_usuario = obtener_hoja_trabajador(nombre_trabajador)
 
-    if correo_google not in usuarios_autorizados:
-        st.error(f"⛔ Acceso denegado: El correo '{correo_google}' no está en la nómina de trabajadores.")
-        if st.button("Intentar con otra cuenta"):
-            st.query_params.clear()
-            st.session_state.clear()
-            st.rerun()
-    else:
-        nombre_trabajador = usuarios_autorizados[correo_google]
-        hoja_usuario = obtener_hoja_trabajador(nombre_trabajador)
-
-        c_header, c_out = st.columns([5, 1], vertical_alignment="center")
-        with c_header:
-            st.markdown(f"### 👤 {nombre_trabajador}")
-        with c_out:
-            if st.button("🚪 Salir", use_container_width=True):
+    c_gear, _ = st.columns([2.0, 8.0])
+    with c_gear:
+        with st.popover("⚙️"):
+            st.markdown(f"**👤 {nombre_trabajador}**")
+            st.markdown("---")
+            if st.button("🔑 Cambiar Contraseña", use_container_width=True):
+                st.session_state.cambiando_password = True
+                st.rerun()
+            if st.button("🚪 Cerrar Sesión", use_container_width=True):
                 st.query_params.clear()
-                st.session_state.clear()
+                st.session_state.autenticado = False
+                st.session_state.nombre_usuario = ""
+                st.session_state.user_email = ""
+                st.session_state.cambiando_password = False
                 st.rerun()
 
+    if st.session_state.get("cambiando_password", False):
+        st.subheader("🔑 Cambiar Contraseña")
+        st.write("Ingresa tu contraseña actual y tu nueva contraseña.")
+        
+        with st.form("form_cambiar_pass"):
+            pass_actual = st.text_input("Contraseña Actual", type="password")
+            pass_nueva = st.text_input("Nueva Contraseña", type="password")
+            pass_confirmar = st.text_input("Confirmar Nueva Contraseña", type="password")
+            btn_guardar_pass = st.form_submit_button("Actualizar Contraseña")
+            
+            if btn_guardar_pass:
+                if pass_nueva != pass_confirmar:
+                    st.warning("⚠️ Las nuevas contraseñas no coinciden.")
+                elif not pass_actual or not pass_nueva:
+                    st.warning("⚠️ Todos los campos son obligatorios.")
+                else:
+                    try:
+                        libro = conectar_libro()
+                        hoja_t = libro.worksheet("TRABAJADORES")
+                        celdas = hoja_t.findall(correo_google)
+                        
+                        encontrado = False
+                        for celda in celdas:
+                            fila_idx = celda.row
+                            correo_en_tabla = hoja_t.cell(fila_idx, 2).value
+                            pass_en_tabla = hoja_t.cell(fila_idx, 3).value
+                            
+                            if correo_en_tabla and correo_en_tabla.strip().lower() == correo_google.lower():
+                                if pass_en_tabla.strip() == pass_actual.strip():
+                                    hoja_t.update_cell(fila_idx, 3, pass_nueva.strip())
+                                    encontrado = True
+                                    break
+                                else:
+                                    st.error("❌ La contraseña actual es incorrecta.")
+                                    encontrado = True
+                                    break
+                        if encontrado and pass_en_tabla.strip() == pass_actual.strip():
+                            st.success("✔ ¡Contraseña actualizada con éxito en la nube!")
+                            st.session_state.cambiando_password = False
+                            st.rerun()
+                    except Exception as e:
+                        st.error(f"Error al actualizar la contraseña: {e}")
+    else:
         if "vista_actual" not in st.session_state:
             st.session_state["vista_actual"] = "SEPTIEMBRE"
 
-        btn_col1, btn_col2 = st.columns(2)
-        with btn_col1:
-            if st.button("📅 SEPTIEMBRE", use_container_width=True,
-                         type="primary" if st.session_state["vista_actual"] == "SEPTIEMBRE" else "secondary"):
-                st.session_state["vista_actual"] = "SEPTIEMBRE"
-                st.session_state["dia_en_edicion"] = None
-                st.rerun()
-        with btn_col2:
-            if st.button("📊 RESUMEN DEL MES", use_container_width=True,
-                         type="primary" if st.session_state["vista_actual"] == "RESUMEN" else "secondary"):
-                st.session_state["vista_actual"] = "RESUMEN"
+        # Navegación lado a lado mediante Flexbox garantizado
+        is_sep = st.session_state["vista_actual"] == "SEPTIEMBRE"
+        bg_sep = "#ff4b4b" if is_sep else "#1a1e29"
+        border_sep = "#ff4b4b" if is_sep else "#2e3547"
+        bg_res = "#ff4b4b" if not is_sep else "#1a1e29"
+        border_res = "#ff4b4b" if not is_sep else "#2e3547"
+
+        session_actual = st.query_params.get("session", "")
+
+        st.markdown(f'''
+            <div style="display: flex; gap: 8px; width: 100%; margin-bottom: 1rem;">
+                <form action="" method="get" style="flex: 1; margin: 0;">
+                    <input type="hidden" name="session" value="{session_actual}">
+                    <button type="submit" name="nav_vista" value="SEPTIEMBRE" style="width: 100%; background-color: {bg_sep}; border: 1px solid {border_sep}; color: white; padding: 0.6rem 0.2rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.82rem; white-space: nowrap; cursor: pointer;">📅 SEPTIEMBRE 2026</button>
+                </form>
+                <form action="" method="get" style="flex: 1; margin: 0;">
+                    <input type="hidden" name="session" value="{session_actual}">
+                    <button type="submit" name="nav_vista" value="RESUMEN" style="width: 100%; background-color: {bg_res}; border: 1px solid {border_res}; color: white; padding: 0.6rem 0.2rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.82rem; white-space: nowrap; cursor: pointer;">📊 RESUMEN DEL MES</button>
+                </form>
+            </div>
+        ''', unsafe_allow_html=True)
+
+        q_params = st.query_params
+        if "nav_vista" in q_params:
+            val_nav = q_params["nav_vista"]
+            if val_nav in ["SEPTIEMBRE", "RESUMEN"] and st.session_state["vista_actual"] != val_nav:
+                st.session_state["vista_actual"] = val_nav
+                if val_nav == "SEPTIEMBRE":
+                    st.session_state["dia_en_edicion"] = None
+                del st.query_params["nav_vista"]
                 st.rerun()
 
         st.markdown("---")
@@ -429,46 +770,47 @@ else:
             obra_val = r[6] if len(r) > 6 else ""
 
             dict_por_dia[num_dia] = {
-                "entrada": entrada,
-                "salida": salida,
-                "hn": hn_val,
-                "hr": hr_val,
-                "obra": obra_val
+                "entrada": entrada, "salida": salida,
+                "hn": hn_val, "hr": hr_val, "obra": obra_val
             }
 
             def a_minutos(txt):
-                if not txt:
-                    return 0
+                if not txt: return 0
                 t = str(txt).strip()
                 if ":" in t:
                     p = t.split(":")
                     return int(float(p[0])) * 60 + int(float(p[1]))
                 return int(round(float(t.replace(",", ".")) * 60))
 
-            try:
-                total_hn += a_minutos(hn_val)
-            except Exception:
-                pass
-            try:
-                total_hr += a_minutos(hr_val)
-            except Exception:
-                pass
+            try: total_hn += a_minutos(hn_val)
+            except Exception: pass
+            try: total_hr += a_minutos(hr_val)
+            except Exception: pass
 
             if entrada or salida or obra_val:
                 registros_tabla.append({
-                    "DÍA": num_dia,
-                    "ENTRADA": entrada,
-                    "SALIDA": salida,
-                    "HORA EXTRA": hn_val,
-                    "HORA RECARGO": hr_val,
-                    "OBRA": obra_val
+                    "DÍA": num_dia, "ENTRADA": entrada, "SALIDA": salida,
+                    "HORA EXTRA": hn_val, "HORA RECARGO": hr_val, "OBRA": obra_val
                 })
 
         if st.session_state["vista_actual"] == "SEPTIEMBRE":
-            st.subheader("MES DE SEPTIEMBRE 2026")
-            c1, c2 = st.columns(2)
-            c1.metric("Total Horas Extras (Mes)", minutos_a_hora_str(total_hn))
-            c2.metric("Total Horas Recargo (Mes)", minutos_a_hora_str(total_hr))
+            st.subheader("SEPTIEMBRE 2026")
+            
+            val_hn_str = minutos_a_hora_str(total_hn)
+            val_hr_str = minutos_a_hora_str(total_hr)
+            html_cards = f'''
+            <div style="display: flex; gap: 10px; width: 100%; margin-bottom: 1rem;">
+                <div style="flex: 1; min-width: 0; background-color: #0e1117; border: 1px solid #262d3d; border-radius: 8px; padding: 14px;">
+                    <div style="font-size: 0.68rem; color: #838c9e; margin-bottom: 4px; font-weight: 500; white-space: nowrap;">Total Horas Extras (Mes)</div>
+                    <div style="font-size: 1.6rem; font-weight: 700; color: #ffffff; white-space: nowrap;">{val_hn_str}</div>
+                </div>
+                <div style="flex: 1; min-width: 0; background-color: #0e1117; border: 1px solid #262d3d; border-radius: 8px; padding: 14px;">
+                    <div style="font-size: 0.68rem; color: #838c9e; margin-bottom: 4px; font-weight: 500; white-space: nowrap;">Total Horas Recargo (Mes)</div>
+                    <div style="font-size: 1.6rem; font-weight: 700; color: #ffffff; white-space: nowrap;">{val_hr_str}</div>
+                </div>
+            </div>
+            '''
+            st.markdown(html_cards, unsafe_allow_html=True)
             st.markdown("---")
 
             dias_pendientes = []
@@ -487,7 +829,7 @@ else:
                     fecha_iso = f.strftime("%Y-%m-%d")
                     es_festivo = fecha_iso in FERIADOS
 
-                    espacio_relleno = " " * (9 - len(nom_dia))
+                    espacio_relleno = " " * (9 - len(nom_dia))
                     dia_base = f"{nom_dia}{espacio_relleno} | {num_dia:02d}"
 
                     if es_festivo or f.weekday() == 6:
@@ -509,7 +851,7 @@ else:
                             with c_sal:
                                 inp_sal = st.time_input("Salida", value=None, key=f"s_{num_dia}")
                             with c_ob:
-                                inp_ob = st.selectbox("Obra", options=lista_obras, index=None, placeholder="Seleccionar obra...", key=f"o_{num_dia}")
+                                inp_ob = st.selectbox("Obra / Estado", options=lista_obras, index=None, placeholder="Seleccionar...", key=f"o_{num_dia}")
 
                             st.write("")
                             col_btn, _ = st.columns([1, 3])
@@ -517,17 +859,23 @@ else:
                                 guardar_btn = st.form_submit_button("💾 Guardar Registro", use_container_width=True)
 
                             if guardar_btn:
-                                if inp_ent is None or inp_sal is None or not inp_ob:
-                                    st.warning("⚠️ Debes ingresar Entrada, Salida y seleccionar la Obra.")
+                                es_especial = inp_ob and inp_ob.strip().upper() in ["PERMISO", "NO TRABAJA"]
+                                if not inp_ob:
+                                    st.warning("⚠️ Debes seleccionar una Obra o Estado.")
+                                elif not es_especial and (inp_ent is None or inp_sal is None):
+                                    st.warning("⚠️ Debes ingresar Entrada y Salida para las obras normales.")
                                 else:
                                     with st.spinner("Guardando en la planilla..."):
                                         try:
                                             fila_n = fila_segun_dia(num_dia)
-                                            ent_str = inp_ent.strftime("%H:%M")
-                                            sal_str = inp_sal.strftime("%H:%M")
-
-                                            hoja_usuario.update(f"C{fila_n}:D{fila_n}", [[ent_str, sal_str]], value_input_option="USER_ENTERED")
-                                            hoja_usuario.update(f"G{fila_n}", [[inp_ob]], value_input_option="USER_ENTERED")
+                                            if es_especial:
+                                                hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["-", "-"]], value_input_option="RAW")
+                                                hoja_usuario.update(f"G{fila_n}", [[inp_ob]], value_input_option="RAW")
+                                            else:
+                                                ent_str = inp_ent.strftime("%H:%M")
+                                                sal_str = inp_sal.strftime("%H:%M")
+                                                hoja_usuario.update(f"C{fila_n}:D{fila_n}", [[ent_str, sal_str]], value_input_option="USER_ENTERED")
+                                                hoja_usuario.update(f"G{fila_n}", [[inp_ob]], value_input_option="USER_ENTERED")
 
                                             if "filas_planilla" in st.session_state:
                                                 del st.session_state["filas_planilla"]
@@ -538,10 +886,24 @@ else:
                                             st.error(f"Error al guardar: {err}")
 
         elif st.session_state["vista_actual"] == "RESUMEN":
-            st.subheader(f"RESUMEN MENSUAL — {nombre_trabajador}")
-            m1, m2 = st.columns(2)
-            m1.metric("Total Horas Extras (Mes)", minutos_a_hora_str(total_hn))
-            m2.metric("Total Horas Recargo (Mes)", minutos_a_hora_str(total_hr))
+            st.subheader("RESUMEN MENSUAL")
+            
+            val_hn_str = minutos_a_hora_str(total_hn)
+            val_hr_str = minutos_a_hora_str(total_hr)
+            
+            html_cards_res = f"""
+            <div style="display: flex; gap: 10px; width: 100%; margin-bottom: 1rem;">
+                <div style="flex: 1; min-width: 0; background-color: #0e1117; border: 1px solid #262d3d; border-radius: 8px; padding: 14px;">
+                    <div style="font-size: 0.68rem; color: #838c9e; margin-bottom: 4px; font-weight: 500; white-space: nowrap;">Total Horas Extras (Mes)</div>
+                    <div style="font-size: 1.6rem; font-weight: 700; color: #ffffff; white-space: nowrap;">{val_hn_str}</div>
+                </div>
+                <div style="flex: 1; min-width: 0; background-color: #0e1117; border: 1px solid #262d3d; border-radius: 8px; padding: 14px;">
+                    <div style="font-size: 0.68rem; color: #838c9e; margin-bottom: 4px; font-weight: 500; white-space: nowrap;">Total Horas Recargo (Mes)</div>
+                    <div style="font-size: 1.6rem; font-weight: 700; color: #ffffff; white-space: nowrap;">{val_hr_str}</div>
+                </div>
+            </div>
+            """
+            st.markdown(html_cards_res, unsafe_allow_html=True)
             st.markdown("---")
 
             if "dia_en_edicion" not in st.session_state:
@@ -551,40 +913,39 @@ else:
                 st.markdown("""
                 <div class="tabla-resumen-header">
                     <span style="width: 7%;">DÍA</span>
-                    <span style="width: 12%;">ENTRADA</span>
-                    <span style="width: 12%;">SALIDA</span>
-                    <span style="width: 16%;">HORA EXTRA</span>
-                    <span style="width: 18%;">HORA RECARGO</span>
+                    <span style="width: 14%;">ENT</span>
+                    <span style="width: 14%;">SAL</span>
+                    <span style="width: 18%;">H.EXT</span>
+                    <span style="width: 18%;">H.REC</span>
                     <span style="width: 29%;">OBRA</span>
-                    <span style="width: 6%;"></span>
                 </div>
                 """, unsafe_allow_html=True)
 
                 for r in registros_tabla:
                     d = r["DÍA"]
-                    c_datos, c_btn = st.columns([9.2, 0.8], vertical_alignment="center")
+                    # Usamos una sola columna para evitar el desorden de columnas múltiples en móvil
+                    col_unica = st.container()
+                    with col_unica:
+                        c_dat, c_b = st.columns([0.88, 0.12], vertical_alignment="center")
+                        with c_dat:
+                            st.markdown(f"""
+                            <div class="fila-tabla-contenido">
+                                <span style="width: 8%; font-weight: bold;">{d}</span>
+                                <span style="width: 15%;">{r["ENTRADA"]}</span>
+                                <span style="width: 15%;">{r["SALIDA"]}</span>
+                                <span style="width: 18%;">{r["HORA EXTRA"]}</span>
+                                <span style="width: 18%;">{r["HORA RECARGO"]}</span>
+                                <span style="width: 26%;">{r["OBRA"]}</span>
+                            </div>
+                            """, unsafe_allow_html=True)
+                        with c_b:
+                            if st.button("✏️", key=f"btn_edit_{d}"):
+                                if st.session_state.get("dia_en_edicion") == d:
+                                    st.session_state["dia_en_edicion"] = None
+                                else:
+                                    st.session_state["dia_en_edicion"] = d
+                                st.rerun()
 
-                    with c_datos:
-                        st.markdown(f"""
-                        <div class="fila-tabla-contenido">
-                            <span style="width: 7.6%; font-weight: bold;">{d}</span>
-                            <span style="width: 13.0%;">{r["ENTRADA"]}</span>
-                            <span style="width: 13.0%;">{r["SALIDA"]}</span>
-                            <span style="width: 17.4%;">{r["HORA EXTRA"]}</span>
-                            <span style="width: 19.5%;">{r["HORA RECARGO"]}</span>
-                            <span style="width: 29.5%;">{r["OBRA"]}</span>
-                        </div>
-                        """, unsafe_allow_html=True)
-
-                    with c_btn:
-                        if st.button("✏️", key=f"btn_edit_{d}"):
-                            if st.session_state.get("dia_en_edicion") == d:
-                                st.session_state["dia_en_edicion"] = None
-                            else:
-                                st.session_state["dia_en_edicion"] = d
-                            st.rerun()
-
-                    # Formulario directo bajo el dia seleccionado, sin caja ni cartel intermedio
                     if st.session_state.get("dia_en_edicion") == d:
                         datos_d = dict_por_dia.get(d, {})
                         val_e = str_a_time(datos_d.get("entrada", ""))
@@ -599,7 +960,7 @@ else:
                             with c2e:
                                 edit_sal = st.time_input("Salida", value=val_s, key=f"rs_{d}")
                             with c3e:
-                                edit_ob = st.selectbox("Obra", options=lista_obras, index=idx_o, key=f"ro_{d}")
+                                edit_ob = st.selectbox("Obra / Estado", options=lista_obras, index=idx_o, key=f"ro_{d}")
 
                             st.write("")
                             b1, b2 = st.columns(2)
@@ -609,16 +970,22 @@ else:
                                 btn_borrar_edit = st.form_submit_button("🧹 Limpiar (volver a Septiembre)", use_container_width=True)
 
                             if btn_guardar_edit:
-                                if edit_ent is None or edit_sal is None or not edit_ob:
-                                    st.warning("⚠️ Debes completar Entrada, Salida y Obra.")
+                                es_especial_edit = edit_ob and edit_ob.strip().upper() in ["PERMISO", "NO TRABAJA"]
+                                if not edit_ob:
+                                    st.warning("⚠️ Debes seleccionar Obra o Estado.")
+                                elif not es_especial_edit and (edit_ent is None or edit_sal is None):
+                                    st.warning("⚠️ Debes completar Entrada y Salida.")
                                 else:
                                     with st.spinner("Actualizando planilla..."):
                                         fila_n = fila_segun_dia(d)
-                                        ent_str = edit_ent.strftime("%H:%M")
-                                        sal_str = edit_sal.strftime("%H:%M")
-
-                                        hoja_usuario.update(f"C{fila_n}:D{fila_n}", [[ent_str, sal_str]], value_input_option="USER_ENTERED")
-                                        hoja_usuario.update(f"G{fila_n}", [[edit_ob]], value_input_option="USER_ENTERED")
+                                        if es_especial_edit:
+                                            hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["-", "-"]], value_input_option="RAW")
+                                            hoja_usuario.update(f"G{fila_n}", [[edit_ob]], value_input_option="RAW")
+                                        else:
+                                            ent_str = edit_ent.strftime("%H:%M")
+                                            sal_str = edit_sal.strftime("%H:%M")
+                                            hoja_usuario.update(f"C{fila_n}:D{fila_n}", [[ent_str, sal_str]], value_input_option="USER_ENTERED")
+                                            hoja_usuario.update(f"G{fila_n}", [[edit_ob]], value_input_option="USER_ENTERED")
 
                                         if "filas_planilla" in st.session_state:
                                             del st.session_state["filas_planilla"]
@@ -639,9 +1006,3 @@ else:
 
             else:
                 st.info("Aún no tienes jornadas registradas en este mes.")
-
-            st.markdown("---")
-            if st.button("📅 Volver a Septiembre", use_container_width=True):
-                st.session_state["vista_actual"] = "SEPTIEMBRE"
-                st.session_state["dia_en_edicion"] = None
-                st.rerun()
