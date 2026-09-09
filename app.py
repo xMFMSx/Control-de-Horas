@@ -523,7 +523,23 @@ div[data-testid="stExpander"] div[data-baseweb="select"] {
 div[data-testid="stExpander"] div[data-baseweb="select"] > div {
     width: 100% !important;
 }
+
+/* --- CORREGIR TAMAÑO DE FUENTE EN EXPANSORES Y ANCHO DE SELECTOR --- */
+div[data-testid="stExpander"] summary p {
+    font-size: 0.82rem !important;
+    font-family: monospace !important;
+}
+div[data-testid="stExpander"] div[data-testid="stSelectbox"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+}
+div[data-testid="stExpander"] div[data-baseweb="select"] {
+    width: 100% !important;
+    max-width: 100% !important;
+}
 </style>
+
 
 
 
