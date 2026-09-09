@@ -491,18 +491,28 @@ div[data-testid="column"] button:has(p:contains("✏️")) p {
     padding: 0 !important;
 }
 
-/* --- CORREGIR ANCHO DEL MENÚ DESPLEGABLE (POPOVER) --- */
+
+/* --- AMPLIAR Y ALINEAR A LA IZQUIERDA EL MENÚ POPOVER --- */
 div[data-testid="stPopoverBody"] {
-    min-width: 220px !important;
+    min-width: 260px !important;
     width: max-content !important;
+    padding: 16px !important;
 }
-div[data-testid="stPopoverBody"] button {
+div[data-testid="stPopoverBody"] div.stButton > button {
     width: 100% !important;
-    white-space: nowrap !important;
-    height: 36px !important;
-    min-height: 36px !important;
+    max-width: 100% !important;
+    justify-content: flex-start !important;
+    padding-left: 14px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    margin: 4px 0 !important;
+}
+div[data-testid="stPopoverBody"] div.stButton > button p {
+    text-align: left !important;
+    font-size: 13px !important;
 }
 </style>
+
 
 
 
