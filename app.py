@@ -548,20 +548,22 @@ div[data-testid="stExpander"] summary p {
     }
 }
 
-/* --- CONTENER ENTRADA Y SALIDA DENTRO DEL EXPANSOR --- */
+
+/* --- FORZAR CONTENCIÓN DE COLUMNAS DE HORA EN MÓVILES --- */
 @media (max-width: 768px) {
     div[data-testid="stExpander"] div[data-testid="stHorizontalBlock"] {
-        flex-direction: row !important;
-        width: 100% !important;
-        box-sizing: border-box !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+        gap: 8px !important;
     }
     div[data-testid="stExpander"] div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
-        width: 50% !important;
-        flex: 1 1 50% !important;
+        max-width: 48% !important;
+        flex: 1 1 48% !important;
         min-width: 0 !important;
     }
 }
 </style>
+
 
 
 
