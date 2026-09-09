@@ -268,5 +268,26 @@ div[data-testid="stHorizontalBlock"]:has(button:has(p:contains("SEPTIEMBRE"))) >
         min-width: 100% !important;
     }
 }
+
+/* --- DISEÑO MÓVIL: ENTRADA, SALIDA Y OBRA --- */
+@media (max-width: 768px) {
+    div[data-testid="stExpander"] div[data-testid="stHorizontalBlock"] {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 8px !important;
+        width: 100% !important;
+    }
+    div[data-testid="stExpander"] div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+        flex: 1 1 50% !important;
+        max-width: 50% !important;
+        min-width: 0 !important;
+    }
+    div[data-testid="stExpander"] div[data-testid="stSelectbox"] {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 100% !important;
+    }
+}
 </style>
+
 
