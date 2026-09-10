@@ -73,10 +73,10 @@ div[data-testid="stHorizontalBlock"]:has(.marcador-fila) > div[data-testid="colu
 
 /* Solo afecta al lápiz, manteniendo a salvo el botón de Guardar Registro y el Menú */
 div[data-testid="stHorizontalBlock"]:has(.marcador-fila) button {
-    height: 28px !important;
-    min-height: 28px !important;
-    width: 32px !important;
-    min-width: 32px !important;
+    height: 22px !important;
+    min-height: 22px !important;
+    width: 26px !important;
+    min-width: 26px !important;
     padding: 0 !important;
     background-color: #1a1e29 !important;
     border: 1px solid #2e3547 !important;
@@ -85,9 +85,10 @@ div[data-testid="stHorizontalBlock"]:has(.marcador-fila) button {
     align-items: center !important;
     justify-content: center !important;
     margin: 0 auto !important;
+    transform: translateY(4px) !important; /* MAGIA: Lo baja 4 píxeles para centrarlo */
 }
 div[data-testid="stHorizontalBlock"]:has(.marcador-fila) button p {
-    font-size: 12px !important;
+    font-size: 10px !important;
     margin: 0 !important;
     padding: 0 !important;
 }
