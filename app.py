@@ -18,9 +18,9 @@ st.set_page_config(
 )
 
 st.markdown("""<style>
-/* FORZAR ESCALA GLOBAL AL 80% */
+/* Quitamos el zoom forzado para que la app corra a escala 100% natural */
 html {
-    zoom: 80% !important;
+    zoom: 100% !important;
 }
 
 /* Ocultar UI nativa de Streamlit */
@@ -30,15 +30,16 @@ div[data-testid="stToolbar"] { visibility: hidden !important; }
 footer { visibility: hidden !important; }
 div[data-testid="stDecoration"] { display: none !important; }
 
-/* Solución definitiva al corte de pantalla: Scroll fluido y espacio gigante abajo */
-.main {
+/* SOLUCIÓN DEFINITIVA AL CORTE INFERIOR: Scroll fluido total en la vista */
+html, body, [data-testid="stAppViewContainer"] {
     overflow-y: auto !important;
+    height: 100% !important;
 }
 
 .block-container { 
     max-width: 95% !important; 
     padding: 1.5rem !important; 
-    padding-bottom: 20rem !important; 
+    padding-bottom: 15rem !important; 
 }
 
 div[data-testid="stForm"] { 
@@ -75,25 +76,25 @@ div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
     background-color: #222634 !important;
 }
 
-/* Proporciones exactas: Tabla izquierda (88%), Botón derecha (12%) */
+/* Proporciones exactas: Tabla izquierda (89%), Botón derecha (11%) para alinear el lápiz */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
-    flex: 0 0 88% !important;
-    max-width: 88% !important;
+    flex: 0 0 89% !important;
+    max-width: 89% !important;
     min-width: 0 !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child {
-    flex: 0 0 12% !important;
-    max-width: 12% !important;
+    flex: 0 0 11% !important;
+    max-width: 11% !important;
     display: flex !important; 
     align-items: center !important; 
     justify-content: center !important;
     border-left: 1px solid #353b4d !important;
 }
 
-/* Estructura interna de la tabla de 6 columnas */
+/* Estructura interna de la tabla: Columnas ajustadas milimétricamente para escala normal */
 .contenedor-tabla {
     display: grid !important;
-    grid-template-columns: 8% 16% 16% 16% 16% 28% !important;
+    grid-template-columns: 8% 15% 15% 15% 15% 32% !important;
     width: 100% !important;
     align-items: center !important;
     box-sizing: border-box !important;
@@ -646,7 +647,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-        # --- VISTA 2: RESUMEN MENSUAL CON BOTÓN ALINEADO Y SIN CORTE ---
+        # --- VISTA 2: RESUMEN MENSUAL CON ESCALA NATURAL Y SCROLL FLUIDO ---
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
@@ -673,7 +674,7 @@ else:
 
             if registros_tabla:
                 # --- ENCABEZADO SINCRONIZADO ---
-                c_h1, c_h2 = st.columns([0.88, 0.12], vertical_alignment="center")
+                c_h1, c_h2 = st.columns([0.89, 0.11], vertical_alignment="center")
                 with c_h1:
                     st.markdown('''
                     <div class="contenedor-tabla es-encabezado">
@@ -688,7 +689,7 @@ else:
                 with c_h2:
                     pass
 
-                # --- FILAS DE DATOS CON BOTÓN LÁPIZ LIMPIO ---
+                # --- FILAS DE DATOS ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     
@@ -709,7 +710,7 @@ else:
                     else:
                         dia_html = str(d)
 
-                    c_dat, c_b = st.columns([0.88, 0.12], vertical_alignment="center")
+                    c_dat, c_b = st.columns([0.89, 0.11], vertical_alignment="center")
                     
                     with c_dat:
                         hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
