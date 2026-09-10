@@ -89,7 +89,7 @@ div.stElementContainer:has(div[data-testid="stHorizontalBlock"]:has(.fila-datos)
     margin-bottom: 0px !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
-    margin-top: -20px !important; /* <--- AHORA SÍ: Esto tira de la fila completa hacia arriba */
+    margin-top: -14px !important; /* <--- AHORA SÍ: Esto tira de la fila completa hacia arriba */
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
