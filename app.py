@@ -96,9 +96,9 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
     gap: 0px !important; 
     border-bottom: 1px solid #1c202a !important;
     padding-top: 6px !important;
-    padding-bottom: -10px !important;
+    padding-bottom: 0px !important;
     width: 100% !important;
-    min-height: 16px !important;
+    min-height: 20px !important;
 }
 
 /* Forzar anchos mínimos exactos anti-móvil */
@@ -133,7 +133,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdow
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"] p {
     margin: 0 !important;
     padding: 0 !important;
-    line-height: 28px !important; 
+    line-height: 24px !important; 
     transform: none !important; /* Limpiamos cualquier empuje extraño */
 }
 
