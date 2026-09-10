@@ -347,7 +347,42 @@ div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) button p {
     overflow: visible !important;
     white-space: nowrap !important;
 }
+
+/* --- CSS GRID DEFINITIVO (SIN CONFLICTOS INLINE) --- */
+.tabla-resumen-header {
+    display: grid !important;
+    grid-template-columns: 8% 16% 16% 17% 17% 26% !important;
+    align-items: center !important;
+    border-top: 1px solid #282d3c !important;
+    border-bottom: 1px solid #282d3c !important;
+    padding: 6px 4px !important;
+    font-size: 0.55rem !important;
+    font-weight: 600 !important;
+    color: #838c9e !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.fila-tabla-contenido {
+    display: grid !important;
+    grid-template-columns: 8% 16% 16% 17% 17% 26% !important;
+    align-items: center !important;
+    height: 36px !important;
+    padding: 0 4px !important;
+    font-size: 0.70rem !important;
+    color: #ffffff !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.tabla-resumen-header span, .fila-tabla-contenido span {
+    text-align: left !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
 </style>
+
 
 
 
@@ -839,11 +874,11 @@ else:
                 st.markdown("""
                 <div class="tabla-resumen-header">
                     <span style="width: 8%;">DÍA</span>
-                    <span style="width: 16%;">ENTRADA</span>
-                    <span style="width: 16%;">SALIDA</span>
-                    <span style="width: 17%;">H.NORMAL</span>
-                    <span style="width: 17%;">H.RECARGO</span>
-                    <span style="width: 26%;">OBRA</span>
+                    <span style="">ENTRADA</span>
+                    <span style="">SALIDA</span>
+                    <span style="">H.NORMAL</span>
+                    <span style="">H.RECARGO</span>
+                    <span style="">OBRA</span>
                 </div>
                 """, unsafe_allow_html=True)
 
@@ -855,12 +890,12 @@ else:
                         with c_dat:
                             st.markdown(f"""
                             <div class="fila-tabla-contenido">
-                                <span style="width: 8%; font-weight: bold;">{d}</span>
-                                <span style="width: 16%;">{r["ENTRADA"]}</span>
-                                <span style="width: 16%;">{r["SALIDA"]}</span>
-                                <span style="width: 17%;">{r["HORA EXTRA"]}</span>
-                                <span style="width: 17%;">{r["HORA RECARGO"]}</span>
-                                <span style="width: 26%;">{r["OBRA"]}</span>
+                                <span style="font-weight: bold;">{d}</span>
+                                <span style="">{r["ENTRADA"]}</span>
+                                <span style="">{r["SALIDA"]}</span>
+                                <span style="">{r["HORA EXTRA"]}</span>
+                                <span style="">{r["HORA RECARGO"]}</span>
+                                <span style="">{r["OBRA"]}</span>
                             </div>
                             """, unsafe_allow_html=True)
                         with c_b:
