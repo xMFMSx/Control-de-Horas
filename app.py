@@ -50,132 +50,87 @@ div[data-testid="stForm"] {
     margin-bottom: 1rem !important;
 }
 
-/* --- ESTILOS DE TEXTO (Para que la tabla luzca bien) --- */
-.datos-encabezado {
-    font-size: 0.65rem !important;
-    color: #838c9e !important;
-    font-weight: 600 !important;
+/* ========================================================
+   DISEÑO DE TABLA CUADRICULADA ABSOLUTA
+   ======================================================== */
+
+/* 1. Unir las filas para formar un solo bloque sólido (Eliminar espacios ocultos) */
+div.element-container:has(> div[data-testid="stHorizontalBlock"]:has(.marcador-tabla)),
+div.stElementContainer:has(> div[data-testid="stHorizontalBlock"]:has(.marcador-tabla)),
+div.element-container:has(> div[data-testid="stHorizontalBlock"]:has(.marcador-tabla-header)),
+div.stElementContainer:has(> div[data-testid="stHorizontalBlock"]:has(.marcador-tabla-header)) {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
 }
 
-.fila-datos {
-    height: 28px !important; 
-    font-size: 0.95rem !important;
-    color: #ffffff !important;
-}
-
-.c-dia { font-weight: bold; }
-.c-ob { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-/* --- 1. CONTENEDORES DE SEPARACIÓN (Mantienen tu espacio vertical perfecto) --- */
-/* Contenedor del Encabezado */
-div[data-testid="stHorizontalBlock"]:has(.datos-encabezado) {
-    border-top: 1px solid #282d3c !important;
-    border-bottom: 1px solid #282d3c !important;
-    padding: 6px 0px !important;
-    margin-top: 10px !important;
-    margin-bottom: 24px !important;
-    gap: 0px !important;
-}
-
-/* Aniquila los márgenes invisibles de Streamlit para el encabezado */
-div.element-container:has(.datos-encabezado),
-div.stElementContainer:has(.datos-encabezado),
-div[data-testid="stMarkdownContainer"]:has(.datos-encabezado) p {
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-/* Contenedor de las Filas de Datos */
-div.element-container:has(div[data-testid="stHorizontalBlock"]:has(.fila-datos)),
-div.stElementContainer:has(div[data-testid="stHorizontalBlock"]:has(.fila-datos)) {
-    margin-top: -24px !important; 
-    margin-bottom: 0px !important;
-}
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
-    margin-top: -24px !important; 
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    align-items: center !important;
-    gap: 0px !important;
-    border-bottom: 1px solid #1c202a !important;
-    padding-top: 8px !important;
-    padding-bottom: 0px !important;
-    width: 100% !important;
-    min-height: 20px !important;
-}
-
-/* Forzar anchos mínimos de las columnas nativas de Streamlit (92% datos / 8% botón) */
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:first-child,
-div[data-testid="stHorizontalBlock"]:has(.datos-encabezado) > div[data-testid="column"]:first-child {
-    width: 92% !important;
-    min-width: 92% !important;
-    max-width: 92% !important;
-    flex: 0 0 92% !important;
-    padding-left: 0 !important;  
-    padding-right: 0 !important; 
-}
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:last-child,
-div[data-testid="stHorizontalBlock"]:has(.datos-encabezado) > div[data-testid="column"]:last-child {
-    width: 8% !important;
-    min-width: 8% !important;
-    max-width: 8% !important;
-    flex: 0 0 8% !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 0 !important; 
-}
-
-/* Alineación Vertical de Textos */
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="column"] > div[data-testid="stVerticalBlock"] {
+/* 2. Contenedor del Encabezado (Bordes gruesos y fondo oscuro) */
+div[data-testid="stHorizontalBlock"]:has(.marcador-tabla-header) {
     gap: 0 !important;
-    justify-content: center !important;
-}
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) div.stElementContainer,
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) div.element-container,
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"] {
-    margin: 0 !important;
-    padding: 0 !important;
-}
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"] p {
-    margin: 0 !important;
-    padding: 0 !important;
-    line-height: 28px !important; 
-    transform: none !important; 
+    background-color: #262d3d !important;
+    border-top: 1px solid #5a6586 !important;
+    border-left: 1px solid #5a6586 !important;
+    border-right: 1px solid #5a6586 !important;
+    border-bottom: 1px solid #5a6586 !important;
+    margin-top: 15px !important;
 }
 
-/* --- 2. DISEÑO DEL BOTÓN LÁPIZ Y EMOJI --- */
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stButton"] {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    margin: 0 !important;
-    padding: 0 !important;
+/* 3. Contenedor de las Filas de Datos (Bordes laterales y base) */
+div[data-testid="stHorizontalBlock"]:has(.marcador-tabla) {
+    gap: 0 !important;
+    background-color: #1a1e29 !important;
+    border-left: 1px solid #4a5573 !important;
+    border-right: 1px solid #4a5573 !important;
+    border-bottom: 1px solid #4a5573 !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) button {
+
+/* 4. Líneas verticales del Cuadriculado (Separación entre celdas) */
+div[data-testid="stHorizontalBlock"]:has(.marcador-tabla-header) > div[data-testid="column"],
+div[data-testid="stHorizontalBlock"]:has(.marcador-tabla) > div[data-testid="column"] {
+    border-right: 1px solid #3c445c !important; /* Línea divisoria central */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 2px !important;
+}
+
+/* Quitar la línea a la última celda (columna del Botón) */
+div[data-testid="stHorizontalBlock"]:has(.marcador-tabla-header) > div[data-testid="column"]:last-child,
+div[data-testid="stHorizontalBlock"]:has(.marcador-tabla) > div[data-testid="column"]:last-child {
+    border-right: none !important;
+}
+
+/* 5. Centrado y ajuste perfecto de los Textos de las Celdas */
+div[data-testid="stHorizontalBlock"]:has(.marcador-tabla-header) p,
+div[data-testid="stHorizontalBlock"]:has(.marcador-tabla) p {
+    margin-bottom: 0 !important;
+    text-align: center !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+/* 6. Diseño especial para el Botón de Lápiz dentro de la cuadrícula */
+div[data-testid="stHorizontalBlock"]:has(.marcador-tabla) button {
     height: 24px !important;
     min-height: 24px !important;
-    width: 24px !important;
-    min-width: 24px !important;
+    width: 28px !important;
     padding: 0 !important;
-    margin: 0 auto !important;
-    background-color: #1a1e29 !important;
-    border: 1px solid #2e3547 !important;
-    border-radius: 6px !important;
+    background-color: transparent !important;
+    border: 1px solid transparent !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    margin: 0 auto !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) button p {
-    font-size: 11px !important;
-    line-height: 1 !important; 
+div[data-testid="stHorizontalBlock"]:has(.marcador-tabla) button:hover {
+    background-color: #282d3c !important;
+    border: 1px solid #4a5573 !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.marcador-tabla) button p {
+    font-size: 13px !important;
     margin: 0 !important;
     padding: 0 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    transform: none !important; 
 }
 </style>""", unsafe_allow_html=True)
 
@@ -317,7 +272,7 @@ def validar_usuario(correo_ingresado, password_ingresada):
         st.error(f"Error al conectar con la base de datos: {e}")
         return False, None
 
-# --- SCRIPT DE PERSISTENCIA AUTOMÁTICA (LOCALSTORAGE) ---
+# --- SCRIPT DE PERSISTENCIA AUTOMÁTICA ---
 if not st.session_state.get("autenticado") and "session" not in st.query_params:
     st.components.v1.html("""
         <script>
@@ -652,44 +607,41 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # --- ENCABEZADO CON TABLA HTML (Evita estilos base de Streamlit) ---
-                c_h1, c_h2 = st.columns([0.92, 0.08], vertical_alignment="center")
-                with c_h1:
-                    st.markdown("""
-                    <div class="datos-encabezado" style="display: table; width: 100%; table-layout: fixed;">
-                        <div style="display: table-row;">
-                            <div style="display: table-cell; width: 8%; text-align: left;" class="c-dia">DÍA</div>
-                            <div style="display: table-cell; width: 16%; text-align: left;">ENTRADA</div>
-                            <div style="display: table-cell; width: 16%; text-align: left;">SALIDA</div>
-                            <div style="display: table-cell; width: 17%; text-align: left;">H.NORMAL</div>
-                            <div style="display: table-cell; width: 17%; text-align: left;">H.RECARGO</div>
-                            <div style="display: table-cell; width: 26%; text-align: left;">OBRA</div>
-                        </div>
-                    </div>
-                    """, unsafe_allow_html=True)
+                # ---------------------------------------------------------
+                # TABLA CUADRICULADA: Proporciones exactas de Columnas Nativas
+                # ---------------------------------------------------------
+                props = [0.8, 1.5, 1.5, 1.5, 1.5, 2.5, 0.7]
 
+                # --- 1. FILA DE ENCABEZADO ---
+                hc = st.columns(props, vertical_alignment="center")
+                
+                # El marcador-tabla-header inyecta la cuadrícula desde CSS
+                hc[0].markdown("<span class='marcador-tabla-header'></span><span style='font-size:0.7rem; font-weight:700; color:#a3adc2;'>DÍA</span>", unsafe_allow_html=True)
+                hc[1].markdown("<span style='font-size:0.7rem; font-weight:700; color:#a3adc2;'>ENTRADA</span>", unsafe_allow_html=True)
+                hc[2].markdown("<span style='font-size:0.7rem; font-weight:700; color:#a3adc2;'>SALIDA</span>", unsafe_allow_html=True)
+                hc[3].markdown("<span style='font-size:0.7rem; font-weight:700; color:#a3adc2;'>H.NORMAL</span>", unsafe_allow_html=True)
+                hc[4].markdown("<span style='font-size:0.7rem; font-weight:700; color:#a3adc2;'>H.RECARGO</span>", unsafe_allow_html=True)
+                hc[5].markdown("<span style='font-size:0.7rem; font-weight:700; color:#a3adc2;'>OBRA</span>", unsafe_allow_html=True)
+                hc[6].markdown("<span style='font-size:0.7rem; font-weight:700; color:#a3adc2;'> </span>", unsafe_allow_html=True)
+
+                # --- 2. FILAS DE DATOS ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
-                    c_dat, c_b = st.columns([0.92, 0.08], vertical_alignment="center")
+                    hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "-"
+                    hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "-"
+                    ob_val = r["OBRA"].strip() if r["OBRA"].strip() else "-"
                     
-                    with c_dat:
-                        hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
-                        hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
-                        
-                        # --- FILA DE DATOS CON LA MISMA TABLA EXACTA ---
-                        st.markdown(f"""
-                        <div class="fila-datos" style="display: table; width: 100%; table-layout: fixed;">
-                            <div style="display: table-row;">
-                                <div style="display: table-cell; width: 8%; text-align: left;" class="c-dia">{d}</div>
-                                <div style="display: table-cell; width: 16%; text-align: left;">{r["ENTRADA"]}</div>
-                                <div style="display: table-cell; width: 16%; text-align: left;">{r["SALIDA"]}</div>
-                                <div style="display: table-cell; width: 17%; text-align: left;">{hn_val}</div>
-                                <div style="display: table-cell; width: 17%; text-align: left;">{hr_val}</div>
-                                <div style="display: table-cell; width: 26%; text-align: left;" class="c-ob">{r["OBRA"]}</div>
-                            </div>
-                        </div>
-                        """, unsafe_allow_html=True)
-                    with c_b:
+                    dc = st.columns(props, vertical_alignment="center")
+                    
+                    # El marcador-tabla inyecta el borde y fondo de la cuadrícula
+                    dc[0].markdown(f"<span class='marcador-tabla'></span><span style='font-size:0.95rem; color:#ffffff; font-weight:bold;'>{d}</span>", unsafe_allow_html=True)
+                    dc[1].markdown(f"<span style='font-size:0.95rem; color:#ffffff;'>{r['ENTRADA']}</span>", unsafe_allow_html=True)
+                    dc[2].markdown(f"<span style='font-size:0.95rem; color:#ffffff;'>{r['SALIDA']}</span>", unsafe_allow_html=True)
+                    dc[3].markdown(f"<span style='font-size:0.95rem; color:#ffffff;'>{hn_val}</span>", unsafe_allow_html=True)
+                    dc[4].markdown(f"<span style='font-size:0.95rem; color:#ffffff;'>{hr_val}</span>", unsafe_allow_html=True)
+                    dc[5].markdown(f"<span style='font-size:0.95rem; color:#ffffff;'>{ob_val}</span>", unsafe_allow_html=True)
+                    
+                    with dc[6]:
                         if st.button("✏️", key=f"btn_edit_{d}"):
                             if st.session_state.get("dia_en_edicion") == d:
                                 st.session_state["dia_en_edicion"] = None
@@ -697,6 +649,7 @@ else:
                                 st.session_state["dia_en_edicion"] = d
                             st.rerun()
 
+                    # Lógica de edición integrada debajo de la fila cuadriculada
                     if st.session_state.get("dia_en_edicion") == d:
                         datos_d = dict_por_dia.get(d, {})
                         val_e = str_a_time(datos_d.get("entrada", ""))
