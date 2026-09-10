@@ -50,20 +50,23 @@ div[data-testid="stForm"] { border: none !important; padding: 0 !important; }
 /* --- COLAPSO DE FILAS (PEGA LAS FILAS COMO UNA TABLA REAL) --- */
 div.element-container:has(.encabezado-tabla),
 div.element-container:has(.fila-datos) {
-    margin-bottom: -1rem !important; /* Elimina el espacio gigante entre filas de Streamlit */
+    margin-bottom: -1rem !important; 
 }
 
-/* Espaciado para el formulario de edición para que no se superponga */
 div[data-testid="stForm"] {
     margin-top: 1.5rem !important;
     margin-bottom: 1rem !important;
 }
 
-/* --- ESTRUCTURA DE TABLA Y BORDES --- */
+/* --- ESTRUCTURA DE TABLA ANTI-MÓVILES --- */
 div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla),
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
+    display: flex !important;
+    flex-direction: row !important; /* MAGIA: Prohíbe que el botón se apile abajo en pantallas chicas */
+    flex-wrap: nowrap !important;   /* MAGIA: Prohíbe los saltos de línea */
     align-items: center !important;
     padding: 6px 0px !important;
+    gap: 0px !important;
 }
 
 /* Líneas divisorias */
@@ -89,8 +92,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"
     align-items: center !important;
 }
 
-/* --- MAGIA: CENTRADO VERTICAL DEL TEXTO --- */
-/* Elimina el margen de la etiqueta <p> y obliga al texto a medir 28px de alto */
+/* Centrado vertical del texto */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"] p,
 div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) div[data-testid="stMarkdownContainer"] p {
     margin: 0px !important;
@@ -327,7 +329,6 @@ if not st.session_state.autenticado:
                 token_firmado = firmar_correo(correo_input.lower())
                 st.query_params["session"] = token_firmado
                 
-                # Guardar en localStorage para la persistencia definitiva
                 st.components.v1.html(f"""
                     <script>
                         localStorage.setItem('control_horas_token', '{token_firmado}');
