@@ -48,12 +48,10 @@ div[data-testid="stExpander"] summary svg { width: 1.2rem !important; height: 1.
 div[data-testid="stForm"] { border: none !important; padding: 0 !important; }
 
 /* --- ELIMINAR EL ESPACIO GIGANTE ENTRE FILAS --- */
-/* Esta regla funciona como un imán, pegando cada fila de datos a la de arriba */
 div.element-container:has(.fila-datos) {
     margin-top: -16px !important; 
 }
 
-/* Espacio seguro para el formulario de edición */
 div[data-testid="stForm"] {
     margin-top: 1.5rem !important;
     margin-bottom: 1rem !important;
@@ -66,8 +64,8 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     align-items: center !important;
-    gap: 0px !important; /* Elimina huecos horizontales */
-    min-height: 40px !important; /* Altura uniforme para toda la fila */
+    gap: 0px !important; 
+    min-height: 40px !important; 
 }
 
 /* Bordes finos */
@@ -95,7 +93,6 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"
 }
 
 /* --- TEXTOS Y BOTÓN MILIMÉTRICAMENTE ALINEADOS --- */
-/* Textos a 28px de alto */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"] p,
 div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) div[data-testid="stMarkdownContainer"] p {
     margin: 0px !important;
@@ -103,7 +100,6 @@ div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) div[data-testid="stM
     line-height: 28px !important; 
 }
 
-/* Clases Flexbox para distribuir los datos de forma inamovible */
 .encabezado-tabla {
     display: flex !important;
     width: 100% !important;
@@ -123,7 +119,7 @@ div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) div[data-testid="stM
     align-items: center !important;
 }
 
-/* Lápiz a 28px de alto (mismo eje que el texto) */
+/* Lápiz a 28px de alto */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) button {
     height: 28px !important;
     min-height: 28px !important;
@@ -633,8 +629,8 @@ else:
                     </div>
                     """, unsafe_allow_html=True)
 
-                # Eliminamos el st.container() que generaba el espacio gigante
                 for r in registros_tabla:
+                    d = r["DÍA"] # AQUÍ ESTABA EL ERROR, ¡RESTURADO!
                     c_dat, c_b = st.columns([0.92, 0.08])
                     with c_dat:
                         hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
