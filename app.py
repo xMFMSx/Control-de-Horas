@@ -546,7 +546,51 @@ div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) button p {
     overflow: visible !important;
     white-space: nowrap !important;
 }
+
+/* --- TABLA RÍGIDA (LAS CELDAS VACÍAS NO COLAPSAN) --- */
+.tabla-resumen-header {
+    display: flex !important;
+    width: 100% !important;
+    align-items: center !important;
+    border-top: 1px solid #282d3c !important;
+    border-bottom: 1px solid #282d3c !important;
+    padding: 8px 4px !important;
+    font-size: 0.65rem !important; /* Fuente más legible */
+    font-weight: 700 !important;
+    color: #a0aab8 !important;
+    box-sizing: border-box !important;
+}
+
+.fila-tabla-contenido {
+    display: flex !important;
+    width: 100% !important;
+    align-items: center !important;
+    height: 38px !important;
+    padding: 0 4px !important;
+    font-size: 0.72rem !important;
+    color: #ffffff !important;
+    box-sizing: border-box !important;
+}
+
+/* El secreto: inline-block y min-height evitan que la celda desaparezca si está vacía */
+.tabla-resumen-header span, .fila-tabla-contenido span {
+    display: inline-block !important;
+    min-height: 18px !important; 
+    text-align: left !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+}
+
+/* Anchos fijos e inamovibles para cada columna */
+.tabla-resumen-header span:nth-child(1), .fila-tabla-contenido span:nth-child(1) { flex: 0 0 8% !important; max-width: 8% !important; }
+.tabla-resumen-header span:nth-child(2), .fila-tabla-contenido span:nth-child(2) { flex: 0 0 16% !important; max-width: 16% !important; }
+.tabla-resumen-header span:nth-child(3), .fila-tabla-contenido span:nth-child(3) { flex: 0 0 16% !important; max-width: 16% !important; }
+.tabla-resumen-header span:nth-child(4), .fila-tabla-contenido span:nth-child(4) { flex: 0 0 17% !important; max-width: 17% !important; }
+.tabla-resumen-header span:nth-child(5), .fila-tabla-contenido span:nth-child(5) { flex: 0 0 17% !important; max-width: 17% !important; }
+.tabla-resumen-header span:nth-child(6), .fila-tabla-contenido span:nth-child(6) { flex: 0 0 26% !important; max-width: 26% !important; }
 </style>
+
 
 
 
