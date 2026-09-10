@@ -47,22 +47,20 @@ div[data-testid="stExpander"] summary p {
 div[data-testid="stExpander"] summary svg { width: 1.2rem !important; height: 1.2rem !important; }
 div[data-testid="stForm"] { border: none !important; padding: 0 !important; }
 
-/* --- ELIMINAR EL ESPACIO GIGANTE ENTRE FILAS Y ENCABEZADO --- */
-div.element-container:has(.encabezado-tabla) {
-    margin-bottom: -38px !important; /* Succión máxima inferior para cerrar el hueco visible */
-}
-div.element-container:has(.fila-datos) {
-    margin-top: -20px !important; /* Succión superior para anclarse al encabezado */
-    margin-bottom: -15px !important; 
+/* --- 1. DESTRUIR EL ESPACIO GIGANTE (CRÁTER) ENTRE FILAS --- */
+/* Ahora ataca tanto la versión antigua como la nueva de Streamlit (.stElementContainer) */
+.element-container:has(.fila-datos),
+.stElementContainer:has(.fila-datos) {
+    margin-top: -1rem !important; /* Succiona cada fila hacia arriba para pegarla como bloque */
 }
 
-/* Espacio seguro para el formulario de edición */
+/* Espacio seguro para el formulario de edición cuando se abra */
 div[data-testid="stForm"] {
     margin-top: 1.5rem !important;
     margin-bottom: 1rem !important;
 }
 
-/* --- ESTRUCTURA DE TABLA, BORDES Y PROPORCIONES --- */
+/* --- 2. ESTRUCTURA Y BORDES --- */
 div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla),
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
     display: flex !important;
@@ -73,65 +71,49 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
     min-height: 40px !important; 
 }
 
-/* Bordes finos */
 div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) {
     border-bottom: 1px solid #282d3c !important;
     border-top: 1px solid #282d3c !important;
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
     border-bottom: 1px solid #1c202a !important;
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
 }
 
-/* Distribución exacta: 92% para textos, 8% para el botón */
+/* --- 3. ALINEACIÓN VERTICAL TEXTO VS BOTÓN --- */
+/* Destruye el margen invisible de los textos que los hacía flotar hacia arriba */
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) p,
+div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) p {
+    margin: 0px !important;
+    padding: 0px !important;
+    line-height: 28px !important; /* Obliga al texto a tener exactamente la misma altura del botón */
+}
+
+.encabezado-tabla, .fila-datos {
+    display: flex !important;
+    width: 100% !important;
+    height: 28px !important; /* Eje central fijo */
+    align-items: center !important;
+}
+
+.encabezado-tabla { font-size: 0.65rem !important; color: #838c9e !important; font-weight: 600 !important; }
+.fila-datos { font-size: 0.75rem !important; color: #ffffff !important; }
+
+/* Distribución horizontal estricta */
 div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) > div[data-testid="column"]:first-child,
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:first-child {
-    width: 92% !important;
-    flex: 0 0 92% !important;
+    width: 92% !important; flex: 0 0 92% !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) > div[data-testid="column"]:last-child,
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:last-child {
-    width: 8% !important;
-    flex: 0 0 8% !important;
-    display: flex !important;
-    align-items: center !important;
+    width: 8% !important; flex: 0 0 8% !important;
+    display: flex !important; align-items: center !important; justify-content: center !important;
 }
 
-/* --- ALINEACIÓN VERTICAL PERFECTA (RESTAURO EL CENTRADO PERDIDO) --- */
-div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) > div[data-testid="column"],
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"] {
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-}
-
-/* --- TEXTOS Y BOTÓN MILIMÉTRICAMENTE ALINEADOS --- */
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"] p,
-div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) div[data-testid="stMarkdownContainer"] p {
-    margin: 0px !important;
-    padding: 0px !important;
-    line-height: 28px !important; 
-}
-
-.encabezado-tabla {
-    display: flex !important;
-    width: 100% !important;
-    height: 28px !important;
-    font-size: 0.65rem !important;
-    color: #838c9e !important;
-    font-weight: 600 !important;
-    align-items: center !important;
-}
-
-.fila-datos {
-    display: flex !important;
-    width: 100% !important;
-    height: 28px !important;
-    font-size: 0.75rem !important;
-    color: #ffffff !important;
-    align-items: center !important;
-}
-
-/* Lápiz a 28px de alto */
+/* --- 4. DISEÑO DEL BOTÓN LÁPIZ (28x28px y Centrado Absoluto) --- */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) button {
     height: 28px !important;
     min-height: 28px !important;
@@ -147,10 +129,8 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) button {
     justify-content: center !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) button p {
-    font-size: 13px !important;
+    font-size: 14px !important;
     line-height: 1 !important;
-    margin: 0 !important;
-    padding: 0 !important;
 }
 </style>""", unsafe_allow_html=True)
 
@@ -627,7 +607,6 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # --- ENCABEZADO ---
                 col_h1, col_h2 = st.columns([0.92, 0.08])
                 with col_h1:
                     st.markdown("""
@@ -648,7 +627,6 @@ else:
                         hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
                         hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
                         
-                        # --- FILA DE DATOS ---
                         st.markdown(f"""
                         <div class="fila-datos">
                             <div style="flex: 0 0 8%; font-weight: bold;">{d}</div>
