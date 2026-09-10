@@ -78,15 +78,14 @@ div[data-testid="stMarkdownContainer"]:has(.encabezado-puro) p {
 }
 div.element-container:has(.encabezado-puro),
 div.stElementContainer:has(.encabezado-puro) {
-    margin-bottom: -18px !important;
+    margin-bottom: -16px !important;
 }
 
-/* --- 2. FILAS DE DATOS (Bloqueo Anti-Móvil) --- */
-/* Succionar las filas hacia arriba para que no haya espacios */
+/* --- 2. FILAS DE DATOS Y COLUMNAS --- */
 div.element-container:has(.fila-datos),
 div.stElementContainer:has(.fila-datos) {
-    margin-top: -10px !important;
-    margin-bottom: -10px !important;
+    margin-top: -16px !important;
+    margin-bottom: -16px !important; /* Mantiene unidas las filas */
 }
 
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
@@ -96,23 +95,22 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
     align-items: center !important;
     gap: 0px !important; 
     border-bottom: 1px solid #1c202a !important;
-    padding-top: 4px !important;
-    padding-bottom: 4px !important;
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
     width: 100% !important;
+    min-height: 40px !important;
 }
 
-/* MAGIA: Forzar anchos mínimos para que el botón jamás caiga a la línea de abajo */
+/* Forzar anchos mínimos exactos anti-móvil */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:first-child {
     width: 92% !important;
-    min-width: 92% !important; /* Bloquea el modo móvil de Streamlit */
+    min-width: 92% !important;
     max-width: 92% !important;
     flex: 0 0 92% !important;
-    display: flex !important;
-    align-items: center !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:last-child {
     width: 8% !important;
-    min-width: 8% !important; /* Bloquea el modo móvil de Streamlit */
+    min-width: 8% !important;
     max-width: 8% !important;
     flex: 0 0 8% !important;
     display: flex !important;
@@ -120,31 +118,39 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"
     justify-content: center !important;
 }
 
-/* --- 3. ALINEACIÓN VERTICAL TEXTOS --- */
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"] p {
-    margin: 0px !important;
-    padding: 0px !important;
-    line-height: 28px !important; 
+/* --- 3. ALINEACIÓN VERTICAL PERFECTA (ANIQUILAR MÁRGENES FANTASMA) --- */
+/* Destruye todos los márgenes que Streamlit inyecta en las capas ocultas para evitar que el texto flote */
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="column"] > div[data-testid="stVerticalBlock"] {
+    gap: 0 !important;
+    justify-content: center !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) div.stElementContainer,
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) div.element-container,
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"],
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"] > p,
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stButton"] {
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 .fila-datos {
     display: flex !important;
     width: 100% !important;
-    height: 28px !important;
+    height: 28px !important; /* Altura matemáticamente idéntica al botón */
     font-size: 0.75rem !important;
     color: #ffffff !important;
     align-items: center !important;
 }
 
-/* --- 4. DISEÑO DEL BOTÓN LÁPIZ Y EMOJI --- */
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stButton"] {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
+/* Proporciones de las celdas de texto */
+.c-dia { flex: 0 0 8%; font-weight: bold; }
+.c-ent { flex: 0 0 16%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.c-sal { flex: 0 0 16%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.c-hn  { flex: 0 0 17%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.c-hr  { flex: 0 0 17%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.c-ob  { flex: 0 0 26%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
+/* --- 4. DISEÑO DEL BOTÓN LÁPIZ Y EMOJI --- */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) button {
     height: 28px !important;
     min-height: 28px !important;
@@ -669,12 +675,12 @@ else:
                         
                         st.markdown(f"""
                         <div class="fila-datos">
-                            <div style="flex: 0 0 8%; font-weight: bold;">{d}</div>
-                            <div style="flex: 0 0 16%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["ENTRADA"]}</div>
-                            <div style="flex: 0 0 16%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["SALIDA"]}</div>
-                            <div style="flex: 0 0 17%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{hn_val}</div>
-                            <div style="flex: 0 0 17%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{hr_val}</div>
-                            <div style="flex: 0 0 26%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["OBRA"]}</div>
+                            <div class="c-dia">{d}</div>
+                            <div class="c-ent">{r["ENTRADA"]}</div>
+                            <div class="c-sal">{r["SALIDA"]}</div>
+                            <div class="c-hn">{hn_val}</div>
+                            <div class="c-hr">{hr_val}</div>
+                            <div class="c-ob">{r["OBRA"]}</div>
                         </div>
                         """, unsafe_allow_html=True)
                     with c_b:
