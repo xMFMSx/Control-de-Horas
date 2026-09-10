@@ -589,6 +589,37 @@ div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) button p {
 .tabla-resumen-header span:nth-child(4), .fila-tabla-contenido span:nth-child(4) { flex: 0 0 17% !important; max-width: 17% !important; }
 .tabla-resumen-header span:nth-child(5), .fila-tabla-contenido span:nth-child(5) { flex: 0 0 17% !important; max-width: 17% !important; }
 .tabla-resumen-header span:nth-child(6), .fila-tabla-contenido span:nth-child(6) { flex: 0 0 26% !important; max-width: 26% !important; }
+
+/* --- CSS GRID ABSOLUTO Y ALINEACIÓN PERFECTA --- */
+.tabla-resumen-header, .fila-tabla-contenido {
+    display: grid !important;
+    grid-template-columns: 8% 16% 16% 17% 17% 26% !important;
+    align-items: center !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+.tabla-resumen-header {
+    border-top: 1px solid #282d3c !important;
+    border-bottom: 1px solid #282d3c !important;
+    padding: 6px 4px !important;
+    font-size: 0.62rem !important;
+    font-weight: bold !important;
+    color: #a0aab8 !important;
+}
+.fila-tabla-contenido {
+    height: 38px !important;
+    padding: 0 4px !important;
+    font-size: 0.72rem !important;
+    color: #ffffff !important;
+}
+.tabla-resumen-header span, .fila-tabla-contenido span {
+    text-align: left !important;
+    overflow: visible !important;
+    white-space: nowrap !important;
+    display: block !important;
+    width: 100% !important;
+}
+
 </style>
 
 
@@ -1087,12 +1118,12 @@ else:
             if registros_tabla:
                 st.markdown("""
                 <div class="tabla-resumen-header">
-                    <span style="width: 8%;">DÍA</span>
-                    <span style="">ENTRADA</span>
-                    <span style="">SALIDA</span>
-                    <span style="">H.NORMAL</span>
-                    <span style="">H.RECARGO</span>
-                    <span style="">OBRA</span>
+                    <span>DÍA</span>
+                    <span>ENTRADA</span>
+                    <span>SALIDA</span>
+                    <span>H.NORMAL</span>
+                    <span>H.RECARGO</span>
+                    <span>OBRA</span>
                 </div>
                 """, unsafe_allow_html=True)
 
@@ -1104,12 +1135,12 @@ else:
                         with c_dat:
                             st.markdown(f"""
                             <div class="fila-tabla-contenido">
-                                <span style="font-weight: bold;">{d}</span>
-                                <span style="">{r["ENTRADA"]}</span>
-                                <span style="">{r["SALIDA"]}</span>
-                                <span style="">{r["HORA EXTRA"]}</span>
-                                <span style="">{r["HORA RECARGO"]}</span>
-                                <span style="">{r["OBRA"]}</span>
+                                <span>{d}</span>
+                                <span>{r["ENTRADA"]}</span>
+                                <span>{r["SALIDA"]}</span>
+                                <span>{r["HORA EXTRA"]}</span>
+                                <span>{r["HORA RECARGO"]}</span>
+                                <span>{r["OBRA"]}</span>
                             </div>
                             """, unsafe_allow_html=True)
                         with c_b:
