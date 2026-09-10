@@ -107,7 +107,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
 /* Celdas individuales */
 .contenedor-tabla > div {
     border-right: 1px solid #353b4d !important;
-    padding: 0 10px !important;
+    padding: 0 20px !important;
     height: 100% !important;
     display: flex !important;
     align-items: center !important;
