@@ -18,7 +18,7 @@ st.set_page_config(
 )
 
 st.markdown("""<style>
-/* RESTAURAR ESCALA AL 80% */
+/* Escala fija al 80% */
 html {
     zoom: 80% !important;
 }
@@ -30,16 +30,17 @@ div[data-testid="stToolbar"] { visibility: hidden !important; }
 footer { visibility: hidden !important; }
 div[data-testid="stDecoration"] { display: none !important; }
 
-/* Scroll fluido total en la vista para evitar cortes inferiores */
-html, body, [data-testid="stAppViewContainer"] {
+/* SOLUCIÓN DEFINITIVA AL CORTE INFERIOR: Liberar scroll en contenedores de Streamlit */
+html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {
     overflow-y: auto !important;
-    height: 100% !important;
+    height: auto !important;
+    min-height: 100% !important;
 }
 
 .block-container { 
     max-width: 95% !important; 
     padding: 1.5rem !important; 
-    padding-bottom: 20rem !important; 
+    padding-bottom: 25rem !important; 
 }
 
 div[data-testid="stForm"] { 
@@ -91,10 +92,10 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
     border-left: 1px solid #353b4d !important;
 }
 
-/* Estructura interna de la tabla */
+/* Estructura interna de la tabla con ancho ajustado para que el lápiz quede perfecto */
 .contenedor-tabla {
     display: grid !important;
-    grid-template-columns: 8% 15% 15% 15% 15% 32% !important;
+    grid-template-columns: 8% 14% 14% 15% 15% 34% !important;
     width: 100% !important;
     align-items: center !important;
     box-sizing: border-box !important;
@@ -647,7 +648,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-        # --- VISTA 2: RESUMEN MENSUAL CON ESCALA AL 80% Y SCROLL CORREGIDO ---
+        # --- VISTA 2: RESUMEN MENSUAL CON SCROLL LIBRE Y LÁPIZ EN SU SITIO ---
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
