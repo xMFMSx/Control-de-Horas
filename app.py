@@ -67,52 +67,41 @@ div[data-testid="stExpander"] summary svg { width: 1.2rem !important; height: 1.
 div[data-testid="stForm"] { border: none !important; padding: 0 !important; }
 
 
-/* --- TABLA Y LÁPIZ COMPACTO Y ALINEADO --- */
-.tabla-resumen-header {
-    display: flex !important;
-    align-items: center !important;
-    border-top: 1px solid #282d3c !important;
-    border-bottom: 1px solid #282d3c !important;
-    padding: 6px 4px !important;
-    font-size: 0.65rem !important;
-    font-weight: 600 !important;
-    color: #838c9e !important;
-    width: 100% !important;
-}
-.fila-tabla-contenido {
-    display: flex !important;
-    align-items: center !important;
-    height: 36px !important;
-    padding: 0 4px !important;
-    font-size: 0.75rem !important;
-    color: #ffffff !important;
-    width: 100% !important;
-}
+
+/* --- EVITAR APILAMIENTO DE LA FILA Y EL LÁPIZ (NO IMPORTA EL ZOOM) --- */
 div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) {
     display: flex !important;
     flex-direction: row !important;
+    flex-wrap: nowrap !important;
     align-items: center !important;
     width: 100% !important;
+    gap: 0px !important;
     border-bottom: 1px solid #1c202a !important;
     margin: 0 !important;
     padding: 0 !important;
 }
+div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) > div[data-testid="column"] {
+    flex-shrink: 0 !important;
+    padding: 0 !important;
+}
 div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) > div[data-testid="column"]:first-child {
-    width: 85% !important;
-    flex: 0 0 85% !important;
+    width: 88% !important;
+    flex: 0 0 88% !important;
+    min-width: 0 !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) > div[data-testid="column"]:last-child {
-    width: 15% !important;
-    flex: 0 0 15% !important;
+    width: 12% !important;
+    flex: 0 0 12% !important;
     display: flex !important;
     justify-content: center !important;
+    min-width: 0 !important;
 }
-/* Botón lápiz pequeño, proporcionado y elegante */
+/* Tamaño exacto y proporcionado para el botón del lápiz */
 div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) button {
-    height: 26px !important;
-    min-height: 26px !important;
-    width: 28px !important;
-    min-width: 28px !important;
+    height: 24px !important;
+    min-height: 24px !important;
+    width: 26px !important;
+    min-width: 26px !important;
     padding: 0 !important;
     background-color: #1a1e29 !important;
     border: 1px solid #2e3547 !important;
@@ -120,14 +109,16 @@ div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) button {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    margin: 0 auto !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) button p {
-    font-size: 12px !important;
+    font-size: 11px !important;
     line-height: 1 !important;
     margin: 0 !important;
     padding: 0 !important;
 }
 </style>
+
 
 
 """, unsafe_allow_html=True)
