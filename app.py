@@ -47,11 +47,15 @@ div[data-testid="stExpander"] summary p {
 div[data-testid="stExpander"] summary svg { width: 1.2rem !important; height: 1.2rem !important; }
 div[data-testid="stForm"] { border: none !important; padding: 0 !important; }
 
-/* --- ELIMINAR EL ESPACIO GIGANTE ENTRE FILAS --- */
+/* --- ELIMINAR EL ESPACIO GIGANTE ENTRE FILAS Y ENCABEZADO --- */
+div.element-container:has(.encabezado-tabla) {
+    margin-bottom: -24px !important; /* Succiona la primera fila de datos hacia el encabezado */
+}
 div.element-container:has(.fila-datos) {
     margin-top: -16px !important; 
 }
 
+/* Espacio seguro para el formulario de edición */
 div[data-testid="stForm"] {
     margin-top: 1.5rem !important;
     margin-bottom: 1rem !important;
@@ -630,7 +634,7 @@ else:
                     """, unsafe_allow_html=True)
 
                 for r in registros_tabla:
-                    d = r["DÍA"] # AQUÍ ESTABA EL ERROR, ¡RESTURADO!
+                    d = r["DÍA"] 
                     c_dat, c_b = st.columns([0.92, 0.08])
                     with c_dat:
                         hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
