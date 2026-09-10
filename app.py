@@ -139,7 +139,86 @@ div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) button p {
     margin: 0 !important;
     padding: 0 !important;
 }
+
+/* --- TABLA ALINEADA Y NOMBRES COMPLETOS --- */
+.tabla-resumen-header {
+    display: flex !important;
+    align-items: center !important;
+    border-top: 1px solid #282d3c !important;
+    border-bottom: 1px solid #282d3c !important;
+    padding: 6px 4px !important;
+    font-size: 0.58rem !important;
+    font-weight: 600 !important;
+    color: #838c9e !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+.fila-tabla-contenido {
+    display: flex !important;
+    align-items: center !important;
+    height: 36px !important;
+    padding: 0 4px !important;
+    font-size: 0.72rem !important;
+    color: #ffffff !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+/* Asegurar proporciones idénticas entre cabecera y filas */
+.tabla-resumen-header span:nth-child(1), .fila-tabla-contenido span:nth-child(1) { width: 8% !important; flex: 0 0 8% !important; }
+.tabla-resumen-header span:nth-child(2), .fila-tabla-contenido span:nth-child(2) { width: 16% !important; flex: 0 0 16% !important; }
+.tabla-resumen-header span:nth-child(3), .fila-tabla-contenido span:nth-child(3) { width: 16% !important; flex: 0 0 16% !important; }
+.tabla-resumen-header span:nth-child(4), .fila-tabla-contenido span:nth-child(4) { width: 17% !important; flex: 0 0 17% !important; }
+.tabla-resumen-header span:nth-child(5), .fila-tabla-contenido span:nth-child(5) { width: 17% !important; flex: 0 0 17% !important; }
+.tabla-resumen-header span:nth-child(6), .fila-tabla-contenido span:nth-child(6) { width: 26% !important; flex: 0 0 26% !important; }
+
+div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    width: 100% !important;
+    border-bottom: 1px solid #1c202a !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) > div[data-testid="column"] {
+    flex-shrink: 0 !important;
+    padding: 0 !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) > div[data-testid="column"]:first-child {
+    width: 88% !important;
+    flex: 0 0 88% !important;
+    min-width: 0 !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) > div[data-testid="column"]:last-child {
+    width: 12% !important;
+    flex: 0 0 12% !important;
+    display: flex !important;
+    justify-content: center !important;
+    min-width: 0 !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) button {
+    height: 24px !important;
+    min-height: 24px !important;
+    width: 26px !important;
+    min-width: 26px !important;
+    padding: 0 !important;
+    background-color: #1a1e29 !important;
+    border: 1px solid #2e3547 !important;
+    border-radius: 4px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 auto !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) button p {
+    font-size: 11px !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
 </style>
+
 
 
 
@@ -624,12 +703,12 @@ else:
             if registros_tabla:
                 st.markdown("""
                 <div class="tabla-resumen-header">
-                    <span style="width: 7%;">DÍA</span>
-                    <span style="width: 14%;">ENT</span>
-                    <span style="width: 14%;">SAL</span>
-                    <span style="width: 18%;">H.EXT</span>
-                    <span style="width: 18%;">H.REC</span>
-                    <span style="width: 29%;">OBRA</span>
+                    <span style="width: 8%;">DÍA</span>
+                    <span style="width: 16%;">ENTRADA</span>
+                    <span style="width: 16%;">SALIDA</span>
+                    <span style="width: 17%;">H.NORMAL</span>
+                    <span style="width: 17%;">H.RECARGOARGO</span>
+                    <span style="width: 26%;">OBRA</span>
                 </div>
                 """, unsafe_allow_html=True)
 
