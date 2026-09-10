@@ -50,16 +50,6 @@ div[data-testid="stForm"] {
     margin-bottom: 1rem !important;
 }
 
-/* --- 1. ENCABEZADO PURO HTML --- */
-.encabezado-puro {
-    display: flex !important;
-    width: 100% !important;
-    border-top: 1px solid #282d3c !important;
-    border-bottom: 1px solid #282d3c !important;
-    padding: 6px 0px !important;
-    margin-top: 0px !important;
-    margin-bottom: 24px !important; /* <--- AQUÍ: Esto empuja la primera fila hacia abajo para que no choque */
-}
 /* --- 1. ENCABEZADO ALINEADO PERFECTO --- */
 div[data-testid="stHorizontalBlock"]:has(.datos-encabezado) {
     border-top: 1px solid #282d3c !important;
@@ -88,11 +78,11 @@ div[data-testid="stMarkdownContainer"]:has(.datos-encabezado) p {
 /* --- 2. FILAS DE DATOS Y COLUMNAS --- */
 div.element-container:has(div[data-testid="stHorizontalBlock"]:has(.fila-datos)),
 div.stElementContainer:has(div[data-testid="stHorizontalBlock"]:has(.fila-datos)) {
-    margin-top: -24px !important; /* <--- Ahora sí succiona TODA la fila completa hacia arriba */
+    margin-top: -24px !important; /* Mantiene unidas las filas enteras */
     margin-bottom: 0px !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
-    margin-top: -24px !important; /* <--- AHORA SÍ: Esto tira de la fila completa hacia arriba */
+    margin-top: -24px !important; 
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
@@ -105,16 +95,18 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
     min-height: 20px !important;
 }
 
-/* Forzar anchos mínimos exactos anti-móvil */
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:first-child {
+/* Forzar anchos mínimos exactos anti-móvil (CLONACIÓN DE ENCABEZADO Y DATOS) */
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:first-child,
+div[data-testid="stHorizontalBlock"]:has(.datos-encabezado) > div[data-testid="column"]:first-child {
     width: 92% !important;
     min-width: 92% !important;
     max-width: 92% !important;
     flex: 0 0 92% !important;
-    padding-left: 0 !important;  /* <--- MAGIA: Quita el desfase izquierdo */
-    padding-right: 0 !important; /* <--- MAGIA: Quita el desfase derecho */
+    padding-left: 0 !important;  
+    padding-right: 0 !important; 
 }
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:last-child {
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:last-child,
+div[data-testid="stHorizontalBlock"]:has(.datos-encabezado) > div[data-testid="column"]:last-child {
     width: 8% !important;
     min-width: 8% !important;
     max-width: 8% !important;
@@ -122,7 +114,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    padding: 0 !important; /* Asegura que el botón no tenga rellenos fantasma */
+    padding: 0 !important; 
 }
 
 /* --- 3. ALINEACIÓN VERTICAL PERFECTA (Textos) --- */
@@ -141,7 +133,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdow
     margin: 0 !important;
     padding: 0 !important;
     line-height: 28px !important; 
-    transform: none !important; /* Limpiamos cualquier empuje extraño */
+    transform: none !important; 
 }
 
 .fila-datos {
@@ -161,7 +153,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdow
 .c-hr  { flex: 0 0 17%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .c-ob  { flex: 0 0 26%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* --- 4. DISEÑO DEL BOTÓN LÁPIZ Y EMOJI (Restaurado al centro exacto) --- */
+/* --- 4. DISEÑO DEL BOTÓN LÁPIZ Y EMOJI --- */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stButton"] {
     display: flex !important;
     align-items: center !important;
@@ -193,7 +185,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) button p {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    transform: none !important; /* Asegura que el icono no se caiga */
+    transform: none !important; 
 }
 </style>""", unsafe_allow_html=True)
 
@@ -670,19 +662,19 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-            # --- ENCABEZADO ALINEADO PERFECTO ---
-            c_h1, c_h2 = st.columns([0.92, 0.08], vertical_alignment="center")
-            with c_h1:
-                st.markdown("""
-                <div class="datos-encabezado">
-                    <div class="c-dia">DÍA</div>
-                    <div class="c-ent">ENTRADA</div>
-                    <div class="c-sal">SALIDA</div>
-                    <div class="c-hn">H.NORMAL</div>
-                    <div class="c-hr">H.RECARGO</div>
-                    <div class="c-ob">OBRA</div>
-                </div>
-                """, unsafe_allow_html=True)
+                # --- ENCABEZADO ALINEADO PERFECTO ---
+                c_h1, c_h2 = st.columns([0.92, 0.08], vertical_alignment="center")
+                with c_h1:
+                    st.markdown("""
+                    <div class="datos-encabezado">
+                        <div class="c-dia">DÍA</div>
+                        <div class="c-ent">ENTRADA</div>
+                        <div class="c-sal">SALIDA</div>
+                        <div class="c-hn">H.NORMAL</div>
+                        <div class="c-hr">H.RECARGO</div>
+                        <div class="c-ob">OBRA</div>
+                    </div>
+                    """, unsafe_allow_html=True)
 
                 for r in registros_tabla:
                     d = r["DÍA"] 
