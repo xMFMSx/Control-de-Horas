@@ -63,7 +63,7 @@ div[data-testid="stForm"] {
 .datos-encabezado {
     width: 92% !important;
     display: flex !important;
-    font-size: 0.95rem !important;
+    font-size: 0.65rem !important;
     color: #838c9e !important;
     font-weight: 600 !important;
     align-items: center !important;
@@ -108,6 +108,8 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"
     min-width: 92% !important;
     max-width: 92% !important;
     flex: 0 0 92% !important;
+    padding-left: 0 !important;  /* <--- MAGIA: Quita el desfase izquierdo */
+    padding-right: 0 !important; /* <--- MAGIA: Quita el desfase derecho */
 }
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:last-child {
     width: 8% !important;
@@ -117,6 +119,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    padding: 0 !important; /* Asegura que el botón no tenga rellenos fantasma */
 }
 
 /* --- 3. ALINEACIÓN VERTICAL PERFECTA (Textos) --- */
