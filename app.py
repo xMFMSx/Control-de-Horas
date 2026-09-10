@@ -86,7 +86,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
     flex-wrap: nowrap !important;
     align-items: center !important;
     gap: 0px !important; 
-    height: 38px !important; /* Altura fija inamovible */
+    height: 38px !important; 
     border-bottom: 1px solid #1c202a !important;
 }
 
@@ -127,8 +127,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdow
     align-items: center !important;
 }
 
-/* --- 4. CENTRADO MILIMÉTRICO DEL BOTÓN Y EL EMOJI --- */
-/* Resetea el contenedor interno del botón que inyecta Streamlit */
+/* --- 4. DISEÑO DEL BOTÓN LÁPIZ (Pequeño y centrado absoluto) --- */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stButton"] {
     display: flex !important;
     align-items: center !important;
@@ -138,29 +137,32 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stButton"
 }
 
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) button {
-    height: 28px !important;
-    min-height: 28px !important;
-    width: 28px !important;
-    min-width: 28px !important;
+    height: 22px !important;
+    min-height: 22px !important;
+    width: 24px !important;
+    min-width: 24px !important;
     padding: 0 !important;
     margin: 0 !important;
     background-color: #1a1e29 !important;
     border: 1px solid #2e3547 !important;
-    border-radius: 6px !important;
+    border-radius: 4px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
 }
 
-/* El secreto para que el icono vuelva a estar perfectamente al centro */
+/* Forzar centrado de las capas internas del botón de Streamlit */
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) button div[data-testid="stMarkdownContainer"],
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) button p {
-    font-size: 14px !important;
-    line-height: 0 !important; /* Eje central absoluto */
-    margin: 0 !important;
-    padding: 0 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 11px !important; /* Lápiz más delicado */
+    line-height: normal !important; 
+    height: 100% !important;
+    width: 100% !important;
 }
 </style>""", unsafe_allow_html=True)
 
@@ -654,7 +656,9 @@ else:
 
                 for r in registros_tabla:
                     d = r["DÍA"] 
-                    c_dat, c_b = st.columns([0.92, 0.08])
+                    # Alineación vertical forzada a nivel de Streamlit
+                    c_dat, c_b = st.columns([0.92, 0.08], vertical_alignment="center")
+                    
                     with c_dat:
                         hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
                         hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
