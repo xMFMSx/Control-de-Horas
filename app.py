@@ -19,7 +19,7 @@ st.set_page_config(
 )
 
 st.markdown("""<style>
-/* Ocultar UI nativa */
+/* Ocultar UI nativa[cite: 1] */
 header[data-testid="stHeader"] { display: none !important; }
 #MainMenu { visibility: hidden !important; }
 div[data-testid="stToolbar"] { visibility: hidden !important; }
@@ -41,6 +41,7 @@ div.stElementContainer:has(.contenedor-tabla) {
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     display: flex !important;
     flex-direction: row !important;
+    flex-wrap: nowrap !important;
     align-items: center !important; 
     background-color: #1a1e29 !important;
     border-left: 1px solid #353b4d !important;
@@ -56,21 +57,27 @@ div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
 }
 
 /* =========================================
-   CONTROL DE POSICIÓN: TABLA IZQUIERDA | BOTÓN DERECHA
+   CONTROL ESTRICTO DE COLUMNAS (TABLA | BOTÓN)
    ========================================= */
-/* Columna de la tabla (Siempre a la izquierda, ocupa el 92%) */
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:has(.contenedor-tabla) {
-    width: 92% !important; min-width: 92% !important; max-width: 92% !important; flex: 0 0 92% !important;
-    order: 1 !important;
+/* Columna 1: La tabla (92%)[cite: 1] */
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:nth-child(1) {
+    width: 92% !important; 
+    min-width: 92% !important; 
+    max-width: 92% !important; 
+    flex: 0 0 92% !important;
 }
 
-/* Columna del botón (Siempre a la derecha, ocupa el 8%) */
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:has(button) {
-    width: 8% !important; min-width: 8% !important; max-width: 8% !important; flex: 0 0 8% !important;
-    display: flex !important; align-items: center !important; justify-content: center !important;
+/* Columna 2: El botón de edición (8%)[cite: 1] */
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:nth-child(2) {
+    width: 8% !important; 
+    min-width: 8% !important; 
+    max-width: 8% !important; 
+    flex: 0 0 8% !important;
+    display: flex !important; 
+    align-items: center !important; 
+    justify-content: center !important;
     border-left: 1px solid #353b4d !important;
     height: 40px !important;
-    order: 2 !important;
 }
 
 /* Estructura interna de la tabla (HTML) */
@@ -110,7 +117,7 @@ div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p {
     height: 40px !important; 
 }
 
-/* Bajar el texto del encabezado */
+/* Bajar el texto del encabezado para centrarlo verticalmente */
 div[data-testid="stHorizontalBlock"]:has(.es-encabezado) div[data-testid="stMarkdownContainer"] p {
     padding-top: 6px !important;
 }
@@ -123,7 +130,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) div[data-testid="stV
 /* Botón de edición perfectamente centrado en su celda derecha */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
     height: 28px !important; width: 28px !important; min-width: 28px !important;
-    padding: 0 !important; margin: 0 auto !important;
+    padding: 0 !important; margin: -4px auto 0 auto !important;
     background-color: transparent !important; border: 1px solid transparent !important;
     display: flex !important; align-items: center !important; justify-content: center !important;
 }
