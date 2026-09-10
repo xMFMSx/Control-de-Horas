@@ -47,37 +47,34 @@ div[data-testid="stExpander"] summary p {
 div[data-testid="stExpander"] summary svg { width: 1.2rem !important; height: 1.2rem !important; }
 div[data-testid="stForm"] { border: none !important; padding: 0 !important; }
 
-/* --- ESTRUCTURA DE TABLA (FILAS COMPLETAS AL 100%) --- */
-div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla),
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
-    gap: 0px !important;
-    align-items: center !important;
-    flex-wrap: nowrap !important;
+/* --- COLAPSO DE FILAS (PEGA LAS FILAS COMO UNA TABLA REAL) --- */
+div.element-container:has(.encabezado-tabla),
+div.element-container:has(.fila-datos) {
+    margin-bottom: -1rem !important; /* Elimina el espacio gigante entre filas de Streamlit */
 }
 
-/* Bordes unificados (Eliminada la línea doble superior) */
+/* Espaciado para el formulario de edición para que no se superponga */
+div[data-testid="stForm"] {
+    margin-top: 1.5rem !important;
+    margin-bottom: 1rem !important;
+}
+
+/* --- ESTRUCTURA DE TABLA Y BORDES --- */
+div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla),
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
+    align-items: center !important;
+    padding: 6px 0px !important;
+}
+
+/* Líneas divisorias */
 div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) {
-    border-top: 1px solid #282d3c !important;
     border-bottom: 1px solid #282d3c !important;
-    padding: 0 !important;
-    min-height: 38px !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
     border-bottom: 1px solid #1c202a !important;
-    padding: 0 !important;
-    min-height: 42px !important;
 }
 
-/* Forzar centrado vertical perfecto para las columnas */
-div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) > div[data-testid="column"],
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"] {
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    padding: 0 !important;
-}
-
-/* Proporciones exactas de la tabla (92% - 8%) */
+/* Proporciones de columnas (92% - 8%) y centrado absoluto del botón */
 div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) > div[data-testid="column"]:first-child,
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:first-child {
     width: 92% !important;
@@ -87,31 +84,60 @@ div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) > div[data-testid="c
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:last-child {
     width: 8% !important;
     flex: 0 0 8% !important;
+    display: flex !important;
+    justify-content: center !important;
     align-items: center !important;
 }
 
-/* MAGIA: Aniquilar márgenes fantasmas de Streamlit que empujaban el texto hacia abajo */
-div[data-testid="stMarkdownContainer"] p {
-    margin: 0 !important;
-    padding: 0 !important;
+/* --- MAGIA: CENTRADO VERTICAL DEL TEXTO --- */
+/* Elimina el margen de la etiqueta <p> y obliga al texto a medir 28px de alto */
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"] p,
+div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) div[data-testid="stMarkdownContainer"] p {
+    margin: 0px !important;
+    padding: 0px !important;
+    line-height: 28px !important; 
 }
 
-/* Lápiz centrado y cuadrado */
+/* Clases internas para flexbox de los textos */
+.encabezado-tabla {
+    display: flex !important;
+    width: 100% !important;
+    height: 28px !important;
+    font-size: 0.65rem !important;
+    color: #838c9e !important;
+    font-weight: 600 !important;
+    align-items: center !important;
+}
+
+.fila-datos {
+    display: flex !important;
+    width: 100% !important;
+    height: 28px !important;
+    font-size: 0.75rem !important;
+    color: #ffffff !important;
+    align-items: center !important;
+}
+
+/* --- DISEÑO ESTRICTO DEL BOTÓN LÁPIZ (28x28px) --- */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) button {
     height: 28px !important;
+    min-height: 28px !important;
     width: 28px !important;
+    min-width: 28px !important;
     padding: 0 !important;
+    margin: 0 !important;
     background-color: #1a1e29 !important;
     border: 1px solid #2e3547 !important;
     border-radius: 6px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    margin: 0 auto !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) button p {
     font-size: 13px !important;
     line-height: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 </style>""", unsafe_allow_html=True)
 
@@ -584,17 +610,16 @@ else:
             </div>
             """
             st.markdown(html_cards_res, unsafe_allow_html=True)
-            # NOTA: Aquí se eliminó el antiguo st.markdown("---") que generaba la línea redundante
 
             if "dia_en_edicion" not in st.session_state:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # --- ENCABEZADO CENTRADO CON FLEXBOX PURO ---
+                # --- ENCABEZADO ---
                 col_h1, col_h2 = st.columns([0.92, 0.08], vertical_alignment="center")
                 with col_h1:
                     st.markdown("""
-                    <div class="encabezado-tabla" style="display: flex; width: 100%; font-size: 0.65rem; color: #838c9e; font-weight: 600; align-items: center;">
+                    <div class="encabezado-tabla">
                         <div style="flex: 0 0 8%;">DÍA</div>
                         <div style="flex: 0 0 16%;">ENTRADA</div>
                         <div style="flex: 0 0 16%;">SALIDA</div>
@@ -613,9 +638,9 @@ else:
                             hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
                             hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
                             
-                            # --- DATOS CENTRADOS CON FLEXBOX PURO ---
+                            # --- FILA DE DATOS ---
                             st.markdown(f"""
-                            <div class="fila-datos" style="display: flex; width: 100%; font-size: 0.75rem; color: #ffffff; align-items: center;">
+                            <div class="fila-datos">
                                 <div style="flex: 0 0 8%; font-weight: bold;">{d}</div>
                                 <div style="flex: 0 0 16%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["ENTRADA"]}</div>
                                 <div style="flex: 0 0 16%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["SALIDA"]}</div>
