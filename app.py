@@ -50,111 +50,95 @@ div[data-testid="stForm"] {
 }
 
 /* ========================================================
-   MAGIA: ELIMINAR EL ESPACIO FANTASMA DE STREAMLIT
+   TABLA PERFECTA: CELDAS ALINEADAS Y SIN ESPACIOS
    ======================================================== */
-/* Ataca al contenedor maestro y elimina su separación por defecto (gap) */
-div[data-testid="stVerticalBlock"]:has(.fila-datos) {
-    gap: 0px !important; 
+
+/* 1. Juntar las filas suavemente (Contrarresta el gap de Streamlit) */
+div.element-container:has(.contenedor-tabla) {
+    margin-bottom: -16px !important; 
 }
 
-/* --- 1. ENCABEZADO PURO HTML --- */
-.encabezado-puro {
-    display: flex !important;
-    width: 100% !important;
-    background-color: #222634 !important;
-    border: 1px solid #353b4d !important;
-    padding: 6px 0px !important;
-    margin-top: 35px !important; /* Separación sana con las tarjetas de arriba */
-}
-.datos-encabezado {
-    width: 92% !important;
-    display: flex !important;
-    font-size: 0.65rem !important;
-    color: #a3adc2 !important;
-    font-weight: 700 !important;
-    align-items: center !important;
-}
-.datos-encabezado > div {
-    border-right: 1px solid #353b4d !important;
-    padding-left: 8px !important;
-    box-sizing: border-box !important;
-}
-.datos-encabezado > div:last-child { border-right: none !important; }
-.vacio-encabezado { width: 8% !important; }
-
-div[data-testid="stMarkdownContainer"]:has(.encabezado-puro) p { margin: 0 !important; padding: 0 !important; }
-
-/* --- 2. FILAS DE DATOS CUADRICULADAS --- */
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
+/* 2. Configurar el bloque horizontal para que no rompa en móviles */
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     align-items: center !important;
-    width: 100% !important;
+    gap: 0px !important;
+    min-width: 650px !important;
 }
 
-/* Forzar anchos mínimos exactos anti-móvil */
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:first-child {
+/* 3. Proporciones fijas del bloque nativo (92% tabla, 8% botón) */
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
     width: 92% !important; min-width: 92% !important; max-width: 92% !important; flex: 0 0 92% !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:last-child {
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child {
     width: 8% !important; min-width: 8% !important; max-width: 8% !important; flex: 0 0 8% !important;
     display: flex !important; align-items: center !important; justify-content: center !important;
 }
 
-/* --- 3. BORDES Y ALINEACIÓN DE CELDAS --- */
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="column"] > div[data-testid="stVerticalBlock"] {
-    gap: 0 !important; justify-content: center !important;
-}
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) div.stElementContainer,
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) div.element-container,
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"],
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"] > p,
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stButton"] {
-    margin: 0 !important; padding: 0 !important;
-}
-
-.fila-datos {
-    display: flex !important;
-    width: 100% !important;
-    height: 34px !important;
-    font-size: 0.75rem !important;
-    color: #ffffff !important;
-    align-items: center !important;
-    background-color: #1a1e29 !important;
-    border-left: 1px solid #353b4d !important;
-    border-right: 1px solid #353b4d !important;
-    border-bottom: 1px solid #353b4d !important;
+/* 4. Estilos de la Cuadrícula HTML (Interna) */
+.contenedor-tabla {
+    display: flex;
+    width: 100%;
+    height: 38px;
+    align-items: center;
+    border-left: 1px solid #353b4d;
+    border-right: 1px solid #353b4d;
+    border-bottom: 1px solid #353b4d;
+    box-sizing: border-box;
 }
 
-.fila-datos > div {
-    border-right: 1px solid #353b4d !important;
-    padding-left: 8px !important;
-    box-sizing: border-box !important;
-    height: 100% !important;
-    display: flex !important;
-    align-items: center !important;
+.es-encabezado {
+    background-color: #222634;
+    border-top: 1px solid #353b4d;
+    font-weight: 700;
+    color: #a3adc2;
+    font-size: 0.68rem;
 }
-.fila-datos > div:last-child { border-right: none !important; }
 
-/* Proporciones exactas de las celdas */
-.c-dia { flex: 0 0 8%; font-weight: bold; }
-.c-ent { flex: 0 0 16%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.c-sal { flex: 0 0 16%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.c-hn  { flex: 0 0 17%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.c-hr  { flex: 0 0 17%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.c-ob  { flex: 0 0 26%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.es-datos {
+    background-color: #1a1e29;
+    color: #ffffff;
+    font-size: 0.85rem;
+}
 
-/* --- 4. DISEÑO DEL BOTÓN LÁPIZ --- */
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) button {
+/* Celdas individuales */
+.contenedor-tabla > div {
+    border-right: 1px solid #353b4d;
+    padding: 0 8px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.contenedor-tabla > div:last-child {
+    border-right: none;
+}
+
+/* Proporciones de celdas internas */
+.col-dia { flex: 0 0 8%; font-weight: bold; }
+.col-ent { flex: 0 0 16%; }
+.col-sal { flex: 0 0 16%; }
+.col-hn  { flex: 0 0 17%; }
+.col-hr  { flex: 0 0 17%; }
+.col-ob  { flex: 0 0 26%; }
+
+/* 5. Limpieza de márgenes fantasma */
+div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p { margin: 0 !important; padding: 0 !important; line-height: 1 !important; }
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) div[data-testid="stVerticalBlock"] { gap: 0 !important; justify-content: center !important; }
+
+/* 6. Diseño del Botón */
+div[data-testid="stHorizontalBlock"]:has(.es-datos) button {
     height: 28px !important; min-height: 28px !important; width: 28px !important; min-width: 28px !important;
     padding: 0 !important; margin: 0 auto !important;
-    background-color: #1a1e29 !important; border: 1px solid #2e3547 !important; border-radius: 6px !important;
+    background-color: #1a1e29 !important; border: 1px solid #353b4d !important; border-radius: 6px !important;
     display: flex !important; align-items: center !important; justify-content: center !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) button p {
-    font-size: 14px !important; line-height: 1 !important; margin: 0 !important; padding: 0 !important;
-}
+div[data-testid="stHorizontalBlock"]:has(.es-datos) button p { font-size: 14px !important; margin: 0 !important; }
 </style>""", unsafe_allow_html=True)
 
 SECRET_KEY = "control_de_horas_firmado_token_2026"
@@ -630,21 +614,23 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # --- ENCABEZADO HTML PURO ---
-                st.markdown("""
-                <div class="encabezado-puro">
-                    <div class="datos-encabezado">
-                        <div style="flex: 0 0 8%;">DÍA</div>
-                        <div style="flex: 0 0 16%;">ENTRADA</div>
-                        <div style="flex: 0 0 16%;">SALIDA</div>
-                        <div style="flex: 0 0 17%;">H.NORMAL</div>
-                        <div style="flex: 0 0 17%;">H.RECARGO</div>
-                        <div style="flex: 0 0 26%;">OBRA</div>
+                # --- ENCABEZADO SINCRONIZADO ---
+                c_h1, c_h2 = st.columns([0.92, 0.08], vertical_alignment="center")
+                with c_h1:
+                    st.markdown('''
+                    <div class="contenedor-tabla es-encabezado">
+                        <div class="col-dia">DÍA</div>
+                        <div class="col-ent">ENTRADA</div>
+                        <div class="col-sal">SALIDA</div>
+                        <div class="col-hn">H.NORMAL</div>
+                        <div class="col-hr">H.RECARGO</div>
+                        <div class="col-ob">OBRA</div>
                     </div>
-                    <div class="vacio-encabezado"></div>
-                </div>
-                """, unsafe_allow_html=True)
+                    ''', unsafe_allow_html=True)
+                with c_h2:
+                    st.write("") # Espaciador para cuadrar la estructura
 
+                # --- FILAS DE DATOS ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     c_dat, c_b = st.columns([0.92, 0.08], vertical_alignment="center")
@@ -653,16 +639,16 @@ else:
                         hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
                         hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
                         
-                        st.markdown(f"""
-                        <div class="fila-datos">
-                            <div class="c-dia">{d}</div>
-                            <div class="c-ent">{r["ENTRADA"]}</div>
-                            <div class="c-sal">{r["SALIDA"]}</div>
-                            <div class="c-hn">{hn_val}</div>
-                            <div class="c-hr">{hr_val}</div>
-                            <div class="c-ob">{r["OBRA"]}</div>
+                        st.markdown(f'''
+                        <div class="contenedor-tabla es-datos">
+                            <div class="col-dia">{d}</div>
+                            <div class="col-ent">{r["ENTRADA"]}</div>
+                            <div class="col-sal">{r["SALIDA"]}</div>
+                            <div class="col-hn">{hn_val}</div>
+                            <div class="col-hr">{hr_val}</div>
+                            <div class="col-ob">{r["OBRA"]}</div>
                         </div>
-                        """, unsafe_allow_html=True)
+                        ''', unsafe_allow_html=True)
                     with c_b:
                         if st.button("✏️", key=f"btn_edit_{d}"):
                             if st.session_state.get("dia_en_edicion") == d:
@@ -671,6 +657,7 @@ else:
                                 st.session_state["dia_en_edicion"] = d
                             st.rerun()
 
+                    # Lógica de edición
                     if st.session_state.get("dia_en_edicion") == d:
                         datos_d = dict_por_dia.get(d, {})
                         val_e = str_a_time(datos_d.get("entrada", ""))
@@ -692,7 +679,7 @@ else:
                             with b1:
                                 btn_guardar_edit = st.form_submit_button("💾 Guardar Cambios", use_container_width=True)
                             with b2:
-                                btn_borrar_edit = st.form_submit_button("🧹 Limpiar (volver a Septiembre)", use_container_width=True)
+                                btn_borrar_edit = st.form_submit_button("🧹 Limpiar", use_container_width=True)
 
                             if btn_guardar_edit:
                                 es_especial_edit = edit_ob and edit_ob.strip().upper() in ["PERMISO", "NO TRABAJA"]
