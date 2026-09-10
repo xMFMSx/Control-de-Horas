@@ -53,7 +53,7 @@ div[data-testid="stForm"] {
     margin-bottom: 1rem !important;
 }
 
-/* --- 1. ENCABEZADO PURO HTML (Adiós al cráter de la columna vacía) --- */
+/* --- 1. ENCABEZADO PURO HTML --- */
 .encabezado-puro {
     display: flex !important;
     width: 100% !important;
@@ -73,21 +73,20 @@ div[data-testid="stForm"] {
 .vacio-encabezado {
     width: 8% !important;
 }
-/* Aniquilar márgenes fantasma del markdown del encabezado */
 div[data-testid="stMarkdownContainer"]:has(.encabezado-puro) p {
     margin: 0 !important;
     padding: 0 !important;
 }
 
-/* --- 2. FILAS DE DATOS (Succión hacia arriba para anular el gap de Streamlit) --- */
+/* --- 2. FILAS DE DATOS (Succión hacia arriba para anular el gap) --- */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
-    margin-top: -16px !important; /* Succiona la fila 16px hacia arriba pegándola a la anterior */
+    margin-top: -16px !important; 
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     align-items: center !important;
     gap: 0px !important; 
-    min-height: 40px !important; 
+    height: 38px !important; /* Altura fija inamovible */
     border-bottom: 1px solid #1c202a !important;
 }
 
@@ -95,6 +94,8 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:first-child {
     width: 92% !important;
     flex: 0 0 92% !important;
+    display: flex !important;
+    align-items: center !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:last-child {
     width: 8% !important;
@@ -104,18 +105,17 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"
     justify-content: center !important;
 }
 
-/* --- 3. ALINEACIÓN VERTICAL TEXTO VS BOTÓN --- */
+/* --- 3. ALINEACIÓN VERTICAL TEXTOS --- */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"] {
     display: flex !important;
     flex-direction: column !important;
     justify-content: center !important;
 }
 
-/* Destruye el margen invisible de los textos que los hacía flotar hacia arriba */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"] p {
     margin: 0px !important;
     padding: 0px !important;
-    line-height: 28px !important; /* Altura idéntica al botón */
+    line-height: 28px !important; 
 }
 
 .fila-datos {
@@ -127,14 +127,23 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdow
     align-items: center !important;
 }
 
-/* --- 4. DISEÑO DEL BOTÓN LÁPIZ (28x28px y Centrado Absoluto) --- */
+/* --- 4. CENTRADO MILIMÉTRICO DEL BOTÓN Y EL EMOJI --- */
+/* Resetea el contenedor interno del botón que inyecta Streamlit */
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stButton"] {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) button {
     height: 28px !important;
     min-height: 28px !important;
     width: 28px !important;
     min-width: 28px !important;
     padding: 0 !important;
-    margin: 0 auto !important;
+    margin: 0 !important;
     background-color: #1a1e29 !important;
     border: 1px solid #2e3547 !important;
     border-radius: 6px !important;
@@ -142,11 +151,16 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) button {
     align-items: center !important;
     justify-content: center !important;
 }
+
+/* El secreto para que el icono vuelva a estar perfectamente al centro */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) button p {
     font-size: 14px !important;
-    line-height: 1 !important;
+    line-height: 0 !important; /* Eje central absoluto */
     margin: 0 !important;
     padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 </style>""", unsafe_allow_html=True)
 
@@ -623,8 +637,7 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # --- ENCABEZADO HTML PURO (SIN ST.COLUMNS) ---
-                # Esto evita que Streamlit cree una columna vacía sobre el botón
+                # --- ENCABEZADO HTML PURO ---
                 st.markdown("""
                 <div class="encabezado-puro">
                     <div class="datos-encabezado">
