@@ -225,6 +225,30 @@ div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) button p {
 .tabla-resumen-header span:nth-child(4), .fila-tabla-contenido span:nth-child(4) { width: 17% !important; flex: 0 0 17% !important; }
 .tabla-resumen-header span:nth-child(5), .fila-tabla-contenido span:nth-child(5) { width: 17% !important; flex: 0 0 17% !important; }
 .tabla-resumen-header span:nth-child(6), .fila-tabla-contenido span:nth-child(6) { width: 26% !important; flex: 0 0 26% !important; }
+
+/* --- CSS BLINDADO (ALINEACIÓN ESTRICTA) --- */
+div.tabla-resumen-header, div.fila-tabla-contenido {
+    display: flex !important;
+    flex-direction: row !important;
+    width: 100% !important;
+}
+
+div.tabla-resumen-header > span, div.fila-tabla-contenido > span {
+    display: inline-block !important;
+    flex-shrink: 0 !important; /* Mágia: Evita que la celda desaparezca si está vacía */
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+}
+
+/* Forzar anchos idénticos e inamovibles para arriba y abajo */
+div.tabla-resumen-header > span:nth-child(1), div.fila-tabla-contenido > span:nth-child(1) { width: 8% !important; flex: 0 0 8% !important; }
+div.tabla-resumen-header > span:nth-child(2), div.fila-tabla-contenido > span:nth-child(2) { width: 15% !important; flex: 0 0 15% !important; }
+div.tabla-resumen-header > span:nth-child(3), div.fila-tabla-contenido > span:nth-child(3) { width: 15% !important; flex: 0 0 15% !important; }
+div.tabla-resumen-header > span:nth-child(4), div.fila-tabla-contenido > span:nth-child(4) { width: 18% !important; flex: 0 0 18% !important; }
+div.tabla-resumen-header > span:nth-child(5), div.fila-tabla-contenido > span:nth-child(5) { width: 18% !important; flex: 0 0 18% !important; }
+div.tabla-resumen-header > span:nth-child(6), div.fila-tabla-contenido > span:nth-child(6) { width: 26% !important; flex: 0 0 26% !important; }
+
 </style>
 
 
