@@ -63,7 +63,7 @@ div[data-testid="stForm"] {
 .datos-encabezado {
     width: 92% !important;
     display: flex !important;
-    font-size: 0.65rem !important;
+    font-size: 0.95rem !important;
     color: #838c9e !important;
     font-weight: 600 !important;
     align-items: center !important;
