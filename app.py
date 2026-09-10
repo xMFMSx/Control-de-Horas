@@ -62,6 +62,21 @@ div[data-testid="stVerticalBlock"] {
     gap: 0.1rem !important;
 }
 
+/* Transformar los botones de Streamlit en las tablas para que parezcan texto plano integrado */
+div[data-testid="column"] button {
+    background-color: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    font-weight: 700 !important;
+    font-size: 0.78rem !important;
+    box-shadow: none !important;
+    text-align: left !important;
+    width: 100% !important;
+}
+
 /* Estructura de las tablas en Grid CSS Puro */
 .contenedor-tabla-main {
     display: grid !important;
@@ -94,7 +109,7 @@ div[data-testid="stVerticalBlock"] {
 .es-datos { 
     color: #ffffff !important; 
     font-size: 0.78rem !important; 
-    padding: 6px 8px !important; /* Altura optimizada y limpia */
+    padding: 6px 8px !important; 
     background-color: #1a1e29 !important;
     border: 1px solid #353b4d !important;
 }
@@ -516,7 +531,6 @@ else:
 
         # --- NAVEGACIÓN AUTOMÁTICA O MANUAL ---
         if "vista_actual" not in st.session_state:
-            # Si ya completó todos los días, abre en RESUMEN por defecto; si no, en SEPTIEMBRE
             st.session_state["vista_actual"] = "RESUMEN" if not dias_pendientes else "SEPTIEMBRE"
 
         is_sep = st.session_state["vista_actual"] == "SEPTIEMBRE"
@@ -565,11 +579,11 @@ else:
                 st.session_state["vista_actual"] = "RESUMEN"
                 st.rerun()
             else:
-                st.write("### 📋 Días del Periodo (Haz clic en una fila para registrar o editar)")
+                st.write("### 📋 Días del Periodo")
                 
-                # Encabezado tabla principal (Sin las horas normales/recargo)
+                # Encabezado tabla principal
                 st.markdown('''
-                <div style="background-color: #222634; border: 1px solid #353b4d; border-radius: 4px 4px 0 0; padding: 9px 8px; font-weight: 700; color: #a3adc2; font-size: 0.62rem;">
+                <div class="es-encabezado">
                     <div class="contenedor-tabla-main">
                         <div>DÍA</div>
                         <div>ENTRADA</div>
@@ -586,25 +600,33 @@ else:
                     es_festivo = fecha_iso in FERIADOS
                     
                     guardado = dict_por_dia.get(num_dia, {})
-                    ent_val = guardado.get("entrada", "")
-                    sal_val = guardado.get("salida", "")
-                    ob_val = guardado.get("obra", "")
+                    ent_val = guardado.get("entrada", "") or "-"
+                    sal_val = guardado.get("salida", "") or "-"
+                    ob_val = guardado.get("obra", "") or "Pendiente"
 
-                    # Colores para sábados, domingos y feriados
+                    # Colores correspondientes
                     if es_festivo or w_day == 6:
                         color_dia = "#b388ff"
-                        dia_label = f"{num_dia} (F)" if es_festivo else str(num_dia)
+                        dia_txt = f"{num_dia} (F)" if es_festivo else str(num_dia)
                     elif w_day == 5:
                         color_dia = "#448aff"
-                        dia_label = str(num_dia)
+                        dia_txt = str(num_dia)
                     else:
                         color_dia = "#ffffff"
-                        dia_label = str(num_dia)
+                        dia_txt = str(num_dia)
 
-                    # Fila clickeable
-                    if st.button(f"__Día {dia_label}__ | {ent_val or '-'} | {sal_val or '-'} | {ob_val or 'Pendiente'}", key=f"btn_dia_reg_{num_dia}", use_container_width=True):
-                        st.session_state["dia_en_edicion"] = num_dia
-                        st.rerun()
+                    # Fila estructurada con celdas de Streamlit
+                    c1, c2, c3, c4 = st.columns([0.15, 0.28, 0.28, 0.29])
+                    with c1:
+                        if st.button(dia_txt, key=f"btn_reg_d_{num_dia}", help=f"Editar día {num_dia}"):
+                            st.session_state["dia_en_edicion"] = num_dia if st.session_state.get("dia_en_edicion") != num_dia else None
+                            st.rerun()
+                    with c2:
+                        st.markdown(f"<div class='es-datos' style='border:none; padding:6px 0; color:{color_dia};'>{ent_val}</div>", unsafe_allow_html=True)
+                    with c3:
+                        st.markdown(f"<div class='es-datos' style='border:none; padding:6px 0; color:{color_dia};'>{sal_val}</div>", unsafe_allow_html=True)
+                    with c4:
+                        st.markdown(f"<div class='es-datos' style='border:none; padding:6px 0; color:{color_dia};'>{ob_val}</div>", unsafe_allow_html=True)
 
                     # Si este día está seleccionado para edición
                     if st.session_state.get("dia_en_edicion") == num_dia:
@@ -612,11 +634,11 @@ else:
                             st.markdown(f"**✏️ Registro / Edición Día {num_dia} ({DIAS_MAP[w_day]})**")
                             c1e, c2e = st.columns(2)
                             with c1e:
-                                edit_ent = st.time_input("Entrada", value=str_a_time(ent_val), key=f"re_m_{num_dia}")
+                                edit_ent = st.time_input("Entrada", value=str_a_time(guardado.get("entrada")), key=f"re_m_{num_dia}")
                             with c2e:
-                                edit_sal = st.time_input("Salida", value=str_a_time(sal_val), key=f"rs_m_{num_dia}")
+                                edit_sal = st.time_input("Salida", value=str_a_time(guardado.get("salida")), key=f"rs_m_{num_dia}")
                             
-                            edit_ob = st.selectbox("Obra", options=lista_obras, index=lista_obras.index(ob_val) if ob_val in lista_obras else 0, key=f"ro_m_{num_dia}")
+                            edit_ob = st.selectbox("Obra", options=lista_obras, index=lista_obras.index(guardado.get("obra")) if guardado.get("obra") in lista_obras else 0, key=f"ro_m_{num_dia}")
 
                             b1, b2 = st.columns(2)
                             with b1:
@@ -643,8 +665,8 @@ else:
                                         del st.session_state["filas_planilla"]
                                     st.session_state["dia_en_edicion"] = None
                                     
-                                    # Verificar si ya no quedan días pendientes para saltar automáticamente al resumen
-                                    # Recargamos datos rápido o evaluamos
+                                    # Verificar si ya completó todo para pasar automáticamente al resumen
+                                    # Al recargar, si no hay pendientes, saltará solo.
                                     st.rerun()
 
                             if btn_l:
@@ -720,10 +742,21 @@ else:
                     hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
                     hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
                     
-                    # Fila clickeable para editar desde el resumen
-                    if st.button(f"__Día {dia_txt}__ | {r['ENTRADA']} | {r['SALIDA']} | {hn_val} | {hr_val} | {r['OBRA']}", key=f"btn_res_{d}", use_container_width=True):
-                        st.session_state["dia_en_edicion"] = d if st.session_state.get("dia_en_edicion") != d else None
-                        st.rerun()
+                    c1, c2, c3, c4, c5, c6 = st.columns([0.10, 0.18, 0.18, 0.18, 0.18, 0.18])
+                    with c1:
+                        if st.button(dia_txt, key=f"btn_res_d_{d}", help=f"Editar día {d}"):
+                            st.session_state["dia_en_edicion"] = d if st.session_state.get("dia_en_edicion") != d else None
+                            st.rerun()
+                    with c2:
+                        st.markdown(f"<div class='es-datos' style='border:none; padding:6px 0; color:{color_dia};'>{r['ENTRADA']}</div>", unsafe_allow_html=True)
+                    with c3:
+                        st.markdown(f"<div class='es-datos' style='border:none; padding:6px 0; color:{color_dia};'>{r['SALIDA']}</div>", unsafe_allow_html=True)
+                    with c4:
+                        st.markdown(f"<div class='es-datos' style='border:none; padding:6px 0; color:{color_dia};'>{hn_val}</div>", unsafe_allow_html=True)
+                    with c5:
+                        st.markdown(f"<div class='es-datos' style='border:none; padding:6px 0; color:{color_dia};'>{hr_val}</div>", unsafe_allow_html=True)
+                    with c6:
+                        st.markdown(f"<div class='es-datos' style='border:none; padding:6px 0; color:{color_dia};'>{r['OBRA']}</div>", unsafe_allow_html=True)
 
                     if st.session_state.get("dia_en_edicion") == d:
                         datos_d = dict_por_dia.get(d, {})
