@@ -19,7 +19,7 @@ st.set_page_config(
 )
 
 st.markdown("""<style>
-/* Ocultar UI nativa[cite: 1] */
+/* Ocultar UI nativa */
 header[data-testid="stHeader"] { display: none !important; }
 #MainMenu { visibility: hidden !important; }
 div[data-testid="stToolbar"] { visibility: hidden !important; }
@@ -29,43 +29,37 @@ div[data-testid="stDecoration"] { display: none !important; }
 .block-container { max-width: 95% !important; padding: 2rem !important; padding-bottom: 3rem !important; }
 div[data-testid="stForm"] { border: none !important; padding: 0 !important; margin-top: 1.5rem !important; margin-bottom: 1rem !important; }
 
-/* =========================================
-   SOLUCIÓN 2: ELIMINAR LAS FRANJAS NEGRAS (UNIÓN PERFECTA)
-   ========================================= */
-div.element-container:has(.contenedor-tabla), 
-div.stElementContainer:has(.contenedor-tabla) {
-    margin-bottom: -16px !important; 
+/* ELIMINAR ESPACIOS NEGROS: Anular el espacio vertical entre elementos */
+div[data-testid="stVerticalBlock"] {
+    gap: 0px !important;
 }
 
+/* Fila horizontal principal de la tabla */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     display: flex !important;
     flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    align-items: stretch !important; 
+    align-items: center !important; 
     background-color: #1a1e29 !important;
     border: 1px solid #353b4d !important;
     width: 100% !important;
     height: 40px !important;
     box-sizing: border-box !important;
-    margin-bottom: -1px !important;
+    margin-top: -1px !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
     background-color: #222634 !important;
 }
 
-/* =========================================
-   SOLUCIÓN 3: ALINEACIÓN PERFECTA DEL LÁPIZ DENTRO DE LA FILA
-   ========================================= */
+/* Proporciones exactas: 92% Tabla, 8% Botón */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
-    flex: 1 1 auto !important;
-    width: auto !important;
-    min-width: 0 !important;
+    flex: 0 0 92% !important;
+    max-width: 92% !important;
+    min-width: 92% !important;
 }
-
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child {
-    flex: 0 0 45px !important;
-    width: 45px !important;
-    min-width: 45px !important;
+    flex: 0 0 8% !important;
+    max-width: 8% !important;
+    min-width: 8% !important;
     display: flex !important; 
     align-items: center !important; 
     justify-content: center !important;
@@ -73,7 +67,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
     height: 40px !important;
 }
 
-/* Estructura interna de la tabla (HTML) */
+/* Estructura interna de la tabla (Grid) */
 .contenedor-tabla {
     display: grid !important;
     grid-template-columns: 8% 16% 16% 16% 16% 28% !important;
@@ -100,28 +94,26 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
 }
 .contenedor-tabla > div:last-child { border-right: none !important; }
 
-/* =========================================
-   SOLUCIÓN 1: CENTRADO VERTICAL DEL ENCABEZADO Y TEXTOS
-   ========================================= */
+/* Centrado vertical estricto del texto */
 div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p { 
     margin: 0 !important; 
     padding: 0 !important; 
     line-height: 40px !important; 
     height: 40px !important; 
-    display: block !important;
 }
 
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) div[data-testid="stVerticalBlock"] { 
-    gap: 0 !important; 
-    justify-content: center !important; 
-}
-
-/* Botón de edición perfectamente centrado */
+/* Botón de edición centrado en su celda */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
-    height: 28px !important; width: 28px !important; min-width: 28px !important;
-    padding: 0 !important; margin: 0 auto !important;
-    background-color: transparent !important; border: 1px solid transparent !important;
-    display: flex !important; align-items: center !important; justify-content: center !important;
+    height: 28px !important; 
+    width: 28px !important; 
+    min-width: 28px !important;
+    padding: 0 !important; 
+    margin: 0 auto !important;
+    background-color: transparent !important; 
+    border: 1px solid transparent !important;
+    display: flex !important; 
+    align-items: center !important; 
+    justify-content: center !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button:hover { border: 1px solid #a3adc2 !important; }
 </style>""", unsafe_allow_html=True)
@@ -613,7 +605,7 @@ else:
                     </div>
                     ''', unsafe_allow_html=True)
                 with c_h2:
-                    st.write("") # Espaciador para cuadrar la estructura
+                    pass
 
                 # --- FILAS DE DATOS ---
                 for r in registros_tabla:
