@@ -50,15 +50,15 @@ div[data-testid="stForm"] {
 }
 
 /* ========================================================
-   TABLA PERFECTA: CELDAS ALINEADAS Y SIN ESPACIOS
+   TABLA PERFECTA: INTEGRACIÓN TOTAL DEL BOTÓN
    ======================================================== */
 
-/* 1. Juntar las filas suavemente (Contrarresta el gap de Streamlit) */
+/* 1. Juntar las filas suavemente */
 div.element-container:has(.contenedor-tabla) {
     margin-bottom: -16px !important; 
 }
 
-/* 2. Configurar el bloque horizontal para que no rompa en móviles */
+/* 2. EL BLOQUE HORIZONTAL AHORA ES LA FILA COMPLETA (El fondo y borde mandan aquí) */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     display: flex !important;
     flex-direction: row !important;
@@ -66,40 +66,49 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     align-items: center !important;
     gap: 0px !important;
     width: 100% !important;
+    border-left: 1px solid #353b4d !important;
+    border-right: 1px solid #353b4d !important;
+    border-bottom: 1px solid #353b4d !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
 }
 
-/* 3. Proporciones fijas del bloque nativo (94% tabla, 6% botón) */
+div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
+    background-color: #222634 !important;
+    border-top: 1px solid #353b4d !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.es-datos) {
+    background-color: #1a1e29 !important;
+}
+
+/* 3. Proporciones del contenedor (94% textos, 6% botón) */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
     width: 94% !important; min-width: 94% !important; max-width: 94% !important; flex: 0 0 94% !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child {
     width: 6% !important; min-width: 6% !important; max-width: 6% !important; flex: 0 0 6% !important;
     display: flex !important; align-items: center !important; justify-content: center !important;
+    border-left: 1px solid #353b4d !important; /* Esta es la línea que separa el botón de la OBRA */
+    height: 40px !important;
 }
 
-/* 4. Estilos de la Cuadrícula HTML (Interna con CSS GRID INQUEBRANTABLE) */
+/* 4. Estilos de la Cuadrícula HTML (Ya NO llevan fondo ni bordes exteriores) */
 .contenedor-tabla {
     display: grid !important;
-    grid-template-columns: 10% 17% 17% 19% 19% 18% !important; /* <--- Proporciones bloqueadas con candado */
+    grid-template-columns: 10% 17% 17% 19% 19% 18% !important;
     width: 100% !important;
-    height: 38px !important;
+    height: 40px !important;
     align-items: center !important;
-    border-left: 1px solid #353b4d !important;
-    border-right: 1px solid #353b4d !important;
-    border-bottom: 1px solid #353b4d !important;
     box-sizing: border-box !important;
 }
 
 .es-encabezado {
-    background-color: #222634 !important;
-    border-top: 1px solid #353b4d !important;
     font-weight: 700 !important;
     color: #a3adc2 !important;
     font-size: 0.60rem !important;
 }
 
 .es-datos {
-    background-color: #1a1e29 !important;
     color: #ffffff !important;
     font-size: 0.85rem !important;
 }
@@ -107,7 +116,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
 /* Celdas individuales */
 .contenedor-tabla > div {
     border-right: 1px solid #353b4d !important;
-    padding: 0 2px !important;
+    padding: 0 6px !important;
     height: 100% !important;
     display: flex !important;
     align-items: center !important;
@@ -119,16 +128,21 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
 .contenedor-tabla > div:last-child {
     border-right: none !important;
 }
+
 /* 5. Limpieza de márgenes fantasma */
 div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p { margin: 0 !important; padding: 0 !important; line-height: 1 !important; }
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) div[data-testid="stVerticalBlock"] { gap: 0 !important; justify-content: center !important; }
 
-/* 6. Diseño del Botón */
+/* 6. Diseño del Botón (Transparente para que adopte el fondo de la fila) */
 div[data-testid="stHorizontalBlock"]:has(.es-datos) button {
     height: 28px !important; min-height: 28px !important; width: 28px !important; min-width: 28px !important;
-    padding: 0 !important; margin: 6px auto 0 auto !important;
-    background-color: #1a1e29 !important; border: 1px solid #353b4d !important; border-radius: 6px !important;
+    padding: 0 !important; margin: 0 auto !important;
+    background-color: transparent !important; border: 1px solid transparent !important;
     display: flex !important; align-items: center !important; justify-content: center !important;
+    box-shadow: none !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.es-datos) button:hover {
+    border: 1px solid #a3adc2 !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.es-datos) button p { font-size: 14px !important; margin: 0 !important; }
 </style>""", unsafe_allow_html=True)
