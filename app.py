@@ -52,7 +52,7 @@ div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
     background-color: #222634 !important;
 }
 
-/* 3. Proporciones: 92% Tabla, 8% Botón */
+/* 3. Proporciones: 92% Tabla, 16% Botón */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
     width: 92% !important; min-width: 92% !important; max-width: 92% !important; flex: 0 0 92% !important;
 }
