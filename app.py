@@ -94,7 +94,7 @@ div.stElementContainer:has(.encabezado-puro) {
 div.element-container:has(.fila-datos),
 div.stElementContainer:has(.fila-datos) {
     margin-top: -16px !important;
-    margin-bottom: -18px !important; /* <--- Cierra el espacio entre filas */
+    margin-bottom: -28px !important; /* <--- Fusión total de las filas */
 }
 
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
