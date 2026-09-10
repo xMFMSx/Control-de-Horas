@@ -54,11 +54,28 @@ div[data-testid="stForm"] {
    DISEÑO DE TABLA (Usando el motor nativo de Streamlit)
    ======================================================== */
 
-/* 1. SOLUCIÓN AL ESPACIO: Juntar las filas reduciendo el margen inferior */
+/* 1. BLOQUEO ANTI-MÓVIL Y ESPACIADO (Fuerza siempre fila horizontal) */
+div[data-testid="stHorizontalBlock"]:has(.fila-marcador) {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    min-width: 650px !important; /* Congela el ancho, evita apilamiento */
+}
+
 div.element-container:has(div[data-testid="stHorizontalBlock"]:has(.fila-marcador)),
 div.stElementContainer:has(div[data-testid="stHorizontalBlock"]:has(.fila-marcador)) {
     margin-bottom: -15px !important; 
+    overflow-x: auto !important;
 }
+
+/* CONGELAR ANCHOS: Evita que Streamlit aplaste las columnas al 100% en móviles */
+div[data-testid="stHorizontalBlock"]:has(.fila-marcador) > div[data-testid="column"]:nth-child(1) { width: 8% !important; flex: 0 0 8% !important; min-width: 8% !important; }
+div[data-testid="stHorizontalBlock"]:has(.fila-marcador) > div[data-testid="column"]:nth-child(2) { width: 16% !important; flex: 0 0 16% !important; min-width: 16% !important; }
+div[data-testid="stHorizontalBlock"]:has(.fila-marcador) > div[data-testid="column"]:nth-child(3) { width: 16% !important; flex: 0 0 16% !important; min-width: 16% !important; }
+div[data-testid="stHorizontalBlock"]:has(.fila-marcador) > div[data-testid="column"]:nth-child(4) { width: 15% !important; flex: 0 0 15% !important; min-width: 15% !important; }
+div[data-testid="stHorizontalBlock"]:has(.fila-marcador) > div[data-testid="column"]:nth-child(5) { width: 15% !important; flex: 0 0 15% !important; min-width: 15% !important; }
+div[data-testid="stHorizontalBlock"]:has(.fila-marcador) > div[data-testid="column"]:nth-child(6) { width: 24% !important; flex: 0 0 24% !important; min-width: 24% !important; }
+div[data-testid="stHorizontalBlock"]:has(.fila-marcador) > div[data-testid="column"]:nth-child(7) { width: 6% !important; flex: 0 0 6% !important; min-width: 6% !important; }
 
 /* 2. Fondo y bordes para la fila de ENCABEZADO */
 div[data-testid="stHorizontalBlock"]:has(.encabezado-marcador) {
@@ -67,7 +84,7 @@ div[data-testid="stHorizontalBlock"]:has(.encabezado-marcador) {
     border-bottom: 1px solid #4a5573 !important;
     padding-top: 8px !important;
     padding-bottom: 8px !important;
-    margin-bottom: 12px !important; /* Espacio antes de los datos */
+    margin-bottom: 12px !important; 
 }
 
 /* 3. Fondo y bordes para la fila de DATOS */
@@ -77,39 +94,38 @@ div[data-testid="stHorizontalBlock"]:has(.datos-marcador) {
     padding-bottom: 4px !important;
 }
 
-/* 4. Dibujar líneas verticales (Cuadriculado interno) */
+/* 4. Dibujar líneas verticales (Cuadriculado interno perfecto) */
 div[data-testid="stHorizontalBlock"]:has(.fila-marcador) > div[data-testid="column"] {
     border-right: 1px solid #32394d !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.fila-marcador) > div[data-testid="column"]:last-child {
-    border-right: none !important; /* El botón no lleva línea a la derecha */
+    border-right: none !important;
 }
 
-/* 5. Textos centrados y limpios */
+/* 5. Textos centrados e intocables */
 .txt-encabezado {
     font-size: 0.7rem !important;
     color: #a3adc2 !important;
     font-weight: 700 !important;
     text-align: center !important;
+    white-space: nowrap !important;
 }
 .txt-datos {
     font-size: 0.95rem !important;
     color: #ffffff !important;
     text-align: center !important;
+    white-space: nowrap !important;
 }
 
-/* Quitar saltos de línea invisibles dentro de las celdas */
-div[data-testid="stMarkdownContainer"]:has(.fila-marcador) p,
-div[data-testid="stMarkdownContainer"]:has(.txt-encabezado) p,
-div[data-testid="stMarkdownContainer"]:has(.txt-datos) p {
+/* Quitar saltos de línea invisibles */
+div[data-testid="stMarkdownContainer"]:has(.fila-marcador) p {
     margin-bottom: 0 !important;
 }
 
 /* 6. Centrar el botón del lápiz */
-div[data-testid="stHorizontalBlock"]:has(.datos-marcador) div[data-testid="stButton"] {
-    display: flex !important;
-    justify-content: center !important;
-}
 div[data-testid="stHorizontalBlock"]:has(.datos-marcador) div[data-testid="stButton"] button {
     height: 26px !important;
     min-height: 26px !important;
@@ -591,7 +607,7 @@ else:
             if "dia_en_edicion" not in st.session_state:
                 st.session_state["dia_en_edicion"] = None
 
-                        if registros_tabla:
+            if registros_tabla:
                 props = [0.8, 1.6, 1.6, 1.5, 1.5, 2.4, 0.6]
 
                 # --- FILA DE ENCABEZADO ---
@@ -620,6 +636,12 @@ else:
                     
                     with dc[6]:
                         if st.button("✏️", key=f"btn_edit_{d}"):
+                            if st.session_state.get("dia_en_edicion") == d:
+                                st.session_state["dia_en_edicion"] = None
+                            else:
+                                st.session_state["dia_en_edicion"] = d
+                            st.rerun()
+
                             if st.session_state.get("dia_en_edicion") == d:
                                 st.session_state["dia_en_edicion"] = None
                             else:
