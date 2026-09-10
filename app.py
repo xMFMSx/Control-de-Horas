@@ -68,65 +68,57 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     min-width: 650px !important;
 }
 
-/* 3. Proporciones fijas del bloque nativo (92% tabla, 8% botón) */
+/* 3. Proporciones fijas del bloque nativo (94% tabla, 6% botón) */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
-    width: 92% !important; min-width: 92% !important; max-width: 92% !important; flex: 0 0 92% !important;
+    width: 94% !important; min-width: 94% !important; max-width: 94% !important; flex: 0 0 94% !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child {
-    width: 8% !important; min-width: 8% !important; max-width: 8% !important; flex: 0 0 8% !important;
+    width: 6% !important; min-width: 6% !important; max-width: 6% !important; flex: 0 0 6% !important;
     display: flex !important; align-items: center !important; justify-content: center !important;
 }
 
-/* 4. Estilos de la Cuadrícula HTML (Interna) */
+/* 4. Estilos de la Cuadrícula HTML (Interna con CSS GRID INQUEBRANTABLE) */
 .contenedor-tabla {
-    display: flex;
-    width: 100%;
-    height: 38px;
-    align-items: center;
-    border-left: 1px solid #353b4d;
-    border-right: 1px solid #353b4d;
-    border-bottom: 1px solid #353b4d;
-    box-sizing: border-box;
+    display: grid !important;
+    grid-template-columns: 8% 15% 15% 16% 16% 30% !important; /* <--- Proporciones bloqueadas con candado */
+    width: 100% !important;
+    height: 38px !important;
+    align-items: center !important;
+    border-left: 1px solid #353b4d !important;
+    border-right: 1px solid #353b4d !important;
+    border-bottom: 1px solid #353b4d !important;
+    box-sizing: border-box !important;
 }
 
 .es-encabezado {
-    background-color: #222634;
-    border-top: 1px solid #353b4d;
-    font-weight: 700;
-    color: #a3adc2;
-    font-size: 0.68rem;
+    background-color: #222634 !important;
+    border-top: 1px solid #353b4d !important;
+    font-weight: 700 !important;
+    color: #a3adc2 !important;
+    font-size: 0.68rem !important;
 }
 
 .es-datos {
-    background-color: #1a1e29;
-    color: #ffffff;
-    font-size: 0.85rem;
+    background-color: #1a1e29 !important;
+    color: #ffffff !important;
+    font-size: 0.85rem !important;
 }
 
 /* Celdas individuales */
 .contenedor-tabla > div {
-    border-right: 1px solid #353b4d;
-    padding: 0 8px;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    box-sizing: border-box;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    border-right: 1px solid #353b4d !important;
+    padding: 0 10px !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
 }
 .contenedor-tabla > div:last-child {
-    border-right: none;
+    border-right: none !important;
 }
-
-/* Proporciones de celdas internas */
-.col-dia { flex: 0 0 8%; font-weight: bold; }
-.col-ent { flex: 0 0 16%; }
-.col-sal { flex: 0 0 16%; }
-.col-hn  { flex: 0 0 17%; }
-.col-hr  { flex: 0 0 17%; }
-.col-ob  { flex: 0 0 26%; }
-
 /* 5. Limpieza de márgenes fantasma */
 div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p { margin: 0 !important; padding: 0 !important; line-height: 1 !important; }
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) div[data-testid="stVerticalBlock"] { gap: 0 !important; justify-content: center !important; }
