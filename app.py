@@ -42,96 +42,138 @@ div[data-testid="stExpander"] summary p {
     color: #FFFFFF !important;
 }
 
-/* Espacio para el formulario de edición cuando se abre */
+/* Espacio seguro para el formulario de edición */
 div[data-testid="stForm"] {
     border: none !important;
     padding: 0 !important;
-    margin-top: 0.5rem !important;
-    margin-bottom: 1.5rem !important;
+    margin-top: 1.5rem !important;
+    margin-bottom: 1rem !important;
 }
 
-/* ========================================================
-   DISEÑO DE TABLA (Usando el motor nativo de Streamlit)
-   ======================================================== */
+/* --- 1. ENCABEZADO PURO HTML --- */
+.encabezado-puro {
+    display: flex !important;
+    width: 100% !important;
+    border-top: 1px solid #282d3c !important;
+    border-bottom: 1px solid #282d3c !important;
+    padding: 6px 0px !important;
+    margin-top: 10px !important;
+}
+.datos-encabezado {
+    width: 92% !important;
+    display: flex !important;
+    font-size: 0.65rem !important;
+    color: #838c9e !important;
+    font-weight: 600 !important;
+    align-items: center !important;
+}
+.vacio-encabezado {
+    width: 8% !important;
+}
 
-/* 1. BLOQUEO ANTI-MÓVIL Y ESPACIADO (Fuerza siempre fila horizontal) */
-div[data-testid="stHorizontalBlock"]:has(.fila-marcador) {
+/* Eliminar márgenes del markdown del encabezado y succionar la fila de abajo */
+div[data-testid="stMarkdownContainer"]:has(.encabezado-puro) p {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+div.element-container:has(.encabezado-puro),
+div.stElementContainer:has(.encabezado-puro) {
+    margin-bottom: -16px !important;
+}
+
+/* --- 2. FILAS DE DATOS Y COLUMNAS --- */
+div.element-container:has(.fila-datos),
+div.stElementContainer:has(.fila-datos) {
+    margin-top: -16px !important;
+    margin-bottom: -16px !important; /* Mantiene unidas las filas */
+}
+
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
-    min-width: 650px !important; /* Congela el ancho, evita apilamiento */
+    align-items: center !important;
+    gap: 0px !important; 
+    border-bottom: 1px solid #1c202a !important;
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+    width: 100% !important;
+    min-height: 40px !important;
 }
 
-div.element-container:has(div[data-testid="stHorizontalBlock"]:has(.fila-marcador)),
-div.stElementContainer:has(div[data-testid="stHorizontalBlock"]:has(.fila-marcador)) {
-    margin-bottom: -15px !important; 
-    overflow-x: auto !important;
+/* Forzar anchos mínimos exactos anti-móvil */
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:first-child {
+    width: 92% !important;
+    min-width: 92% !important;
+    max-width: 92% !important;
+    flex: 0 0 92% !important;
 }
-
-/* CONGELAR ANCHOS: Evita que Streamlit aplaste las columnas al 100% en móviles */
-div[data-testid="stHorizontalBlock"]:has(.fila-marcador) > div[data-testid="column"]:nth-child(1) { width: 8% !important; flex: 0 0 8% !important; min-width: 8% !important; }
-div[data-testid="stHorizontalBlock"]:has(.fila-marcador) > div[data-testid="column"]:nth-child(2) { width: 16% !important; flex: 0 0 16% !important; min-width: 16% !important; }
-div[data-testid="stHorizontalBlock"]:has(.fila-marcador) > div[data-testid="column"]:nth-child(3) { width: 16% !important; flex: 0 0 16% !important; min-width: 16% !important; }
-div[data-testid="stHorizontalBlock"]:has(.fila-marcador) > div[data-testid="column"]:nth-child(4) { width: 15% !important; flex: 0 0 15% !important; min-width: 15% !important; }
-div[data-testid="stHorizontalBlock"]:has(.fila-marcador) > div[data-testid="column"]:nth-child(5) { width: 15% !important; flex: 0 0 15% !important; min-width: 15% !important; }
-div[data-testid="stHorizontalBlock"]:has(.fila-marcador) > div[data-testid="column"]:nth-child(6) { width: 24% !important; flex: 0 0 24% !important; min-width: 24% !important; }
-div[data-testid="stHorizontalBlock"]:has(.fila-marcador) > div[data-testid="column"]:nth-child(7) { width: 6% !important; flex: 0 0 6% !important; min-width: 6% !important; }
-
-/* 2. Fondo y bordes para la fila de ENCABEZADO */
-div[data-testid="stHorizontalBlock"]:has(.encabezado-marcador) {
-    background-color: #262d3d !important;
-    border-top: 1px solid #4a5573 !important;
-    border-bottom: 1px solid #4a5573 !important;
-    padding-top: 8px !important;
-    padding-bottom: 8px !important;
-    margin-bottom: 12px !important; 
-}
-
-/* 3. Fondo y bordes para la fila de DATOS */
-div[data-testid="stHorizontalBlock"]:has(.datos-marcador) {
-    border-bottom: 1px solid #282d3c !important;
-    padding-top: 4px !important;
-    padding-bottom: 4px !important;
-}
-
-/* 4. Dibujar líneas verticales (Cuadriculado interno perfecto) */
-div[data-testid="stHorizontalBlock"]:has(.fila-marcador) > div[data-testid="column"] {
-    border-right: 1px solid #32394d !important;
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:last-child {
+    width: 8% !important;
+    min-width: 8% !important;
+    max-width: 8% !important;
+    flex: 0 0 8% !important;
     display: flex !important;
+    align-items: center !important;
     justify-content: center !important;
+}
+
+/* --- 3. ALINEACIÓN VERTICAL PERFECTA (ANIQUILAR MÁRGENES FANTASMA) --- */
+/* Destruye todos los márgenes que Streamlit inyecta en las capas ocultas para evitar que el texto flote */
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="column"] > div[data-testid="stVerticalBlock"] {
+    gap: 0 !important;
+    justify-content: center !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) div.stElementContainer,
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) div.element-container,
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"],
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"] > p,
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stButton"] {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.fila-datos {
+    display: flex !important;
+    width: 100% !important;
+    height: 28px !important; /* Altura matemáticamente idéntica al botón */
+    font-size: 0.75rem !important;
+    color: #ffffff !important;
     align-items: center !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.fila-marcador) > div[data-testid="column"]:last-child {
-    border-right: none !important;
-}
 
-/* 5. Textos centrados e intocables */
-.txt-encabezado {
-    font-size: 0.7rem !important;
-    color: #a3adc2 !important;
-    font-weight: 700 !important;
-    text-align: center !important;
-    white-space: nowrap !important;
-}
-.txt-datos {
-    font-size: 0.95rem !important;
-    color: #ffffff !important;
-    text-align: center !important;
-    white-space: nowrap !important;
-}
+/* Proporciones de las celdas de texto */
+.c-dia { flex: 0 0 8%; font-weight: bold; }
+.c-ent { flex: 0 0 16%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.c-sal { flex: 0 0 16%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.c-hn  { flex: 0 0 17%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.c-hr  { flex: 0 0 17%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.c-ob  { flex: 0 0 26%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* Quitar saltos de línea invisibles */
-div[data-testid="stMarkdownContainer"]:has(.fila-marcador) p {
-    margin-bottom: 0 !important;
-}
-
-/* 6. Centrar el botón del lápiz */
-div[data-testid="stHorizontalBlock"]:has(.datos-marcador) div[data-testid="stButton"] button {
-    height: 26px !important;
-    min-height: 26px !important;
+/* --- 4. DISEÑO DEL BOTÓN LÁPIZ Y EMOJI --- */
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) button {
+    height: 28px !important;
+    min-height: 28px !important;
     width: 28px !important;
+    min-width: 28px !important;
     padding: 0 !important;
     margin: 0 auto !important;
+    background-color: #1a1e29 !important;
+    border: 1px solid #2e3547 !important;
+    border-radius: 6px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) button p {
+    font-size: 14px !important;
+    line-height: 1 !important; 
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 </style>""", unsafe_allow_html=True)
 
@@ -273,7 +315,7 @@ def validar_usuario(correo_ingresado, password_ingresada):
         st.error(f"Error al conectar con la base de datos: {e}")
         return False, None
 
-# --- SCRIPT DE PERSISTENCIA AUTOMÁTICA ---
+# --- SCRIPT DE PERSISTENCIA AUTOMÁTICA (LOCALSTORAGE) ---
 if not st.session_state.get("autenticado") and "session" not in st.query_params:
     st.components.v1.html("""
         <script>
@@ -584,7 +626,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-                        elif st.session_state["vista_actual"] == "RESUMEN":
+        elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
             val_hn_str = minutos_a_hora_str(total_hn)
@@ -709,4 +751,3 @@ else:
 
             else:
                 st.info("Aún no tienes jornadas registradas en este mes.")
-
