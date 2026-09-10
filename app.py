@@ -450,7 +450,42 @@ div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) button p {
     text-overflow: clip !important;
     white-space: nowrap !important;
 }
+
+/* --- TABLA CSS GRID EQUILIBRADA (6 COLUMNAS SEPARADAS) --- */
+.tabla-resumen-header {
+    display: grid !important;
+    grid-template-columns: 8% 16% 16% 17% 17% 26% !important;
+    align-items: center !important;
+    border-top: 1px solid #282d3c !important;
+    border-bottom: 1px solid #282d3c !important;
+    padding: 6px 4px !important;
+    font-size: 0.55rem !important;
+    font-weight: 700 !important;
+    color: #a0aab8 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.fila-tabla-contenido {
+    display: grid !important;
+    grid-template-columns: 8% 16% 16% 17% 17% 26% !important;
+    align-items: center !important;
+    height: 38px !important;
+    padding: 0 4px !important;
+    font-size: 0.72rem !important;
+    color: #ffffff !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.tabla-resumen-header span, .fila-tabla-contenido span {
+    text-align: left !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
 </style>
+
 
 
 
