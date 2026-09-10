@@ -30,7 +30,7 @@ div[data-testid="stToolbar"] { visibility: hidden !important; }
 footer { visibility: hidden !important; }
 div[data-testid="stDecoration"] { display: none !important; }
 
-/* SOLUCIÓN DEFINITIVA AL CORTE INFERIOR: Liberar scroll en contenedores de Streamlit */
+/* Scroll fluido total en la vista para evitar cortes inferiores */
 html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {
     overflow-y: auto !important;
     height: auto !important;
@@ -62,7 +62,7 @@ div[data-testid="stVerticalBlock"] {
     gap: 0.1rem !important;
 }
 
-/* Fila horizontal principal de la tabla */
+/* Fila horizontal principal de la tabla: Eliminamos el gap de Streamlit para que no baje el botón */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     display: flex !important;
     flex-direction: row !important;
@@ -72,30 +72,31 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     width: 100% !important;
     box-sizing: border-box !important;
     margin: 0 !important;
+    gap: 0 !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
     background-color: #222634 !important;
 }
 
-/* Proporciones exactas: Tabla izquierda (89%), Botón derecha (11%) */
+/* Proporciones exactas: Tabla izquierda (90%), Botón derecha (10%) */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
-    flex: 0 0 89% !important;
-    max-width: 89% !important;
+    flex: 0 0 90% !important;
+    max-width: 90% !important;
     min-width: 0 !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child {
-    flex: 0 0 11% !important;
-    max-width: 11% !important;
+    flex: 0 0 10% !important;
+    max-width: 10% !important;
     display: flex !important; 
     align-items: center !important; 
     justify-content: center !important;
     border-left: 1px solid #353b4d !important;
 }
 
-/* Estructura interna de la tabla con ancho ajustado para que el lápiz quede perfecto */
+/* Estructura interna de la tabla: anchos perfectamente balanceados */
 .contenedor-tabla {
     display: grid !important;
-    grid-template-columns: 4.5% 9% 9% 11% 11% 10% !important;
+    grid-template-columns: 4.5% 9% 9% 11% 11% 15% !important;
     width: 100% !important;
     align-items: center !important;
     box-sizing: border-box !important;
@@ -648,7 +649,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-        # --- VISTA 2: RESUMEN MENSUAL CON SCROLL LIBRE Y LÁPIZ EN SU SITIO ---
+        # --- VISTA 2: RESUMEN MENSUAL CON LÁPIZ EN SU SITIO (GAP CERO) ---
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
@@ -675,7 +676,7 @@ else:
 
             if registros_tabla:
                 # --- ENCABEZADO SINCRONIZADO ---
-                c_h1, c_h2 = st.columns([0.89, 0.11], vertical_alignment="center")
+                c_h1, c_h2 = st.columns([0.90, 0.10], vertical_alignment="center")
                 with c_h1:
                     st.markdown('''
                     <div class="contenedor-tabla es-encabezado">
@@ -711,7 +712,7 @@ else:
                     else:
                         dia_html = str(d)
 
-                    c_dat, c_b = st.columns([0.89, 0.11], vertical_alignment="center")
+                    c_dat, c_b = st.columns([0.90, 0.10], vertical_alignment="center")
                     
                     with c_dat:
                         hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
