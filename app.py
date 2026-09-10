@@ -1308,3 +1308,27 @@ else:
 
             else:
                 st.info("Aún no tienes jornadas registradas en este mes.")
+
+st.markdown('''<style>
+/* --- CSS SEGURO E INOFENSIVO PARA LA TABLA --- */
+.tabla-resumen-header { display: flex !important; width: 100% !important; align-items: center !important; }
+.fila-tabla-contenido { display: flex !important; width: 100% !important; align-items: center !important; }
+
+/* Convierte las celdas en bloques rígidos que no colapsan aunque estén vacíos */
+.tabla-resumen-header span, .fila-tabla-contenido span {
+    display: inline-block !important;
+    text-align: left !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    min-height: 18px !important;
+}
+
+/* Forzamos porcentajes exactos que suman 100% en ambas filas */
+.tabla-resumen-header span:nth-child(1), .fila-tabla-contenido span:nth-child(1) { width: 8% !important; flex: 0 0 8% !important; }
+.tabla-resumen-header span:nth-child(2), .fila-tabla-contenido span:nth-child(2) { width: 15% !important; flex: 0 0 15% !important; }
+.tabla-resumen-header span:nth-child(3), .fila-tabla-contenido span:nth-child(3) { width: 15% !important; flex: 0 0 15% !important; }
+.tabla-resumen-header span:nth-child(4), .fila-tabla-contenido span:nth-child(4) { width: 18% !important; flex: 0 0 18% !important; }
+.tabla-resumen-header span:nth-child(5), .fila-tabla-contenido span:nth-child(5) { width: 18% !important; flex: 0 0 18% !important; }
+.tabla-resumen-header span:nth-child(6), .fila-tabla-contenido span:nth-child(6) { width: 26% !important; flex: 0 0 26% !important; }
+</style>''', unsafe_allow_html=True)
