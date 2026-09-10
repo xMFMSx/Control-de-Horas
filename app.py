@@ -71,21 +71,21 @@ div[data-testid="stForm"] {
     width: 8% !important;
 }
 
-/* Eliminar márgenes del markdown del encabezado y succionar la fila de abajo */
+/* Ajuste de la separación (Aumentada ligeramente a petición) */
 div[data-testid="stMarkdownContainer"]:has(.encabezado-puro) p {
     margin: 0 !important;
     padding: 0 !important;
 }
 div.element-container:has(.encabezado-puro),
 div.stElementContainer:has(.encabezado-puro) {
-    margin-bottom: -16px !important;
+    margin-bottom: -4px !important; /* <--- MAGIA: Reduce la succión para separar más el encabezado de los datos */
 }
 
 /* --- 2. FILAS DE DATOS Y COLUMNAS --- */
 div.element-container:has(.fila-datos),
 div.stElementContainer:has(.fila-datos) {
     margin-top: -16px !important;
-    margin-bottom: -16px !important; /* Mantiene unidas las filas */
+    margin-bottom: -16px !important; /* Mantiene unidas las filas de datos entre sí */
 }
 
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
