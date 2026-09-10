@@ -2,14 +2,13 @@ import streamlit as st
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
-import requests
-import json
 import base64
 import hmac
 import hashlib
 from datetime import datetime, date, time, timedelta
 import time as time_lib
 import urllib.parse
+from io import BytesIO
 
 st.set_page_config(
     page_title="Control de Horas",
@@ -29,30 +28,34 @@ div[data-testid="stDecoration"] { display: none !important; }
 .block-container { max-width: 95% !important; padding: 2rem !important; padding-bottom: 3rem !important; }
 div[data-testid="stForm"] { border: none !important; padding: 0 !important; margin-top: 1.5rem !important; margin-bottom: 1rem !important; }
 
-/* FUSIÓN TOTAL DE FILAS: Cero espacios negros entre filas */
+/* ELIMINACIÓN TOTAL DE FRANJAS NEGRAS Y ESPACIOS ENTRE FILAS */
 div.element-container:has(.contenedor-tabla), 
 div.stElementContainer:has(.contenedor-tabla) {
     margin-bottom: -1px !important; 
+    padding-bottom: 0 !important;
+    padding-top: 0 !important;
 }
 
-/* Fila horizontal principal */
+div[data-testid="stVerticalBlock"] {
+    gap: 0.2rem !important;
+}
+
+/* Fila horizontal principal de la tabla */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     display: flex !important;
     flex-direction: row !important;
     align-items: stretch !important; 
     background-color: #1a1e29 !important;
-    border-left: 1px solid #353b4d !important;
-    border-right: 1px solid #353b4d !important;
-    border-bottom: 1px solid #353b4d !important;
+    border: 1px solid #353b4d !important;
     width: 100% !important;
     box-sizing: border-box !important;
+    margin: 0 !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
     background-color: #222634 !important;
-    border-top: 1px solid #353b4d !important;
 }
 
-/* Proporciones estables: Tabla izquierda (88%), Botón derecha (12%) */
+/* Proporciones: Tabla izquierda (88%), Botón derecha (12%) */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
     flex: 1 1 auto !important;
     width: 88% !important;
@@ -67,7 +70,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
     border-left: 1px solid #353b4d !important;
 }
 
-/* Estructura interna de la tabla: Altura natural ajustada a las letras */
+/* Estructura interna de la tabla */
 .contenedor-tabla {
     display: grid !important;
     grid-template-columns: 8% 16% 16% 16% 16% 28% !important;
@@ -82,7 +85,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
 
 .contenedor-tabla > div {
     border-right: 1px solid #353b4d !important;
-    padding: 8px 8px !important;
+    padding: 6px 8px !important;
     display: flex !important;
     align-items: center !important;
     box-sizing: border-box !important;
@@ -98,16 +101,11 @@ div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p {
     line-height: 1.2 !important; 
 }
 
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) div[data-testid="stVerticalBlock"] { 
-    gap: 0 !important; 
-    justify-content: center !important; 
-}
-
-/* Botón de edición perfectamente centrado en su celda derecha */
+/* Botón de edición perfectamente centrado */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
-    height: 28px !important; 
-    width: 28px !important; 
-    min-width: 28px !important;
+    height: 26px !important; 
+    width: 26px !important; 
+    min-width: 26px !important;
     padding: 0 !important; 
     margin: auto !important;
     background-color: transparent !important; 
@@ -177,7 +175,11 @@ def cargar_trabajadores():
         usuarios = {}
         for r in filas:
             if len(r) >= 2 and r[0].strip() and r[1].strip():
-                usuarios[r[1].strip().lower()] = r[0].strip()
+                nombre = r[0].strip()
+                correo = r[1].strip().lower()
+                # Columna de rol (asumimos índice 3 si existe, ej: 'admin' o 'trabajador')
+                rol = r[3].strip().lower() if len(r) > 3 and r[3].strip() else "trabajador"
+                usuarios[correo] = {"nombre": nombre, "rol": rol}
         return usuarios
     except Exception:
         return {}
@@ -198,7 +200,6 @@ def cargar_obras():
                 obras_unicas.append(o)
                 
         lista_final = obras_unicas if obras_unicas else ["LOTE 1", "LOTE 4", "LOTE 11", "MONTESSORI"]
-        
         for opc_especial in ["PERMISO", "NO TRABAJA"]:
             if not any(o.upper() == opc_especial for o in lista_final):
                 lista_final.append(opc_especial)
@@ -248,16 +249,17 @@ def validar_usuario(correo_ingresado, password_ingresada):
             nombre = fila[0].strip()
             correo_db = fila[1].strip()
             password_db = fila[2].strip()
+            rol = fila[3].strip().lower() if len(fila) > 3 and fila[3].strip() else "trabajador"
             
             if correo_ingresado.lower() == correo_db.lower() and password_ingresada == password_db:
-                return True, nombre
+                return True, nombre, rol
                 
-        return False, None
+        return False, None, None
     except Exception as e:
         st.error(f"Error al conectar con la base de datos: {e}")
-        return False, None
+        return False, None, None
 
-# --- SCRIPT DE PERSISTENCIA AUTOMÁTICA (LOCALSTORAGE) ---
+# --- PERSISTENCIA AUTOMÁTICA (LOCALSTORAGE) ---
 if not st.session_state.get("autenticado") and "session" not in st.query_params:
     st.components.v1.html("""
         <script>
@@ -276,7 +278,8 @@ if "session" in query_params and not st.session_state.get("autenticado"):
         if correo_token.lower() in usuarios_map:
             st.session_state["autenticado"] = True
             st.session_state["user_email"] = correo_token.lower()
-            st.session_state["nombre_usuario"] = usuarios_map[correo_token.lower()]
+            st.session_state["nombre_usuario"] = usuarios_map[correo_token.lower()]["nombre"]
+            st.session_state["rol_usuario"] = usuarios_map[correo_token.lower()]["rol"]
 
 if "autenticado" not in st.session_state:
     st.session_state.autenticado = False
@@ -284,12 +287,14 @@ if "nombre_usuario" not in st.session_state:
     st.session_state.nombre_usuario = ""
 if "user_email" not in st.session_state:
     st.session_state.user_email = ""
+if "rol_usuario" not in st.session_state:
+    st.session_state.rol_usuario = "trabajador"
 if "cambiando_password" not in st.session_state:
     st.session_state.cambiando_password = False
 
 if not st.session_state.autenticado:
     st.title("🔐 Acceso a APP DE HORAS")
-    st.write("Por favor, ingresa tu correo electrónico y contraseña para continuar.")
+    st.write("Por favor, ingresa tu correo electrónico y contraseña para continuar[cite: 1].")
     
     with st.form("form_login"):
         correo_input = st.text_input("Correo Electrónico")
@@ -297,11 +302,12 @@ if not st.session_state.autenticado:
         submit_button = st.form_submit_button("Iniciar Sesión")
         
         if submit_button:
-            valido, nombre = validar_usuario(correo_input, password_input)
+            valido, nombre, rol = validar_usuario(correo_input, password_input)
             if valido:
                 st.session_state["autenticado"] = True
                 st.session_state["nombre_usuario"] = nombre
                 st.session_state["user_email"] = correo_input.lower()
+                st.session_state["rol_usuario"] = rol
                 token_firmado = firmar_correo(correo_input.lower())
                 st.query_params["session"] = token_firmado
                 
@@ -321,12 +327,15 @@ else:
     usuarios_autorizados = cargar_trabajadores()
     lista_obras = cargar_obras()
     nombre_trabajador = st.session_state.nombre_usuario
+    es_admin = st.session_state.get("rol_usuario", "trabajador") == "admin"
     hoja_usuario = obtener_hoja_trabajador(nombre_trabajador)
 
     c_gear, _ = st.columns([2.0, 8.0])
     with c_gear:
         with st.popover("⚙️"):
             st.markdown(f"**👤 {nombre_trabajador}**")
+            if es_admin:
+                st.markdown("🔑 *Rol: Administrador*")
             st.markdown("---")
             if st.button("🔑 Cambiar Contraseña", use_container_width=True):
                 st.session_state.cambiando_password = True
@@ -341,13 +350,12 @@ else:
                 st.session_state.autenticado = False
                 st.session_state.nombre_usuario = ""
                 st.session_state.user_email = ""
+                st.session_state.rol_usuario = "trabajador"
                 st.session_state.cambiando_password = False
                 st.rerun()
 
     if st.session_state.get("cambiando_password", False):
         st.subheader("🔑 Cambiar Contraseña")
-        st.write("Ingresa tu contraseña actual y tu nueva contraseña.")
-        
         with st.form("form_cambiar_pass"):
             pass_actual = st.text_input("Contraseña Actual", type="password")
             pass_nueva = st.text_input("Nueva Contraseña", type="password")
@@ -364,167 +372,129 @@ else:
                         libro = conectar_libro()
                         hoja_t = libro.worksheet("TRABAJADORES")
                         celdas = hoja_t.findall(correo_google)
-                        
                         encontrado = False
                         for celda in celdas:
                             fila_idx = celda.row
                             correo_en_tabla = hoja_t.cell(fila_idx, 2).value
                             pass_en_tabla = hoja_t.cell(fila_idx, 3).value
-                            
                             if correo_en_tabla and correo_en_tabla.strip().lower() == correo_google.lower():
                                 if pass_en_tabla.strip() == pass_actual.strip():
                                     hoja_t.update_cell(fila_idx, 3, pass_nueva.strip())
                                     encontrado = True
                                     break
-                                else:
-                                    st.error("❌ La contraseña actual es incorrecta.")
-                                    encontrado = True
-                                    break
-                        if encontrado and pass_en_tabla.strip() == pass_actual.strip():
-                            st.success("✔ ¡Contraseña actualizada con éxito en la nube!")
+                        if encontrado:
+                            st.success("✔ ¡Contraseña actualizada con éxito!")
                             st.session_state.cambiando_password = False
                             st.rerun()
+                        else:
+                            st.error("❌ Contraseña actual incorrecta.")
                     except Exception as e:
-                        st.error(f"Error al actualizar la contraseña: {e}")
+                        st.error(f"Error: {e}")
     else:
+        # Selector de Vistas (Incluyendo Admin si corresponde)
         if "vista_actual" not in st.session_state:
             st.session_state["vista_actual"] = "SEPTIEMBRE"
 
-        is_sep = st.session_state["vista_actual"] == "SEPTIEMBRE"
-        bg_sep = "#ff4b4b" if is_sep else "#1a1e29"
-        border_sep = "#ff4b4b" if is_sep else "#2e3547"
-        bg_res = "#ff4b4b" if not is_sep else "#1a1e29"
-        border_res = "#ff4b4b" if not is_sep else "#2e3547"
+        vistas_disponibles = ["📅 SEPTIEMBRE", "📊 RESUMEN"]
+        if es_admin:
+            vistas_disponibles.append("🛠️ ADMIN")
 
-        session_actual = st.query_params.get("session", "")
-
-        st.markdown(f'''
-            <div style="display: flex; gap: 8px; width: 100%; margin-bottom: 1rem;">
-                <form action="" method="get" style="flex: 1; margin: 0;">
-                    <input type="hidden" name="session" value="{session_actual}">
-                    <button type="submit" name="nav_vista" value="SEPTIEMBRE" style="width: 100%; background-color: {bg_sep}; border: 1px solid {border_sep}; color: white; padding: 0.6rem 0.2rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.82rem; white-space: nowrap; cursor: pointer;">📅 SEPTIEMBRE 2026</button>
-                </form>
-                <form action="" method="get" style="flex: 1; margin: 0;">
-                    <input type="hidden" name="session" value="{session_actual}">
-                    <button type="submit" name="nav_vista" value="RESUMEN" style="width: 100%; background-color: {bg_res}; border: 1px solid {border_res}; color: white; padding: 0.6rem 0.2rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.82rem; white-space: nowrap; cursor: pointer;">📊 RESUMEN DEL MES</button>
-                </form>
-            </div>
-        ''', unsafe_allow_html=True)
-
-        q_params = st.query_params
-        if "nav_vista" in q_params:
-            val_nav = q_params["nav_vista"]
-            if val_nav in ["SEPTIEMBRE", "RESUMEN"] and st.session_state["vista_actual"] != val_nav:
-                st.session_state["vista_actual"] = val_nav
-                if val_nav == "SEPTIEMBRE":
-                    st.session_state["dia_en_edicion"] = None
-                del st.query_params["nav_vista"]
-                st.rerun()
+        # Pestañas de navegación superiores
+        cols_nav = st.columns(len(vistas_disponibles))
+        for i, v_nombre in enumerate(vistas_disponibles):
+            v_key = "SEPTIEMBRE" if "SEPTIEMBRE" in v_nombre else ("RESUMEN" if "RESUMEN" in v_nombre else "ADMIN")
+            activo = st.session_state["vista_actual"] == v_key
+            bg_col = "#ff4b4b" if activo else "#1a1e29"
+            border_col = "#ff4b4b" if activo else "#2e3547"
+            
+            with cols_nav[i]:
+                if st.button(v_nombre, use_container_width=True, key=f"nav_{v_key}"):
+                    st.session_state["vista_actual"] = v_key
+                    st.rerun()
 
         st.markdown("---")
 
-        inicio_mes = date(2026, 8, 31)
-        fin_mes = date(2026, 9, 30)
+        # --- GESTIÓN DE PERÍODOS Y FECHAS ---
+        if "admin_inicio" not in st.session_state:
+            st.session_state["admin_inicio"] = date(2026, 8, 31)
+        if "admin_fin" not in st.session_state:
+            st.session_state["admin_fin"] = date(2026, 9, 30)
+
+        inicio_mes = st.session_state["admin_inicio"]
+        fin_mes = st.session_state["admin_fin"]
         delta_dias = (fin_mes - inicio_mes).days + 1
         fechas_periodo = [inicio_mes + timedelta(days=i) for i in range(delta_dias)]
 
-        if "filas_planilla" not in st.session_state:
-            try:
-                st.session_state["filas_planilla"] = hoja_usuario.get("A2:G32")
-            except Exception:
-                hoja_usuario = obtener_hoja_trabajador(nombre_trabajador)
+        # --- VISTA 1: REGISTRO DIARIO (SEPTIEMBRE) ---
+        if st.session_state["vista_actual"] == "SEPTIEMBRE":
+            st.subheader("REGISTRO DIARIO")
+            
+            if "filas_planilla" not in st.session_state:
                 try:
                     st.session_state["filas_planilla"] = hoja_usuario.get("A2:G32")
                 except Exception:
                     st.session_state["filas_planilla"] = []
 
-        filas_planilla = st.session_state["filas_planilla"]
+            filas_planilla = st.session_state["filas_planilla"]
+            dict_por_dia = {}
+            total_hn = 0
+            total_hr = 0
 
-        dict_por_dia = {}
-        registros_tabla = []
-        total_hn = 0
-        total_hr = 0
+            for idx, r in enumerate(filas_planilla):
+                num_dia = int(r[1]) if len(r) > 1 and r[1].isdigit() else (idx + 1)
+                entrada = r[2] if len(r) > 2 else ""
+                salida = r[3] if len(r) > 3 else ""
+                hn_val = r[4] if len(r) > 4 else ""
+                hr_val = r[5] if len(r) > 5 else ""
+                obra_val = r[6] if len(r) > 6 else ""
 
-        for idx, r in enumerate(filas_planilla):
-            num_dia = int(r[1]) if len(r) > 1 and r[1].isdigit() else (idx + 1)
-            entrada = r[2] if len(r) > 2 else ""
-            salida = r[3] if len(r) > 3 else ""
-            hn_val = r[4] if len(r) > 4 else ""
-            hr_val = r[5] if len(r) > 5 else ""
-            obra_val = r[6] if len(r) > 6 else ""
+                dict_por_dia[num_dia] = {
+                    "entrada": entrada, "salida": salida,
+                    "hn": hn_val, "hr": hr_val, "obra": obra_val
+                }
 
-            dict_por_dia[num_dia] = {
-                "entrada": entrada, "salida": salida,
-                "hn": hn_val, "hr": hr_val, "obra": obra_val
-            }
+                def a_minutos(txt):
+                    if not txt: return 0
+                    t = str(txt).strip()
+                    if ":" in t:
+                        p = t.split(":")
+                        return int(float(p[0])) * 60 + int(float(p[1]))
+                    return int(round(float(t.replace(",", ".")) * 60))
 
-            def a_minutos(txt):
-                if not txt: return 0
-                t = str(txt).strip()
-                if ":" in t:
-                    p = t.split(":")
-                    return int(float(p[0])) * 60 + int(float(p[1]))
-                return int(round(float(t.replace(",", ".")) * 60))
+                try: total_hn += a_minutos(hn_val)
+                except Exception: pass
+                try: total_hr += a_minutos(hr_val)
+                except Exception: pass
 
-            try: total_hn += a_minutos(hn_val)
-            except Exception: pass
-            try: total_hr += a_minutos(hr_val)
-            except Exception: pass
-
-            if entrada or salida or obra_val:
-                registros_tabla.append({
-                    "DÍA": num_dia, "ENTRADA": entrada, "SALIDA": salida,
-                    "HORA EXTRA": hn_val, "HORA RECARGO": hr_val, "OBRA": obra_val
-                })
-
-        if st.session_state["vista_actual"] == "SEPTIEMBRE":
-            st.subheader("SEPTIEMBRE 2026")
-            
             val_hn_str = minutos_a_hora_str(total_hn)
             val_hr_str = minutos_a_hora_str(total_hr)
-            html_cards = f'''
+            
+            st.markdown(f'''
             <div style="display: flex; gap: 10px; width: 100%; margin-bottom: 1rem;">
-                <div style="flex: 1; min-width: 0; background-color: #0e1117; border: 1px solid #262d3d; border-radius: 8px; padding: 14px;">
-                    <div style="font-size: 0.68rem; color: #838c9e; margin-bottom: 4px; font-weight: 500; white-space: nowrap;">Total Horas Extras (Mes)</div>
-                    <div style="font-size: 1.6rem; font-weight: 700; color: #ffffff; white-space: nowrap;">{val_hn_str}</div>
+                <div style="flex: 1; background-color: #0e1117; border: 1px solid #262d3d; border-radius: 8px; padding: 14px;">
+                    <div style="font-size: 0.68rem; color: #838c9e; margin-bottom: 4px;">Total Horas Extras</div>
+                    <div style="font-size: 1.6rem; font-weight: 700; color: #ffffff;">{val_hn_str}</div>
                 </div>
-                <div style="flex: 1; min-width: 0; background-color: #0e1117; border: 1px solid #262d3d; border-radius: 8px; padding: 14px;">
-                    <div style="font-size: 0.68rem; color: #838c9e; margin-bottom: 4px; font-weight: 500; white-space: nowrap;">Total Horas Recargo (Mes)</div>
-                    <div style="font-size: 1.6rem; font-weight: 700; color: #ffffff; white-space: nowrap;">{val_hr_str}</div>
+                <div style="flex: 1; background-color: #0e1117; border: 1px solid #262d3d; border-radius: 8px; padding: 14px;">
+                    <div style="font-size: 0.68rem; color: #838c9e; margin-bottom: 4px;">Total Horas Recargo</div>
+                    <div style="font-size: 1.6rem; font-weight: 700; color: #ffffff;">{val_hr_str}</div>
                 </div>
             </div>
-            '''
-            st.markdown(html_cards, unsafe_allow_html=True)
+            ''', unsafe_allow_html=True)
             st.markdown("---")
 
-            dias_pendientes = []
-            for f in fechas_periodo:
-                num_dia = f.day
-                guardado = dict_por_dia.get(num_dia, {})
-                if not (guardado.get("entrada") or guardado.get("salida") or guardado.get("obra")):
-                    dias_pendientes.append(f)
+            dias_pendientes = [f for f in fechas_periodo if not (dict_por_dia.get(f.day, {}).get("entrada") or dict_por_dia.get(f.day, {}).get("obra"))]
 
             if not dias_pendientes:
-                st.success("🎉 ¡Todos los días del mes ya han sido completados!")
+                st.success("🎉 ¡Todos los días del periodo ya han sido completados!")
             else:
                 for f in dias_pendientes:
                     nom_dia = DIAS_MAP[f.weekday()]
                     num_dia = f.day
                     fecha_iso = f.strftime("%Y-%m-%d")
                     es_festivo = fecha_iso in FERIADOS
-
-                    espacio_relleno = " " * (9 - len(nom_dia))
-                    dia_base = f"{nom_dia}{espacio_relleno} | {num_dia:02d}"
-
-                    if es_festivo or f.weekday() == 6:
-                        col_dia_num = f":violet[{dia_base}]"
-                    elif f.weekday() == 5:
-                        col_dia_num = f":blue[{dia_base}]"
-                    else:
-                        col_dia_num = dia_base
-
-                    aviso = " :violet[(FERIADO)]" if es_festivo else ""
-                    label = f"⚪ {col_dia_num}{aviso}"
+                    dia_base = f"{nom_dia} | {num_dia:02d}"
+                    label = f"⚪ {dia_base}{' (FERIADO)' if es_festivo else ''}"
 
                     with st.expander(label):
                         with st.form(key=f"form_dia_{num_dia}"):
@@ -533,67 +503,84 @@ else:
                                 inp_ent = st.time_input("Entrada", value=None, key=f"e_{num_dia}")
                             with c_sal:
                                 inp_sal = st.time_input("Salida", value=None, key=f"s_{num_dia}")
-
                             inp_ob = st.selectbox("Obra", options=lista_obras, index=None, placeholder="Seleccionar...", key=f"o_{num_dia}")
-
-                            st.write("")
-                            col_btn, _ = st.columns([1, 3])
-                            with col_btn:
-                                guardar_btn = st.form_submit_button("💾 Guardar Registro", use_container_width=True)
-
-                            if guardar_btn:
+                            
+                            if st.form_submit_button("💾 Guardar Registro", use_container_width=True):
                                 es_especial = inp_ob and inp_ob.strip().upper() in ["PERMISO", "NO TRABAJA"]
                                 if not inp_ob:
                                     st.warning("⚠️ Debes seleccionar una Obra.")
                                 elif not es_especial and (inp_ent is None or inp_sal is None):
-                                    st.warning("⚠️ Debes ingresar Entrada y Salida para las obras normales.")
+                                    st.warning("⚠️ Debes ingresar Entrada y Salida.")
                                 else:
-                                    with st.spinner("Guardando en la planilla..."):
-                                        try:
-                                            fila_n = fila_segun_dia(num_dia)
-                                            if es_especial:
-                                                hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["-", "-"]], value_input_option="RAW")
-                                                hoja_usuario.update(f"G{fila_n}", [[inp_ob]], value_input_option="RAW")
-                                            else:
-                                                ent_str = inp_ent.strftime("%H:%M")
-                                                sal_str = inp_sal.strftime("%H:%M")
-                                                hoja_usuario.update(f"C{fila_n}:D{fila_n}", [[ent_str, sal_str]], value_input_option="USER_ENTERED")
-                                                hoja_usuario.update(f"G{fila_n}", [[inp_ob]], value_input_option="USER_ENTERED")
+                                    fila_n = fila_segun_dia(num_dia)
+                                    if es_especial:
+                                        hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["-", "-"]], value_input_option="RAW")
+                                        hoja_usuario.update(f"G{fila_n}", [[inp_ob]], value_input_option="RAW")
+                                    else:
+                                        hoja_usuario.update(f"C{fila_n}:D{fila_n}", [[inp_ent.strftime("%H:%M"), inp_sal.strftime("%H:%M")]], value_input_option="USER_ENTERED")
+                                        hoja_usuario.update(f"G{fila_n}", [[inp_ob]], value_input_option="USER_ENTERED")
+                                    
+                                    if "filas_planilla" in st.session_state:
+                                        del st.session_state["filas_planilla"]
+                                    st.session_state["vista_actual"] = "RESUMEN"
+                                    st.rerun()
 
-                                            if "filas_planilla" in st.session_state:
-                                                del st.session_state["filas_planilla"]
-
-                                            st.session_state["vista_actual"] = "RESUMEN"
-                                            st.rerun()
-                                        except Exception as err:
-                                            st.error(f"Error al guardar: {err}")
-
+        # --- VISTA 2: RESUMEN MENSUAL Y EXPORTAR PDF ---
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
-            val_hn_str = minutos_a_hora_str(total_hn)
-            val_hr_str = minutos_a_hora_str(total_hr)
-            
-            html_cards_res = f"""
+            if "filas_planilla" not in st.session_state:
+                try:
+                    st.session_state["filas_planilla"] = hoja_usuario.get("A2:G32")
+                except Exception:
+                    st.session_state["filas_planilla"] = []
+
+            registros_tabla = []
+            total_hn, total_hr = 0, 0
+            dict_por_dia = {}
+            for idx, r in enumerate(st.session_state["filas_planilla"]):
+                num_dia = int(r[1]) if len(r) > 1 and r[1].isdigit() else (idx + 1)
+                e, s, hn, hr, ob = (r[2] if len(r)>2 else ""), (r[3] if len(r)>3 else ""), (r[4] if len(r)>4 else ""), (r[5] if len(r)>5 else ""), (r[6] if len(r)>6 else "")
+                dict_por_dia[num_dia] = {"entrada": e, "salida": s, "hn": hn, "hr": hr, "obra": ob}
+                
+                def a_minutos(txt):
+                    if not txt: return 0
+                    t = str(txt).strip()
+                    if ":" in t:
+                        p = t.split(":")
+                        return int(float(p[0])) * 60 + int(float(p[1]))
+                    return int(round(float(t.replace(",", ".")) * 60))
+                try: total_hn += a_minutos(hn)
+                except: pass
+                try: total_hr += a_minutos(hr)
+                except: pass
+
+                if e or s or ob:
+                    registros_tabla.append({"DÍA": num_dia, "ENTRADA": e, "SALIDA": s, "HORA EXTRA": hn, "HORA RECARGO": hr, "OBRA": ob})
+
+            st.markdown(f'''
             <div style="display: flex; gap: 10px; width: 100%; margin-bottom: 1rem;">
-                <div style="flex: 1; min-width: 0; background-color: #0e1117; border: 1px solid #262d3d; border-radius: 8px; padding: 14px;">
-                    <div style="font-size: 0.68rem; color: #838c9e; margin-bottom: 4px; font-weight: 500; white-space: nowrap;">Total Horas Extras (Mes)</div>
-                    <div style="font-size: 1.6rem; font-weight: 700; color: #ffffff; white-space: nowrap;">{val_hn_str}</div>
+                <div style="flex: 1; background-color: #0e1117; border: 1px solid #262d3d; border-radius: 8px; padding: 14px;">
+                    <div style="font-size: 0.68rem; color: #838c9e; margin-bottom: 4px;">Total Horas Extras</div>
+                    <div style="font-size: 1.6rem; font-weight: 700; color: #ffffff;">{minutos_a_hora_str(total_hn)}</div>
                 </div>
-                <div style="flex: 1; min-width: 0; background-color: #0e1117; border: 1px solid #262d3d; border-radius: 8px; padding: 14px;">
-                    <div style="font-size: 0.68rem; color: #838c9e; margin-bottom: 4px; font-weight: 500; white-space: nowrap;">Total Horas Recargo (Mes)</div>
-                    <div style="font-size: 1.6rem; font-weight: 700; color: #ffffff; white-space: nowrap;">{val_hr_str}</div>
+                <div style="flex: 1; background-color: #0e1117; border: 1px solid #262d3d; border-radius: 8px; padding: 14px;">
+                    <div style="font-size: 0.68rem; color: #838c9e; margin-bottom: 4px;">Total Horas Recargo</div>
+                    <div style="font-size: 1.6rem; font-weight: 700; color: #ffffff;">{minutos_a_hora_str(total_hr)}</div>
                 </div>
             </div>
-            """
-            st.markdown(html_cards_res, unsafe_allow_html=True)
+            ''', unsafe_allow_html=True)
+
+            # Botón de exportación a PDF (Base estructurada)
+            if st.button("📄 Descargar Reporte en PDF"):
+                st.info("ℹ️ Módulo de PDF listo para ser conectado con ReportLab/FPDF en la siguiente fase de pulido.")
+
             st.markdown("---")
 
             if "dia_en_edicion" not in st.session_state:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # --- ENCABEZADO SINCRONIZADO ---
                 c_h1, c_h2 = st.columns([0.88, 0.12], vertical_alignment="center")
                 with c_h1:
                     st.markdown('''
@@ -606,94 +593,95 @@ else:
                         <div class="col-ob">OBRA</div>
                     </div>
                     ''', unsafe_allow_html=True)
-                with c_h2:
-                    pass
 
-                # --- FILAS DE DATOS ---
                 for r in registros_tabla:
-                    d = r["DÍA"] 
+                    d = r["DÍA"]
                     c_dat, c_b = st.columns([0.88, 0.12], vertical_alignment="center")
-                    
                     with c_dat:
-                        hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
-                        hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
-                        
                         st.markdown(f'''
                         <div class="contenedor-tabla es-datos">
                             <div class="col-dia">{d}</div>
                             <div class="col-ent">{r["ENTRADA"]}</div>
                             <div class="col-sal">{r["SALIDA"]}</div>
-                            <div class="col-hn">{hn_val}</div>
-                            <div class="col-hr">{hr_val}</div>
+                            <div class="col-hn">{r["HORA EXTRA"] or "&nbsp;"}</div>
+                            <div class="col-hr">{r["HORA RECARGO"] or "&nbsp;"}</div>
                             <div class="col-ob">{r["OBRA"]}</div>
                         </div>
                         ''', unsafe_allow_html=True)
                     with c_b:
                         if st.button("✏️", key=f"btn_edit_{d}"):
-                            if st.session_state.get("dia_en_edicion") == d:
-                                st.session_state["dia_en_edicion"] = None
-                            else:
-                                st.session_state["dia_en_edicion"] = d
+                            st.session_state["dia_en_edicion"] = None if st.session_state.get("dia_en_edicion") == d else d
                             st.rerun()
 
-                    # Lógica de edición
                     if st.session_state.get("dia_en_edicion") == d:
                         datos_d = dict_por_dia.get(d, {})
-                        val_e = str_a_time(datos_d.get("entrada", ""))
-                        val_s = str_a_time(datos_d.get("salida", ""))
-                        val_o = datos_d.get("obra", "")
-                        idx_o = lista_obras.index(val_o) if val_o and val_o in lista_obras else 0
-
                         with st.form(key=f"form_inline_dia_{d}"):
                             c1e, c2e = st.columns(2)
                             with c1e:
-                                edit_ent = st.time_input("Entrada", value=val_e, key=f"re_{d}")
+                                edit_ent = st.time_input("Entrada", value=str_a_time(datos_d.get("entrada")), key=f"re_{d}")
                             with c2e:
-                                edit_sal = st.time_input("Salida", value=val_s, key=f"rs_{d}")
+                                edit_sal = st.time_input("Salida", value=str_a_time(datos_d.get("salida")), key=f"rs_{d}")
+                            edit_ob = st.selectbox("Obra", options=lista_obras, index=lista_obras.index(datos_d.get("obra")) if datos_d.get("obra") in lista_obras else 0, key=f"ro_{d}")
                             
-                            edit_ob = st.selectbox("Obra", options=lista_obras, index=idx_o, key=f"ro_{d}")
-
-                            st.write("")
                             b1, b2 = st.columns(2)
                             with b1:
-                                btn_guardar_edit = st.form_submit_button("💾 Guardar Cambios", use_container_width=True)
+                                if st.form_submit_button("💾 Guardar", use_container_width=True):
+                                    fila_n = fila_segun_dia(d)
+                                    es_esp = edit_ob.upper() in ["PERMISO", "NO TRABAJA"]
+                                    if es_esp:
+                                        hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["-", "-"]], value_input_option="RAW")
+                                        hoja_usuario.update(f"G{fila_n}", [[edit_ob]], value_input_option="RAW")
+                                    else:
+                                        hoja_usuario.update(f"C{fila_n}:D{fila_n}", [[edit_ent.strftime("%H:%M"), edit_sal.strftime("%H:%M")]], value_input_option="USER_ENTERED")
+                                        hoja_usuario.update(f"G{fila_n}", [[edit_ob]], value_input_option="USER_ENTERED")
+                                    if "filas_planilla" in st.session_state: del st.session_state["filas_planilla"]
+                                    st.session_state["dia_en_edicion"] = None
+                                    st.rerun()
                             with b2:
-                                btn_borrar_edit = st.form_submit_button("🧹 Limpiar", use_container_width=True)
-
-                            if btn_guardar_edit:
-                                es_especial_edit = edit_ob and edit_ob.strip().upper() in ["PERMISO", "NO TRABAJA"]
-                                if not edit_ob:
-                                    st.warning("⚠️ Debes seleccionar Obra.")
-                                elif not es_especial_edit and (edit_ent is None or edit_sal is None):
-                                    st.warning("⚠️ Debes completar Entrada y Salida.")
-                                else:
-                                    with st.spinner("Actualizando planilla..."):
-                                        fila_n = fila_segun_dia(d)
-                                        if es_especial_edit:
-                                            hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["-", "-"]], value_input_option="RAW")
-                                            hoja_usuario.update(f"G{fila_n}", [[edit_ob]], value_input_option="RAW")
-                                        else:
-                                            ent_str = edit_ent.strftime("%H:%M")
-                                            sal_str = edit_sal.strftime("%H:%M")
-                                            hoja_usuario.update(f"C{fila_n}:D{fila_n}", [[ent_str, sal_str]], value_input_option="USER_ENTERED")
-                                            hoja_usuario.update(f"G{fila_n}", [[edit_ob]], value_input_option="USER_ENTERED")
-
-                                        if "filas_planilla" in st.session_state:
-                                            del st.session_state["filas_planilla"]
-                                        st.session_state["dia_en_edicion"] = None
-                                        st.rerun()
-
-                            if btn_borrar_edit:
-                                with st.spinner("Limpiando registro..."):
+                                if st.form_submit_button("🧹 Limpiar", use_container_width=True):
                                     fila_n = fila_segun_dia(d)
                                     hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["", ""]], value_input_option="USER_ENTERED")
                                     hoja_usuario.update(f"G{fila_n}", [[""]], value_input_option="USER_ENTERED")
-
-                                    if "filas_planilla" in st.session_state:
-                                        del st.session_state["filas_planilla"]
+                                    if "filas_planilla" in st.session_state: del st.session_state["filas_planilla"]
                                     st.session_state["dia_en_edicion"] = None
-                                    st.session_state["vista_actual"] = "SEPTIEMBRE"
                                     st.rerun()
-
             else:
-                st.info("Aún no tienes jornadas registradas en este mes.")
+                st.info("Aún no tienes jornadas registradas.")
+
+        # --- VISTA 3: MODO ADMINISTRADOR ---
+        elif st.session_state["vista_actual"] == "ADMIN" and es_admin:
+            st.subheader("🛠️ PANEL DE ADMINISTRADOR")
+            st.write("Control global de personal y selector de ciclos mensuales.")
+            
+            c_f1, c_f2 = st.columns(2)
+            with c_f1:
+                nuevo_inicio = st.date_input("Fecha Inicio de Ciclo", value=st.session_state["admin_inicio"])
+            with c_f2:
+                nuevo_fin = st.date_input("Fecha Término de Ciclo", value=st.session_state["admin_fin"])
+            
+            if nuevo_inicio != st.session_state["admin_inicio"] or nuevo_fin != st.session_state["admin_fin"]:
+                st.session_state["admin_inicio"] = nuevo_inicio
+                st.session_state["admin_fin"] = nuevo_fin
+                st.success("✔ Período actualizado correctamente.")
+
+            st.markdown("---")
+            st.write("### 👥 Listado General de Trabajadores")
+            
+            # Mostrar tabla global de todos los trabajadores registrados
+            try:
+                libro_admin = conectar_libro()
+                resumen_global = []
+                for correo_w, info_w in usuarios_autorizados.items():
+                    nom = info_w["nombre"]
+                    try:
+                        h_w = libro_admin.worksheet(nom)
+                        vals = h_w.get_all_values()[1:]
+                        total_dias_reg = sum(1 for r in vals if len(r) > 2 and (r[2].strip() or r[6].strip()))
+                        resumen_global.append({"Trabajador": nom, "Correo": correo_w, "Días Registrados": total_dias_reg})
+                    except Exception:
+                        resumen_global.append({"Trabajador": nom, "Correo": correo_w, "Días Registrados": 0})
+                
+                df_global = pd.DataFrame(resumen_global)
+                st.dataframe(df_global, use_container_width=True)
+            except Exception as e:
+                st.error(f"No se pudo cargar el resumen global: {e}")
