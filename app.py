@@ -312,7 +312,43 @@ div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) button p {
     text-overflow: clip !important;
     white-space: nowrap !important;
 }
+
+/* --- ALINEACIÓN VERTICAL EXACTA (TEXTOS A LA IZQUIERDA) --- */
+.tabla-resumen-header {
+    display: grid !important;
+    grid-template-columns: 8% 17% 17% 16% 16% 26% !important;
+    align-items: center !important;
+    border-top: 1px solid #282d3c !important;
+    border-bottom: 1px solid #282d3c !important;
+    padding: 6px 2px !important;
+    font-size: 0.50rem !important;
+    font-weight: 600 !important;
+    color: #838c9e !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.fila-tabla-contenido {
+    display: grid !important;
+    grid-template-columns: 8% 17% 17% 16% 16% 26% !important;
+    align-items: center !important;
+    height: 36px !important;
+    padding: 0 2px !important;
+    font-size: 0.68rem !important;
+    color: #ffffff !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Forzar alineación a la izquierda en ambas filas para que coincidan perfecto */
+.tabla-resumen-header span, .fila-tabla-contenido span {
+    width: 100% !important;
+    text-align: left !important;
+    overflow: visible !important;
+    white-space: nowrap !important;
+}
 </style>
+
 
 
 
