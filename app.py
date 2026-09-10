@@ -141,7 +141,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdow
     display: flex !important;
     width: 100% !important;
     height: 28px !important; 
-    font-size: 0.90rem !important;
+    font-size: 0.95rem !important;
     color: #ffffff !important;
     align-items: center !important;
 }
