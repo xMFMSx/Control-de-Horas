@@ -133,7 +133,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdow
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"] p {
     margin: 0 !important;
     padding: 0 !important;
-    line-height: 24px !important; 
+    line-height: 10px !important; 
     transform: none !important; /* Limpiamos cualquier empuje extraño */
 }
 
