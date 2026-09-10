@@ -30,14 +30,14 @@ div[data-testid="stDecoration"] { display: none !important; }
 div[data-testid="stForm"] { border: none !important; padding: 0 !important; margin-top: 1.5rem !important; margin-bottom: 1rem !important; }
 
 /* =========================================
-   FUSIÓN TOTAL: ELIMINAR ESPACIOS NEGROS ENTRE FILAS
+   FUSIÓN DE FILAS (ADIÓS A LOS ESPACIOS NEGROS)
    ========================================= */
-/* El margen negativo absorbe cualquier espacio negro vertical entre contenedores */
 div.element-container:has(.contenedor-tabla), 
 div.stElementContainer:has(.contenedor-tabla) {
     margin-bottom: -41px !important; 
 }
 
+/* Fila horizontal principal */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     display: flex !important;
     flex-direction: row !important;
@@ -55,15 +55,22 @@ div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
     border-top: 1px solid #353b4d !important;
 }
 
-/* Proporciones: 92% Tabla, 8% Botón */
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
+/* =========================================
+   CONTROL DE POSICIÓN: TABLA IZQUIERDA | BOTÓN DERECHA
+   ========================================= */
+/* Columna de la tabla (Siempre a la izquierda, ocupa el 92%) */
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:has(.contenedor-tabla) {
     width: 92% !important; min-width: 92% !important; max-width: 92% !important; flex: 0 0 92% !important;
+    order: 1 !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child {
+
+/* Columna del botón (Siempre a la derecha, ocupa el 8%) */
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:has(button) {
     width: 8% !important; min-width: 8% !important; max-width: 8% !important; flex: 0 0 8% !important;
     display: flex !important; align-items: center !important; justify-content: center !important;
     border-left: 1px solid #353b4d !important;
     height: 40px !important;
+    order: 2 !important;
 }
 
 /* Estructura interna de la tabla (HTML) */
@@ -113,10 +120,10 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) div[data-testid="stV
     justify-content: center !important; 
 }
 
-/* Botón de edición centrado */
+/* Botón de edición perfectamente centrado en su celda derecha */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
     height: 28px !important; width: 28px !important; min-width: 28px !important;
-    padding: 0 !important; margin: -4px auto 0 auto !important;
+    padding: 0 !important; margin: 0 auto !important;
     background-color: transparent !important; border: 1px solid transparent !important;
     display: flex !important; align-items: center !important; justify-content: center !important;
 }
