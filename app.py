@@ -217,7 +217,16 @@ div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) button p {
     margin: 0 !important;
     padding: 0 !important;
 }
+
+/* --- ANCHOS EXACTOS Y SINCRONIZADOS PARA LA TABLA --- */
+.tabla-resumen-header span:nth-child(1), .fila-tabla-contenido span:nth-child(1) { width: 8% !important; flex: 0 0 8% !important; }
+.tabla-resumen-header span:nth-child(2), .fila-tabla-contenido span:nth-child(2) { width: 16% !important; flex: 0 0 16% !important; }
+.tabla-resumen-header span:nth-child(3), .fila-tabla-contenido span:nth-child(3) { width: 16% !important; flex: 0 0 16% !important; }
+.tabla-resumen-header span:nth-child(4), .fila-tabla-contenido span:nth-child(4) { width: 17% !important; flex: 0 0 17% !important; }
+.tabla-resumen-header span:nth-child(5), .fila-tabla-contenido span:nth-child(5) { width: 17% !important; flex: 0 0 17% !important; }
+.tabla-resumen-header span:nth-child(6), .fila-tabla-contenido span:nth-child(6) { width: 26% !important; flex: 0 0 26% !important; }
 </style>
+
 
 
 
@@ -707,7 +716,7 @@ else:
                     <span style="width: 16%;">ENTRADA</span>
                     <span style="width: 16%;">SALIDA</span>
                     <span style="width: 17%;">H.NORMAL</span>
-                    <span style="width: 17%;">H.RECARGOARGO</span>
+                    <span style="width: 17%;">H.RECARGO</span>
                     <span style="width: 26%;">OBRA</span>
                 </div>
                 """, unsafe_allow_html=True)
@@ -721,10 +730,10 @@ else:
                             st.markdown(f"""
                             <div class="fila-tabla-contenido">
                                 <span style="width: 8%; font-weight: bold;">{d}</span>
-                                <span style="width: 15%;">{r["ENTRADA"]}</span>
-                                <span style="width: 15%;">{r["SALIDA"]}</span>
-                                <span style="width: 18%;">{r["HORA EXTRA"]}</span>
-                                <span style="width: 18%;">{r["HORA RECARGO"]}</span>
+                                <span style="width: 16%;">{r["ENTRADA"]}</span>
+                                <span style="width: 16%;">{r["SALIDA"]}</span>
+                                <span style="width: 17%;">{r["HORA EXTRA"]}</span>
+                                <span style="width: 17%;">{r["HORA RECARGO"]}</span>
                                 <span style="width: 26%;">{r["OBRA"]}</span>
                             </div>
                             """, unsafe_allow_html=True)
