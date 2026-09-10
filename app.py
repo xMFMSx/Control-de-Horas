@@ -65,7 +65,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     flex-wrap: nowrap !important;
     align-items: center !important;
     gap: 0px !important;
-    min-width: 650px !important;
+    width: 100% !important;
 }
 
 /* 3. Proporciones fijas del bloque nativo (94% tabla, 6% botón) */
