@@ -47,70 +47,84 @@ div[data-testid="stExpander"] summary p {
 div[data-testid="stExpander"] summary svg { width: 1.2rem !important; height: 1.2rem !important; }
 div[data-testid="stForm"] { border: none !important; padding: 0 !important; }
 
-/* --- 1. DESTRUIR EL ESPACIO GIGANTE (CRÁTER) ENTRE FILAS --- */
-/* Ahora ataca tanto la versión antigua como la nueva de Streamlit (.stElementContainer) */
-.element-container:has(.fila-datos),
-.stElementContainer:has(.fila-datos) {
-    margin-top: -1rem !important; /* Succiona cada fila hacia arriba para pegarla como bloque */
-}
-
-/* Espacio seguro para el formulario de edición cuando se abra */
+/* Espacio seguro para el formulario de edición */
 div[data-testid="stForm"] {
     margin-top: 1.5rem !important;
     margin-bottom: 1rem !important;
 }
 
-/* --- 2. ESTRUCTURA Y BORDES --- */
-div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla),
+/* --- 1. ENCABEZADO PURO HTML (Adiós al cráter de la columna vacía) --- */
+.encabezado-puro {
+    display: flex !important;
+    width: 100% !important;
+    border-top: 1px solid #282d3c !important;
+    border-bottom: 1px solid #282d3c !important;
+    padding: 6px 0px !important;
+    margin-top: 10px !important;
+}
+.datos-encabezado {
+    width: 92% !important;
+    display: flex !important;
+    font-size: 0.65rem !important;
+    color: #838c9e !important;
+    font-weight: 600 !important;
+    align-items: center !important;
+}
+.vacio-encabezado {
+    width: 8% !important;
+}
+/* Aniquilar márgenes fantasma del markdown del encabezado */
+div[data-testid="stMarkdownContainer"]:has(.encabezado-puro) p {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* --- 2. FILAS DE DATOS (Succión hacia arriba para anular el gap de Streamlit) --- */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
+    margin-top: -16px !important; /* Succiona la fila 16px hacia arriba pegándola a la anterior */
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     align-items: center !important;
     gap: 0px !important; 
     min-height: 40px !important; 
+    border-bottom: 1px solid #1c202a !important;
 }
 
-div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) {
-    border-bottom: 1px solid #282d3c !important;
-    border-top: 1px solid #282d3c !important;
-    padding-top: 4px !important;
-    padding-bottom: 4px !important;
+/* Distribución exacta: 92% para textos, 8% para el botón */
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:first-child {
+    width: 92% !important;
+    flex: 0 0 92% !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
-    border-bottom: 1px solid #1c202a !important;
-    padding-top: 4px !important;
-    padding-bottom: 4px !important;
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:last-child {
+    width: 8% !important;
+    flex: 0 0 8% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
 /* --- 3. ALINEACIÓN VERTICAL TEXTO VS BOTÓN --- */
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"] {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+}
+
 /* Destruye el margen invisible de los textos que los hacía flotar hacia arriba */
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) p,
-div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) p {
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"] p {
     margin: 0px !important;
     padding: 0px !important;
-    line-height: 28px !important; /* Obliga al texto a tener exactamente la misma altura del botón */
+    line-height: 28px !important; /* Altura idéntica al botón */
 }
 
-.encabezado-tabla, .fila-datos {
+.fila-datos {
     display: flex !important;
     width: 100% !important;
-    height: 28px !important; /* Eje central fijo */
+    height: 28px !important;
+    font-size: 0.75rem !important;
+    color: #ffffff !important;
     align-items: center !important;
-}
-
-.encabezado-tabla { font-size: 0.65rem !important; color: #838c9e !important; font-weight: 600 !important; }
-.fila-datos { font-size: 0.75rem !important; color: #ffffff !important; }
-
-/* Distribución horizontal estricta */
-div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) > div[data-testid="column"]:first-child,
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:first-child {
-    width: 92% !important; flex: 0 0 92% !important;
-}
-div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) > div[data-testid="column"]:last-child,
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:last-child {
-    width: 8% !important; flex: 0 0 8% !important;
-    display: flex !important; align-items: center !important; justify-content: center !important;
 }
 
 /* --- 4. DISEÑO DEL BOTÓN LÁPIZ (28x28px y Centrado Absoluto) --- */
@@ -131,6 +145,8 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) button {
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) button p {
     font-size: 14px !important;
     line-height: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 </style>""", unsafe_allow_html=True)
 
@@ -607,10 +623,11 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                col_h1, col_h2 = st.columns([0.92, 0.08])
-                with col_h1:
-                    st.markdown("""
-                    <div class="encabezado-tabla">
+                # --- ENCABEZADO HTML PURO (SIN ST.COLUMNS) ---
+                # Esto evita que Streamlit cree una columna vacía sobre el botón
+                st.markdown("""
+                <div class="encabezado-puro">
+                    <div class="datos-encabezado">
                         <div style="flex: 0 0 8%;">DÍA</div>
                         <div style="flex: 0 0 16%;">ENTRADA</div>
                         <div style="flex: 0 0 16%;">SALIDA</div>
@@ -618,7 +635,9 @@ else:
                         <div style="flex: 0 0 17%;">H.RECARGO</div>
                         <div style="flex: 0 0 26%;">OBRA</div>
                     </div>
-                    """, unsafe_allow_html=True)
+                    <div class="vacio-encabezado"></div>
+                </div>
+                """, unsafe_allow_html=True)
 
                 for r in registros_tabla:
                     d = r["DÍA"] 
