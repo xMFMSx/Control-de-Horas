@@ -73,7 +73,7 @@ div[data-testid="stForm"] {
 
 /* LA SOLUCIÓN AL ESPACIO: Aumentamos el margen inferior para separar el encabezado de los datos */
 div[data-testid="stMarkdownContainer"]:has(.encabezado-puro) p {
-    margin: -8px !important;
+    margin: 0 !important;
     padding: 0 !important;
 }
 div.element-container:has(.encabezado-puro),
@@ -84,7 +84,7 @@ div.stElementContainer:has(.encabezado-puro) {
 /* --- 2. FILAS DE DATOS Y COLUMNAS --- */
 div.element-container:has(.fila-datos),
 div.stElementContainer:has(.fila-datos) {
-    margin-top: -16px !important;
+    margin-top: -5px !important;
     margin-bottom: -16px !important; /* Mantiene unidas las filas de datos entre sí */
 }
 
