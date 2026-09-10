@@ -78,7 +78,7 @@ div[data-testid="stMarkdownContainer"]:has(.encabezado-puro) p {
 }
 div.element-container:has(.encabezado-puro),
 div.stElementContainer:has(.encabezado-puro) {
-    margin-bottom: 3px !important; /* <--- AUMENTADO PARA DAR SEPARACIÓN VISUAL */
+    margin-bottom: 2px !important; /* <--- AUMENTADO PARA DAR SEPARACIÓN VISUAL */
 }
 
 /* --- 2. FILAS DE DATOS Y COLUMNAS --- */
