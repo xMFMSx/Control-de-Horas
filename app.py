@@ -19,44 +19,55 @@ st.set_page_config(
 )
 
 st.markdown("""<style>
-/* Limpieza general de Streamlit */
+/* Limpieza nativa */
 header[data-testid="stHeader"], #MainMenu, div[data-testid="stToolbar"], footer, div[data-testid="stDecoration"] { display: none !important; }
-.block-container { max-width: 95% !important; padding: 2rem !important; padding-bottom: 3rem !important; }
+.block-container { max-width: 95% !important; padding: 2rem !important; padding-bottom: 3rem !important; overflow-x: auto !important; }
 div[data-testid="stForm"] { border: none !important; padding: 0 !important; margin-top: 1.5rem !important; margin-bottom: 1rem !important; }
 
-/* --- 1. FILAS PEGADAS Y FONDO UNIFICADO --- */
-/* Cierra el espacio negro superponiendo el borde inferior con el superior de la siguiente fila */
-div.element-container:has(.contenedor-tabla), 
-div.stElementContainer:has(.contenedor-tabla) {
-    margin-bottom: -17px !important; 
+/* --- 1. UNION DE FILAS --- */
+div.element-container:has(.contenedor-tabla), div.stElementContainer:has(.contenedor-tabla) {
+    margin-bottom: -16px !important;
 }
 
-/* El bloque contenedor recupera su estructura natural de Streamlit */
+/* --- 2. BLOQUEO ANTI-MÓVIL (EVITA QUE EL BOTÓN SE CAIGA ABAJO) --- */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
+    display: flex !important;
+    flex-direction: row !important; /* Fuerza a estar en la misma línea */
+    flex-wrap: nowrap !important;   /* Prohíbe que el botón baje de fila */
+    align-items: stretch !important; /* Estira la altura para que el botón y datos midan igual */
+    width: 100% !important;
+    min-width: 700px !important; /* Si tu pantalla es chica, hace scroll en vez de romperse */
     background-color: #1a1e29 !important;
     border: 1px solid #353b4d !important;
-    align-items: center !important;
-    min-width: 700px !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.es-encabezado) { 
-    background-color: #222634 !important; 
+div[data-testid="stHorizontalBlock"]:has(.es-encabezado) { background-color: #222634 !important; }
+
+/* 3. Proporciones exactas de las 2 columnas de Streamlit (Datos 92% | Boton 8%) */
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
+    width: 92% !important; min-width: 92% !important; max-width: 92% !important; flex: 0 0 92% !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child {
+    width: 8% !important; min-width: 8% !important; max-width: 8% !important; flex: 0 0 8% !important;
+    display: flex !important; align-items: center !important; justify-content: center !important;
+    border-left: 1px solid #353b4d !important; /* Línea divisoria del botón */
 }
 
-/* --- 2. GRID DE TEXTOS --- */
+/* --- 4. GRID DE TEXTOS INTERNO --- */
 .contenedor-tabla {
     display: grid !important;
-    grid-template-columns: 8% 16% 16% 16% 16% 28% !important; /* Proporciones ajustadas */
+    grid-template-columns: 8% 16% 16% 16% 16% 28% !important;
     width: 100% !important;
-    height: 38px !important;
+    min-height: 40px !important;
     align-items: center !important;
 }
 
 .es-encabezado { font-weight: 700 !important; color: #a3adc2 !important; font-size: 0.65rem !important; }
 .es-datos { color: #ffffff !important; font-size: 0.85rem !important; }
 
+/* Celdas con líneas divisorias */
 .contenedor-tabla > div {
     border-right: 1px solid #353b4d !important;
-    padding: 0 10px !important;
+    padding: 0 8px !important;
     height: 100% !important;
     display: flex !important;
     align-items: center !important;
@@ -64,26 +75,20 @@ div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
     overflow: hidden !important;
     text-overflow: ellipsis !important;
 }
+.contenedor-tabla > div:last-child { border-right: none !important; }
 
-/* --- 3. BOTÓN LÁPIZ EN SU LUGAR --- */
+/* 5. Aniquilar basura oculta de Streamlit */
 div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p { margin: 0 !important; padding: 0 !important; }
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) div[data-testid="stVerticalBlock"] { gap: 0 !important; justify-content: center !important; }
 
-/* Centra el botón en la columna final que genera Streamlit */
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-}
-
+/* 6. Diseño del Botón */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
-    height: 28px !important; width: 28px !important;
-    padding: 0 !important; margin: 0 !important;
-    background-color: transparent !important; 
-    border: 1px solid transparent !important;
+    height: 28px !important; width: 28px !important; min-width: 28px !important;
+    padding: 0 !important; margin: 0 auto !important;
+    background-color: transparent !important; border: 1px solid transparent !important;
+    display: flex !important; align-items: center !important; justify-content: center !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button:hover { 
-    border: 1px solid #a3adc2 !important; 
-}
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button:hover { border: 1px solid #a3adc2 !important; }
 </style>""", unsafe_allow_html=True)
 
 SECRET_KEY = "control_de_horas_firmado_token_2026"
