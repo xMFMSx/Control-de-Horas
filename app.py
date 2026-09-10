@@ -69,7 +69,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
     grid-template-columns: 8% 16% 16% 16% 16% 28% !important;
     width: 100% !important;
     height: 20px !important; /* Altura fija para evitar que Streamlit estire los fondos */
-    align-items: center !important;
+    align-items: stretch !important;
 }
 
 .es-encabezado { font-weight: 700 !important; color: #a3adc2 !important; font-size: 0.65rem !important; }
