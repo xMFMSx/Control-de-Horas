@@ -29,54 +29,49 @@ div[data-testid="stDecoration"] { display: none !important; }
 .block-container { max-width: 95% !important; padding: 2rem !important; padding-bottom: 3rem !important; }
 div[data-testid="stForm"] { border: none !important; padding: 0 !important; margin-top: 1.5rem !important; margin-bottom: 1rem !important; }
 
-/* FUSIONAR FILAS: Las filas de la tabla se pegan por completo sin espacios negros entre ellas */
+/* FUSIÓN TOTAL DE FILAS (Sin espacios negros entre filas de la tabla) */
 div.element-container:has(.contenedor-tabla), 
 div.stElementContainer:has(.contenedor-tabla) {
-    margin-bottom: -16px !important; 
+    margin-bottom: -1px !important; 
 }
 
-/* Fila horizontal principal de la tabla */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     display: flex !important;
     flex-direction: row !important;
-    align-items: center !important; 
+    align-items: stretch !important; 
     background-color: #1a1e29 !important;
-    border: 1px solid #353b4d !important;
+    border-left: 1px solid #353b4d !important;
+    border-right: 1px solid #353b4d !important;
+    border-bottom: 1px solid #353b4d !important;
     width: 100% !important;
-    height: 40px !important;
     box-sizing: border-box !important;
-    margin-bottom: -1px !important;
 }
-
-/* SEPARACIÓN EXACTA: Solo dejamos espacio negro limpio debajo de las tarjetas de horas antes del encabezado */
 div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
     background-color: #222634 !important;
-    margin-top: 18px !important; /* <--- Crea la separación justa debajo de las horas */
+    border-top: 1px solid #353b4d !important;
 }
 
-/* Proporciones exactas: 92% Tabla, 8% Botón */
+/* Proporciones: Tabla a la izquierda (92%), Botón a la derecha (8%) */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
-    flex: 0 0 92% !important;
-    max-width: 92% !important;
-    min-width: 92% !important;
+    flex: 1 1 auto !important;
+    width: 92% !important;
+    min-width: 0 !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child {
     flex: 0 0 8% !important;
-    max-width: 8% !important;
-    min-width: 8% !important;
+    width: 8% !important;
+    min-width: 45px !important;
     display: flex !important; 
     align-items: center !important; 
     justify-content: center !important;
     border-left: 1px solid #353b4d !important;
-    height: 40px !important;
 }
 
-/* Estructura interna de la tabla (Grid) */
+/* Estructura interna de la tabla: Altura adaptable a las letras */
 .contenedor-tabla {
     display: grid !important;
     grid-template-columns: 8% 16% 16% 16% 16% 28% !important;
     width: 100% !important;
-    height: 40px !important;
     align-items: center !important;
     box-sizing: border-box !important;
     margin: 0 !important;
@@ -87,8 +82,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
 
 .contenedor-tabla > div {
     border-right: 1px solid #353b4d !important;
-    padding: 0 8px !important;
-    height: 40px !important;
+    padding: 8px 8px !important;
     display: flex !important;
     align-items: center !important;
     box-sizing: border-box !important;
@@ -98,21 +92,25 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
 }
 .contenedor-tabla > div:last-child { border-right: none !important; }
 
-/* Centrado vertical estricto del texto */
+/* Ajuste de etiquetas <p> para que se ajusten al contenido de las letras */
 div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p { 
     margin: 0 !important; 
     padding: 0 !important; 
-    line-height: 40px !important; 
-    height: 40px !important; 
+    line-height: 1.2 !important; 
 }
 
-/* Botón de edición centrado en su celda */
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) div[data-testid="stVerticalBlock"] { 
+    gap: 0 !important; 
+    justify-content: center !important; 
+}
+
+/* Botón de edición alineado a la derecha */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
     height: 28px !important; 
     width: 28px !important; 
     min-width: 28px !important;
     padding: 0 !important; 
-    margin: 0 auto !important;
+    margin: auto !important;
     background-color: transparent !important; 
     border: 1px solid transparent !important;
     display: flex !important; 
@@ -590,6 +588,7 @@ else:
             </div>
             """
             st.markdown(html_cards_res, unsafe_allow_html=True)
+            st.markdown("---")
 
             if "dia_en_edicion" not in st.session_state:
                 st.session_state["dia_en_edicion"] = None
