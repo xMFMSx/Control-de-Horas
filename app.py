@@ -42,7 +42,6 @@ div[data-testid="stExpander"] summary p {
     color: #FFFFFF !important;
 }
 
-/* Espacio seguro para el formulario de edición */
 div[data-testid="stForm"] {
     border: none !important;
     padding: 0 !important;
@@ -51,86 +50,120 @@ div[data-testid="stForm"] {
 }
 
 /* ========================================================
-   DISEÑO DE TABLA CUADRICULADA ABSOLUTA
+   TABLA NATIVA CUADRICULADA (100% ALINEADA)
    ======================================================== */
 
-/* 1. Unir las filas para formar un solo bloque sólido (Eliminar espacios ocultos) */
-div.element-container:has(> div[data-testid="stHorizontalBlock"]:has(.marcador-tabla)),
-div.stElementContainer:has(> div[data-testid="stHorizontalBlock"]:has(.marcador-tabla)),
-div.element-container:has(> div[data-testid="stHorizontalBlock"]:has(.marcador-tabla-header)),
-div.stElementContainer:has(> div[data-testid="stHorizontalBlock"]:has(.marcador-tabla-header)) {
+/* 1. Unir las filas visualmente quitando márgenes */
+div.element-container:has(> div[data-testid="stHorizontalBlock"]:has(.celda-header)),
+div.stElementContainer:has(> div[data-testid="stHorizontalBlock"]:has(.celda-header)),
+div.element-container:has(> div[data-testid="stHorizontalBlock"]:has(.celda-datos)),
+div.stElementContainer:has(> div[data-testid="stHorizontalBlock"]:has(.celda-datos)) {
     margin-bottom: 0 !important;
     padding-bottom: 0 !important;
+    margin-top: 0 !important;
 }
 
-/* 2. Contenedor del Encabezado (Bordes gruesos y fondo oscuro) */
-div[data-testid="stHorizontalBlock"]:has(.marcador-tabla-header) {
+/* 2. Forzar que NUNCA se apilen como torre (Mantener horizontalidad) */
+div[data-testid="stHorizontalBlock"]:has(.celda-header),
+div[data-testid="stHorizontalBlock"]:has(.celda-datos) {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
     gap: 0 !important;
+    align-items: center !important;
+    min-height: 32px !important;
+}
+
+/* 3. Estilo del Encabezado (Fondo, bordes exteriores) */
+div[data-testid="stHorizontalBlock"]:has(.celda-header) {
     background-color: #262d3d !important;
-    border-top: 1px solid #5a6586 !important;
-    border-left: 1px solid #5a6586 !important;
-    border-right: 1px solid #5a6586 !important;
-    border-bottom: 1px solid #5a6586 !important;
+    border-top: 1px solid #4a5573 !important;
+    border-bottom: 1px solid #4a5573 !important;
+    border-left: 1px solid #4a5573 !important;
+    border-right: 1px solid #4a5573 !important;
     margin-top: 15px !important;
 }
 
-/* 3. Contenedor de las Filas de Datos (Bordes laterales y base) */
-div[data-testid="stHorizontalBlock"]:has(.marcador-tabla) {
-    gap: 0 !important;
+/* 4. Estilo de Filas de Datos (Borde inferior y laterales) */
+div[data-testid="stHorizontalBlock"]:has(.celda-datos) {
     background-color: #1a1e29 !important;
-    border-left: 1px solid #4a5573 !important;
-    border-right: 1px solid #4a5573 !important;
-    border-bottom: 1px solid #4a5573 !important;
+    border-bottom: 1px solid #282d3c !important;
+    border-left: 1px solid #282d3c !important;
+    border-right: 1px solid #282d3c !important;
 }
 
-/* 4. Líneas verticales del Cuadriculado (Separación entre celdas) */
-div[data-testid="stHorizontalBlock"]:has(.marcador-tabla-header) > div[data-testid="column"],
-div[data-testid="stHorizontalBlock"]:has(.marcador-tabla) > div[data-testid="column"] {
-    border-right: 1px solid #3c445c !important; /* Línea divisoria central */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px 2px !important;
+/* 5. DIBUJAR LA CUADRÍCULA INTERNA (Líneas divisorias de columnas) */
+div[data-testid="stHorizontalBlock"]:has(.celda-header) > div[data-testid="column"],
+div[data-testid="stHorizontalBlock"]:has(.celda-datos) > div[data-testid="column"] {
+    border-right: 1px solid #32394d !important; 
+    padding: 6px 10px !important; 
+    display: flex !important;
+    align-items: center !important;
+    min-width: 0 !important;
 }
 
-/* Quitar la línea a la última celda (columna del Botón) */
-div[data-testid="stHorizontalBlock"]:has(.marcador-tabla-header) > div[data-testid="column"]:last-child,
-div[data-testid="stHorizontalBlock"]:has(.marcador-tabla) > div[data-testid="column"]:last-child {
+/* Quitar la línea divisoria a la última columna (Donde va el botón) */
+div[data-testid="stHorizontalBlock"]:has(.celda-header) > div[data-testid="column"]:last-child,
+div[data-testid="stHorizontalBlock"]:has(.celda-datos) > div[data-testid="column"]:last-child {
     border-right: none !important;
+    padding: 0 !important;
+    justify-content: center !important;
 }
 
-/* 5. Centrado y ajuste perfecto de los Textos de las Celdas */
-div[data-testid="stHorizontalBlock"]:has(.marcador-tabla-header) p,
-div[data-testid="stHorizontalBlock"]:has(.marcador-tabla) p {
-    margin-bottom: 0 !important;
-    text-align: center !important;
+/* 6. Controlar los textos dentro de las celdas */
+.celda-header, .celda-datos {
+    width: 100%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    width: 100%;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
-/* 6. Diseño especial para el Botón de Lápiz dentro de la cuadrícula */
-div[data-testid="stHorizontalBlock"]:has(.marcador-tabla) button {
-    height: 24px !important;
-    min-height: 24px !important;
+.celda-header {
+    font-size: 0.7rem !important;
+    color: #a3adc2 !important;
+    font-weight: 700 !important;
+}
+
+.celda-datos {
+    font-size: 0.95rem !important;
+    color: #ffffff !important;
+}
+
+.c-dia {
+    font-weight: bold !important;
+}
+
+/* Evitar saltos de línea de Streamlit */
+div[data-testid="stMarkdownContainer"]:has(.celda-header) p,
+div[data-testid="stMarkdownContainer"]:has(.celda-datos) p {
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+}
+
+/* 7. Estilo limpio para el Botón dentro de la cuadrícula */
+div[data-testid="stHorizontalBlock"]:has(.celda-datos) div[data-testid="stButton"] button {
+    height: 26px !important;
+    min-height: 26px !important;
     width: 28px !important;
     padding: 0 !important;
+    margin: 0 auto !important;
     background-color: transparent !important;
     border: 1px solid transparent !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    margin: 0 auto !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.marcador-tabla) button:hover {
+div[data-testid="stHorizontalBlock"]:has(.celda-datos) div[data-testid="stButton"] button:hover {
     background-color: #282d3c !important;
     border: 1px solid #4a5573 !important;
+    border-radius: 4px !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.marcador-tabla) button p {
+div[data-testid="stHorizontalBlock"]:has(.celda-datos) div[data-testid="stButton"] button p {
     font-size: 13px !important;
     margin: 0 !important;
-    padding: 0 !important;
 }
 </style>""", unsafe_allow_html=True)
 
@@ -607,22 +640,18 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # ---------------------------------------------------------
-                # TABLA CUADRICULADA: Proporciones exactas de Columnas Nativas
-                # ---------------------------------------------------------
+                # Proporciones estrictas para la cuadrícula
                 props = [0.8, 1.5, 1.5, 1.5, 1.5, 2.5, 0.7]
 
                 # --- 1. FILA DE ENCABEZADO ---
                 hc = st.columns(props, vertical_alignment="center")
-                
-                # El marcador-tabla-header inyecta la cuadrícula desde CSS
-                hc[0].markdown("<span class='marcador-tabla-header'></span><span style='font-size:0.7rem; font-weight:700; color:#a3adc2;'>DÍA</span>", unsafe_allow_html=True)
-                hc[1].markdown("<span style='font-size:0.7rem; font-weight:700; color:#a3adc2;'>ENTRADA</span>", unsafe_allow_html=True)
-                hc[2].markdown("<span style='font-size:0.7rem; font-weight:700; color:#a3adc2;'>SALIDA</span>", unsafe_allow_html=True)
-                hc[3].markdown("<span style='font-size:0.7rem; font-weight:700; color:#a3adc2;'>H.NORMAL</span>", unsafe_allow_html=True)
-                hc[4].markdown("<span style='font-size:0.7rem; font-weight:700; color:#a3adc2;'>H.RECARGO</span>", unsafe_allow_html=True)
-                hc[5].markdown("<span style='font-size:0.7rem; font-weight:700; color:#a3adc2;'>OBRA</span>", unsafe_allow_html=True)
-                hc[6].markdown("<span style='font-size:0.7rem; font-weight:700; color:#a3adc2;'> </span>", unsafe_allow_html=True)
+                hc[0].markdown("<div class='celda-header c-dia'>DÍA</div>", unsafe_allow_html=True)
+                hc[1].markdown("<div class='celda-header'>ENTRADA</div>", unsafe_allow_html=True)
+                hc[2].markdown("<div class='celda-header'>SALIDA</div>", unsafe_allow_html=True)
+                hc[3].markdown("<div class='celda-header'>H.NORMAL</div>", unsafe_allow_html=True)
+                hc[4].markdown("<div class='celda-header'>H.RECARGO</div>", unsafe_allow_html=True)
+                hc[5].markdown("<div class='celda-header'>OBRA</div>", unsafe_allow_html=True)
+                hc[6].markdown("<div class='celda-header'> </div>", unsafe_allow_html=True)
 
                 # --- 2. FILAS DE DATOS ---
                 for r in registros_tabla:
@@ -632,14 +661,12 @@ else:
                     ob_val = r["OBRA"].strip() if r["OBRA"].strip() else "-"
                     
                     dc = st.columns(props, vertical_alignment="center")
-                    
-                    # El marcador-tabla inyecta el borde y fondo de la cuadrícula
-                    dc[0].markdown(f"<span class='marcador-tabla'></span><span style='font-size:0.95rem; color:#ffffff; font-weight:bold;'>{d}</span>", unsafe_allow_html=True)
-                    dc[1].markdown(f"<span style='font-size:0.95rem; color:#ffffff;'>{r['ENTRADA']}</span>", unsafe_allow_html=True)
-                    dc[2].markdown(f"<span style='font-size:0.95rem; color:#ffffff;'>{r['SALIDA']}</span>", unsafe_allow_html=True)
-                    dc[3].markdown(f"<span style='font-size:0.95rem; color:#ffffff;'>{hn_val}</span>", unsafe_allow_html=True)
-                    dc[4].markdown(f"<span style='font-size:0.95rem; color:#ffffff;'>{hr_val}</span>", unsafe_allow_html=True)
-                    dc[5].markdown(f"<span style='font-size:0.95rem; color:#ffffff;'>{ob_val}</span>", unsafe_allow_html=True)
+                    dc[0].markdown(f"<div class='celda-datos c-dia'>{d}</div>", unsafe_allow_html=True)
+                    dc[1].markdown(f"<div class='celda-datos'>{r['ENTRADA']}</div>", unsafe_allow_html=True)
+                    dc[2].markdown(f"<div class='celda-datos'>{r['SALIDA']}</div>", unsafe_allow_html=True)
+                    dc[3].markdown(f"<div class='celda-datos'>{hn_val}</div>", unsafe_allow_html=True)
+                    dc[4].markdown(f"<div class='celda-datos'>{hr_val}</div>", unsafe_allow_html=True)
+                    dc[5].markdown(f"<div class='celda-datos'>{ob_val}</div>", unsafe_allow_html=True)
                     
                     with dc[6]:
                         if st.button("✏️", key=f"btn_edit_{d}"):
@@ -649,7 +676,7 @@ else:
                                 st.session_state["dia_en_edicion"] = d
                             st.rerun()
 
-                    # Lógica de edición integrada debajo de la fila cuadriculada
+                    # Lógica de edición que se despliega justo debajo
                     if st.session_state.get("dia_en_edicion") == d:
                         datos_d = dict_por_dia.get(d, {})
                         val_e = str_a_time(datos_d.get("entrada", ""))
