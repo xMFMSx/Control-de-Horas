@@ -18,9 +18,9 @@ st.set_page_config(
 )
 
 st.markdown("""<style>
-/* Quitamos el zoom forzado para que la app corra a escala 100% natural */
+/* RESTAURAR ESCALA AL 80% */
 html {
-    zoom: 100% !important;
+    zoom: 80% !important;
 }
 
 /* Ocultar UI nativa de Streamlit */
@@ -30,7 +30,7 @@ div[data-testid="stToolbar"] { visibility: hidden !important; }
 footer { visibility: hidden !important; }
 div[data-testid="stDecoration"] { display: none !important; }
 
-/* SOLUCIÓN DEFINITIVA AL CORTE INFERIOR: Scroll fluido total en la vista */
+/* Scroll fluido total en la vista para evitar cortes inferiores */
 html, body, [data-testid="stAppViewContainer"] {
     overflow-y: auto !important;
     height: 100% !important;
@@ -39,7 +39,7 @@ html, body, [data-testid="stAppViewContainer"] {
 .block-container { 
     max-width: 95% !important; 
     padding: 1.5rem !important; 
-    padding-bottom: 15rem !important; 
+    padding-bottom: 20rem !important; 
 }
 
 div[data-testid="stForm"] { 
@@ -76,7 +76,7 @@ div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
     background-color: #222634 !important;
 }
 
-/* Proporciones exactas: Tabla izquierda (89%), Botón derecha (11%) para alinear el lápiz */
+/* Proporciones exactas: Tabla izquierda (89%), Botón derecha (11%) */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
     flex: 0 0 89% !important;
     max-width: 89% !important;
@@ -91,7 +91,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
     border-left: 1px solid #353b4d !important;
 }
 
-/* Estructura interna de la tabla: Columnas ajustadas milimétricamente para escala normal */
+/* Estructura interna de la tabla */
 .contenedor-tabla {
     display: grid !important;
     grid-template-columns: 8% 15% 15% 15% 15% 32% !important;
@@ -325,7 +325,7 @@ if "modo_admin_activo" not in st.session_state:
 
 if not st.session_state.autenticado:
     st.title("🔐 Acceso a APP DE HORAS")
-    st.write("Por favor, ingresa tu correo electrónico y contraseña para continuar.")
+    st.write("Por favor, ingresa tu correo electrónico y contraseña para continuar[cite: 1].")
     
     with st.form("form_login"):
         correo_input = st.text_input("Correo Electrónico")
@@ -647,7 +647,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-        # --- VISTA 2: RESUMEN MENSUAL CON ESCALA NATURAL Y SCROLL FLUIDO ---
+        # --- VISTA 2: RESUMEN MENSUAL CON ESCALA AL 80% Y SCROLL CORREGIDO ---
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
