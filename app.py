@@ -584,7 +584,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-        elif st.session_state["vista_actual"] == "RESUMEN":
+                elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
             val_hn_str = minutos_a_hora_str(total_hn)
@@ -620,6 +620,7 @@ else:
                 hc[5].markdown("<div class='txt-encabezado'>OBRA</div>", unsafe_allow_html=True)
                 hc[6].markdown("<div class='txt-encabezado'>&nbsp;</div>", unsafe_allow_html=True)
 
+                # --- FILAS DE DATOS ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "-"
@@ -642,19 +643,6 @@ else:
                                 st.session_state["dia_en_edicion"] = d
                             st.rerun()
 
-                            if st.session_state.get("dia_en_edicion") == d:
-                                st.session_state["dia_en_edicion"] = None
-                            else:
-                                st.session_state["dia_en_edicion"] = d
-                            st.rerun()
-
-                    if st.session_state.get("dia_en_edicion") == d:
-                                st.session_state["dia_en_edicion"] = None
-                            else:
-                                st.session_state["dia_en_edicion"] = d
-                            st.rerun()
-
-                    # Lógica de edición
                     if st.session_state.get("dia_en_edicion") == d:
                         datos_d = dict_por_dia.get(d, {})
                         val_e = str_a_time(datos_d.get("entrada", ""))
@@ -715,3 +703,4 @@ else:
 
             else:
                 st.info("Aún no tienes jornadas registradas en este mes.")
+
