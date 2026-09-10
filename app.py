@@ -18,6 +18,11 @@ st.set_page_config(
 )
 
 st.markdown("""<style>
+/* FORZAR ESCALA GENERAL AL 75% EN TODA LA AUNQUE EL NAVEGADOR ESTÉ AL 100% */
+html {
+    zoom: 75% !important;
+}
+
 /* Ocultar UI nativa */
 header[data-testid="stHeader"] { display: none !important; }
 #MainMenu { visibility: hidden !important; }
@@ -40,7 +45,7 @@ div[data-testid="stVerticalBlock"] {
     gap: 0.1rem !important;
 }
 
-/* Fila horizontal principal de la tabla adaptada a pantalla */
+/* Fila horizontal principal de la tabla */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     display: flex !important;
     flex-direction: row !important;
@@ -55,7 +60,7 @@ div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
     background-color: #222634 !important;
 }
 
-/* Proporciones estrictas para evitar desajustes de escala: Tabla (89%), Botón (11%) */
+/* Proporciones exactas de la tabla (89%) y botón de editar (11%) */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
     flex: 0 0 89% !important;
     max-width: 89% !important;
@@ -70,7 +75,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
     border-left: 1px solid #353b4d !important;
 }
 
-/* Estructura interna de la tabla optimizada */
+/* Estructura interna de la tabla */
 .contenedor-tabla {
     display: grid !important;
     grid-template-columns: 8% 16% 16% 17% 17% 26% !important;
@@ -177,7 +182,12 @@ def cargar_trabajadores():
             if len(r) >= 2 and r[0].strip() and r[1].strip():
                 nombre = r[0].strip()
                 correo = r[1].strip().lower()
-                rol = r[3].strip().lower() if len(r) > 3 and r[3].strip() else "trabajador"
+                # Verificamos si en la columna 4 dice 'admin' o si el nombre es Manuel Francisco Morales Sepúlveda
+                rol_txt = r[3].strip().lower() if len(r) > 3 and r[3].strip() else ""
+                if rol_txt == "admin" or "manuel" in nombre.lower():
+                    rol = "admin"
+                else:
+                    rol = "trabajador"
                 usuarios[correo] = {"nombre": nombre, "rol": rol}
         return usuarios
     except Exception:
@@ -248,7 +258,12 @@ def validar_usuario(correo_ingresado, password_ingresada):
             nombre = fila[0].strip()
             correo_db = fila[1].strip()
             password_db = fila[2].strip()
-            rol = fila[3].strip().lower() if len(fila) > 3 and fila[3].strip() else "trabajador"
+            rol_txt = fila[3].strip().lower() if len(fila) > 3 and fila[3].strip() else ""
+            
+            if rol_txt == "admin" or "manuel" in nombre.lower():
+                rol = "admin"
+            else:
+                rol = "trabajador"
             
             if correo_ingresado.lower() == correo_db.lower() and password_ingresada == password_db:
                 return True, nombre, rol
@@ -295,7 +310,7 @@ if "modo_admin_activo" not in st.session_state:
 
 if not st.session_state.autenticado:
     st.title("🔐 Acceso a APP DE HORAS")
-    st.write("Por favor, ingresa tu correo electrónico y contraseña para continuar[cite: 1].")
+    st.write("Por favor, ingresa tu correo electrónico y contraseña para continuar.")
     
     with st.form("form_login"):
         correo_input = st.text_input("Correo Electrónico")
@@ -331,7 +346,7 @@ else:
     es_admin = st.session_state.get("rol_usuario", "trabajador") == "admin"
     hoja_usuario = obtener_hoja_trabajador(nombre_trabajador)
 
-    # --- MENÚ DESPLEGABLE DE CONFIGURACIÓN (⚙️) CON ACCESO ADMIN DIRECTO ---
+    # --- MENÚ DESPLEGABLE DE CONFIGURACIÓN (⚙️) CON ACCESO ADMIN GARANTIZADO ---
     c_gear, _ = st.columns([2.0, 8.0])
     with c_gear:
         with st.popover("⚙️"):
@@ -617,7 +632,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-        # --- VISTA 2: RESUMEN MENSUAL CON COLORES Y REPORTE ABAJO ---
+        # --- VISTA 2: RESUMEN MENSUAL CON ESCALA AUTOMÁTICA Y BOTÓN PDF ---
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
@@ -659,11 +674,10 @@ else:
                 with c_h2:
                     pass
 
-                # --- FILAS DE DATOS CON COLORES APLICADOS SEGÚN FECHA ---
+                # --- FILAS DE DATOS ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     
-                    # Calcular el día de la semana correspondiente para el color
                     try:
                         fecha_fila = date(2026, 9, d)
                         w_day = fecha_fila.weekday()
@@ -674,7 +688,6 @@ else:
                     
                     es_festivo = iso_f in FERIADOS
                     
-                    # Estilo de color para el número de día en el resumen
                     if es_festivo or w_day == 6:
                         dia_html = f'<span style="color: #b388ff; font-weight: 700;">{d} (F)</span>' if es_festivo else f'<span style="color: #b388ff; font-weight: 700;">{d}</span>'
                     elif w_day == 5:
@@ -769,6 +782,6 @@ else:
                 st.info("Aún no tienes jornadas registradas en este mes.")
 
             st.markdown("---")
-            # --- BOTÓN DE REPORTE PDF ABAJO CON EL NOMBRE REQUERIDO ---
+            # --- BOTÓN DE REPORTE PDF ABAJO CON EL NOMBRE EXACTO ---
             if st.button("📄 DESCARGAR HORAS DEL MES EN PDF", use_container_width=True):
                 st.info("ℹ️ Módulo de PDF listo para ser conectado.")
