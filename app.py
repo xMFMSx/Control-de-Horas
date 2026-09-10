@@ -29,12 +29,13 @@ div[data-testid="stDecoration"] { display: none !important; }
 .block-container { max-width: 95% !important; padding: 2rem !important; padding-bottom: 3rem !important; }
 div[data-testid="stForm"] { border: none !important; padding: 0 !important; margin-top: 1.5rem !important; margin-bottom: 1rem !important; }
 
-/* FUSIÓN TOTAL DE FILAS (Sin espacios negros entre filas de la tabla) */
+/* FUSIÓN TOTAL DE FILAS: Cero espacios negros entre filas de la tabla */
 div.element-container:has(.contenedor-tabla), 
 div.stElementContainer:has(.contenedor-tabla) {
     margin-bottom: -1px !important; 
 }
 
+/* Fila horizontal que contiene la tabla y el botón */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     display: flex !important;
     flex-direction: row !important;
@@ -51,23 +52,22 @@ div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
     border-top: 1px solid #353b4d !important;
 }
 
-/* Proporciones: Tabla a la izquierda (92%), Botón a la derecha (8%) */
+/* Forzar que la primera columna ocupe todo el ancho y la del botón se quede a la derecha con ancho fijo */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
     flex: 1 1 auto !important;
-    width: 92% !important;
+    width: 88% !important;
     min-width: 0 !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child {
-    flex: 0 0 8% !important;
-    width: 8% !important;
-    min-width: 45px !important;
+    flex: 0 0 12% !important;
+    width: 12% !important;
     display: flex !important; 
     align-items: center !important; 
     justify-content: center !important;
     border-left: 1px solid #353b4d !important;
 }
 
-/* Estructura interna de la tabla: Altura adaptable a las letras */
+/* Estructura interna de la tabla: Altura natural ajustada a las letras */
 .contenedor-tabla {
     display: grid !important;
     grid-template-columns: 8% 16% 16% 16% 16% 28% !important;
@@ -82,7 +82,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
 
 .contenedor-tabla > div {
     border-right: 1px solid #353b4d !important;
-    padding: 8px 8px !important;
+    padding: 6px 8px !important;
     display: flex !important;
     align-items: center !important;
     box-sizing: border-box !important;
@@ -92,7 +92,6 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
 }
 .contenedor-tabla > div:last-child { border-right: none !important; }
 
-/* Ajuste de etiquetas <p> para que se ajusten al contenido de las letras */
 div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p { 
     margin: 0 !important; 
     padding: 0 !important; 
@@ -104,7 +103,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) div[data-testid="stV
     justify-content: center !important; 
 }
 
-/* Botón de edición alineado a la derecha */
+/* Botón de edición perfectamente centrado a la derecha del todo */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
     height: 28px !important; 
     width: 28px !important; 
@@ -613,7 +612,7 @@ else:
                 # --- FILAS DE DATOS ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
-                    c_dat, c_b = st.columns([0.92, 0.08], vertical_alignment="center")
+                    c_dat, c_b = st.columns([0.88, 0.12], vertical_alignment="center")
                     
                     with c_dat:
                         hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
