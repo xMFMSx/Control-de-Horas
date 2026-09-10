@@ -18,9 +18,9 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# --- CSS LIMPIO Y SEGURO ---
+# --- CSS LIMPIO Y AISLADO ---
 st.markdown("""<style>
-/* Ocultar elementos nativos de Streamlit que no usamos */
+/* Ocultar elementos nativos de Streamlit */
 header[data-testid="stHeader"] { display: none !important; }
 #MainMenu { visibility: hidden !important; }
 div[data-testid="stToolbar"] { visibility: hidden !important; }
@@ -49,21 +49,22 @@ div[data-testid="stExpander"] summary p {
 div[data-testid="stExpander"] summary svg { width: 1.2rem !important; height: 1.2rem !important; }
 div[data-testid="stForm"] { border: none !important; padding: 0 !important; }
 
-/* --- BLOQUEO PARA QUE EL LÁPIZ NO SALTE A LA SIGUIENTE LÍNEA --- */
-div[data-testid="stHorizontalBlock"] {
+/* --- BLOQUEO EXCLUSIVO PARA LA FILA DEL LÁPIZ (NO AFECTA LOS FORMULARIOS) --- */
+/* El uso de :has(.fila-unica-registro) aísla completamente este estilo */
+div[data-testid="stHorizontalBlock"]:has(.fila-unica-registro) {
     display: flex !important;
     flex-direction: row !important;
-    flex-wrap: nowrap !important; /* MAGIA: Prohíbe terminantemente que los elementos bajen de línea */
+    flex-wrap: nowrap !important;
     align-items: center !important;
     border-bottom: 1px solid #1c202a !important;
-    gap: 0px !important; /* Elimina espacios extra que causan saltos */
+    gap: 0px !important;
 }
-div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child {
+div[data-testid="stHorizontalBlock"]:has(.fila-unica-registro) > div[data-testid="column"]:first-child {
     width: 92% !important;
     flex: 0 0 92% !important;
     min-width: 0 !important;
 }
-div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child {
+div[data-testid="stHorizontalBlock"]:has(.fila-unica-registro) > div[data-testid="column"]:last-child {
     width: 8% !important;
     flex: 0 0 8% !important;
     display: flex !important;
@@ -71,8 +72,8 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child {
     min-width: 0 !important;
 }
 
-/* Solo afecta al lápiz, manteniendo a salvo el menú de sesión */
-div[data-testid="stHorizontalBlock"] button {
+/* Solo afecta al lápiz, manteniendo a salvo el botón de Guardar Registro y el Menú */
+div[data-testid="stHorizontalBlock"]:has(.fila-unica-registro) button {
     height: 28px !important;
     min-height: 28px !important;
     width: 32px !important;
@@ -86,13 +87,13 @@ div[data-testid="stHorizontalBlock"] button {
     justify-content: center !important;
     margin: 0 auto !important;
 }
-div[data-testid="stHorizontalBlock"] button p {
+div[data-testid="stHorizontalBlock"]:has(.fila-unica-registro) button p {
     font-size: 12px !important;
     margin: 0 !important;
     padding: 0 !important;
 }
 
-/* Eliminar márgenes y bordes fantasma que Streamlit añade a las tablas */
+/* Eliminar márgenes y bordes fantasma de la tabla HTML */
 div[data-testid="stMarkdownContainer"] table {
     margin-bottom: 0 !important;
     border: none !important;
@@ -601,7 +602,7 @@ else:
                         c_dat, c_b = st.columns([0.92, 0.08], vertical_alignment="center")
                         with c_dat:
                             st.markdown(f"""
-                            <table style="width: 100%; table-layout: fixed; border-collapse: collapse; text-align: left; font-size: 0.75rem; color: #ffffff; margin: 0;">
+                            <table class="fila-unica-registro" style="width: 100%; table-layout: fixed; border-collapse: collapse; text-align: left; font-size: 0.75rem; color: #ffffff; margin: 0;">
                                 <tr style="height: 38px;">
                                     <td style="width: 8%; padding: 0 4px; font-weight: bold; border: none;">{d}</td>
                                     <td style="width: 16%; padding: 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border: none;">{r["ENTRADA"]}</td>
