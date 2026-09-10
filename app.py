@@ -164,10 +164,10 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stButton"
 }
 
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) button {
-    height: 28px !important;
-    min-height: 28px !important;
-    width: 28px !important;
-    min-width: 28px !important;
+    height: 24px !important;
+    min-height: 24px !important;
+    width: 24px !important;
+    min-width: 24px !important;
     padding: 0 !important;
     margin: 0 auto !important;
     background-color: #1a1e29 !important;
@@ -179,7 +179,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) button {
 }
 
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) button p {
-    font-size: 14px !important;
+    font-size: 11px !important;
     line-height: 1 !important; 
     margin: 0 !important;
     padding: 0 !important;
