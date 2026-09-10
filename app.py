@@ -244,7 +244,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) button p {
 /* --- TABLA CON CSS GRID (ALINEACIÓN PERFECTA E INAMOVIBLE) --- */
 .tabla-resumen-header {
     display: grid !important;
-    grid-template-columns: 10% 30% 16% 17% 17% 26% !important;
+    grid-template-columns: 8% 16% 16% 17% 17% 26% !important;
     align-items: center !important;
     border-top: 1px solid #282d3c !important;
     border-bottom: 1px solid #282d3c !important;
@@ -258,7 +258,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) button p {
 
 .fila-tabla-contenido {
     display: grid !important;
-    grid-template-columns: 10% 16% 16% 17% 17% 26% !important;
+    grid-template-columns: 8% 16% 16% 17% 17% 26% !important;
     align-items: center !important;
     height: 36px !important;
     padding: 0 4px !important;
@@ -277,43 +277,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) button p {
     text-overflow: ellipsis !important;
     white-space: nowrap !important;
 }
-
-/* --- TABLA LIMPIA SIN CORTAR TEXTOS --- */
-.tabla-resumen-header {
-    display: grid !important;
-    grid-template-columns: 7% 17% 17% 17% 17% 25% !important;
-    align-items: center !important;
-    border-top: 1px solid #282d3c !important;
-    border-bottom: 1px solid #282d3c !important;
-    padding: 6px 2px !important;
-    font-size: 0.50rem !important;
-    font-weight: 600 !important;
-    color: #838c9e !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-}
-
-.fila-tabla-contenido {
-    display: grid !important;
-    grid-template-columns: 7% 17% 17% 17% 17% 25% !important;
-    align-items: center !important;
-    height: 36px !important;
-    padding: 0 2px !important;
-    font-size: 0.68rem !important;
-    color: #ffffff !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-}
-
-/* Permitir que los textos se muestren completos sin puntos suspensivos */
-.tabla-resumen-header span, .fila-tabla-contenido span {
-    width: 100% !important;
-    overflow: visible !important;
-    text-overflow: clip !important;
-    white-space: nowrap !important;
-}
 </style>
-
 
 
 
