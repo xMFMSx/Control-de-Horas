@@ -50,53 +50,43 @@ div[data-testid="stForm"] {
     margin-bottom: 1rem !important;
 }
 
-/* --- 1. ENCABEZADO PURO HTML --- */
-.encabezado-puro {
-    display: flex !important;
-    width: 100% !important;
+/* --- 1. ENCABEZADO HTML NATIVO --- */
+div[data-testid="stHorizontalBlock"]:has(.encabezado-puro) {
     border-top: 1px solid #282d3c !important;
     border-bottom: 1px solid #282d3c !important;
     padding: 6px 0px !important;
-    margin-top: 0px !important;
-    margin-bottom: 24px !important; /* <--- AQUÍ: Esto empuja la primera fila hacia abajo para que no choque */
+    margin-top: 10px !important;
+    margin-bottom: 24px !important;
+    gap: 0px !important;
 }
-/* 1. Mueve los títulos del encabezado */
-.datos-encabezado {
-    width: 92% !important;
+.encabezado-puro {
     display: flex !important;
+    width: 100% !important;
     font-size: 0.65rem !important;
     color: #838c9e !important;
     font-weight: 600 !important;
     align-items: center !important;
-    padding-left: 12px !important; /* <--- Agrega esto para empujar el encabezado */
 }
-.vacio-encabezado {
-    width: 8% !important;
-}
-
-/* LA SOLUCIÓN AL ESPACIO: Aumentamos el margen inferior para separar el encabezado de los datos */
+div.element-container:has(.encabezado-puro),
+div.stElementContainer:has(.encabezado-puro),
 div[data-testid="stMarkdownContainer"]:has(.encabezado-puro) p {
     margin: 0 !important;
     padding: 0 !important;
-}
-div.element-container:has(.encabezado-puro),
-div.stElementContainer:has(.encabezado-puro) {
-    margin-bottom: -8px !important; /* <--- AUMENTADO PARA DAR SEPARACIÓN VISUAL */
 }
 
 /* --- 2. FILAS DE DATOS Y COLUMNAS --- */
 div.element-container:has(div[data-testid="stHorizontalBlock"]:has(.fila-datos)),
 div.stElementContainer:has(div[data-testid="stHorizontalBlock"]:has(.fila-datos)) {
-    margin-top: -24px !important; /* <--- Ahora sí succiona TODA la fila completa hacia arriba */
+    margin-top: -24px !important;
     margin-bottom: 0px !important;
 }
+
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
-    margin-top: -24px !important; /* <--- AHORA SÍ: Esto tira de la fila completa hacia arriba */
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     align-items: center !important;
-    gap: 0px !important;
+    gap: 0px !important; 
     border-bottom: 1px solid #1c202a !important;
     padding-top: 8px !important;
     padding-bottom: 0px !important;
@@ -104,24 +94,25 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
     min-height: 20px !important;
 }
 
-/* Forzar anchos mínimos exactos anti-móvil */
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:first-child {
+/* BLOQUEO SIMÉTRICO: Mismas reglas exactas a encabezados y datos (Garantiza alineación) */
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:first-child,
+div[data-testid="stHorizontalBlock"]:has(.encabezado-puro) > div[data-testid="column"]:first-child {
     width: 92% !important;
     min-width: 92% !important;
     max-width: 92% !important;
     flex: 0 0 92% !important;
-    padding-left: 0 !important;  /* <--- MAGIA: Quita el desfase izquierdo */
-    padding-right: 0 !important; /* <--- MAGIA: Quita el desfase derecho */
+    padding: 0 !important; /* <--- Aniquila el desfase de Streamlit */
 }
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:last-child {
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:last-child,
+div[data-testid="stHorizontalBlock"]:has(.encabezado-puro) > div[data-testid="column"]:last-child {
     width: 8% !important;
     min-width: 8% !important;
     max-width: 8% !important;
     flex: 0 0 8% !important;
+    padding: 0 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    padding: 0 !important; /* Asegura que el botón no tenga rellenos fantasma */
 }
 
 /* --- 3. ALINEACIÓN VERTICAL PERFECTA (Textos) --- */
@@ -140,7 +131,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdow
     margin: 0 !important;
     padding: 0 !important;
     line-height: 28px !important; 
-    transform: none !important; /* Limpiamos cualquier empuje extraño */
+    transform: none !important;
 }
 
 .fila-datos {
@@ -152,7 +143,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdow
     align-items: center !important;
 }
 
-/* Proporciones de las celdas de texto */
+/* Proporciones exactas de las celdas (compartidas por título y datos) */
 .c-dia { flex: 0 0 8%; font-weight: bold; }
 .c-ent { flex: 0 0 16%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .c-sal { flex: 0 0 16%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -160,7 +151,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdow
 .c-hr  { flex: 0 0 17%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .c-ob  { flex: 0 0 26%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* --- 4. DISEÑO DEL BOTÓN LÁPIZ Y EMOJI (Restaurado al centro exacto) --- */
+/* --- 4. DISEÑO DEL BOTÓN LÁPIZ Y EMOJI --- */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stButton"] {
     display: flex !important;
     align-items: center !important;
@@ -192,7 +183,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) button p {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    transform: none !important; /* Asegura que el icono no se caiga */
+    transform: none !important;
 }
 </style>""", unsafe_allow_html=True)
 
@@ -669,20 +660,19 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # --- ENCABEZADO HTML PURO ---
-                st.markdown("""
-                <div class="encabezado-puro">
-                    <div class="datos-encabezado">
-                        <div style="flex: 0 0 8%;">DÍA</div>
-                        <div style="flex: 0 0 16%;">ENTRADA</div>
-                        <div style="flex: 0 0 16%;">SALIDA</div>
-                        <div style="flex: 0 0 17%;">H.NORMAL</div>
-                        <div style="flex: 0 0 17%;">H.RECARGO</div>
-                        <div style="flex: 0 0 26%;">OBRA</div>
+                # --- ENCABEZADO HTML NATIVO ---
+                c_h1, c_h2 = st.columns([0.92, 0.08], vertical_alignment="center")
+                with c_h1:
+                    st.markdown("""
+                    <div class="encabezado-puro">
+                        <div class="c-dia">DÍA</div>
+                        <div class="c-ent">ENTRADA</div>
+                        <div class="c-sal">SALIDA</div>
+                        <div class="c-hn">H.NORMAL</div>
+                        <div class="c-hr">H.RECARGO</div>
+                        <div class="c-ob">OBRA</div>
                     </div>
-                    <div class="vacio-encabezado"></div>
-                </div>
-                """, unsafe_allow_html=True)
+                    """, unsafe_allow_html=True)
 
                 for r in registros_tabla:
                     d = r["DÍA"] 
