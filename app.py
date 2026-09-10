@@ -18,32 +18,16 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+# --- CSS LIMPIO Y SEGURO ---
 st.markdown("""<style>
-div.stButton > button {
-    height: 28px !important;
-    min-height: 28px !important;
-    max-height: 28px !important;
-    width: 32px !important;
-    min-width: 32px !important;
-    max-width: 32px !important;
-    padding: 0px !important;
-    margin: 0 auto !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-}
-div.stButton > button p {
-    font-size: 12px !important;
-    line-height: 1 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
+/* Ocultar elementos de Streamlit */
 header[data-testid="stHeader"] { display: none !important; }
 #MainMenu { visibility: hidden !important; }
 div[data-testid="stToolbar"] { visibility: hidden !important; }
 footer { visibility: hidden !important; }
 div[data-testid="stDecoration"] { display: none !important; }
 
+/* Ajustes del contenedor principal */
 .block-container {
     max-width: 95% !important;
     padding-left: 2rem !important;
@@ -63,75 +47,33 @@ div[data-testid="stExpander"] summary p {
     width: 100% !important;
 }
 div[data-testid="stExpander"] summary svg { width: 1.2rem !important; height: 1.2rem !important; }
-
 div[data-testid="stForm"] { border: none !important; padding: 0 !important; }
 
-/* --- TABLA RESUMEN LIMPIA Y ALINEADA (CSS GRID) --- */
-.tabla-resumen-header, .fila-tabla-contenido {
-    display: grid !important;
-    /* Cuadrícula estricta: los porcentajes suman 100% y bloquean los anchos */
-    grid-template-columns: 8% 16% 16% 17% 17% 26% !important;
-    align-items: center !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-}
-
-.tabla-resumen-header {
-    border-top: 1px solid #282d3c !important;
-    border-bottom: 1px solid #282d3c !important;
-    padding: 8px 4px !important;
-    font-size: 0.62rem !important;
-    font-weight: 700 !important;
-    color: #838c9e !important;
-}
-
-.fila-tabla-contenido {
-    height: 38px !important;
-    padding: 0 4px !important;
-    font-size: 0.72rem !important;
-    color: #ffffff !important;
-}
-
-.tabla-resumen-header span, .fila-tabla-contenido span {
-    text-align: left !important;
-    overflow: hidden !important;
-    white-space: nowrap !important;
-    text-overflow: ellipsis !important;
-    display: block !important;
-    width: 100% !important;
-}
-
-/* --- ALINEACIÓN CON EL BOTÓN DEL LÁPIZ --- */
-div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) {
+/* --- DISEÑO EXCLUSIVO PARA LA FILA Y EL BOTÓN LÁPIZ --- */
+/* Esto evita dañar los botones del menú de sesión */
+div[data-testid="stHorizontalBlock"] {
     display: flex !important;
     flex-direction: row !important;
-    flex-wrap: nowrap !important;
     align-items: center !important;
-    width: 100% !important;
     border-bottom: 1px solid #1c202a !important;
-    margin: 0 !important;
-    padding: 0 !important;
 }
-
-div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) > div[data-testid="column"]:first-child {
+div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child {
     width: 88% !important;
     flex: 0 0 88% !important;
-    min-width: 0 !important;
 }
-
-div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) > div[data-testid="column"]:last-child {
+div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child {
     width: 12% !important;
     flex: 0 0 12% !important;
     display: flex !important;
     justify-content: center !important;
-    min-width: 0 !important;
 }
 
-div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) button {
-    height: 24px !important;
-    min-height: 24px !important;
-    width: 26px !important;
-    min-width: 26px !important;
+/* Solo afecta al lápiz, manteniendo a salvo el menú de sesión */
+div[data-testid="stHorizontalBlock"] button {
+    height: 28px !important;
+    min-height: 28px !important;
+    width: 32px !important;
+    min-width: 32px !important;
     padding: 0 !important;
     background-color: #1a1e29 !important;
     border: 1px solid #2e3547 !important;
@@ -141,15 +83,12 @@ div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) button {
     justify-content: center !important;
     margin: 0 auto !important;
 }
-
-div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) button p {
-    font-size: 11px !important;
-    line-height: 1 !important;
+div[data-testid="stHorizontalBlock"] button p {
+    font-size: 12px !important;
     margin: 0 !important;
     padding: 0 !important;
 }
-</style>
-""", unsafe_allow_html=True)
+</style>""", unsafe_allow_html=True)
 
 SECRET_KEY = "control_de_horas_firmado_token_2026"
 
@@ -627,16 +566,18 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # Cabecera HTML limpia conectada al CSS Grid
+                # --- AQUÍ ESTÁ LA TABLA HTML NATIVA (INQUEBRANTABLE) ---
                 st.markdown("""
-                <div class="tabla-resumen-header">
-                    <span>DÍA</span>
-                    <span>ENTRADA</span>
-                    <span>SALIDA</span>
-                    <span>H.NORMAL</span>
-                    <span>H.RECARGO</span>
-                    <span>OBRA</span>
-                </div>
+                <table style="width: 100%; table-layout: fixed; border-collapse: collapse; text-align: left; font-size: 0.65rem; color: #838c9e; font-weight: 600; border-top: 1px solid #282d3c; border-bottom: 1px solid #282d3c; margin: 0;">
+                    <tr style="height: 36px;">
+                        <td style="width: 8%; padding: 0 4px;">DÍA</td>
+                        <td style="width: 16%; padding: 0 4px;">ENTRADA</td>
+                        <td style="width: 16%; padding: 0 4px;">SALIDA</td>
+                        <td style="width: 17%; padding: 0 4px;">H.NORMAL</td>
+                        <td style="width: 17%; padding: 0 4px;">H.RECARGO</td>
+                        <td style="width: 26%; padding: 0 4px;">OBRA</td>
+                    </tr>
+                </table>
                 """, unsafe_allow_html=True)
 
                 for r in registros_tabla:
@@ -645,16 +586,17 @@ else:
                     with col_unica:
                         c_dat, c_b = st.columns([0.88, 0.12], vertical_alignment="center")
                         with c_dat:
-                            # Fila HTML limpia conectada al CSS Grid
                             st.markdown(f"""
-                            <div class="fila-tabla-contenido">
-                                <span style="font-weight: bold;">{d}</span>
-                                <span>{r["ENTRADA"]}</span>
-                                <span>{r["SALIDA"]}</span>
-                                <span>{r["HORA EXTRA"]}</span>
-                                <span>{r["HORA RECARGO"]}</span>
-                                <span>{r["OBRA"]}</span>
-                            </div>
+                            <table style="width: 100%; table-layout: fixed; border-collapse: collapse; text-align: left; font-size: 0.75rem; color: #ffffff; background: transparent; margin: 0;">
+                                <tr style="height: 38px;">
+                                    <td style="width: 8%; padding: 0 4px; font-weight: bold;">{d}</td>
+                                    <td style="width: 16%; padding: 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["ENTRADA"]}</td>
+                                    <td style="width: 16%; padding: 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["SALIDA"]}</td>
+                                    <td style="width: 17%; padding: 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["HORA EXTRA"]}</td>
+                                    <td style="width: 17%; padding: 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["HORA RECARGO"]}</td>
+                                    <td style="width: 26%; padding: 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["OBRA"]}</td>
+                                </tr>
+                            </table>
                             """, unsafe_allow_html=True)
                         with c_b:
                             if st.button("✏️", key=f"btn_edit_{d}"):
