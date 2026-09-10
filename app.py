@@ -95,7 +95,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
 /* Estructura interna de la tabla con ancho ajustado para que el lápiz quede perfecto */
 .contenedor-tabla {
     display: grid !important;
-    grid-template-columns: 3.5% 14% 14% 15% 15% 34% !important;
+    grid-template-columns: 4% 10% 10% 15% 15% 34% !important;
     width: 100% !important;
     align-items: center !important;
     box-sizing: border-box !important;
