@@ -225,7 +225,23 @@ div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) button p {
 .tabla-resumen-header span:nth-child(4), .fila-tabla-contenido span:nth-child(4) { width: 17% !important; flex: 0 0 17% !important; }
 .tabla-resumen-header span:nth-child(5), .fila-tabla-contenido span:nth-child(5) { width: 17% !important; flex: 0 0 17% !important; }
 .tabla-resumen-header span:nth-child(6), .fila-tabla-contenido span:nth-child(6) { width: 26% !important; flex: 0 0 26% !important; }
+
+/* --- EVITAR COLAPSO DE CELDAS VACÍAS EN LA TABLA --- */
+.tabla-resumen-header span, .fila-tabla-contenido span {
+    display: inline-block !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+.tabla-resumen-header span:nth-child(1), .fila-tabla-contenido span:nth-child(1) { width: 8% !important; flex: 0 0 8% !important; }
+.tabla-resumen-header span:nth-child(2), .fila-tabla-contenido span:nth-child(2) { width: 16% !important; flex: 0 0 16% !important; }
+.tabla-resumen-header span:nth-child(3), .fila-tabla-contenido span:nth-child(3) { width: 16% !important; flex: 0 0 16% !important; }
+.tabla-resumen-header span:nth-child(4), .fila-tabla-contenido span:nth-child(4) { width: 17% !important; flex: 0 0 17% !important; }
+.tabla-resumen-header span:nth-child(5), .fila-tabla-contenido span:nth-child(5) { width: 17% !important; flex: 0 0 17% !important; }
+.tabla-resumen-header span:nth-child(6), .fila-tabla-contenido span:nth-child(6) { width: 26% !important; flex: 0 0 26% !important; }
 </style>
+
 
 
 
