@@ -29,9 +29,10 @@ div[data-testid="stDecoration"] { display: none !important; }
 .block-container { max-width: 95% !important; padding: 2rem !important; padding-bottom: 3rem !important; }
 div[data-testid="stForm"] { border: none !important; padding: 0 !important; margin-top: 1.5rem !important; margin-bottom: 1rem !important; }
 
-/* ELIMINAR ESPACIOS NEGROS: Anular el espacio vertical entre elementos */
-div[data-testid="stVerticalBlock"] {
-    gap: 0px !important;
+/* Restaurar el espacio natural entre filas para que se vea la separación negra */
+div.element-container:has(.contenedor-tabla), 
+div.stElementContainer:has(.contenedor-tabla) {
+    margin-bottom: 6px !important; /* <--- Esto devuelve la separación estética entre filas */
 }
 
 /* Fila horizontal principal de la tabla */
@@ -44,10 +45,10 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     width: 100% !important;
     height: 40px !important;
     box-sizing: border-box !important;
-    margin-top: -1px !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
     background-color: #222634 !important;
+    margin-bottom: 8px !important; /* Separación extra debajo del encabezado */
 }
 
 /* Proporciones exactas: 92% Tabla, 8% Botón */
