@@ -55,61 +55,62 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
     flex-wrap: nowrap !important;
 }
 
-/* Bordes en el contenedor padre para que abarquen de extremo a extremo */
+/* Bordes unificados (Eliminada la línea doble superior) */
 div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) {
     border-top: 1px solid #282d3c !important;
     border-bottom: 1px solid #282d3c !important;
-    padding: 4px 0 !important;
+    padding: 0 !important;
+    min-height: 38px !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
     border-bottom: 1px solid #1c202a !important;
-    padding: 4px 0 !important;
+    padding: 0 !important;
+    min-height: 42px !important;
 }
 
-/* MAGIA: Aniquilar el margen inferior invisible de Streamlit que empujaba el texto hacia arriba */
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"] p,
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"] div,
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) div.element-container {
-    margin-bottom: 0 !important;
-    padding-bottom: 0 !important;
+/* Forzar centrado vertical perfecto para las columnas */
+div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) > div[data-testid="column"],
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"] {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    padding: 0 !important;
 }
 
-/* Proporciones de las columnas (92% datos, 8% botón) */
+/* Proporciones exactas de la tabla (92% - 8%) */
 div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) > div[data-testid="column"]:first-child,
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:first-child {
     width: 92% !important;
     flex: 0 0 92% !important;
-    min-width: 0 !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) > div[data-testid="column"]:last-child,
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:last-child {
     width: 8% !important;
     flex: 0 0 8% !important;
-    display: flex !important;
-    justify-content: center !important;
     align-items: center !important;
-    min-width: 0 !important;
 }
 
-/* --- ESTILO DEL BOTÓN LÁPIZ (EXACTAMENTE 26x26 AL IGUAL QUE EL TEXTO) --- */
+/* MAGIA: Aniquilar márgenes fantasmas de Streamlit que empujaban el texto hacia abajo */
+div[data-testid="stMarkdownContainer"] p {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Lápiz centrado y cuadrado */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) button {
-    height: 26px !important;
-    min-height: 26px !important;
-    width: 26px !important;
-    min-width: 26px !important;
+    height: 28px !important;
+    width: 28px !important;
     padding: 0 !important;
     background-color: #1a1e29 !important;
     border: 1px solid #2e3547 !important;
-    border-radius: 4px !important;
+    border-radius: 6px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     margin: 0 auto !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) button p {
-    font-size: 12px !important;
-    margin: 0 !important;
-    padding: 0 !important;
+    font-size: 13px !important;
     line-height: 1 !important;
 }
 </style>""", unsafe_allow_html=True)
@@ -328,7 +329,6 @@ else:
                 st.session_state.cambiando_password = True
                 st.rerun()
             if st.button("🚪 Cerrar Sesión", use_container_width=True):
-                # Limpiar el localStorage al cerrar sesión
                 st.components.v1.html("""
                     <script>
                         localStorage.removeItem('control_horas_token');
@@ -584,23 +584,23 @@ else:
             </div>
             """
             st.markdown(html_cards_res, unsafe_allow_html=True)
-            st.markdown("---")
+            # NOTA: Aquí se eliminó el antiguo st.markdown("---") que generaba la línea redundante
 
             if "dia_en_edicion" not in st.session_state:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # --- ENCABEZADO HTML SIN BORDES INTERNOS ---
+                # --- ENCABEZADO CENTRADO CON FLEXBOX PURO ---
                 col_h1, col_h2 = st.columns([0.92, 0.08], vertical_alignment="center")
                 with col_h1:
                     st.markdown("""
-                    <div class="encabezado-tabla" style="display: grid; grid-template-columns: 8% 16% 16% 17% 17% 26%; width: 100%; font-size: 0.65rem; color: #838c9e; font-weight: 600; align-items: center;">
-                        <div>DÍA</div>
-                        <div>ENTRADA</div>
-                        <div>SALIDA</div>
-                        <div>H.NORMAL</div>
-                        <div>H.RECARGO</div>
-                        <div>OBRA</div>
+                    <div class="encabezado-tabla" style="display: flex; width: 100%; font-size: 0.65rem; color: #838c9e; font-weight: 600; align-items: center;">
+                        <div style="flex: 0 0 8%;">DÍA</div>
+                        <div style="flex: 0 0 16%;">ENTRADA</div>
+                        <div style="flex: 0 0 16%;">SALIDA</div>
+                        <div style="flex: 0 0 17%;">H.NORMAL</div>
+                        <div style="flex: 0 0 17%;">H.RECARGO</div>
+                        <div style="flex: 0 0 26%;">OBRA</div>
                     </div>
                     """, unsafe_allow_html=True)
 
@@ -613,15 +613,15 @@ else:
                             hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
                             hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
                             
-                            # --- FILA DE DATOS CON ALTURA EXACTA AL BOTÓN (26px) ---
+                            # --- DATOS CENTRADOS CON FLEXBOX PURO ---
                             st.markdown(f"""
-                            <div class="fila-datos" style="display: grid; grid-template-columns: 8% 16% 16% 17% 17% 26%; width: 100%; height: 26px; font-size: 0.75rem; color: #ffffff; align-items: center; margin: 0; padding: 0;">
-                                <div style="font-weight: bold;">{d}</div>
-                                <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["ENTRADA"]}</div>
-                                <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["SALIDA"]}</div>
-                                <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{hn_val}</div>
-                                <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{hr_val}</div>
-                                <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["OBRA"]}</div>
+                            <div class="fila-datos" style="display: flex; width: 100%; font-size: 0.75rem; color: #ffffff; align-items: center;">
+                                <div style="flex: 0 0 8%; font-weight: bold;">{d}</div>
+                                <div style="flex: 0 0 16%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["ENTRADA"]}</div>
+                                <div style="flex: 0 0 16%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["SALIDA"]}</div>
+                                <div style="flex: 0 0 17%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{hn_val}</div>
+                                <div style="flex: 0 0 17%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{hr_val}</div>
+                                <div style="flex: 0 0 26%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["OBRA"]}</div>
                             </div>
                             """, unsafe_allow_html=True)
                         with c_b:
