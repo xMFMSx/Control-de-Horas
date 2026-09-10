@@ -32,25 +32,23 @@ div[data-testid="stDecoration"] { display: none !important; }
 div[data-testid="stForm"] { border: none !important; padding: 0 !important; margin-top: 1.5rem !important; margin-bottom: 1rem !important; }
 
 /* ========================================================
-   TABLA EXCEL - CORRECCIÓN DE ALTURAS Y CORTES
+   TABLA EXCEL - CENTRADO VERTICAL Y FUSIÓN DE FILAS
    ======================================================== */
 
-/* 1. Juntar filas (cierra la separación negra sin aplastar) */
+/* 1. Juntar filas cerrando el espacio negro a la fuerza */
 div.element-container:has(.contenedor-tabla),
 div.stElementContainer:has(.contenedor-tabla) {
-    margin-top: -8px !important;
-    margin-bottom: -20px !important;
+    margin-bottom: -23px !important; 
+    margin-top: 0px !important;
 }
 
-/* 2. Bloque fila: Permite que crezca sin cortar el texto */
+/* 2. Fila completa: STRETCH fuerza a que botón y textos tengan la misma altura */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     display: flex !important;
     flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    align-items: center !important;
-    gap: 0px !important;
+    align-items: stretch !important; /* <--- Clave para centrar el botón */
     width: 100% !important;
-    min-height: 42px !important; /* <--- Altura elástica, no corta el texto */
+    height: 42px !important; /* Altura rígida y segura */
     border-left: 1px solid #353b4d !important;
     border-right: 1px solid #353b4d !important;
     border-bottom: 1px solid #353b4d !important;
@@ -67,9 +65,8 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
 }
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child {
     width: 8% !important; min-width: 8% !important; max-width: 8% !important; flex: 0 0 8% !important;
-    display: flex !important; align-items: center !important; justify-content: center !important;
+    display: flex !important; align-items: center !important; justify-content: center !important; /* Centra el botón */
     border-left: 1px solid #353b4d !important;
-    min-height: 42px !important;
 }
 
 /* 4. Cuadrícula de textos */
@@ -77,29 +74,28 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
     display: grid !important;
     grid-template-columns: 10% 17% 17% 19% 19% 18% !important;
     width: 100% !important;
-    min-height: 42px !important; /* <--- Libre de altura rígida */
-    align-items: center !important;
+    height: 100% !important; /* Hereda los 42px de la fila */
 }
 
 .es-encabezado { font-weight: 700 !important; color: #a3adc2 !important; font-size: 0.65rem !important; }
 .es-datos { color: #ffffff !important; font-size: 0.85rem !important; }
 
-/* Celdas individuales (Devolvemos el padding vertical para que el texto respire) */
+/* Celdas individuales (Sin padding vertical para un centrado perfecto) */
 .contenedor-tabla > div {
     border-right: 1px solid #353b4d !important;
-    padding: 8px 6px !important; 
+    padding: 0 6px !important; 
     height: 100% !important;
     display: flex !important;
-    align-items: center !important;
+    align-items: center !important; /* <--- Centra el texto verticalmente */
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
 }
 .contenedor-tabla > div:last-child { border-right: none !important; }
 
-/* 5. Destruir márgenes ocultos de Streamlit (Evita empujes hacia abajo) */
-div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p { margin: 0 !important; padding: 0 !important; line-height: 1 !important; }
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) div[data-testid="stVerticalBlock"] { gap: 0 !important; justify-content: center !important; }
+/* 5. Destruir márgenes ocultos de Streamlit */
+div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p { margin: 0 !important; padding: 0 !important; line-height: 1 !important; display: flex; align-items: center; height: 100%;}
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) div[data-testid="stVerticalBlock"] { gap: 0 !important; justify-content: center !important; height: 100% !important; }
 
 /* 6. Botón */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
@@ -109,7 +105,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
     display: flex !important; align-items: center !important; justify-content: center !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button:hover { border: 1px solid #a3adc2 !important; }
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button p { font-size: 14px !important; margin: 0 !important; }
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button p { font-size: 14px !important; margin: 0 !important; display: flex; align-items: center; justify-content: center;}
 </style>""", unsafe_allow_html=True)
 
 SECRET_KEY = "control_de_horas_firmado_token_2026"
