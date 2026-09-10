@@ -60,7 +60,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
     width: 8% !important; min-width: 8% !important; max-width: 8% !important; flex: 0 0 8% !important;
     display: flex !important; align-items: center !important; justify-content: center !important;
     border-left: 1px solid #353b4d !important;
-    min-height: 20px !important;
+    min-height: 40px !important;
 }
 
 /* 4. Estructura interna de la tabla (HTML) */
@@ -68,7 +68,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
     display: grid !important;
     grid-template-columns: 8% 16% 16% 16% 16% 28% !important;
     width: 100% !important;
-    height: 40px !important; /* Altura fija para evitar que Streamlit estire los fondos */
+    height: 20px !important; /* Altura fija para evitar que Streamlit estire los fondos */
     align-items: center !important;
 }
 
