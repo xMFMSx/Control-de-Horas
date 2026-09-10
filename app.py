@@ -85,7 +85,29 @@ div[data-testid="stForm"] { border: none !important; padding: 0 !important; }
         min-width: 100% !important;
     }
 }
-</style>""", unsafe_allow_html=True)
+
+/* --- ENSANCHAR Y ACOMODAR EL MENÚ POPOVER DEL ENGRANAJE --- */
+div[data-testid="stPopoverBody"] {
+    min-width: 240px !important;
+    width: max-content !important;
+    padding: 16px !important;
+}
+div[data-testid="stPopoverBody"] div.stButton > button {
+    width: 100% !important;
+    max-width: 100% !important;
+    justify-content: flex-start !important;
+    padding-left: 12px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    margin: 4px 0 !important;
+}
+div[data-testid="stPopoverBody"] div.stButton > button p {
+    text-align: left !important;
+    font-size: 13px !important;
+    white-space: nowrap !important;
+}
+</style>
+""", unsafe_allow_html=True)
 
 SECRET_KEY = "control_de_horas_firmado_token_2026"
 
