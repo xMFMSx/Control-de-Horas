@@ -64,7 +64,7 @@ div[data-testid="stVerticalBlock"]:has(.fila-datos) {
     background-color: #222634 !important;
     border: 1px solid #353b4d !important;
     padding: 6px 0px !important;
-    margin-top: 25px !important; /* Separación sana con las tarjetas de arriba */
+    margin-top: 35px !important; /* Separación sana con las tarjetas de arriba */
 }
 .datos-encabezado {
     width: 92% !important;
