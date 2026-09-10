@@ -19,93 +19,71 @@ st.set_page_config(
 )
 
 st.markdown("""<style>
-/* Ocultar elementos nativos */
-header[data-testid="stHeader"] { display: none !important; }
-#MainMenu { visibility: hidden !important; }
-div[data-testid="stToolbar"] { visibility: hidden !important; }
-footer { visibility: hidden !important; }
-div[data-testid="stDecoration"] { display: none !important; }
-
-.block-container {
-    max-width: 95% !important; padding: 2rem !important; padding-bottom: 3rem !important;
-}
+/* Limpieza general de Streamlit */
+header[data-testid="stHeader"], #MainMenu, div[data-testid="stToolbar"], footer, div[data-testid="stDecoration"] { display: none !important; }
+.block-container { max-width: 95% !important; padding: 2rem !important; padding-bottom: 3rem !important; }
 div[data-testid="stForm"] { border: none !important; padding: 0 !important; margin-top: 1.5rem !important; margin-bottom: 1rem !important; }
 
-/* ========================================================
-   TABLA EXCEL - CENTRADO VERTICAL Y FUSIÓN DE FILAS
-   ======================================================== */
-
-/* 1. Juntar filas cerrando el espacio negro a la fuerza */
-div.element-container:has(.contenedor-tabla),
+/* --- 1. FILAS PEGADAS Y FONDO UNIFICADO --- */
+/* Cierra el espacio negro superponiendo el borde inferior con el superior de la siguiente fila */
+div.element-container:has(.contenedor-tabla), 
 div.stElementContainer:has(.contenedor-tabla) {
-    margin-bottom: -23px !important; 
-    margin-top: 0px !important;
+    margin-bottom: -17px !important; 
 }
 
-/* 2. Fila completa: STRETCH fuerza a que botón y textos tengan la misma altura */
+/* El bloque contenedor recupera su estructura natural de Streamlit */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: stretch !important; /* <--- Clave para centrar el botón */
-    width: 100% !important;
-    height: 42px !important; /* Altura rígida y segura */
-    border-left: 1px solid #353b4d !important;
-    border-right: 1px solid #353b4d !important;
-    border-bottom: 1px solid #353b4d !important;
     background-color: #1a1e29 !important;
+    border: 1px solid #353b4d !important;
+    align-items: center !important;
+    min-width: 700px !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
-    background-color: #222634 !important;
-    border-top: 1px solid #353b4d !important;
-}
-
-/* 3. Proporciones: 92% Tabla, 8% Botón */
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
-    width: 92% !important; min-width: 92% !important; max-width: 92% !important; flex: 0 0 92% !important;
-}
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child {
-    width: 8% !important; min-width: 8% !important; max-width: 8% !important; flex: 0 0 8% !important;
-    display: flex !important; align-items: center !important; justify-content: center !important; /* Centra el botón */
-    border-left: 1px solid #353b4d !important;
+div[data-testid="stHorizontalBlock"]:has(.es-encabezado) { 
+    background-color: #222634 !important; 
 }
 
-/* 4. Cuadrícula de textos */
+/* --- 2. GRID DE TEXTOS --- */
 .contenedor-tabla {
     display: grid !important;
-    grid-template-columns: 10% 17% 17% 19% 19% 18% !important;
+    grid-template-columns: 8% 16% 16% 16% 16% 28% !important; /* Proporciones ajustadas */
     width: 100% !important;
-    height: 100% !important; /* Hereda los 42px de la fila */
+    height: 38px !important;
+    align-items: center !important;
 }
 
 .es-encabezado { font-weight: 700 !important; color: #a3adc2 !important; font-size: 0.65rem !important; }
 .es-datos { color: #ffffff !important; font-size: 0.85rem !important; }
 
-/* Celdas individuales (Sin padding vertical para un centrado perfecto) */
 .contenedor-tabla > div {
     border-right: 1px solid #353b4d !important;
-    padding: 0 6px !important; 
+    padding: 0 10px !important;
     height: 100% !important;
     display: flex !important;
-    align-items: center !important; /* <--- Centra el texto verticalmente */
+    align-items: center !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
 }
-.contenedor-tabla > div:last-child { border-right: none !important; }
 
-/* 5. Destruir márgenes ocultos de Streamlit */
-div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p { margin: 0 !important; padding: 0 !important; line-height: 1 !important; display: flex; align-items: center; height: 100%;}
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) div[data-testid="stVerticalBlock"] { gap: 0 !important; justify-content: center !important; height: 100% !important; }
+/* --- 3. BOTÓN LÁPIZ EN SU LUGAR --- */
+div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p { margin: 0 !important; padding: 0 !important; }
 
-/* 6. Botón */
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
-    height: 28px !important; min-height: 28px !important; width: 28px !important; min-width: 28px !important;
-    padding: 0 !important; margin: 0 auto !important;
-    background-color: transparent !important; border: 1px solid transparent !important;
-    display: flex !important; align-items: center !important; justify-content: center !important;
+/* Centra el botón en la columna final que genera Streamlit */
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button:hover { border: 1px solid #a3adc2 !important; }
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button p { font-size: 14px !important; margin: 0 !important; display: flex; align-items: center; justify-content: center;}
+
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
+    height: 28px !important; width: 28px !important;
+    padding: 0 !important; margin: 0 !important;
+    background-color: transparent !important; 
+    border: 1px solid transparent !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button:hover { 
+    border: 1px solid #a3adc2 !important; 
+}
 </style>""", unsafe_allow_html=True)
 
 SECRET_KEY = "control_de_horas_firmado_token_2026"
