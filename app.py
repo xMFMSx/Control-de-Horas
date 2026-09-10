@@ -225,6 +225,17 @@ def validar_usuario(correo_ingresado, password_ingresada):
         st.error(f"Error al conectar con la base de datos: {e}")
         return False, None
 
+# --- SCRIPT DE PERSISTENCIA AUTOMÁTICA (LOCALSTORAGE) ---
+if not st.session_state.get("autenticado") and "session" not in st.query_params:
+    st.components.v1.html("""
+        <script>
+            const tokenGuardado = localStorage.getItem('control_horas_token');
+            if (tokenGuardado && !window.location.search.includes('session=')) {
+                window.location.search = '?session=' + tokenGuardado;
+            }
+        </script>
+    """, height=0)
+
 query_params = st.query_params
 if "session" in query_params and not st.session_state.get("autenticado"):
     correo_token = verificar_token(query_params["session"])
@@ -259,7 +270,16 @@ if not st.session_state.autenticado:
                 st.session_state["autenticado"] = True
                 st.session_state["nombre_usuario"] = nombre
                 st.session_state["user_email"] = correo_input.lower()
-                st.query_params["session"] = firmar_correo(correo_input.lower())
+                token_firmado = firmar_correo(correo_input.lower())
+                st.query_params["session"] = token_firmado
+                
+                # Guardar en localStorage para la persistencia definitiva
+                st.components.v1.html(f"""
+                    <script>
+                        localStorage.setItem('control_horas_token', '{token_firmado}');
+                    </script>
+                """, height=0)
+
                 st.success(f"¡Bienvenido, {nombre}!")
                 st.rerun()
             else:
@@ -281,6 +301,12 @@ else:
                 st.session_state.cambiando_password = True
                 st.rerun()
             if st.button("🚪 Cerrar Sesión", use_container_width=True):
+                # Limpiar el localStorage al cerrar sesión
+                st.components.v1.html("""
+                    <script>
+                        localStorage.removeItem('control_horas_token');
+                    </script>
+                """, height=0)
                 st.query_params.clear()
                 st.session_state.autenticado = False
                 st.session_state.nombre_usuario = ""
