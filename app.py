@@ -87,7 +87,12 @@ div[data-testid="stVerticalBlock"] {
     margin: 0 !important;
 }
 
-.es-encabezado { font-weight: 700 !important; color: #a3adc2 !important; font-size: 0.6rem !important; }
+.es-encabezado { 
+    font-weight: 700 !important; 
+    color: #a3adc2 !important; 
+    font-size: 0.62rem !important; 
+    padding: 8px 4px !important; /* Padding vertical mejorado para el encabezado */
+}
 .es-datos { color: #ffffff !important; font-size: 0.78rem !important; }
 
 .contenedor-tabla > div {
