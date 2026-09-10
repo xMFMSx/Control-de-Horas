@@ -620,6 +620,49 @@ div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) button p {
     width: 100% !important;
 }
 
+
+
+/* --- CSS NUCLEAR: ALINEACIÓN PERFECTA OBLIGATORIA --- */
+.tabla-resumen-header, .fila-tabla-contenido {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    width: 100% !important;
+}
+
+.tabla-resumen-header {
+    border-top: 1px solid #282d3c !important;
+    border-bottom: 1px solid #282d3c !important;
+    padding: 6px 4px !important;
+    font-size: 0.62rem !important;
+    font-weight: bold !important;
+    color: #a0aab8 !important;
+}
+
+.fila-tabla-contenido {
+    height: 38px !important;
+    padding: 0 4px !important;
+    font-size: 0.72rem !important;
+    color: #ffffff !important;
+}
+
+.tabla-resumen-header span, .fila-tabla-contenido span {
+    display: inline-block !important;
+    text-align: left !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    min-height: 20px !important; /* Fuerza visualmente a la celda a existir */
+}
+
+/* LA MAGIA AQUÍ: min-width y max-width bloquean las columnas como bloques de concreto */
+.tabla-resumen-header span:nth-child(1), .fila-tabla-contenido span:nth-child(1) { width: 8% !important; min-width: 8% !important; max-width: 8% !important; flex: 0 0 8% !important; }
+.tabla-resumen-header span:nth-child(2), .fila-tabla-contenido span:nth-child(2) { width: 16% !important; min-width: 16% !important; max-width: 16% !important; flex: 0 0 16% !important; }
+.tabla-resumen-header span:nth-child(3), .fila-tabla-contenido span:nth-child(3) { width: 16% !important; min-width: 16% !important; max-width: 16% !important; flex: 0 0 16% !important; }
+.tabla-resumen-header span:nth-child(4), .fila-tabla-contenido span:nth-child(4) { width: 17% !important; min-width: 17% !important; max-width: 17% !important; flex: 0 0 17% !important; }
+.tabla-resumen-header span:nth-child(5), .fila-tabla-contenido span:nth-child(5) { width: 17% !important; min-width: 17% !important; max-width: 17% !important; flex: 0 0 17% !important; }
+.tabla-resumen-header span:nth-child(6), .fila-tabla-contenido span:nth-child(6) { width: 26% !important; min-width: 26% !important; max-width: 26% !important; flex: 0 0 26% !important; }
+
 </style>
 
 
