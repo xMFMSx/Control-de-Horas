@@ -106,7 +106,34 @@ div[data-testid="stPopoverBody"] div.stButton > button p {
     font-size: 13px !important;
     white-space: nowrap !important;
 }
+
+/* --- FORZAR FILA Y LÁPIZ SIEMPRE LADO A LADO --- */
+div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    width: 100% !important;
+    gap: 0px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) > div[data-testid="column"] {
+    flex-shrink: 0 !important;
+    padding: 0 !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) > div[data-testid="column"]:first-child {
+    width: 88% !important;
+    flex: 0 0 88% !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) > div[data-testid="column"]:last-child {
+    width: 12% !important;
+    flex: 0 0 12% !important;
+    display: flex !important;
+    justify-content: center !important;
+}
 </style>
+
 """, unsafe_allow_html=True)
 
 SECRET_KEY = "control_de_horas_firmado_token_2026"
