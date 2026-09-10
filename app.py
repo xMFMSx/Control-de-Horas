@@ -47,37 +47,39 @@ div[data-testid="stExpander"] summary p {
 div[data-testid="stExpander"] summary svg { width: 1.2rem !important; height: 1.2rem !important; }
 div[data-testid="stForm"] { border: none !important; padding: 0 !important; }
 
-/* --- COLAPSO DE FILAS (PEGA LAS FILAS COMO UNA TABLA REAL) --- */
-div.element-container:has(.encabezado-tabla),
+/* --- ELIMINAR EL ESPACIO GIGANTE ENTRE FILAS --- */
+/* Esta regla funciona como un imán, pegando cada fila de datos a la de arriba */
 div.element-container:has(.fila-datos) {
-    margin-bottom: -1rem !important; 
+    margin-top: -16px !important; 
 }
 
+/* Espacio seguro para el formulario de edición */
 div[data-testid="stForm"] {
     margin-top: 1.5rem !important;
     margin-bottom: 1rem !important;
 }
 
-/* --- ESTRUCTURA DE TABLA ANTI-MÓVILES --- */
+/* --- ESTRUCTURA DE TABLA, BORDES Y PROPORCIONES --- */
 div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla),
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
     display: flex !important;
-    flex-direction: row !important; /* MAGIA: Prohíbe que el botón se apile abajo en pantallas chicas */
-    flex-wrap: nowrap !important;   /* MAGIA: Prohíbe los saltos de línea */
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
     align-items: center !important;
-    padding: 6px 0px !important;
-    gap: 0px !important;
+    gap: 0px !important; /* Elimina huecos horizontales */
+    min-height: 40px !important; /* Altura uniforme para toda la fila */
 }
 
-/* Líneas divisorias */
+/* Bordes finos */
 div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) {
     border-bottom: 1px solid #282d3c !important;
+    border-top: 1px solid #282d3c !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
     border-bottom: 1px solid #1c202a !important;
 }
 
-/* Proporciones de columnas (92% - 8%) y centrado absoluto del botón */
+/* Distribución exacta: 92% para textos, 8% para el botón */
 div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) > div[data-testid="column"]:first-child,
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:first-child {
     width: 92% !important;
@@ -92,7 +94,8 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"
     align-items: center !important;
 }
 
-/* Centrado vertical del texto */
+/* --- TEXTOS Y BOTÓN MILIMÉTRICAMENTE ALINEADOS --- */
+/* Textos a 28px de alto */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"] p,
 div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) div[data-testid="stMarkdownContainer"] p {
     margin: 0px !important;
@@ -100,7 +103,7 @@ div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) div[data-testid="stM
     line-height: 28px !important; 
 }
 
-/* Clases internas para flexbox de los textos */
+/* Clases Flexbox para distribuir los datos de forma inamovible */
 .encabezado-tabla {
     display: flex !important;
     width: 100% !important;
@@ -120,7 +123,7 @@ div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) div[data-testid="stM
     align-items: center !important;
 }
 
-/* --- DISEÑO ESTRICTO DEL BOTÓN LÁPIZ (28x28px) --- */
+/* Lápiz a 28px de alto (mismo eje que el texto) */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) button {
     height: 28px !important;
     min-height: 28px !important;
@@ -617,7 +620,7 @@ else:
 
             if registros_tabla:
                 # --- ENCABEZADO ---
-                col_h1, col_h2 = st.columns([0.92, 0.08], vertical_alignment="center")
+                col_h1, col_h2 = st.columns([0.92, 0.08])
                 with col_h1:
                     st.markdown("""
                     <div class="encabezado-tabla">
@@ -630,33 +633,31 @@ else:
                     </div>
                     """, unsafe_allow_html=True)
 
+                # Eliminamos el st.container() que generaba el espacio gigante
                 for r in registros_tabla:
-                    d = r["DÍA"]
-                    col_unica = st.container()
-                    with col_unica:
-                        c_dat, c_b = st.columns([0.92, 0.08], vertical_alignment="center")
-                        with c_dat:
-                            hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
-                            hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
-                            
-                            # --- FILA DE DATOS ---
-                            st.markdown(f"""
-                            <div class="fila-datos">
-                                <div style="flex: 0 0 8%; font-weight: bold;">{d}</div>
-                                <div style="flex: 0 0 16%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["ENTRADA"]}</div>
-                                <div style="flex: 0 0 16%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["SALIDA"]}</div>
-                                <div style="flex: 0 0 17%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{hn_val}</div>
-                                <div style="flex: 0 0 17%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{hr_val}</div>
-                                <div style="flex: 0 0 26%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["OBRA"]}</div>
-                            </div>
-                            """, unsafe_allow_html=True)
-                        with c_b:
-                            if st.button("✏️", key=f"btn_edit_{d}"):
-                                if st.session_state.get("dia_en_edicion") == d:
-                                    st.session_state["dia_en_edicion"] = None
-                                else:
-                                    st.session_state["dia_en_edicion"] = d
-                                st.rerun()
+                    c_dat, c_b = st.columns([0.92, 0.08])
+                    with c_dat:
+                        hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
+                        hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
+                        
+                        # --- FILA DE DATOS ---
+                        st.markdown(f"""
+                        <div class="fila-datos">
+                            <div style="flex: 0 0 8%; font-weight: bold;">{d}</div>
+                            <div style="flex: 0 0 16%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["ENTRADA"]}</div>
+                            <div style="flex: 0 0 16%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["SALIDA"]}</div>
+                            <div style="flex: 0 0 17%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{hn_val}</div>
+                            <div style="flex: 0 0 17%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{hr_val}</div>
+                            <div style="flex: 0 0 26%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["OBRA"]}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    with c_b:
+                        if st.button("✏️", key=f"btn_edit_{d}"):
+                            if st.session_state.get("dia_en_edicion") == d:
+                                st.session_state["dia_en_edicion"] = None
+                            else:
+                                st.session_state["dia_en_edicion"] = d
+                            st.rerun()
 
                     if st.session_state.get("dia_en_edicion") == d:
                         datos_d = dict_por_dia.get(d, {})
