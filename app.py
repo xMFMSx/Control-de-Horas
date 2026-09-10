@@ -93,8 +93,15 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"
     width: 8% !important;
     flex: 0 0 8% !important;
     display: flex !important;
-    justify-content: center !important;
     align-items: center !important;
+}
+
+/* --- ALINEACIÓN VERTICAL PERFECTA (RESTAURO EL CENTRADO PERDIDO) --- */
+div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) > div[data-testid="column"],
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"] {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
 }
 
 /* --- TEXTOS Y BOTÓN MILIMÉTRICAMENTE ALINEADOS --- */
@@ -131,7 +138,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) button {
     width: 28px !important;
     min-width: 28px !important;
     padding: 0 !important;
-    margin: 0 !important;
+    margin: 0 auto !important;
     background-color: #1a1e29 !important;
     border: 1px solid #2e3547 !important;
     border-radius: 6px !important;
