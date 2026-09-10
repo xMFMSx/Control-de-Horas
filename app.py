@@ -42,139 +42,80 @@ div[data-testid="stExpander"] summary p {
     color: #FFFFFF !important;
 }
 
+/* Espacio para el formulario de edición cuando se abre */
 div[data-testid="stForm"] {
     border: none !important;
     padding: 0 !important;
-    margin-top: 1.5rem !important;
-    margin-bottom: 1rem !important;
+    margin-top: 0.5rem !important;
+    margin-bottom: 1.5rem !important;
 }
 
 /* ========================================================
-   TABLA NATIVA CUADRICULADA (ANTIBLOQUEO MÓVIL)
+   DISEÑO DE TABLA (Usando el motor nativo de Streamlit)
    ======================================================== */
 
-/* 1. Unir las filas visualmente */
-div.element-container:has(> div[data-testid="stHorizontalBlock"]:has(.celda-header)),
-div.stElementContainer:has(> div[data-testid="stHorizontalBlock"]:has(.celda-header)),
-div.element-container:has(> div[data-testid="stHorizontalBlock"]:has(.celda-datos)),
-div.stElementContainer:has(> div[data-testid="stHorizontalBlock"]:has(.celda-datos)) {
-    margin-bottom: 0 !important;
-    padding-bottom: 0 !important;
-    margin-top: 0 !important;
+/* 1. SOLUCIÓN AL ESPACIO: Juntar las filas reduciendo el margen inferior */
+div.element-container:has(div[data-testid="stHorizontalBlock"]:has(.fila-marcador)),
+div.stElementContainer:has(div[data-testid="stHorizontalBlock"]:has(.fila-marcador)) {
+    margin-bottom: -15px !important; 
 }
 
-/* 2. Forzar fila horizontal siempre (derrota el auto-stacking de Streamlit) */
-div[data-testid="stHorizontalBlock"]:has(.celda-header),
-div[data-testid="stHorizontalBlock"]:has(.celda-datos) {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    gap: 0 !important;
-    align-items: stretch !important;
-    min-height: 36px !important;
-}
-
-/* 3. Estilos del Marco Exterior de la Tabla */
-div[data-testid="stHorizontalBlock"]:has(.celda-header) {
-    background-color: #1a1e29 !important;
+/* 2. Fondo y bordes para la fila de ENCABEZADO */
+div[data-testid="stHorizontalBlock"]:has(.encabezado-marcador) {
+    background-color: #262d3d !important;
     border-top: 1px solid #4a5573 !important;
-    border-left: 1px solid #4a5573 !important;
-    border-right: 1px solid #4a5573 !important;
-    border-bottom: 2px solid #4a5573 !important; /* Separador grueso del título */
-    margin-top: 20px !important;
-}
-div[data-testid="stHorizontalBlock"]:has(.celda-datos) {
-    background-color: #1a1e29 !important;
     border-bottom: 1px solid #4a5573 !important;
-    border-left: 1px solid #4a5573 !important;
-    border-right: 1px solid #4a5573 !important;
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+    margin-bottom: 12px !important; /* Espacio antes de los datos */
 }
 
-/* 4. ANCHOS DE COLUMNA MATEMÁTICOS INQUEBRANTABLES (Bloquea a Streamlit) */
-div[data-testid="stHorizontalBlock"]:has(.celda-header) > div[data-testid="column"]:nth-child(1), div[data-testid="stHorizontalBlock"]:has(.celda-datos) > div[data-testid="column"]:nth-child(1) { width: 8% !important; min-width: 8% !important; flex: 0 0 8% !important; }
-div[data-testid="stHorizontalBlock"]:has(.celda-header) > div[data-testid="column"]:nth-child(2), div[data-testid="stHorizontalBlock"]:has(.celda-datos) > div[data-testid="column"]:nth-child(2) { width: 16% !important; min-width: 16% !important; flex: 0 0 16% !important; }
-div[data-testid="stHorizontalBlock"]:has(.celda-header) > div[data-testid="column"]:nth-child(3), div[data-testid="stHorizontalBlock"]:has(.celda-datos) > div[data-testid="column"]:nth-child(3) { width: 16% !important; min-width: 16% !important; flex: 0 0 16% !important; }
-div[data-testid="stHorizontalBlock"]:has(.celda-header) > div[data-testid="column"]:nth-child(4), div[data-testid="stHorizontalBlock"]:has(.celda-datos) > div[data-testid="column"]:nth-child(4) { width: 14% !important; min-width: 14% !important; flex: 0 0 14% !important; }
-div[data-testid="stHorizontalBlock"]:has(.celda-header) > div[data-testid="column"]:nth-child(5), div[data-testid="stHorizontalBlock"]:has(.celda-datos) > div[data-testid="column"]:nth-child(5) { width: 14% !important; min-width: 14% !important; flex: 0 0 14% !important; }
-div[data-testid="stHorizontalBlock"]:has(.celda-header) > div[data-testid="column"]:nth-child(6), div[data-testid="stHorizontalBlock"]:has(.celda-datos) > div[data-testid="column"]:nth-child(6) { width: 24% !important; min-width: 24% !important; flex: 0 0 24% !important; }
-div[data-testid="stHorizontalBlock"]:has(.celda-header) > div[data-testid="column"]:nth-child(7), div[data-testid="stHorizontalBlock"]:has(.celda-datos) > div[data-testid="column"]:nth-child(7) { width: 8% !important; min-width: 8% !important; flex: 0 0 8% !important; }
-
-/* 5. CUADRÍCULA INTERNA Y CENTRADO ABSOLUTO */
-div[data-testid="stHorizontalBlock"]:has(.celda-header) > div[data-testid="column"],
-div[data-testid="stHorizontalBlock"]:has(.celda-datos) > div[data-testid="column"] {
-    border-right: 1px solid #32394d !important; /* Líneas divisorias internas */
-    padding: 4px 2px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-}
-div[data-testid="stHorizontalBlock"]:has(.celda-header) > div[data-testid="column"]:last-child,
-div[data-testid="stHorizontalBlock"]:has(.celda-datos) > div[data-testid="column"]:last-child {
-    border-right: none !important;
+/* 3. Fondo y bordes para la fila de DATOS */
+div[data-testid="stHorizontalBlock"]:has(.datos-marcador) {
+    border-bottom: 1px solid #282d3c !important;
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
 }
 
-/* Centrado del bloque vertical nativo de Streamlit */
-div[data-testid="stHorizontalBlock"]:has(.celda-header) > div[data-testid="column"] > div[data-testid="stVerticalBlock"],
-div[data-testid="stHorizontalBlock"]:has(.celda-datos) > div[data-testid="column"] > div[data-testid="stVerticalBlock"] {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 100% !important;
-    gap: 0 !important;
+/* 4. Dibujar líneas verticales (Cuadriculado interno) */
+div[data-testid="stHorizontalBlock"]:has(.fila-marcador) > div[data-testid="column"] {
+    border-right: 1px solid #32394d !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.fila-marcador) > div[data-testid="column"]:last-child {
+    border-right: none !important; /* El botón no lleva línea a la derecha */
 }
 
-/* 6. TEXTOS (Adaptados para la cuadrícula) */
-.celda-header {
-    font-size: 0.65rem !important;
+/* 5. Textos centrados y limpios */
+.txt-encabezado {
+    font-size: 0.7rem !important;
     color: #a3adc2 !important;
     font-weight: 700 !important;
     text-align: center !important;
-    width: 100% !important;
-    white-space: nowrap !important;
 }
-.celda-datos {
-    font-size: 0.9rem !important;
+.txt-datos {
+    font-size: 0.95rem !important;
     color: #ffffff !important;
     text-align: center !important;
-    width: 100% !important;
-    white-space: nowrap !important;
-}
-.c-dia { font-weight: bold !important; color: #ffffff !important; }
-.c-ob { white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
-
-/* Limpieza de márgenes en párrafos */
-div[data-testid="stMarkdownContainer"]:has(.celda-header) p,
-div[data-testid="stMarkdownContainer"]:has(.celda-datos) p {
-    margin: 0 !important;
-    padding: 0 !important;
-    line-height: 1.2 !important;
-    width: 100% !important;
 }
 
-/* 7. BOTÓN LÁPIZ DENTRO DE LA CUADRÍCULA */
-div[data-testid="stHorizontalBlock"]:has(.celda-datos) div[data-testid="stButton"] {
+/* Quitar saltos de línea invisibles dentro de las celdas */
+div[data-testid="stMarkdownContainer"]:has(.fila-marcador) p,
+div[data-testid="stMarkdownContainer"]:has(.txt-encabezado) p,
+div[data-testid="stMarkdownContainer"]:has(.txt-datos) p {
+    margin-bottom: 0 !important;
+}
+
+/* 6. Centrar el botón del lápiz */
+div[data-testid="stHorizontalBlock"]:has(.datos-marcador) div[data-testid="stButton"] {
     display: flex !important;
-    align-items: center !important;
     justify-content: center !important;
-    width: 100% !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.celda-datos) div[data-testid="stButton"] button {
-    height: 24px !important;
-    min-height: 24px !important;
-    width: 26px !important;
+div[data-testid="stHorizontalBlock"]:has(.datos-marcador) div[data-testid="stButton"] button {
+    height: 26px !important;
+    min-height: 26px !important;
+    width: 28px !important;
     padding: 0 !important;
     margin: 0 auto !important;
-    background-color: transparent !important;
-    border: 1px solid transparent !important;
-}
-div[data-testid="stHorizontalBlock"]:has(.celda-datos) div[data-testid="stButton"] button:hover {
-    background-color: #282d3c !important;
-    border: 1px solid #4a5573 !important;
-    border-radius: 4px !important;
-}
-div[data-testid="stHorizontalBlock"]:has(.celda-datos) div[data-testid="stButton"] button p {
-    font-size: 13px !important;
-    margin: 0 !important;
 }
 </style>""", unsafe_allow_html=True)
 
@@ -651,20 +592,20 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # Proporciones en Streamlit
-                props = [0.8, 1.6, 1.6, 1.4, 1.4, 2.4, 0.8]
+                # Proporciones matemáticas puras de Streamlit
+                props = [0.8, 1.6, 1.6, 1.5, 1.5, 2.4, 0.6]
 
-                # --- 1. FILA DE ENCABEZADO ---
+                # --- FILA DE ENCABEZADO ---
                 hc = st.columns(props, vertical_alignment="center")
-                hc[0].markdown("<div class='celda-header c-dia'>DÍA</div>", unsafe_allow_html=True)
-                hc[1].markdown("<div class='celda-header'>ENTRADA</div>", unsafe_allow_html=True)
-                hc[2].markdown("<div class='celda-header'>SALIDA</div>", unsafe_allow_html=True)
-                hc[3].markdown("<div class='celda-header'>H.NORMAL</div>", unsafe_allow_html=True)
-                hc[4].markdown("<div class='celda-header'>H.RECARGO</div>", unsafe_allow_html=True)
-                hc[5].markdown("<div class='celda-header'>OBRA</div>", unsafe_allow_html=True)
-                hc[6].markdown("<div class='celda-header'> </div>", unsafe_allow_html=True)
+                hc[0].markdown("<div class='fila-marcador encabezado-marcador txt-encabezado'>DÍA</div>", unsafe_allow_html=True)
+                hc[1].markdown("<div class='txt-encabezado'>ENTRADA</div>", unsafe_allow_html=True)
+                hc[2].markdown("<div class='txt-encabezado'>SALIDA</div>", unsafe_allow_html=True)
+                hc[3].markdown("<div class='txt-encabezado'>H.NORMAL</div>", unsafe_allow_html=True)
+                hc[4].markdown("<div class='txt-encabezado'>H.RECARGO</div>", unsafe_allow_html=True)
+                hc[5].markdown("<div class='txt-encabezado'>OBRA</div>", unsafe_allow_html=True)
+                hc[6].markdown("<div class='txt-encabezado'>&nbsp;</div>", unsafe_allow_html=True)
 
-                # --- 2. FILAS DE DATOS ---
+                # --- FILAS DE DATOS ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "-"
@@ -672,12 +613,12 @@ else:
                     ob_val = r["OBRA"].strip() if r["OBRA"].strip() else "-"
                     
                     dc = st.columns(props, vertical_alignment="center")
-                    dc[0].markdown(f"<div class='celda-datos c-dia'>{d}</div>", unsafe_allow_html=True)
-                    dc[1].markdown(f"<div class='celda-datos'>{r['ENTRADA']}</div>", unsafe_allow_html=True)
-                    dc[2].markdown(f"<div class='celda-datos'>{r['SALIDA']}</div>", unsafe_allow_html=True)
-                    dc[3].markdown(f"<div class='celda-datos'>{hn_val}</div>", unsafe_allow_html=True)
-                    dc[4].markdown(f"<div class='celda-datos'>{hr_val}</div>", unsafe_allow_html=True)
-                    dc[5].markdown(f"<div class='celda-datos c-ob'>{ob_val}</div>", unsafe_allow_html=True)
+                    dc[0].markdown(f"<div class='fila-marcador datos-marcador txt-datos'><b>{d}</b></div>", unsafe_allow_html=True)
+                    dc[1].markdown(f"<div class='txt-datos'>{r['ENTRADA']}</div>", unsafe_allow_html=True)
+                    dc[2].markdown(f"<div class='txt-datos'>{r['SALIDA']}</div>", unsafe_allow_html=True)
+                    dc[3].markdown(f"<div class='txt-datos'>{hn_val}</div>", unsafe_allow_html=True)
+                    dc[4].markdown(f"<div class='txt-datos'>{hr_val}</div>", unsafe_allow_html=True)
+                    dc[5].markdown(f"<div class='txt-datos'>{ob_val}</div>", unsafe_allow_html=True)
                     
                     with dc[6]:
                         if st.button("✏️", key=f"btn_edit_{d}"):
