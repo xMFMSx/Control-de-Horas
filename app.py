@@ -66,73 +66,69 @@ div[data-testid="stExpander"] summary svg { width: 1.2rem !important; height: 1.
 
 div[data-testid="stForm"] { border: none !important; padding: 0 !important; }
 
-/* --- DISEÑO MÓVIL: ENTRADA Y SALIDA LADO A LADO, OBRA ABAJO --- */
-@media (max-width: 768px) {
-    div[data-testid="stExpander"] div[data-testid="stHorizontalBlock"] {
-        display: flex !important;
-        flex-direction: row !important;
-        gap: 8px !important;
-        width: 100% !important;
-    }
-    div[data-testid="stExpander"] div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
-        flex: 1 1 50% !important;
-        max-width: 50% !important;
-        min-width: 0 !important;
-    }
-    div[data-testid="stExpander"] div[data-testid="stSelectbox"] {
-        width: 100% !important;
-        max-width: 100% !important;
-        min-width: 100% !important;
-    }
-}
 
-/* --- ENSANCHAR Y ACOMODAR EL MENÚ POPOVER DEL ENGRANAJE --- */
-div[data-testid="stPopoverBody"] {
-    min-width: 240px !important;
-    width: max-content !important;
-    padding: 16px !important;
-}
-div[data-testid="stPopoverBody"] div.stButton > button {
+/* --- TABLA Y LÁPIZ COMPACTO Y ALINEADO --- */
+.tabla-resumen-header {
+    display: flex !important;
+    align-items: center !important;
+    border-top: 1px solid #282d3c !important;
+    border-bottom: 1px solid #282d3c !important;
+    padding: 6px 4px !important;
+    font-size: 0.65rem !important;
+    font-weight: 600 !important;
+    color: #838c9e !important;
     width: 100% !important;
-    max-width: 100% !important;
-    justify-content: flex-start !important;
-    padding-left: 12px !important;
-    height: 38px !important;
-    min-height: 38px !important;
-    margin: 4px 0 !important;
 }
-div[data-testid="stPopoverBody"] div.stButton > button p {
-    text-align: left !important;
-    font-size: 13px !important;
-    white-space: nowrap !important;
+.fila-tabla-contenido {
+    display: flex !important;
+    align-items: center !important;
+    height: 36px !important;
+    padding: 0 4px !important;
+    font-size: 0.75rem !important;
+    color: #ffffff !important;
+    width: 100% !important;
 }
-
-/* --- FORZAR FILA Y LÁPIZ SIEMPRE LADO A LADO --- */
 div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) {
     display: flex !important;
     flex-direction: row !important;
-    flex-wrap: nowrap !important;
     align-items: center !important;
     width: 100% !important;
-    gap: 0px !important;
+    border-bottom: 1px solid #1c202a !important;
     margin: 0 !important;
     padding: 0 !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) > div[data-testid="column"] {
-    flex-shrink: 0 !important;
-    padding: 0 !important;
-}
 div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) > div[data-testid="column"]:first-child {
-    width: 88% !important;
-    flex: 0 0 88% !important;
+    width: 85% !important;
+    flex: 0 0 85% !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) > div[data-testid="column"]:last-child {
-    width: 12% !important;
-    flex: 0 0 12% !important;
+    width: 15% !important;
+    flex: 0 0 15% !important;
     display: flex !important;
     justify-content: center !important;
 }
+/* Botón lápiz pequeño, proporcionado y elegante */
+div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) button {
+    height: 26px !important;
+    min-height: 26px !important;
+    width: 28px !important;
+    min-width: 28px !important;
+    padding: 0 !important;
+    background-color: #1a1e29 !important;
+    border: 1px solid #2e3547 !important;
+    border-radius: 4px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) button p {
+    font-size: 12px !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
 </style>
+
 
 """, unsafe_allow_html=True)
 
