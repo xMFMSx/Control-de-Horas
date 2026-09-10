@@ -20,7 +20,7 @@ st.set_page_config(
 
 # --- CSS LIMPIO Y SEGURO ---
 st.markdown("""<style>
-/* Ocultar elementos de Streamlit */
+/* Ocultar elementos nativos de Streamlit que no usamos */
 header[data-testid="stHeader"] { display: none !important; }
 #MainMenu { visibility: hidden !important; }
 div[data-testid="stToolbar"] { visibility: hidden !important; }
@@ -49,23 +49,26 @@ div[data-testid="stExpander"] summary p {
 div[data-testid="stExpander"] summary svg { width: 1.2rem !important; height: 1.2rem !important; }
 div[data-testid="stForm"] { border: none !important; padding: 0 !important; }
 
-/* --- DISEÑO EXCLUSIVO PARA LA FILA Y EL BOTÓN LÁPIZ --- */
-/* Esto evita dañar los botones del menú de sesión */
+/* --- BLOQUEO PARA QUE EL LÁPIZ NO SALTE A LA SIGUIENTE LÍNEA --- */
 div[data-testid="stHorizontalBlock"] {
     display: flex !important;
     flex-direction: row !important;
+    flex-wrap: nowrap !important; /* MAGIA: Prohíbe terminantemente que los elementos bajen de línea */
     align-items: center !important;
     border-bottom: 1px solid #1c202a !important;
+    gap: 0px !important; /* Elimina espacios extra que causan saltos */
 }
 div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child {
-    width: 88% !important;
-    flex: 0 0 88% !important;
+    width: 92% !important;
+    flex: 0 0 92% !important;
+    min-width: 0 !important;
 }
 div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child {
-    width: 12% !important;
-    flex: 0 0 12% !important;
+    width: 8% !important;
+    flex: 0 0 8% !important;
     display: flex !important;
     justify-content: center !important;
+    min-width: 0 !important;
 }
 
 /* Solo afecta al lápiz, manteniendo a salvo el menú de sesión */
@@ -89,31 +92,16 @@ div[data-testid="stHorizontalBlock"] button p {
     padding: 0 !important;
 }
 
-/* --- CORRECCIÓN DEL LÁPIZ Y BORDES DE TABLA --- */
-
-/* 1. Bloquear la fila para que el lápiz nunca se caiga abajo (incluso en móvil) */
-div[data-testid="stHorizontalBlock"]:has(table) {
-    flex-wrap: nowrap !important;
-    align-items: center !important;
-}
-@media (max-width: 992px) {
-    div[data-testid="stHorizontalBlock"]:has(table) {
-        flex-direction: row !important;
-    }
-}
-
-/* 2. Eliminar el margen inferior invisible de la tabla que empujaba el lápiz */
+/* Eliminar márgenes y bordes fantasma que Streamlit añade a las tablas */
 div[data-testid="stMarkdownContainer"] table {
     margin-bottom: 0 !important;
+    border: none !important;
 }
-
-/* 3. Borrar las líneas divisorias internas que Streamlit le pone a las tablas por defecto */
 div[data-testid="stMarkdownContainer"] table th,
 div[data-testid="stMarkdownContainer"] table td {
     border: none !important;
     background: transparent !important;
 }
-
 </style>""", unsafe_allow_html=True)
 
 SECRET_KEY = "control_de_horas_firmado_token_2026"
@@ -592,16 +580,16 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # --- AQUÍ ESTÁ LA TABLA HTML NATIVA (INQUEBRANTABLE) ---
+                # --- TABLA HTML NATIVA (INQUEBRANTABLE) ---
                 st.markdown("""
-                <table style="width: 100%; table-layout: fixed; border-collapse: collapse; text-align: left; font-size: 0.65rem; color: #838c9e; font-weight: 600; border-top: 1px solid #282d3c; border-bottom: 1px solid #282d3c; margin: 0;">
-                    <tr style="height: 36px;">
-                        <td style="width: 8%; padding: 0 4px;">DÍA</td>
-                        <td style="width: 16%; padding: 0 4px;">ENTRADA</td>
-                        <td style="width: 16%; padding: 0 4px;">SALIDA</td>
-                        <td style="width: 17%; padding: 0 4px;">H.NORMAL</td>
-                        <td style="width: 17%; padding: 0 4px;">H.RECARGO</td>
-                        <td style="width: 26%; padding: 0 4px;">OBRA</td>
+                <table style="width: 100%; table-layout: fixed; border-collapse: collapse; text-align: left; font-size: 0.65rem; color: #838c9e; font-weight: 600; margin: 0;">
+                    <tr style="height: 36px; border-top: 1px solid #282d3c; border-bottom: 1px solid #282d3c;">
+                        <td style="width: 8%; padding: 0 4px; border: none;">DÍA</td>
+                        <td style="width: 16%; padding: 0 4px; border: none;">ENTRADA</td>
+                        <td style="width: 16%; padding: 0 4px; border: none;">SALIDA</td>
+                        <td style="width: 17%; padding: 0 4px; border: none;">H.NORMAL</td>
+                        <td style="width: 17%; padding: 0 4px; border: none;">H.RECARGO</td>
+                        <td style="width: 26%; padding: 0 4px; border: none;">OBRA</td>
                     </tr>
                 </table>
                 """, unsafe_allow_html=True)
@@ -610,17 +598,17 @@ else:
                     d = r["DÍA"]
                     col_unica = st.container()
                     with col_unica:
-                        c_dat, c_b = st.columns([0.88, 0.12], vertical_alignment="center")
+                        c_dat, c_b = st.columns([0.92, 0.08], vertical_alignment="center")
                         with c_dat:
                             st.markdown(f"""
-                            <table style="width: 100%; table-layout: fixed; border-collapse: collapse; text-align: left; font-size: 0.75rem; color: #ffffff; background: transparent; margin: 0;">
+                            <table style="width: 100%; table-layout: fixed; border-collapse: collapse; text-align: left; font-size: 0.75rem; color: #ffffff; margin: 0;">
                                 <tr style="height: 38px;">
-                                    <td style="width: 8%; padding: 0 4px; font-weight: bold;">{d}</td>
-                                    <td style="width: 16%; padding: 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["ENTRADA"]}</td>
-                                    <td style="width: 16%; padding: 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["SALIDA"]}</td>
-                                    <td style="width: 17%; padding: 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["HORA EXTRA"]}</td>
-                                    <td style="width: 17%; padding: 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["HORA RECARGO"]}</td>
-                                    <td style="width: 26%; padding: 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["OBRA"]}</td>
+                                    <td style="width: 8%; padding: 0 4px; font-weight: bold; border: none;">{d}</td>
+                                    <td style="width: 16%; padding: 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border: none;">{r["ENTRADA"]}</td>
+                                    <td style="width: 16%; padding: 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border: none;">{r["SALIDA"]}</td>
+                                    <td style="width: 17%; padding: 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border: none;">{r["HORA EXTRA"]}</td>
+                                    <td style="width: 17%; padding: 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border: none;">{r["HORA RECARGO"]}</td>
+                                    <td style="width: 26%; padding: 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border: none;">{r["OBRA"]}</td>
                                 </tr>
                             </table>
                             """, unsafe_allow_html=True)
