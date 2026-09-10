@@ -42,7 +42,6 @@ div[data-testid="stExpander"] summary p {
     color: #FFFFFF !important;
 }
 
-/* Espacio seguro para el formulario de edición */
 div[data-testid="stForm"] {
     border: none !important;
     padding: 0 !important;
@@ -50,14 +49,22 @@ div[data-testid="stForm"] {
     margin-bottom: 1rem !important;
 }
 
-/* --- 1. TABLA CUADRICULADA Y VISIBLE --- */
+/* ========================================================
+   MAGIA: ELIMINAR EL ESPACIO FANTASMA DE STREAMLIT
+   ======================================================== */
+/* Ataca al contenedor maestro y elimina su separación por defecto (gap) */
+div[data-testid="stVerticalBlock"]:has(.fila-datos) {
+    gap: 0px !important; 
+}
+
+/* --- 1. ENCABEZADO PURO HTML --- */
 .encabezado-puro {
     display: flex !important;
     width: 100% !important;
     background-color: #222634 !important;
     border: 1px solid #353b4d !important;
     padding: 6px 0px !important;
-    margin-top: 10px !important;
+    margin-top: 25px !important; /* Separación sana con las tarjetas de arriba */
 }
 .datos-encabezado {
     width: 92% !important;
@@ -67,35 +74,15 @@ div[data-testid="stForm"] {
     font-weight: 700 !important;
     align-items: center !important;
 }
-/* Líneas verticales y padding interno en celdas del encabezado */
 .datos-encabezado > div {
     border-right: 1px solid #353b4d !important;
     padding-left: 8px !important;
     box-sizing: border-box !important;
 }
-.datos-encabezado > div:last-child {
-    border-right: none !important;
-}
-.vacio-encabezado {
-    width: 8% !important;
-}
+.datos-encabezado > div:last-child { border-right: none !important; }
+.vacio-encabezado { width: 8% !important; }
 
-/* Eliminar márgenes del markdown del encabezado y succionar la fila de abajo */
-div[data-testid="stMarkdownContainer"]:has(.encabezado-puro) p {
-    margin: 0 !important;
-    padding: 0 !important;
-}
-div.element-container:has(.encabezado-puro),
-div.stElementContainer:has(.encabezado-puro) {
-    margin-bottom: -16px !important;
-}
-
-/* --- 2. FILAS DE DATOS CUADRICULADAS --- */
-div.element-container:has(.fila-datos),
-div.stElementContainer:has(.fila-datos) {
-    margin-top: -16px !important;
-    margin-bottom: -28px !important; /* <--- Fusión total de las filas */
-}
+div[data-testid="stMarkdownContainer"]:has(.encabezado-puro) p { margin: 0 !important; padding: 0 !important; }
 
 /* --- 2. FILAS DE DATOS CUADRICULADAS --- */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
@@ -103,47 +90,34 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     align-items: center !important;
-    gap: 0px !important; 
     width: 100% !important;
-    min-height: 40px !important;
-    margin-top: -1px !important; /* <--- Solapa los bordes de las filas para unirlas */
 }
 
 /* Forzar anchos mínimos exactos anti-móvil */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:first-child {
-    width: 92% !important;
-    min-width: 92% !important;
-    max-width: 92% !important;
-    flex: 0 0 92% !important;
+    width: 92% !important; min-width: 92% !important; max-width: 92% !important; flex: 0 0 92% !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:last-child {
-    width: 8% !important;
-    min-width: 8% !important;
-    max-width: 8% !important;
-    flex: 0 0 8% !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+    width: 8% !important; min-width: 8% !important; max-width: 8% !important; flex: 0 0 8% !important;
+    display: flex !important; align-items: center !important; justify-content: center !important;
 }
 
-/* --- 3. ALINEACIÓN VERTICAL Y BORDES DE CELDAS DE DATOS --- */
+/* --- 3. BORDES Y ALINEACIÓN DE CELDAS --- */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="column"] > div[data-testid="stVerticalBlock"] {
-    gap: 0 !important;
-    justify-content: center !important;
+    gap: 0 !important; justify-content: center !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) div.stElementContainer,
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) div.element-container,
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"],
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"] > p,
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stButton"] {
-    margin: 0 !important;
-    padding: 0 !important;
+    margin: 0 !important; padding: 0 !important;
 }
 
 .fila-datos {
     display: flex !important;
     width: 100% !important;
-    height: 32px !important; 
+    height: 34px !important;
     font-size: 0.75rem !important;
     color: #ffffff !important;
     align-items: center !important;
@@ -153,7 +127,6 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stButton"
     border-bottom: 1px solid #353b4d !important;
 }
 
-/* Celdas individuales de datos con líneas divisorias verticales */
 .fila-datos > div {
     border-right: 1px solid #353b4d !important;
     padding-left: 8px !important;
@@ -162,11 +135,9 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stButton"
     display: flex !important;
     align-items: center !important;
 }
-.fila-datos > div:last-child {
-    border-right: none !important;
-}
+.fila-datos > div:last-child { border-right: none !important; }
 
-/* Proporciones de las celdas de texto */
+/* Proporciones exactas de las celdas */
 .c-dia { flex: 0 0 8%; font-weight: bold; }
 .c-ent { flex: 0 0 16%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .c-sal { flex: 0 0 16%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -174,30 +145,15 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stButton"
 .c-hr  { flex: 0 0 17%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .c-ob  { flex: 0 0 26%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* --- 4. DISEÑO DEL BOTÓN LÁPIZ Y EMOJI --- */
+/* --- 4. DISEÑO DEL BOTÓN LÁPIZ --- */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) button {
-    height: 28px !important;
-    min-height: 28px !important;
-    width: 28px !important;
-    min-width: 28px !important;
-    padding: 0 !important;
-    margin: 0 auto !important;
-    background-color: #1a1e29 !important;
-    border: 1px solid #2e3547 !important;
-    border-radius: 6px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+    height: 28px !important; min-height: 28px !important; width: 28px !important; min-width: 28px !important;
+    padding: 0 !important; margin: 0 auto !important;
+    background-color: #1a1e29 !important; border: 1px solid #2e3547 !important; border-radius: 6px !important;
+    display: flex !important; align-items: center !important; justify-content: center !important;
 }
-
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) button p {
-    font-size: 14px !important;
-    line-height: 1 !important; 
-    margin: 0 !important;
-    padding: 0 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+    font-size: 14px !important; line-height: 1 !important; margin: 0 !important; padding: 0 !important;
 }
 </style>""", unsafe_allow_html=True)
 
