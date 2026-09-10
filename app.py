@@ -60,6 +60,7 @@ div[data-testid="stForm"] {
     margin-top: 0px !important;
     margin-bottom: 24px !important; /* <--- AQUÍ: Esto empuja la primera fila hacia abajo para que no choque */
 }
+/* 1. Mueve los títulos del encabezado */
 .datos-encabezado {
     width: 92% !important;
     display: flex !important;
@@ -67,6 +68,7 @@ div[data-testid="stForm"] {
     color: #838c9e !important;
     font-weight: 600 !important;
     align-items: center !important;
+    padding-left: 12px !important; /* <--- Agrega esto para empujar el encabezado */
 }
 .vacio-encabezado {
     width: 8% !important;
