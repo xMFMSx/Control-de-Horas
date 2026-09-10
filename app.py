@@ -62,22 +62,26 @@ div[data-testid="stVerticalBlock"] {
     gap: 0.1rem !important;
 }
 
-/* Fila horizontal principal de la tabla */
-.fila-tabla-html {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: stretch !important; 
+/* Fila interactiva completa que actúa como botón */
+.fila-enlace-tabla {
+    display: block !important;
+    text-decoration: none !important;
     background-color: #1a1e29 !important;
     border: 1px solid #353b4d !important;
     width: 100% !important;
     box-sizing: border-box !important;
     margin: 0 !important;
 }
+.fila-enlace-tabla:hover {
+    background-color: #222736 !important;
+    border-color: #448aff !important;
+}
+
 .fila-encabezado {
     background-color: #222634 !important;
 }
 
-/* Estructura interna de la tabla en Grid CSS Puro */
+/* Estructura interna idéntica para encabezado y datos (alineación perfecta) */
 .contenedor-tabla {
     display: grid !important;
     grid-template-columns: 10% 18% 18% 18% 18% 18% !important;
@@ -91,13 +95,18 @@ div[data-testid="stVerticalBlock"] {
     font-weight: 700 !important; 
     color: #a3adc2 !important; 
     font-size: 0.62rem !important; 
-    padding: 8px 4px !important; /* Padding vertical mejorado para el encabezado */
+    padding: 9px 8px !important; 
 }
-.es-datos { color: #ffffff !important; font-size: 0.78rem !important; }
+
+.es-datos { 
+    color: #ffffff !important; 
+    font-size: 0.78rem !important; 
+    padding: 8px 8px !important; /* Altura generosa para que los números no se corten */
+}
 
 .contenedor-tabla > div {
     border-right: 1px solid #353b4d !important;
-    padding: 6px 4px !important;
+    padding: 0 4px !important;
     display: flex !important;
     align-items: center !important;
     box-sizing: border-box !important;
@@ -110,25 +119,7 @@ div[data-testid="stVerticalBlock"] {
 div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p { 
     margin: 0 !important; 
     padding: 0 !important; 
-    line-height: 1.1 !important; 
-}
-
-/* Botón interactivo para el día dentro de la tabla */
-.btn-dia-tabla {
-    background: transparent !important;
-    border: none !important;
-    color: #448aff !important;
-    font-weight: 700 !important;
-    font-size: 0.78rem !important;
-    cursor: pointer !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    text-align: left !important;
-    width: 100% !important;
-}
-.btn-dia-tabla:hover {
-    color: #ffffff !important;
-    text-decoration: underline !important;
+    line-height: 1.2 !important; 
 }
 </style>""", unsafe_allow_html=True)
 
@@ -641,7 +632,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-        # --- VISTA 2: RESUMEN MENSUAL CON TABLA HTML PURA 100% HORIZONTAL ---
+        # --- VISTA 2: RESUMEN MENSUAL CON FILA 100% CLICKEABLE Y ALINEACIÓN PERFECTA ---
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
@@ -667,9 +658,9 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # --- ENCABEZADO HTML PURO ---
+                # --- ENCABEZADO PERFECTAMENTE ALINEADO ---
                 st.markdown('''
-                <div class="fila-tabla-html fila-encabezado" style="border-radius: 4px 4px 0 0;">
+                <div class="fila-enlace-tabla fila-encabezado" style="border-radius: 4px 4px 0 0;">
                     <div class="contenedor-tabla es-encabezado">
                         <div>DÍA</div>
                         <div>ENTRADA</div>
@@ -681,7 +672,7 @@ else:
                 </div>
                 ''', unsafe_allow_html=True)
 
-                # --- FILAS DE DATOS EN HTML PURO CON BOTÓN GET EN EL DÍA ---
+                # --- FILAS CLICKEABLES COMPLETAS ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     
@@ -705,28 +696,26 @@ else:
                     hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
                     hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
                     
-                    # Renderizamos cada fila como un bloque HTML horizontal perfecto
+                    # Cada fila es un enlace/botón que cubre todo el ancho
                     st.markdown(f'''
-                    <div class="fila-tabla-html">
-                        <div class="contenedor-tabla es-datos">
-                            <div>
-                                <form action="" method="get" style="margin:0; width:100%;">
-                                    <input type="hidden" name="session" value="{session_actual}">
-                                    <input type="hidden" name="nav_vista" value="RESUMEN">
-                                    <input type="hidden" name="edit_dia" value="{d}">
-                                    <button type="submit" class="btn-dia-tabla">{dia_txt}</button>
-                                </form>
+                    <form action="" method="get" style="margin:0; width:100%;">
+                        <input type="hidden" name="session" value="{session_actual}">
+                        <input type="hidden" name="nav_vista" value="RESUMEN">
+                        <input type="hidden" name="edit_dia" value="{d}">
+                        <button type="submit" class="fila-enlace-tabla">
+                            <div class="contenedor-tabla es-datos">
+                                <div style="color: #448aff; font-weight: 700;">{dia_txt}</div>
+                                <div>{r["ENTRADA"]}</div>
+                                <div>{r["SALIDA"]}</div>
+                                <div>{hn_val}</div>
+                                <div>{hr_val}</div>
+                                <div>{r["OBRA"]}</div>
                             </div>
-                            <div>{r["ENTRADA"]}</div>
-                            <div>{r["SALIDA"]}</div>
-                            <div>{hn_val}</div>
-                            <div>{hr_val}</div>
-                            <div>{r["OBRA"]}</div>
-                        </div>
-                    </div>
+                        </button>
+                    </form>
                     ''', unsafe_allow_html=True)
 
-                    # Verificar si se presionó este día para editar (vía query_params)
+                    # Verificar si se presionó este día para editar
                     if str(q_params.get("edit_dia", "")) == str(d):
                         datos_d = dict_por_dia.get(d, {})
                         val_e = str_a_time(datos_d.get("entrada", ""))
