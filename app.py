@@ -663,6 +663,44 @@ div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) button p {
 .tabla-resumen-header span:nth-child(5), .fila-tabla-contenido span:nth-child(5) { width: 17% !important; min-width: 17% !important; max-width: 17% !important; flex: 0 0 17% !important; }
 .tabla-resumen-header span:nth-child(6), .fila-tabla-contenido span:nth-child(6) { width: 26% !important; min-width: 26% !important; max-width: 26% !important; flex: 0 0 26% !important; }
 
+
+
+/* --- ESTRUCTURA DE CLASES INQUEBRANTABLES --- */
+.tabla-resumen-header, .fila-tabla-contenido {
+    display: flex !important;
+    flex-direction: row !important;
+    width: 100% !important;
+    align-items: center !important;
+}
+.tabla-resumen-header {
+    border-top: 1px solid #282d3c !important;
+    border-bottom: 1px solid #282d3c !important;
+    padding: 6px 4px !important;
+    font-size: 0.62rem !important;
+    font-weight: bold !important;
+    color: #a0aab8 !important;
+}
+.fila-tabla-contenido {
+    height: 38px !important;
+    padding: 0 4px !important;
+    font-size: 0.72rem !important;
+    color: #ffffff !important;
+}
+.c-dia, .c-ent, .c-sal, .c-nor, .c-rec, .c-obr {
+    display: block !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    text-align: left !important;
+    flex-shrink: 0 !important; 
+    min-height: 18px !important;
+}
+.c-dia { width: 8% !important; }
+.c-ent { width: 16% !important; }
+.c-sal { width: 16% !important; }
+.c-nor { width: 17% !important; }
+.c-rec { width: 17% !important; }
+.c-obr { width: 26% !important; }
+
 </style>
 
 
@@ -1161,12 +1199,12 @@ else:
             if registros_tabla:
                 st.markdown("""
                 <div class="tabla-resumen-header">
-                    <span>DÍA</span>
-                    <span>ENTRADA</span>
-                    <span>SALIDA</span>
-                    <span>H.NORMAL</span>
-                    <span>H.RECARGO</span>
-                    <span>OBRA</span>
+                    <div class="c-dia">DÍA</div>
+                    <div class="c-ent">ENTRADA</div>
+                    <div class="c-sal">SALIDA</div>
+                    <div class="c-nor">H.NORMAL</div>
+                    <div class="c-rec">H.RECARGO</div>
+                    <div class="c-obr">OBRA</div>
                 </div>
                 """, unsafe_allow_html=True)
 
@@ -1178,12 +1216,12 @@ else:
                         with c_dat:
                             st.markdown(f"""
                             <div class="fila-tabla-contenido">
-                                <span>{d}</span>
-                                <span>{r["ENTRADA"]}</span>
-                                <span>{r["SALIDA"]}</span>
-                                <span>{r["HORA EXTRA"]}</span>
-                                <span>{r["HORA RECARGO"]}</span>
-                                <span>{r["OBRA"]}</span>
+                                <div class="c-dia">{d}</div>
+                                <div class="c-ent">{r["ENTRADA"]}</div>
+                                <div class="c-sal">{r["SALIDA"]}</div>
+                                <div class="c-nor">{r["HORA EXTRA"]}</div>
+                                <div class="c-rec">{r["HORA RECARGO"]}</div>
+                                <div class="c-obr">{r["OBRA"]}</div>
                             </div>
                             """, unsafe_allow_html=True)
                         with c_b:
