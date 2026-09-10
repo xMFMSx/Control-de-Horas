@@ -44,123 +44,77 @@ div[data-testid="stExpander"] summary p {
     white-space: pre !important;
     width: 100% !important;
 }
-div[data-testid="stExpander"] summary svg { width: 1.2rem !important; height: 1.2rem !important; }
-div[data-testid="stForm"] { border: none !important; padding: 0 !important; }
+div[data-testid="stForm"] { border: none !important; padding: 0 !important; margin-top: 1.5rem !important; margin-bottom: 1rem !important; }
 
-/* Espacio seguro para el formulario de edición */
-div[data-testid="stForm"] {
-    margin-top: 1.5rem !important;
-    margin-bottom: 1rem !important;
+/* --- 1. ESTRUCTURA INTERNA DE LOS TEXTOS (HTML Puro) --- */
+.encabezado-tabla {
+    display: flex; width: 100%; font-size: 0.65rem; color: #838c9e; font-weight: 600; align-items: center;
+}
+.fila-datos {
+    display: flex; width: 100%; font-size: 0.75rem; color: #ffffff; align-items: center;
 }
 
-/* --- 1. ENCABEZADO PURO HTML --- */
-.encabezado-puro {
-    display: flex !important;
-    width: 100% !important;
+/* Proporciones de las columnas de texto (Evita desbordes) */
+.c-dia { flex: 0 0 8%; font-weight: bold; }
+.c-ent { flex: 0 0 16%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.c-sal { flex: 0 0 16%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.c-hn  { flex: 0 0 17%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.c-hr  { flex: 0 0 17%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.c-ob  { flex: 0 0 26%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* --- 2. COLAPSO DE MÁRGENES DE STREAMLIT --- */
+/* Elimina márgenes invisibles de los textos para que se centren con el botón */
+div[data-testid="stMarkdownContainer"] p {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+/* Junta las filas como un imán para eliminar la separación gigante */
+.element-container:has(.fila-datos),
+.stElementContainer:has(.fila-datos) {
+    margin-top: -16px !important;
+}
+
+/* --- 3. BORDES ENVOLVENTES (No cortan el texto) --- */
+div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) {
     border-top: 1px solid #282d3c !important;
     border-bottom: 1px solid #282d3c !important;
-    padding: 8px 0px !important;
-    margin-top: 10px !important;
-}
-.datos-encabezado {
-    width: 92% !important;
-    display: flex !important;
-    font-size: 0.65rem !important;
-    color: #838c9e !important;
-    font-weight: 600 !important;
     align-items: center !important;
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
 }
-.vacio-encabezado {
-    width: 8% !important;
-}
-div[data-testid="stMarkdownContainer"]:has(.encabezado-puro) p {
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-/* --- 2. FILAS DE DATOS (Sin límite estricto de altura) --- */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
-    margin-top: -16px !important; 
     border-bottom: 1px solid #1c202a !important;
-    padding-top: 6px !important;
-    padding-bottom: 6px !important;
     align-items: center !important;
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
 }
 
-/* DESTRUIR CUALQUIER MARGEN FANTASMA DE STREAMLIT */
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"] {
-    padding: 0 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-}
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stVerticalBlock"] {
-    gap: 0 !important; /* Anula el hueco interno de las columnas de Streamlit */
-}
-
-/* Distribución exacta: 92% para textos, 8% para el botón */
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:first-child {
-    width: 92% !important;
-    flex: 0 0 92% !important;
-}
+/* Centrado vertical del botón dentro de su propia columna */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:last-child {
-    width: 8% !important;
-    flex: 0 0 8% !important;
     display: flex !important;
-    align-items: center !important;
     justify-content: center !important;
-}
-
-/* --- 3. ALINEACIÓN VERTICAL TEXTOS --- */
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"] {
-    margin: 0 !important;
-    padding: 0 !important;
-}
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"] p {
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-.fila-datos {
-    display: flex !important;
-    width: 100% !important;
-    font-size: 0.75rem !important;
-    color: #ffffff !important;
     align-items: center !important;
 }
 
-/* --- 4. CENTRADO MILIMÉTRICO DEL BOTÓN Y EL EMOJI --- */
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stButton"] {
-    margin: 0 !important;
-    padding: 0 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-}
-
+/* --- 4. DISEÑO DEL BOTÓN LÁPIZ --- */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) button {
-    height: 26px !important;
-    min-height: 26px !important;
     width: 28px !important;
     min-width: 28px !important;
+    height: 28px !important;
+    min-height: 28px !important;
     padding: 0 !important;
     margin: 0 !important;
     background-color: #1a1e29 !important;
     border: 1px solid #2e3547 !important;
-    border-radius: 4px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+    border-radius: 6px !important;
 }
 
+/* Hace reaparecer el emoji centrado */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) button p {
-    font-size: 13px !important;
-    line-height: 0 !important; 
+    font-size: 14px !important;
+    line-height: normal !important; 
     margin: 0 !important;
-    padding: 0 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
 }
 </style>""", unsafe_allow_html=True)
 
@@ -637,38 +591,35 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # --- ENCABEZADO HTML PURO ---
-                st.markdown("""
-                <div class="encabezado-puro">
-                    <div class="datos-encabezado">
-                        <div style="flex: 0 0 8%;">DÍA</div>
-                        <div style="flex: 0 0 16%;">ENTRADA</div>
-                        <div style="flex: 0 0 16%;">SALIDA</div>
-                        <div style="flex: 0 0 17%;">H.NORMAL</div>
-                        <div style="flex: 0 0 17%;">H.RECARGO</div>
-                        <div style="flex: 0 0 26%;">OBRA</div>
+                # --- ENCABEZADO (Calculado nativamente por Streamlit) ---
+                c_h1, c_h2 = st.columns([0.92, 0.08], vertical_alignment="center")
+                with c_h1:
+                    st.markdown("""
+                    <div class="encabezado-tabla">
+                        <div class="c-dia">DÍA</div>
+                        <div class="c-ent">ENTRADA</div>
+                        <div class="c-sal">SALIDA</div>
+                        <div class="c-hn">H.NORMAL</div>
+                        <div class="c-hr">H.RECARGO</div>
+                        <div class="c-ob">OBRA</div>
                     </div>
-                    <div class="vacio-encabezado"></div>
-                </div>
-                """, unsafe_allow_html=True)
+                    """, unsafe_allow_html=True)
 
                 for r in registros_tabla:
                     d = r["DÍA"] 
-                    # Alineación vertical forzada a nivel de Streamlit
                     c_dat, c_b = st.columns([0.92, 0.08], vertical_alignment="center")
-                    
                     with c_dat:
                         hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
                         hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
                         
                         st.markdown(f"""
                         <div class="fila-datos">
-                            <div style="flex: 0 0 8%; font-weight: bold;">{d}</div>
-                            <div style="flex: 0 0 16%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["ENTRADA"]}</div>
-                            <div style="flex: 0 0 16%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["SALIDA"]}</div>
-                            <div style="flex: 0 0 17%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{hn_val}</div>
-                            <div style="flex: 0 0 17%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{hr_val}</div>
-                            <div style="flex: 0 0 26%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["OBRA"]}</div>
+                            <div class="c-dia">{d}</div>
+                            <div class="c-ent">{r["ENTRADA"]}</div>
+                            <div class="c-sal">{r["SALIDA"]}</div>
+                            <div class="c-hn">{hn_val}</div>
+                            <div class="c-hr">{hr_val}</div>
+                            <div class="c-ob">{r["OBRA"]}</div>
                         </div>
                         """, unsafe_allow_html=True)
                     with c_b:
