@@ -19,7 +19,7 @@ st.set_page_config(
 )
 
 st.markdown("""<style>
-/* Ocultar UI nativa[cite: 1] */
+/* Ocultar UI nativa */
 header[data-testid="stHeader"] { display: none !important; }
 #MainMenu { visibility: hidden !important; }
 div[data-testid="stToolbar"] { visibility: hidden !important; }
@@ -30,7 +30,7 @@ div[data-testid="stDecoration"] { display: none !important; }
 div[data-testid="stForm"] { border: none !important; padding: 0 !important; margin-top: 1.5rem !important; margin-bottom: 1rem !important; }
 
 /* =========================================
-   TABLA LIMPIA Y ESTABLE
+   TABLA LIMPIA Y ENCUADRADA
    ========================================= */
 /* 1. Unir filas */
 div.element-container:has(.contenedor-tabla), 
@@ -42,11 +42,13 @@ div.stElementContainer:has(.contenedor-tabla) {
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     display: flex !important;
     flex-direction: row !important;
-    align-items: center !important; /* Centrado vertical natural */
+    align-items: center !important; 
     background-color: #1a1e29 !important;
     border: 1px solid #353b4d !important;
-    margin-bottom: -1px !important; /* Colapsa bordes dobles entre filas */
+    margin-bottom: -1px !important; 
     width: 100% !important;
+    height: 40px !important; /* Altura estricta para todo el bloque */
+    box-sizing: border-box !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
     background-color: #222634 !important;
@@ -60,7 +62,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
     width: 8% !important; min-width: 8% !important; max-width: 8% !important; flex: 0 0 8% !important;
     display: flex !important; align-items: center !important; justify-content: center !important;
     border-left: 1px solid #353b4d !important;
-    min-height: 40px !important;
+    height: 40px !important; /* Altura de la línea divisoria del botón */
 }
 
 /* 4. Estructura interna de la tabla (HTML) */
@@ -68,30 +70,44 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
     display: grid !important;
     grid-template-columns: 8% 16% 16% 16% 16% 28% !important;
     width: 100% !important;
-    height: 20px !important; /* Altura fija para evitar que Streamlit estire los fondos */
-    align-items: stretch !important;
+    height: 40px !important; /* Cemento: 40px inamovibles */
+    align-items: start !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
 }
 
 .es-encabezado { font-weight: 700 !important; color: #a3adc2 !important; font-size: 0.65rem !important; }
 .es-datos { color: #ffffff !important; font-size: 0.85rem !important; }
 
+/* 5. CELDAS INDIVIDUALES (AQUÍ ESTÁ LA MAGIA DEL ENCUADRE) */
 .contenedor-tabla > div {
-    border-right: 3px solid #353b4d !important;
-    padding: 3 8px !important;
+    border-right: 1px solid #353b4d !important;
+    padding: 0 8px !important;
+    height: 40px !important; /* Obliga a la línea divisoria a medir los 40px completos */
     display: flex !important;
-    align-items: center !important;
-    height: 100% !important;
+    align-items: center !important; /* Flota el texto perfectamente al centro vertical */
+    box-sizing: border-box !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
 }
 .contenedor-tabla > div:last-child { border-right: none !important; }
 
-/* 5. Limpieza de Streamlit */
-div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p { margin: 0 !important; padding: 0 !important; line-height: 1 !important; display: block !important; }
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) div[data-testid="stVerticalBlock"] { gap: 0 !important; justify-content: center !important; }
+/* 6. Aniquilar la etiqueta <p> rebelde de Streamlit */
+div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p { 
+    margin: 0 !important; 
+    padding: 0 !important; 
+    line-height: 1 !important; 
+    display: flex !important; 
+    align-items: center !important; 
+    height: 40px !important; /* La etiqueta <p> ahora también mide 40px */
+}
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) div[data-testid="stVerticalBlock"] { 
+    gap: 0 !important; 
+    justify-content: center !important; 
+}
 
-/* 6. Botón */
+/* 7. Botón */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
     height: 28px !important; width: 28px !important; min-width: 28px !important;
     padding: 0 !important; margin: 0 auto !important;
