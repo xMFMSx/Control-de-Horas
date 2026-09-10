@@ -381,7 +381,43 @@ div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) button p {
     text-overflow: ellipsis !important;
     white-space: nowrap !important;
 }
+
+/* --- TABLA CSS GRID ADAPTABLE Y SIN CORTES --- */
+.tabla-resumen-header {
+    display: grid !important;
+    grid-template-columns: 9% 15% 15% 16% 16% 29% !important;
+    align-items: center !important;
+    border-top: 1px solid #282d3c !important;
+    border-bottom: 1px solid #282d3c !important;
+    padding: 6px 2px !important;
+    font-size: 0.62rem !important;
+    font-weight: 700 !important;
+    color: #a0aab8 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.fila-tabla-contenido {
+    display: grid !important;
+    grid-template-columns: 9% 15% 15% 16% 16% 29% !important;
+    align-items: center !important;
+    height: 38px !important;
+    padding: 0 2px !important;
+    font-size: 0.72rem !important;
+    color: #ffffff !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Permitir ver el texto completo sin puntos suspensivos ni recortes */
+.tabla-resumen-header span, .fila-tabla-contenido span {
+    text-align: left !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
+}
 </style>
+
 
 
 
