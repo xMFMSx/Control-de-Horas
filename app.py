@@ -136,7 +136,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdow
     margin: 0 !important;
     padding: 0 !important;
     line-height: 28px !important;
-    transform: translateY(4px) !important; /* <--- AQUÍ SE BAJA EL TEXTO 2PX */
+    transform: translateY(5px) !important; /* <--- AQUÍ SE BAJA EL TEXTO 2PX */
 }
 
 .fila-datos {
