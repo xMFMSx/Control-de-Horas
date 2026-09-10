@@ -88,6 +88,32 @@ div[data-testid="stHorizontalBlock"] button p {
     margin: 0 !important;
     padding: 0 !important;
 }
+
+/* --- CORRECCIÓN DEL LÁPIZ Y BORDES DE TABLA --- */
+
+/* 1. Bloquear la fila para que el lápiz nunca se caiga abajo (incluso en móvil) */
+div[data-testid="stHorizontalBlock"]:has(table) {
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+}
+@media (max-width: 992px) {
+    div[data-testid="stHorizontalBlock"]:has(table) {
+        flex-direction: row !important;
+    }
+}
+
+/* 2. Eliminar el margen inferior invisible de la tabla que empujaba el lápiz */
+div[data-testid="stMarkdownContainer"] table {
+    margin-bottom: 0 !important;
+}
+
+/* 3. Borrar las líneas divisorias internas que Streamlit le pone a las tablas por defecto */
+div[data-testid="stMarkdownContainer"] table th,
+div[data-testid="stMarkdownContainer"] table td {
+    border: none !important;
+    background: transparent !important;
+}
+
 </style>""", unsafe_allow_html=True)
 
 SECRET_KEY = "control_de_horas_firmado_token_2026"
