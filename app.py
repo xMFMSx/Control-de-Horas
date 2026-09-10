@@ -57,6 +57,9 @@ div[data-testid="stHorizontalBlock"]:has(.marcador-fila) {
     flex-wrap: nowrap !important;
     align-items: center !important;
     gap: 0px !important;
+    border-bottom: 1px solid #1c202a !important;
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.marcador-fila) > div[data-testid="column"]:first-child {
     width: 92% !important;
@@ -73,10 +76,10 @@ div[data-testid="stHorizontalBlock"]:has(.marcador-fila) > div[data-testid="colu
 
 /* Solo afecta al lápiz, manteniendo a salvo el botón de Guardar Registro y el Menú */
 div[data-testid="stHorizontalBlock"]:has(.marcador-fila) button {
-    height: 22px !important;
-    min-height: 22px !important;
-    width: 26px !important;
-    min-width: 26px !important;
+    height: 28px !important;
+    min-height: 28px !important;
+    width: 28px !important;
+    min-width: 28px !important;
     padding: 0 !important;
     background-color: #1a1e29 !important;
     border: 1px solid #2e3547 !important;
@@ -85,12 +88,16 @@ div[data-testid="stHorizontalBlock"]:has(.marcador-fila) button {
     align-items: center !important;
     justify-content: center !important;
     margin: 0 auto !important;
-    transform: translateY(4px) !important; /* MAGIA: Lo baja 4 píxeles para centrarlo */
+    transform: none !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.marcador-fila) button p {
-    font-size: 10px !important;
+    font-size: 14px !important;
     margin: 0 !important;
     padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1 !important;
 }
 </style>""", unsafe_allow_html=True)
 
@@ -596,7 +603,7 @@ else:
                             hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
                             
                             st.markdown(f"""
-                            <div class="marcador-fila" style="display: grid; grid-template-columns: 8% 16% 16% 17% 17% 26%; width: 100%; height: 38px; padding: 0 4px; font-size: 0.75rem; color: #ffffff; align-items: center; border-bottom: 1px solid #1c202a;">
+                            <div class="marcador-fila" style="display: grid; grid-template-columns: 8% 16% 16% 17% 17% 26%; width: 100%; height: 38px; padding: 0 4px; font-size: 0.75rem; color: #ffffff; align-items: center; ">
                                 <div style="font-weight: bold;">{d}</div>
                                 <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["ENTRADA"]}</div>
                                 <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["SALIDA"]}</div>
