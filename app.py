@@ -50,12 +50,12 @@ div[data-testid="stForm"] {
     margin-bottom: 1rem !important;
 }
 
-/* --- 1. ENCABEZADO PURO HTML --- */
+/* --- 1. TABLA CUADRICULADA Y VISIBLE --- */
 .encabezado-puro {
     display: flex !important;
     width: 100% !important;
-    border-top: 1px solid #282d3c !important;
-    border-bottom: 1px solid #282d3c !important;
+    background-color: #222634 !important;
+    border: 1px solid #353b4d !important;
     padding: 6px 0px !important;
     margin-top: 10px !important;
 }
@@ -63,9 +63,18 @@ div[data-testid="stForm"] {
     width: 92% !important;
     display: flex !important;
     font-size: 0.65rem !important;
-    color: #838c9e !important;
-    font-weight: 600 !important;
+    color: #a3adc2 !important;
+    font-weight: 700 !important;
     align-items: center !important;
+}
+/* Líneas verticales y padding interno en celdas del encabezado */
+.datos-encabezado > div {
+    border-right: 1px solid #353b4d !important;
+    padding-left: 8px !important;
+    box-sizing: border-box !important;
+}
+.datos-encabezado > div:last-child {
+    border-right: none !important;
 }
 .vacio-encabezado {
     width: 8% !important;
@@ -81,11 +90,11 @@ div.stElementContainer:has(.encabezado-puro) {
     margin-bottom: -16px !important;
 }
 
-/* --- 2. FILAS DE DATOS Y COLUMNAS --- */
+/* --- 2. FILAS DE DATOS CUADRICULADAS --- */
 div.element-container:has(.fila-datos),
 div.stElementContainer:has(.fila-datos) {
     margin-top: -16px !important;
-    margin-bottom: -16px !important; /* Mantiene unidas las filas */
+    margin-bottom: -16px !important;
 }
 
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
@@ -94,9 +103,6 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
     flex-wrap: nowrap !important;
     align-items: center !important;
     gap: 0px !important; 
-    border-bottom: 1px solid #1c202a !important;
-    padding-top: 6px !important;
-    padding-bottom: 6px !important;
     width: 100% !important;
     min-height: 40px !important;
 }
@@ -118,8 +124,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"
     justify-content: center !important;
 }
 
-/* --- 3. ALINEACIÓN VERTICAL PERFECTA (ANIQUILAR MÁRGENES FANTASMA) --- */
-/* Destruye todos los márgenes que Streamlit inyecta en las capas ocultas para evitar que el texto flote */
+/* --- 3. ALINEACIÓN VERTICAL Y BORDES DE CELDAS DE DATOS --- */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="column"] > div[data-testid="stVerticalBlock"] {
     gap: 0 !important;
     justify-content: center !important;
@@ -136,10 +141,27 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stButton"
 .fila-datos {
     display: flex !important;
     width: 100% !important;
-    height: 28px !important; /* Altura matemáticamente idéntica al botón */
+    height: 32px !important; 
     font-size: 0.75rem !important;
     color: #ffffff !important;
     align-items: center !important;
+    background-color: #1a1e29 !important;
+    border-left: 1px solid #353b4d !important;
+    border-right: 1px solid #353b4d !important;
+    border-bottom: 1px solid #353b4d !important;
+}
+
+/* Celdas individuales de datos con líneas divisorias verticales */
+.fila-datos > div {
+    border-right: 1px solid #353b4d !important;
+    padding-left: 8px !important;
+    box-sizing: border-box !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+}
+.fila-datos > div:last-child {
+    border-right: none !important;
 }
 
 /* Proporciones de las celdas de texto */
