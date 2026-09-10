@@ -84,15 +84,16 @@ div.stElementContainer:has(.encabezado-puro) {
 /* --- 2. FILAS DE DATOS Y COLUMNAS --- */
 div.element-container:has(div[data-testid="stHorizontalBlock"]:has(.fila-datos)),
 div.stElementContainer:has(div[data-testid="stHorizontalBlock"]:has(.fila-datos)) {
-    margin-top: -50px !important; /* <--- Ahora sí succiona TODA la fila completa hacia arriba */
+    margin-top: -24px !important; /* <--- Ahora sí succiona TODA la fila completa hacia arriba */
     margin-bottom: 0px !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
+    margin-top: -20px !important; /* <--- AHORA SÍ: Esto tira de la fila completa hacia arriba */
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     align-items: center !important;
-    gap: 0px !important; 
+    gap: 0px !important;
     border-bottom: 1px solid #1c202a !important;
     padding-top: 8px !important;
     padding-bottom: 0px !important;
