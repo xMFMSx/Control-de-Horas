@@ -19,7 +19,7 @@ st.set_page_config(
 )
 
 st.markdown("""<style>
-/* Ocultar UI nativa */
+/* Ocultar UI nativa[cite: 1] */
 header[data-testid="stHeader"] { display: none !important; }
 #MainMenu { visibility: hidden !important; }
 div[data-testid="stToolbar"] { visibility: hidden !important; }
@@ -29,13 +29,15 @@ div[data-testid="stDecoration"] { display: none !important; }
 .block-container { max-width: 95% !important; padding: 2rem !important; padding-bottom: 3rem !important; }
 div[data-testid="stForm"] { border: none !important; padding: 0 !important; margin-top: 1.5rem !important; margin-bottom: 1rem !important; }
 
-/* FUSIÓN TOTAL: Cero espacios negros entre filas */
+/* =========================================
+   SOLUCIÓN 2: FUSIÓN TOTAL DE FILAS (CERO ESPACIOS NEGROS)
+   ========================================= */
 div.element-container:has(.contenedor-tabla), 
 div.stElementContainer:has(.contenedor-tabla) {
     margin-bottom: -1px !important; 
 }
 
-/* Contenedor principal de cada fila */
+/* Fila horizontal que contiene la tabla y el botón */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     display: flex !important;
     flex-direction: row !important;
@@ -52,7 +54,9 @@ div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
     border-top: 1px solid #353b4d !important;
 }
 
-/* Distribución exacta: Tabla izquierda (88%), Botón derecha absoluta (12%) */
+/* =========================================
+   SOLUCIÓN 4: EL LÁPIZ A LA DERECHA DEL TODO (12%) Y TABLA AL 88%
+   ========================================= */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
     flex: 1 1 auto !important;
     width: 88% !important;
@@ -67,7 +71,9 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
     border-left: 1px solid #353b4d !important;
 }
 
-/* Altura adaptable al tamaño natural de las letras */
+/* =========================================
+   SOLUCIÓN 3: ALTURA AJUSTADA NATURALMENTE A LAS LETRAS
+   ========================================= */
 .contenedor-tabla {
     display: grid !important;
     grid-template-columns: 8% 16% 16% 16% 16% 28% !important;
@@ -103,7 +109,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) div[data-testid="stV
     justify-content: center !important; 
 }
 
-/* Botón del lápiz alineado al centro de la celda derecha */
+/* Botón del lápiz alineado perfectamente en el centro de la celda derecha */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
     height: 28px !important; 
     width: 28px !important; 
@@ -594,7 +600,7 @@ else:
 
             if registros_tabla:
                 # --- ENCABEZADO SINCRONIZADO ---
-                c_h1, c_h2 = st.columns([0.92, 0.08], vertical_alignment="center")
+                c_h1, c_h2 = st.columns([0.88, 0.12], vertical_alignment="center")
                 with c_h1:
                     st.markdown('''
                     <div class="contenedor-tabla es-encabezado">
