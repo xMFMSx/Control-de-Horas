@@ -484,7 +484,37 @@ div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) button p {
     text-overflow: ellipsis !important;
     white-space: nowrap !important;
 }
+
+/* --- ESTILO LIMPIO ORIGINAL (SIN CORTES) --- */
+.tabla-resumen-header {
+    display: flex !important;
+    align-items: center !important;
+    border-top: 1px solid #282d3c !important;
+    border-bottom: 1px solid #282d3c !important;
+    padding: 6px 4px !important;
+    font-size: 0.65rem !important;
+    font-weight: 600 !important;
+    color: #838c9e !important;
+    width: 100% !important;
+}
+
+.fila-tabla-contenido {
+    display: flex !important;
+    align-items: center !important;
+    height: 36px !important;
+    padding: 0 4px !important;
+    font-size: 0.75rem !important;
+    color: #ffffff !important;
+    width: 100% !important;
+}
+
+.tabla-resumen-header span, .fila-tabla-contenido span {
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
+}
 </style>
+
 
 
 
