@@ -29,13 +29,13 @@ div[data-testid="stDecoration"] { display: none !important; }
 .block-container { max-width: 95% !important; padding: 2rem !important; padding-bottom: 3rem !important; }
 div[data-testid="stForm"] { border: none !important; padding: 0 !important; margin-top: 1.5rem !important; margin-bottom: 1rem !important; }
 
-/* FUSIÓN TOTAL DE FILAS: Cero espacios negros entre filas de la tabla */
+/* FUSIÓN TOTAL: Cero espacios negros entre filas */
 div.element-container:has(.contenedor-tabla), 
 div.stElementContainer:has(.contenedor-tabla) {
     margin-bottom: -1px !important; 
 }
 
-/* Fila horizontal que contiene la tabla y el botón */
+/* Contenedor principal de cada fila */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     display: flex !important;
     flex-direction: row !important;
@@ -52,7 +52,7 @@ div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
     border-top: 1px solid #353b4d !important;
 }
 
-/* Forzar que la primera columna ocupe todo el ancho y la del botón se quede a la derecha con ancho fijo */
+/* Distribución exacta: Tabla izquierda (88%), Botón derecha absoluta (12%) */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
     flex: 1 1 auto !important;
     width: 88% !important;
@@ -67,7 +67,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
     border-left: 1px solid #353b4d !important;
 }
 
-/* Estructura interna de la tabla: Altura natural ajustada a las letras */
+/* Altura adaptable al tamaño natural de las letras */
 .contenedor-tabla {
     display: grid !important;
     grid-template-columns: 8% 16% 16% 16% 16% 28% !important;
@@ -82,7 +82,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
 
 .contenedor-tabla > div {
     border-right: 1px solid #353b4d !important;
-    padding: 6px 8px !important;
+    padding: 8px 8px !important;
     display: flex !important;
     align-items: center !important;
     box-sizing: border-box !important;
@@ -103,7 +103,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) div[data-testid="stV
     justify-content: center !important; 
 }
 
-/* Botón de edición perfectamente centrado a la derecha del todo */
+/* Botón del lápiz alineado al centro de la celda derecha */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
     height: 28px !important; 
     width: 28px !important; 
