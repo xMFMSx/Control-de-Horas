@@ -98,7 +98,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
     padding-top: 6px !important;
     padding-bottom: 0px !important;
     width: 100% !important;
-    min-height: 16px !important;
+    min-height: 10px !important;
 }
 
 /* Forzar anchos mínimos exactos anti-móvil */
