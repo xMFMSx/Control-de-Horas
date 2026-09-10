@@ -80,7 +80,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
 /* 4. Estilos de la Cuadrícula HTML (Interna con CSS GRID INQUEBRANTABLE) */
 .contenedor-tabla {
     display: grid !important;
-    grid-template-columns: 3.5% 8% 6% 10% 10% 10% !important; /* <--- Proporciones bloqueadas con candado */
+    grid-template-columns: 3.5% 8% 8% 10% 10% 20% !important; /* <--- Proporciones bloqueadas con candado */
     width: 100% !important;
     height: 38px !important;
     align-items: center !important;
