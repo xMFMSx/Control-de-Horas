@@ -80,7 +80,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
 /* 4. Estilos de la Cuadrícula HTML (Interna con CSS GRID INQUEBRANTABLE) */
 .contenedor-tabla {
     display: grid !important;
-    grid-template-columns: 3.5% 8% 8% 10% 10% 20% !important; /* <--- Proporciones bloqueadas con candado */
+    grid-template-columns: 10% 17% 17% 19% 19% 18% !important; /* <--- Proporciones bloqueadas con candado */
     width: 100% !important;
     height: 38px !important;
     align-items: center !important;
@@ -95,7 +95,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
     border-top: 1px solid #353b4d !important;
     font-weight: 700 !important;
     color: #a3adc2 !important;
-    font-size: 0.68rem !important;
+    font-size: 0.60rem !important;
 }
 
 .es-datos {
