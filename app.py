@@ -95,8 +95,8 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
     align-items: center !important;
     gap: 0px !important; 
     border-bottom: 1px solid #1c202a !important;
-    padding-top: 6px !important;
-    padding-bottom: -10px !important;
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
     width: 100% !important;
     min-height: 40px !important;
 }
