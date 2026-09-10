@@ -18,7 +18,6 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# --- CSS LIMPIO Y AISLADO ---
 st.markdown("""<style>
 /* Ocultar elementos nativos de Streamlit */
 header[data-testid="stHeader"] { display: none !important; }
@@ -27,7 +26,6 @@ div[data-testid="stToolbar"] { visibility: hidden !important; }
 footer { visibility: hidden !important; }
 div[data-testid="stDecoration"] { display: none !important; }
 
-/* Ajustes del contenedor principal */
 .block-container {
     max-width: 95% !important;
     padding-left: 2rem !important;
@@ -49,37 +47,48 @@ div[data-testid="stExpander"] summary p {
 div[data-testid="stExpander"] summary svg { width: 1.2rem !important; height: 1.2rem !important; }
 div[data-testid="stForm"] { border: none !important; padding: 0 !important; }
 
-/* --- BLOQUEO EXCLUSIVO PARA LA FILA DEL LÁPIZ Y EL ENCABEZADO --- */
-/* La clase .marcador-fila protege los demás menús de tu app */
-div[data-testid="stHorizontalBlock"]:has(.marcador-fila) {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    align-items: center !important;
+/* --- ESTRUCTURA DE TABLA (FILAS COMPLETAS AL 100%) --- */
+div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla),
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
     gap: 0px !important;
-    border-bottom: 1px solid #1c202a !important;
-    padding-top: 2px !important;
-    padding-bottom: 2px !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.marcador-fila) > div[data-testid="column"]:first-child {
+
+/* Bordes en el contenedor padre para que abarquen de extremo a extremo */
+div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) {
+    border-top: 1px solid #282d3c !important;
+    border-bottom: 1px solid #282d3c !important;
+    padding: 2px 0 !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
+    border-bottom: 1px solid #1c202a !important;
+    padding: 2px 0 !important;
+}
+
+/* Proporciones de las columnas (92% datos, 8% botón) */
+div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) > div[data-testid="column"]:first-child,
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:first-child {
     width: 92% !important;
     flex: 0 0 92% !important;
     min-width: 0 !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.marcador-fila) > div[data-testid="column"]:last-child {
+div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) > div[data-testid="column"]:last-child,
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:last-child {
     width: 8% !important;
     flex: 0 0 8% !important;
     display: flex !important;
     justify-content: center !important;
+    align-items: center !important;
     min-width: 0 !important;
 }
 
-/* Solo afecta al lápiz, manteniendo a salvo el botón de Guardar Registro y el Menú */
-div[data-testid="stHorizontalBlock"]:has(.marcador-fila) button {
-    height: 28px !important;
-    min-height: 28px !important;
-    width: 28px !important;
-    min-width: 28px !important;
+/* --- ESTILO DEL BOTÓN LÁPIZ (PEQUEÑO Y CENTRADO) --- */
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) button {
+    height: 24px !important;
+    min-height: 24px !important;
+    width: 24px !important;
+    min-width: 24px !important;
     padding: 0 !important;
     background-color: #1a1e29 !important;
     border: 1px solid #2e3547 !important;
@@ -88,15 +97,11 @@ div[data-testid="stHorizontalBlock"]:has(.marcador-fila) button {
     align-items: center !important;
     justify-content: center !important;
     margin: 0 auto !important;
-    transform: none !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.marcador-fila) button p {
-    font-size: 14px !important;
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) button p {
+    font-size: 11px !important;
     margin: 0 !important;
     padding: 0 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
     line-height: 1 !important;
 }
 </style>""", unsafe_allow_html=True)
@@ -577,12 +582,11 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # --- CABECERA ALINEADA EN LA MISMA ESTRUCTURA DE 92/8 ---
-                # Esto obliga al encabezado a tener el mismo ancho matemático que los datos
+                # --- ENCABEZADO HTML SIN BORDES INTERNOS ---
                 col_h1, col_h2 = st.columns([0.92, 0.08], vertical_alignment="center")
                 with col_h1:
                     st.markdown("""
-                    <div class="marcador-fila" style="display: grid; grid-template-columns: 8% 16% 16% 17% 17% 26%; width: 100%; border-top: 1px solid #282d3c; border-bottom: 1px solid #282d3c; padding: 6px 4px; font-size: 0.65rem; color: #838c9e; font-weight: 600; align-items: center;">
+                    <div class="encabezado-tabla" style="display: grid; grid-template-columns: 8% 16% 16% 17% 17% 26%; width: 100%; font-size: 0.65rem; color: #838c9e; font-weight: 600; align-items: center;">
                         <div>DÍA</div>
                         <div>ENTRADA</div>
                         <div>SALIDA</div>
@@ -598,12 +602,12 @@ else:
                     with col_unica:
                         c_dat, c_b = st.columns([0.92, 0.08], vertical_alignment="center")
                         with c_dat:
-                            # Protegemos los vacíos insertando un espacio HTML
                             hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
                             hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
                             
+                            # --- FILA DE DATOS HTML SIN BORDES INTERNOS ---
                             st.markdown(f"""
-                            <div class="marcador-fila" style="display: grid; grid-template-columns: 8% 16% 16% 17% 17% 26%; width: 100%; height: 38px; padding: 0 4px; font-size: 0.75rem; color: #ffffff; align-items: center; ">
+                            <div class="fila-datos" style="display: grid; grid-template-columns: 8% 16% 16% 17% 17% 26%; width: 100%; height: 32px; font-size: 0.75rem; color: #ffffff; align-items: center;">
                                 <div style="font-weight: bold;">{d}</div>
                                 <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["ENTRADA"]}</div>
                                 <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["SALIDA"]}</div>
