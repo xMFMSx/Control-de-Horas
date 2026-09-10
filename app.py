@@ -19,69 +19,79 @@ st.set_page_config(
 )
 
 st.markdown("""<style>
-/* Limpieza nativa */
-header[data-testid="stHeader"], #MainMenu, div[data-testid="stToolbar"], footer, div[data-testid="stDecoration"] { display: none !important; }
-.block-container { max-width: 95% !important; padding: 2rem !important; padding-bottom: 3rem !important; overflow-x: auto !important; }
+/* Ocultar UI nativa[cite: 1] */
+header[data-testid="stHeader"] { display: none !important; }
+#MainMenu { visibility: hidden !important; }
+div[data-testid="stToolbar"] { visibility: hidden !important; }
+footer { visibility: hidden !important; }
+div[data-testid="stDecoration"] { display: none !important; }
+
+.block-container { max-width: 95% !important; padding: 2rem !important; padding-bottom: 3rem !important; }
 div[data-testid="stForm"] { border: none !important; padding: 0 !important; margin-top: 1.5rem !important; margin-bottom: 1rem !important; }
 
-/* --- 1. UNION DE FILAS --- */
-div.element-container:has(.contenedor-tabla), div.stElementContainer:has(.contenedor-tabla) {
+/* =========================================
+   TABLA LIMPIA Y ESTABLE
+   ========================================= */
+/* 1. Unir filas */
+div.element-container:has(.contenedor-tabla), 
+div.stElementContainer:has(.contenedor-tabla) {
     margin-bottom: -16px !important;
 }
 
-/* --- 2. BLOQUEO ANTI-MÓVIL (EVITA QUE EL BOTÓN SE CAIGA ABAJO) --- */
+/* 2. Contenedor de la fila (st.columns) */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     display: flex !important;
-    flex-direction: row !important; /* Fuerza a estar en la misma línea */
-    flex-wrap: nowrap !important;   /* Prohíbe que el botón baje de fila */
-    align-items: stretch !important; /* Estira la altura para que el botón y datos midan igual */
-    width: 100% !important;
-    min-width: 700px !important; /* Si tu pantalla es chica, hace scroll en vez de romperse */
+    flex-direction: row !important;
+    align-items: center !important; /* Centrado vertical natural */
     background-color: #1a1e29 !important;
     border: 1px solid #353b4d !important;
+    margin-bottom: -1px !important; /* Colapsa bordes dobles entre filas */
+    width: 100% !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.es-encabezado) { background-color: #222634 !important; }
+div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
+    background-color: #222634 !important;
+}
 
-/* 3. Proporciones exactas de las 2 columnas de Streamlit (Datos 92% | Boton 8%) */
+/* 3. Proporciones: 92% Tabla, 8% Botón */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
     width: 92% !important; min-width: 92% !important; max-width: 92% !important; flex: 0 0 92% !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child {
     width: 8% !important; min-width: 8% !important; max-width: 8% !important; flex: 0 0 8% !important;
     display: flex !important; align-items: center !important; justify-content: center !important;
-    border-left: 1px solid #353b4d !important; /* Línea divisoria del botón */
+    border-left: 1px solid #353b4d !important;
+    min-height: 40px !important;
 }
 
-/* --- 4. GRID DE TEXTOS INTERNO --- */
+/* 4. Estructura interna de la tabla (HTML) */
 .contenedor-tabla {
     display: grid !important;
     grid-template-columns: 8% 16% 16% 16% 16% 28% !important;
     width: 100% !important;
-    min-height: 40px !important;
+    height: 40px !important; /* Altura fija para evitar que Streamlit estire los fondos */
     align-items: center !important;
 }
 
 .es-encabezado { font-weight: 700 !important; color: #a3adc2 !important; font-size: 0.65rem !important; }
 .es-datos { color: #ffffff !important; font-size: 0.85rem !important; }
 
-/* Celdas con líneas divisorias */
 .contenedor-tabla > div {
     border-right: 1px solid #353b4d !important;
     padding: 0 8px !important;
-    height: 100% !important;
     display: flex !important;
     align-items: center !important;
+    height: 100% !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
 }
 .contenedor-tabla > div:last-child { border-right: none !important; }
 
-/* 5. Aniquilar basura oculta de Streamlit */
-div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p { margin: 0 !important; padding: 0 !important; }
+/* 5. Limpieza de Streamlit */
+div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p { margin: 0 !important; padding: 0 !important; line-height: 1 !important; display: block !important; }
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) div[data-testid="stVerticalBlock"] { gap: 0 !important; justify-content: center !important; }
 
-/* 6. Diseño del Botón */
+/* 6. Botón */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
     height: 28px !important; width: 28px !important; min-width: 28px !important;
     padding: 0 !important; margin: 0 auto !important;
