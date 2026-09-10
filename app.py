@@ -19,7 +19,7 @@ st.set_page_config(
 )
 
 st.markdown("""<style>
-/* Ocultar elementos nativos de Streamlit */
+/* Ocultar elementos nativos */
 header[data-testid="stHeader"] { display: none !important; }
 #MainMenu { visibility: hidden !important; }
 div[data-testid="stToolbar"] { visibility: hidden !important; }
@@ -27,38 +27,22 @@ footer { visibility: hidden !important; }
 div[data-testid="stDecoration"] { display: none !important; }
 
 .block-container {
-    max-width: 95% !important;
-    padding-left: 2rem !important;
-    padding-right: 2rem !important;
-    padding-top: 2.2rem !important;
-    padding-bottom: 3rem !important;
+    max-width: 95% !important; padding: 2rem !important; padding-bottom: 3rem !important;
 }
-
-div[data-testid="stExpander"] { width: 100% !important; }
-div[data-testid="stExpander"] summary p {
-    font-family: 'Consolas', 'Courier New', monospace !important;
-    font-size: 0.72rem !important;
-    font-weight: 500 !important;
-    color: #FFFFFF !important;
-}
-
-div[data-testid="stForm"] {
-    border: none !important;
-    padding: 0 !important;
-    margin-top: 1.5rem !important;
-    margin-bottom: 1rem !important;
-}
+div[data-testid="stForm"] { border: none !important; padding: 0 !important; margin-top: 1.5rem !important; margin-bottom: 1rem !important; }
 
 /* ========================================================
-   TABLA PERFECTA: INTEGRACIÓN TOTAL DEL BOTÓN
+   TABLA EXCEL - CORRECCIÓN DE ALTURAS Y CORTES
    ======================================================== */
 
-/* 1. Juntar las filas suavemente */
-div.element-container:has(.contenedor-tabla) {
-    margin-bottom: -16px !important; 
+/* 1. Juntar filas (cierra la separación negra sin aplastar) */
+div.element-container:has(.contenedor-tabla),
+div.stElementContainer:has(.contenedor-tabla) {
+    margin-top: -8px !important;
+    margin-bottom: -20px !important;
 }
 
-/* 2. EL BLOQUE HORIZONTAL AHORA ES LA FILA COMPLETA (El fondo y borde mandan aquí) */
+/* 2. Bloque fila: Permite que crezca sin cortar el texto */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     display: flex !important;
     flex-direction: row !important;
@@ -66,85 +50,66 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     align-items: center !important;
     gap: 0px !important;
     width: 100% !important;
+    min-height: 42px !important; /* <--- Altura elástica, no corta el texto */
     border-left: 1px solid #353b4d !important;
     border-right: 1px solid #353b4d !important;
     border-bottom: 1px solid #353b4d !important;
-    box-sizing: border-box !important;
-    overflow: hidden !important;
+    background-color: #1a1e29 !important;
 }
-
 div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
     background-color: #222634 !important;
     border-top: 1px solid #353b4d !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.es-datos) {
-    background-color: #1a1e29 !important;
-}
 
-/* 3. Proporciones del contenedor (94% textos, 6% botón) */
+/* 3. Proporciones: 92% Tabla, 8% Botón */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
-    width: 94% !important; min-width: 94% !important; max-width: 94% !important; flex: 0 0 94% !important;
+    width: 92% !important; min-width: 92% !important; max-width: 92% !important; flex: 0 0 92% !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child {
-    width: 6% !important; min-width: 6% !important; max-width: 6% !important; flex: 0 0 6% !important;
+    width: 8% !important; min-width: 8% !important; max-width: 8% !important; flex: 0 0 8% !important;
     display: flex !important; align-items: center !important; justify-content: center !important;
-    border-left: 1px solid #353b4d !important; /* Esta es la línea que separa el botón de la OBRA */
-    height: 40px !important;
+    border-left: 1px solid #353b4d !important;
+    min-height: 42px !important;
 }
 
-/* 4. Estilos de la Cuadrícula HTML (Ya NO llevan fondo ni bordes exteriores) */
+/* 4. Cuadrícula de textos */
 .contenedor-tabla {
     display: grid !important;
     grid-template-columns: 10% 17% 17% 19% 19% 18% !important;
     width: 100% !important;
-    height: 40px !important;
+    min-height: 42px !important; /* <--- Libre de altura rígida */
     align-items: center !important;
-    box-sizing: border-box !important;
 }
 
-.es-encabezado {
-    font-weight: 700 !important;
-    color: #a3adc2 !important;
-    font-size: 0.60rem !important;
-}
+.es-encabezado { font-weight: 700 !important; color: #a3adc2 !important; font-size: 0.65rem !important; }
+.es-datos { color: #ffffff !important; font-size: 0.85rem !important; }
 
-.es-datos {
-    color: #ffffff !important;
-    font-size: 0.85rem !important;
-}
-
-/* Celdas individuales */
+/* Celdas individuales (Devolvemos el padding vertical para que el texto respire) */
 .contenedor-tabla > div {
     border-right: 1px solid #353b4d !important;
-    padding: 0 6px !important;
+    padding: 8px 6px !important; 
     height: 100% !important;
     display: flex !important;
     align-items: center !important;
-    box-sizing: border-box !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
 }
-.contenedor-tabla > div:last-child {
-    border-right: none !important;
-}
+.contenedor-tabla > div:last-child { border-right: none !important; }
 
-/* 5. Limpieza de márgenes fantasma */
+/* 5. Destruir márgenes ocultos de Streamlit (Evita empujes hacia abajo) */
 div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p { margin: 0 !important; padding: 0 !important; line-height: 1 !important; }
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) div[data-testid="stVerticalBlock"] { gap: 0 !important; justify-content: center !important; }
 
-/* 6. Diseño del Botón (Transparente para que adopte el fondo de la fila) */
-div[data-testid="stHorizontalBlock"]:has(.es-datos) button {
+/* 6. Botón */
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
     height: 28px !important; min-height: 28px !important; width: 28px !important; min-width: 28px !important;
     padding: 0 !important; margin: 0 auto !important;
     background-color: transparent !important; border: 1px solid transparent !important;
     display: flex !important; align-items: center !important; justify-content: center !important;
-    box-shadow: none !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.es-datos) button:hover {
-    border: 1px solid #a3adc2 !important;
-}
-div[data-testid="stHorizontalBlock"]:has(.es-datos) button p { font-size: 14px !important; margin: 0 !important; }
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button:hover { border: 1px solid #a3adc2 !important; }
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button p { font-size: 14px !important; margin: 0 !important; }
 </style>""", unsafe_allow_html=True)
 
 SECRET_KEY = "control_de_horas_firmado_token_2026"
