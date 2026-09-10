@@ -30,11 +30,11 @@ div[data-testid="stToolbar"] { visibility: hidden !important; }
 footer { visibility: hidden !important; }
 div[data-testid="stDecoration"] { display: none !important; }
 
-/* Contenedor principal con espacio holgado abajo para que no corte la pantalla */
+/* Contenedor principal con margen inferior gigantesco para evitar cortes */
 .block-container { 
     max-width: 95% !important; 
     padding: 1.2rem !important; 
-    padding-bottom: 6rem !important; 
+    padding-bottom: 12rem !important; 
 }
 
 div[data-testid="stForm"] { 
@@ -56,7 +56,7 @@ div[data-testid="stVerticalBlock"] {
     gap: 0.1rem !important;
 }
 
-/* Fila horizontal unificada de la tabla (todo en un solo bloque para evitar desalineación del lápiz) */
+/* Fila horizontal unificada de la tabla */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     display: flex !important;
     flex-direction: row !important;
@@ -77,10 +77,10 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
     min-width: 0 !important;
 }
 
-/* Estructura interna unificada de la tabla (7 columnas incluyendo el botón de editar) */
+/* Estructura interna ajustada: achicamos ligeramente las columnas de hora y obra para evitar desbordes */
 .contenedor-tabla {
     display: grid !important;
-    grid-template-columns: 8% 15% 15% 15% 15% 24% 8% !important;
+    grid-template-columns: 8% 14% 14% 15% 15% 26% 8% !important;
     width: 100% !important;
     align-items: center !important;
     box-sizing: border-box !important;
@@ -106,22 +106,6 @@ div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p {
     margin: 0 !important; 
     padding: 0 !important; 
     line-height: 1.1 !important; 
-}
-
-/* Estilo para el botón de edición integrado */
-.btn-editar-inline {
-    background: transparent !important;
-    border: none !important;
-    color: #ff4b4b !important;
-    font-size: 0.9rem !important;
-    cursor: pointer !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 100% !important;
-    height: 100% !important;
 }
 </style>""", unsafe_allow_html=True)
 
@@ -634,7 +618,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-        # --- VISTA 2: RESUMEN MENSUAL CON LÁPIZ INTEGRADO Y 80% DE ESCALA ---
+        # --- VISTA 2: RESUMEN MENSUAL CON LÁPIZ LIMPIO ---
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
@@ -660,7 +644,7 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # --- ENCABEZADO UNIFICADO ---
+                # --- ENCABEZADO UNIFICADO LIMPIO ---
                 st.markdown('''
                 <div class="contenedor-tabla es-encabezado" style="background-color: #222634 !important; border: 1px solid #353b4d !important;">
                     <div class="col-dia">DÍA</div>
@@ -673,7 +657,7 @@ else:
                 </div>
                 ''', unsafe_allow_html=True)
 
-                # --- FILAS DE DATOS CON LÁPIZ INTEGRADO EN LA MISMA LÍNEA ---
+                # --- FILAS DE DATOS CON LÁPIZ LIMPIO ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     
@@ -697,7 +681,6 @@ else:
                     hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
                     hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
                     
-                    # Fila de datos visual con botón de lápiz integrado nativamente
                     col_fila1, col_fila2 = st.columns([0.9, 0.1], vertical_alignment="center")
                     with col_fila1:
                         st.markdown(f'''
@@ -708,7 +691,7 @@ else:
                             <div class="col-hn">{hn_val}</div>
                             <div class="col-hr">{hr_val}</div>
                             <div class="col-ob">{r["OBRA"]}</div>
-                            <div class="col-btn">✏️</div>
+                            <div class="col-btn"></div>
                         </div>
                         ''', unsafe_allow_html=True)
                     with col_fila2:
