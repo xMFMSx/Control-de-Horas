@@ -52,7 +52,7 @@ div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
     background-color: #222634 !important;
 }
 
-/* 3. Proporciones: 92% Tabla, 16% Botón */
+/* 3. Proporciones: 92% Tabla, 8% Botón */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
     width: 92% !important; min-width: 92% !important; max-width: 92% !important; flex: 0 0 92% !important;
 }
@@ -60,7 +60,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
     width: 8% !important; min-width: 8% !important; max-width: 8% !important; flex: 0 0 8% !important;
     display: flex !important; align-items: center !important; justify-content: center !important;
     border-left: 1px solid #353b4d !important;
-    min-height: 40px !important;
+    min-height: 20px !important;
 }
 
 /* 4. Estructura interna de la tabla (HTML) */
