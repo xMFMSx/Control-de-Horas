@@ -71,21 +71,21 @@ div[data-testid="stForm"] {
     width: 8% !important;
 }
 
-/* Ajuste de la separación (Aumentada ligeramente a petición) */
+/* Ajuste de la separación del encabezado */
 div[data-testid="stMarkdownContainer"]:has(.encabezado-puro) p {
     margin: 0 !important;
     padding: 0 !important;
 }
 div.element-container:has(.encabezado-puro),
 div.stElementContainer:has(.encabezado-puro) {
-    margin-bottom: -4px !important; /* <--- MAGIA: Reduce la succión para separar más el encabezado de los datos */
+    margin-bottom: -4px !important; 
 }
 
 /* --- 2. FILAS DE DATOS Y COLUMNAS --- */
 div.element-container:has(.fila-datos),
 div.stElementContainer:has(.fila-datos) {
     margin-top: -16px !important;
-    margin-bottom: -16px !important; /* Mantiene unidas las filas de datos entre sí */
+    margin-bottom: -16px !important; 
 }
 
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
@@ -118,8 +118,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"
     justify-content: center !important;
 }
 
-/* --- 3. ALINEACIÓN VERTICAL PERFECTA (ANIQUILAR MÁRGENES FANTASMA) --- */
-/* Destruye todos los márgenes que Streamlit inyecta en las capas ocultas para evitar que el texto flote */
+/* --- 3. ALINEACIÓN VERTICAL PERFECTA --- */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="column"] > div[data-testid="stVerticalBlock"] {
     gap: 0 !important;
     justify-content: center !important;
@@ -127,16 +126,23 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="column"] 
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) div.stElementContainer,
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) div.element-container,
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"],
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"] > p,
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stButton"] {
     margin: 0 !important;
     padding: 0 !important;
 }
 
+/* MAGIA: EMPUJE DEL TEXTO HACIA ABAJO PARA ALINEAR CON EL LÁPIZ */
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"] p {
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 28px !important;
+    transform: translateY(2px) !important; /* <--- AQUÍ SE BAJA EL TEXTO 2PX */
+}
+
 .fila-datos {
     display: flex !important;
     width: 100% !important;
-    height: 28px !important; /* Altura matemáticamente idéntica al botón */
+    height: 28px !important; 
     font-size: 0.75rem !important;
     color: #ffffff !important;
     align-items: center !important;
@@ -174,6 +180,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) button p {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    transform: none !important; /* Protege al emoji del empuje del texto */
 }
 </style>""", unsafe_allow_html=True)
 
