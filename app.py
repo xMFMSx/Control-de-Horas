@@ -1198,8 +1198,16 @@ else:
 
             if registros_tabla:
                 st.markdown("""
-                <div class="tabla-resumen-header">
-                    <div class="c-dia">DÍA</div>
+                <table style="width: 100%; table-layout: fixed; border-collapse: collapse; text-align: left; font-size: 0.65rem; color: #838c9e; font-weight: 600; border-top: 1px solid #282d3c; border-bottom: 1px solid #282d3c; margin: 0;">
+                    <tr style="height: 36px;">
+                        <td style="width: 9%; padding: 0 4px;">DÍA</td>
+                        <td style="width: 15%; padding: 0 4px;">ENT</td>
+                        <td style="width: 15%; padding: 0 4px;">SAL</td>
+                        <td style="width: 16%; padding: 0 4px;">H.EXT</td>
+                        <td style="width: 16%; padding: 0 4px;">H.REC</td>
+                        <td style="width: 29%; padding: 0 4px;">OBRA</td>
+                    </tr>
+                </table>
                     <div class="c-ent">ENTRADA</div>
                     <div class="c-sal">SALIDA</div>
                     <div class="c-nor">H.NORMAL</div>
@@ -1215,8 +1223,16 @@ else:
                         c_dat, c_b = st.columns([0.88, 0.12], vertical_alignment="center")
                         with c_dat:
                             st.markdown(f"""
-                            <div class="fila-tabla-contenido">
-                                <div class="c-dia">{d}</div>
+                            <table style="width: 100%; table-layout: fixed; border-collapse: collapse; text-align: left; font-size: 0.75rem; color: #ffffff; background: transparent; margin: 0;">
+                                <tr style="height: 36px;">
+                                    <td style="width: 9%; padding: 0 4px; font-weight: bold;">{d}</td>
+                                    <td style="width: 15%; padding: 0 4px;">{r["ENTRADA"]}</td>
+                                    <td style="width: 15%; padding: 0 4px;">{r["SALIDA"]}</td>
+                                    <td style="width: 16%; padding: 0 4px;">{r["HORA EXTRA"]}</td>
+                                    <td style="width: 16%; padding: 0 4px;">{r["HORA RECARGO"]}</td>
+                                    <td style="width: 29%; padding: 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["OBRA"]}</td>
+                                </tr>
+                            </table>
                                 <div class="c-ent">{r["ENTRADA"]}</div>
                                 <div class="c-sal">{r["SALIDA"]}</div>
                                 <div class="c-nor">{r["HORA EXTRA"]}</div>
