@@ -97,6 +97,7 @@ div.stElementContainer:has(.fila-datos) {
     margin-bottom: -28px !important; /* <--- Fusión total de las filas */
 }
 
+/* --- 2. FILAS DE DATOS CUADRICULADAS --- */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
     display: flex !important;
     flex-direction: row !important;
@@ -105,6 +106,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
     gap: 0px !important; 
     width: 100% !important;
     min-height: 40px !important;
+    margin-top: -1px !important; /* <--- Solapa los bordes de las filas para unirlas */
 }
 
 /* Forzar anchos mínimos exactos anti-móvil */
