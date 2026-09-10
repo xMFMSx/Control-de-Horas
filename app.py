@@ -19,7 +19,7 @@ st.set_page_config(
 )
 
 st.markdown("""<style>
-/* Ocultar UI nativa[cite: 1] */
+/* Ocultar UI nativa */
 header[data-testid="stHeader"] { display: none !important; }
 #MainMenu { visibility: hidden !important; }
 div[data-testid="stToolbar"] { visibility: hidden !important; }
@@ -29,54 +29,35 @@ div[data-testid="stDecoration"] { display: none !important; }
 .block-container { max-width: 95% !important; padding: 2rem !important; padding-bottom: 3rem !important; }
 div[data-testid="stForm"] { border: none !important; padding: 0 !important; margin-top: 1.5rem !important; margin-bottom: 1rem !important; }
 
-/* =========================================
-   SOLUCIÓN 2: FUSIÓN TOTAL DE FILAS (CERO ESPACIOS NEGROS)
-   ========================================= */
+/* FUSIÓN TOTAL DE FILAS: Cero espacios negros entre filas */
 div.element-container:has(.contenedor-tabla), 
 div.stElementContainer:has(.contenedor-tabla) {
     margin-bottom: -1px !important; 
 }
 
-/* Fila horizontal que contiene la tabla y el botón */
+/* Fila horizontal unificada */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     display: flex !important;
-    flex-direction: row !important;
-    align-items: stretch !important; 
-    background-color: #1a1e29 !important;
-    border-left: 1px solid #353b4d !important;
-    border-right: 1px solid #353b4d !important;
-    border-bottom: 1px solid #353b4d !important;
     width: 100% !important;
+    background-color: #1a1e29 !important;
+    border: 1px solid #353b4d !important;
     box-sizing: border-box !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
     background-color: #222634 !important;
-    border-top: 1px solid #353b4d !important;
+}
+
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"] {
+    width: 100% !important;
+    flex: 1 1 100% !important;
 }
 
 /* =========================================
-   SOLUCIÓN 4: EL LÁPIZ A LA DERECHA DEL TODO (12%) Y TABLA AL 88%
-   ========================================= */
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
-    flex: 1 1 auto !important;
-    width: 88% !important;
-    min-width: 0 !important;
-}
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child {
-    flex: 0 0 12% !important;
-    width: 12% !important;
-    display: flex !important; 
-    align-items: center !important; 
-    justify-content: center !important;
-    border-left: 1px solid #353b4d !important;
-}
-
-/* =========================================
-   SOLUCIÓN 3: ALTURA AJUSTADA NATURALMENTE A LAS LETRAS
+   GRILLA UNIFICADA: 7 COLUMNAS (Día, Entrada, Salida, H.Normal, H.Recargo, Obra, Botón Lápiz)
    ========================================= */
 .contenedor-tabla {
     display: grid !important;
-    grid-template-columns: 8% 16% 16% 16% 16% 28% !important;
+    grid-template-columns: 8% 15% 15% 15% 15% 24% 8% !important;
     width: 100% !important;
     align-items: center !important;
     box-sizing: border-box !important;
@@ -88,7 +69,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
 
 .contenedor-tabla > div {
     border-right: 1px solid #353b4d !important;
-    padding: 8px 8px !important;
+    padding: 8px 6px !important;
     display: flex !important;
     align-items: center !important;
     box-sizing: border-box !important;
@@ -96,33 +77,35 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
     overflow: hidden !important;
     text-overflow: ellipsis !important;
 }
-.contenedor-tabla > div:last-child { border-right: none !important; }
+.contenedor-tabla > div:last-child { border-right: none !important; justify-content: center !important; }
 
 div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p { 
     margin: 0 !important; 
     padding: 0 !important; 
     line-height: 1.2 !important; 
+    width: 100% !important;
 }
 
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) div[data-testid="stVerticalBlock"] { 
     gap: 0 !important; 
     justify-content: center !important; 
+    width: 100% !important;
 }
 
-/* Botón del lápiz alineado perfectamente en el centro de la celda derecha */
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
-    height: 28px !important; 
-    width: 28px !important; 
-    min-width: 28px !important;
+/* Botón del lápiz integrado en la última columna a la derecha del todo */
+.contenedor-tabla button {
+    height: 26px !important; 
+    width: 26px !important; 
+    min-width: 26px !important;
     padding: 0 !important; 
-    margin: auto !important;
+    margin: 0 auto !important;
     background-color: transparent !important; 
     border: 1px solid transparent !important;
     display: flex !important; 
     align-items: center !important; 
     justify-content: center !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button:hover { border: 1px solid #a3adc2 !important; }
+.contenedor-tabla button:hover { border: 1px solid #a3adc2 !important; }
 </style>""", unsafe_allow_html=True)
 
 SECRET_KEY = "control_de_horas_firmado_token_2026"
@@ -599,43 +582,52 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # --- ENCABEZADO SINCRONIZADO ---
-                c_h1, c_h2 = st.columns([0.88, 0.12], vertical_alignment="center")
-                with c_h1:
-                    st.markdown('''
-                    <div class="contenedor-tabla es-encabezado">
-                        <div class="col-dia">DÍA</div>
-                        <div class="col-ent">ENTRADA</div>
-                        <div class="col-sal">SALIDA</div>
-                        <div class="col-hn">H.NORMAL</div>
-                        <div class="col-hr">H.RECARGO</div>
-                        <div class="col-ob">OBRA</div>
-                    </div>
-                    ''', unsafe_allow_html=True)
-                with c_h2:
-                    pass
+                # --- ENCABEZADO UNIFICADO ---
+                st.markdown(f'''
+                <div class="contenedor-tabla es-encabezado">
+                    <div>DÍA</div>
+                    <div>ENTRADA</div>
+                    <div>SALIDA</div>
+                    <div>H.NORMAL</div>
+                    <div>H.RECARGO</div>
+                    <div>OBRA</div>
+                    <div></div>
+                </div>
+                ''', unsafe_allow_html=True)
 
-                # --- FILAS DE DATOS ---
+                # --- FILAS DE DATOS CON BOTÓN INTEGRADO ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
-                    c_dat, c_b = st.columns([0.88, 0.12], vertical_alignment="center")
+                    hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
+                    hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
                     
-                    with c_dat:
-                        hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
-                        hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
+                    # Dibujamos toda la fila de la tabla incluyendo el botón del lápiz dentro del mismo bloque Grid
+                    cols = st.columns(1)
+                    with cols[0]:
+                        # Generamos un identificador único para el formulario o acción del botón
+                        btn_key = f"btn_edit_{d}"
                         
+                        # Renderizamos la grilla HTML con los datos
                         st.markdown(f'''
                         <div class="contenedor-tabla es-datos">
-                            <div class="col-dia">{d}</div>
-                            <div class="col-ent">{r["ENTRADA"]}</div>
-                            <div class="col-sal">{r["SALIDA"]}</div>
-                            <div class="col-hn">{hn_val}</div>
-                            <div class="col-hr">{hr_val}</div>
-                            <div class="col-ob">{r["OBRA"]}</div>
+                            <div>{d}</div>
+                            <div>{r["ENTRADA"]}</div>
+                            <div>{r["SALIDA"]}</div>
+                            <div>{hn_val}</div>
+                            <div>{hr_val}</div>
+                            <div>{r["OBRA"]}</div>
+                            <div style="justify-content: center;"></div>
                         </div>
                         ''', unsafe_allow_html=True)
-                    with c_b:
-                        if st.button("✏️", key=f"btn_edit_{d}"):
+                    
+                    # Colocamos el botón interactivo de Streamlit justo encima de la última celda mediante un truco limpio o contenedor
+                    # Como el botón debe ser funcional, usamos un botón nativo pero forzado por CSS en la grilla
+                    # Para mantenerlo ultra limpio, colocamos el botón en su propia columna mini de 1 elemento:
+                    
+                    # Solución robusta para el botón: botón flotante/integrado
+                    c_accion, _ = st.columns([0.12, 0.88])
+                    with c_accion:
+                        if st.button("✏️", key=btn_key):
                             if st.session_state.get("dia_en_edicion") == d:
                                 st.session_state["dia_en_edicion"] = None
                             else:
