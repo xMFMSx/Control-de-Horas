@@ -50,10 +50,10 @@ div[data-testid="stForm"] {
 }
 
 /* ========================================================
-   TABLA NATIVA CUADRICULADA (100% ALINEADA)
+   TABLA NATIVA CUADRICULADA (ANTIBLOQUEO MÓVIL)
    ======================================================== */
 
-/* 1. Unir las filas visualmente quitando márgenes */
+/* 1. Unir las filas visualmente */
 div.element-container:has(> div[data-testid="stHorizontalBlock"]:has(.celda-header)),
 div.stElementContainer:has(> div[data-testid="stHorizontalBlock"]:has(.celda-header)),
 div.element-container:has(> div[data-testid="stHorizontalBlock"]:has(.celda-datos)),
@@ -63,98 +63,109 @@ div.stElementContainer:has(> div[data-testid="stHorizontalBlock"]:has(.celda-dat
     margin-top: 0 !important;
 }
 
-/* 2. Forzar que NUNCA se apilen como torre (Mantener horizontalidad) */
+/* 2. Forzar fila horizontal siempre (derrota el auto-stacking de Streamlit) */
 div[data-testid="stHorizontalBlock"]:has(.celda-header),
 div[data-testid="stHorizontalBlock"]:has(.celda-datos) {
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     gap: 0 !important;
-    align-items: center !important;
-    min-height: 32px !important;
+    align-items: stretch !important;
+    min-height: 36px !important;
 }
 
-/* 3. Estilo del Encabezado (Fondo, bordes exteriores) */
+/* 3. Estilos del Marco Exterior de la Tabla */
 div[data-testid="stHorizontalBlock"]:has(.celda-header) {
-    background-color: #262d3d !important;
+    background-color: #1a1e29 !important;
     border-top: 1px solid #4a5573 !important;
+    border-left: 1px solid #4a5573 !important;
+    border-right: 1px solid #4a5573 !important;
+    border-bottom: 2px solid #4a5573 !important; /* Separador grueso del título */
+    margin-top: 20px !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.celda-datos) {
+    background-color: #1a1e29 !important;
     border-bottom: 1px solid #4a5573 !important;
     border-left: 1px solid #4a5573 !important;
     border-right: 1px solid #4a5573 !important;
-    margin-top: 15px !important;
 }
 
-/* 4. Estilo de Filas de Datos (Borde inferior y laterales) */
-div[data-testid="stHorizontalBlock"]:has(.celda-datos) {
-    background-color: #1a1e29 !important;
-    border-bottom: 1px solid #282d3c !important;
-    border-left: 1px solid #282d3c !important;
-    border-right: 1px solid #282d3c !important;
-}
+/* 4. ANCHOS DE COLUMNA MATEMÁTICOS INQUEBRANTABLES (Bloquea a Streamlit) */
+div[data-testid="stHorizontalBlock"]:has(.celda-header) > div[data-testid="column"]:nth-child(1), div[data-testid="stHorizontalBlock"]:has(.celda-datos) > div[data-testid="column"]:nth-child(1) { width: 8% !important; min-width: 8% !important; flex: 0 0 8% !important; }
+div[data-testid="stHorizontalBlock"]:has(.celda-header) > div[data-testid="column"]:nth-child(2), div[data-testid="stHorizontalBlock"]:has(.celda-datos) > div[data-testid="column"]:nth-child(2) { width: 16% !important; min-width: 16% !important; flex: 0 0 16% !important; }
+div[data-testid="stHorizontalBlock"]:has(.celda-header) > div[data-testid="column"]:nth-child(3), div[data-testid="stHorizontalBlock"]:has(.celda-datos) > div[data-testid="column"]:nth-child(3) { width: 16% !important; min-width: 16% !important; flex: 0 0 16% !important; }
+div[data-testid="stHorizontalBlock"]:has(.celda-header) > div[data-testid="column"]:nth-child(4), div[data-testid="stHorizontalBlock"]:has(.celda-datos) > div[data-testid="column"]:nth-child(4) { width: 14% !important; min-width: 14% !important; flex: 0 0 14% !important; }
+div[data-testid="stHorizontalBlock"]:has(.celda-header) > div[data-testid="column"]:nth-child(5), div[data-testid="stHorizontalBlock"]:has(.celda-datos) > div[data-testid="column"]:nth-child(5) { width: 14% !important; min-width: 14% !important; flex: 0 0 14% !important; }
+div[data-testid="stHorizontalBlock"]:has(.celda-header) > div[data-testid="column"]:nth-child(6), div[data-testid="stHorizontalBlock"]:has(.celda-datos) > div[data-testid="column"]:nth-child(6) { width: 24% !important; min-width: 24% !important; flex: 0 0 24% !important; }
+div[data-testid="stHorizontalBlock"]:has(.celda-header) > div[data-testid="column"]:nth-child(7), div[data-testid="stHorizontalBlock"]:has(.celda-datos) > div[data-testid="column"]:nth-child(7) { width: 8% !important; min-width: 8% !important; flex: 0 0 8% !important; }
 
-/* 5. DIBUJAR LA CUADRÍCULA INTERNA (Líneas divisorias de columnas) */
+/* 5. CUADRÍCULA INTERNA Y CENTRADO ABSOLUTO */
 div[data-testid="stHorizontalBlock"]:has(.celda-header) > div[data-testid="column"],
 div[data-testid="stHorizontalBlock"]:has(.celda-datos) > div[data-testid="column"] {
-    border-right: 1px solid #32394d !important; 
-    padding: 6px 10px !important; 
+    border-right: 1px solid #32394d !important; /* Líneas divisorias internas */
+    padding: 4px 2px !important;
     display: flex !important;
     align-items: center !important;
-    min-width: 0 !important;
+    justify-content: center !important;
 }
-
-/* Quitar la línea divisoria a la última columna (Donde va el botón) */
 div[data-testid="stHorizontalBlock"]:has(.celda-header) > div[data-testid="column"]:last-child,
 div[data-testid="stHorizontalBlock"]:has(.celda-datos) > div[data-testid="column"]:last-child {
     border-right: none !important;
-    padding: 0 !important;
+}
+
+/* Centrado del bloque vertical nativo de Streamlit */
+div[data-testid="stHorizontalBlock"]:has(.celda-header) > div[data-testid="column"] > div[data-testid="stVerticalBlock"],
+div[data-testid="stHorizontalBlock"]:has(.celda-datos) > div[data-testid="column"] > div[data-testid="stVerticalBlock"] {
+    display: flex !important;
+    align-items: center !important;
     justify-content: center !important;
+    width: 100% !important;
+    gap: 0 !important;
 }
 
-/* 6. Controlar los textos dentro de las celdas */
-.celda-header, .celda-datos {
-    width: 100%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
+/* 6. TEXTOS (Adaptados para la cuadrícula) */
 .celda-header {
-    font-size: 0.7rem !important;
+    font-size: 0.65rem !important;
     color: #a3adc2 !important;
     font-weight: 700 !important;
+    text-align: center !important;
+    width: 100% !important;
+    white-space: nowrap !important;
 }
-
 .celda-datos {
-    font-size: 0.95rem !important;
+    font-size: 0.9rem !important;
     color: #ffffff !important;
+    text-align: center !important;
+    width: 100% !important;
+    white-space: nowrap !important;
 }
+.c-dia { font-weight: bold !important; color: #ffffff !important; }
+.c-ob { white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
 
-.c-dia {
-    font-weight: bold !important;
-}
-
-/* Evitar saltos de línea de Streamlit */
+/* Limpieza de márgenes en párrafos */
 div[data-testid="stMarkdownContainer"]:has(.celda-header) p,
 div[data-testid="stMarkdownContainer"]:has(.celda-datos) p {
     margin: 0 !important;
     padding: 0 !important;
-    line-height: 1 !important;
+    line-height: 1.2 !important;
+    width: 100% !important;
 }
 
-/* 7. Estilo limpio para el Botón dentro de la cuadrícula */
+/* 7. BOTÓN LÁPIZ DENTRO DE LA CUADRÍCULA */
+div[data-testid="stHorizontalBlock"]:has(.celda-datos) div[data-testid="stButton"] {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+}
 div[data-testid="stHorizontalBlock"]:has(.celda-datos) div[data-testid="stButton"] button {
-    height: 26px !important;
-    min-height: 26px !important;
-    width: 28px !important;
+    height: 24px !important;
+    min-height: 24px !important;
+    width: 26px !important;
     padding: 0 !important;
     margin: 0 auto !important;
     background-color: transparent !important;
     border: 1px solid transparent !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.celda-datos) div[data-testid="stButton"] button:hover {
     background-color: #282d3c !important;
@@ -640,8 +651,8 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # Proporciones estrictas para la cuadrícula
-                props = [0.8, 1.5, 1.5, 1.5, 1.5, 2.5, 0.7]
+                # Proporciones en Streamlit
+                props = [0.8, 1.6, 1.6, 1.4, 1.4, 2.4, 0.8]
 
                 # --- 1. FILA DE ENCABEZADO ---
                 hc = st.columns(props, vertical_alignment="center")
@@ -666,7 +677,7 @@ else:
                     dc[2].markdown(f"<div class='celda-datos'>{r['SALIDA']}</div>", unsafe_allow_html=True)
                     dc[3].markdown(f"<div class='celda-datos'>{hn_val}</div>", unsafe_allow_html=True)
                     dc[4].markdown(f"<div class='celda-datos'>{hr_val}</div>", unsafe_allow_html=True)
-                    dc[5].markdown(f"<div class='celda-datos'>{ob_val}</div>", unsafe_allow_html=True)
+                    dc[5].markdown(f"<div class='celda-datos c-ob'>{ob_val}</div>", unsafe_allow_html=True)
                     
                     with dc[6]:
                         if st.button("✏️", key=f"btn_edit_{d}"):
@@ -676,7 +687,7 @@ else:
                                 st.session_state["dia_en_edicion"] = d
                             st.rerun()
 
-                    # Lógica de edición que se despliega justo debajo
+                    # Lógica de edición
                     if st.session_state.get("dia_en_edicion") == d:
                         datos_d = dict_por_dia.get(d, {})
                         val_e = str_a_time(datos_d.get("entrada", ""))
