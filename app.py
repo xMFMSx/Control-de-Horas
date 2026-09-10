@@ -591,8 +591,7 @@ else:
             if "dia_en_edicion" not in st.session_state:
                 st.session_state["dia_en_edicion"] = None
 
-            if registros_tabla:
-                # Proporciones matemáticas puras de Streamlit
+                        if registros_tabla:
                 props = [0.8, 1.6, 1.6, 1.5, 1.5, 2.4, 0.6]
 
                 # --- FILA DE ENCABEZADO ---
@@ -605,7 +604,6 @@ else:
                 hc[5].markdown("<div class='txt-encabezado'>OBRA</div>", unsafe_allow_html=True)
                 hc[6].markdown("<div class='txt-encabezado'>&nbsp;</div>", unsafe_allow_html=True)
 
-                # --- FILAS DE DATOS ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "-"
@@ -623,6 +621,12 @@ else:
                     with dc[6]:
                         if st.button("✏️", key=f"btn_edit_{d}"):
                             if st.session_state.get("dia_en_edicion") == d:
+                                st.session_state["dia_en_edicion"] = None
+                            else:
+                                st.session_state["dia_en_edicion"] = d
+                            st.rerun()
+
+                    if st.session_state.get("dia_en_edicion") == d:
                                 st.session_state["dia_en_edicion"] = None
                             else:
                                 st.session_state["dia_en_edicion"] = d
