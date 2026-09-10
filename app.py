@@ -126,7 +126,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) div[data-testid="stV
 /* 6. Diseño del Botón */
 div[data-testid="stHorizontalBlock"]:has(.es-datos) button {
     height: 28px !important; min-height: 28px !important; width: 28px !important; min-width: 28px !important;
-    padding: 0 !important; margin: 0 auto !important;
+    padding: 0 !important; margin: 6px auto 0 auto !important;
     background-color: #1a1e29 !important; border: 1px solid #353b4d !important; border-radius: 6px !important;
     display: flex !important; align-items: center !important; justify-content: center !important;
 }
