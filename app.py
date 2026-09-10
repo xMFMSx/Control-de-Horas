@@ -49,10 +49,11 @@ div[data-testid="stForm"] { border: none !important; padding: 0 !important; }
 
 /* --- ELIMINAR EL ESPACIO GIGANTE ENTRE FILAS Y ENCABEZADO --- */
 div.element-container:has(.encabezado-tabla) {
-    margin-bottom: -24px !important; /* Succiona la primera fila de datos hacia el encabezado */
+    margin-bottom: -38px !important; /* Succión máxima inferior para cerrar el hueco visible */
 }
 div.element-container:has(.fila-datos) {
-    margin-top: -16px !important; 
+    margin-top: -20px !important; /* Succión superior para anclarse al encabezado */
+    margin-bottom: -15px !important; 
 }
 
 /* Espacio seguro para el formulario de edición */
