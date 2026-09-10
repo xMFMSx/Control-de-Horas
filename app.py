@@ -60,28 +60,29 @@ div[data-testid="stForm"] {
     margin-top: 0px !important;
     margin-bottom: 24px !important; /* <--- AQUÍ: Esto empuja la primera fila hacia abajo para que no choque */
 }
-/* 1. Mueve los títulos del encabezado */
+/* --- 1. ENCABEZADO ALINEADO PERFECTO --- */
+div[data-testid="stHorizontalBlock"]:has(.datos-encabezado) {
+    border-top: 1px solid #282d3c !important;
+    border-bottom: 1px solid #282d3c !important;
+    padding: 6px 0px !important;
+    margin-top: 10px !important;
+    margin-bottom: 24px !important; /* Mantiene tu separación con la primera fila */
+    gap: 0px !important;
+}
 .datos-encabezado {
-    width: 92% !important;
     display: flex !important;
+    width: 100% !important;
     font-size: 0.65rem !important;
     color: #838c9e !important;
     font-weight: 600 !important;
     align-items: center !important;
-    padding-left: 16px !important; /* <--- MAGIA: Empuja los títulos a la derecha para alinear con los datos */
 }
-.vacio-encabezado {
-    width: 8% !important;
-}
-
-/* LA SOLUCIÓN AL ESPACIO: Aumentamos el margen inferior para separar el encabezado de los datos */
-div[data-testid="stMarkdownContainer"]:has(.encabezado-puro) p {
+/* Aniquila los márgenes invisibles de Streamlit solo para el encabezado */
+div.element-container:has(.datos-encabezado),
+div.stElementContainer:has(.datos-encabezado),
+div[data-testid="stMarkdownContainer"]:has(.datos-encabezado) p {
     margin: 0 !important;
     padding: 0 !important;
-}
-div.element-container:has(.encabezado-puro),
-div.stElementContainer:has(.encabezado-puro) {
-    margin-bottom: -8px !important; /* <--- AUMENTADO PARA DAR SEPARACIÓN VISUAL */
 }
 
 /* --- 2. FILAS DE DATOS Y COLUMNAS --- */
@@ -669,18 +670,17 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # --- ENCABEZADO HTML PURO ---
+            # --- ENCABEZADO ALINEADO PERFECTO ---
+            c_h1, c_h2 = st.columns([0.92, 0.08], vertical_alignment="center")
+            with c_h1:
                 st.markdown("""
-                <div class="encabezado-puro">
-                    <div class="datos-encabezado">
-                        <div style="flex: 0 0 8%;">DÍA</div>
-                        <div style="flex: 0 0 16%;">ENTRADA</div>
-                        <div style="flex: 0 0 16%;">SALIDA</div>
-                        <div style="flex: 0 0 17%;">H.NORMAL</div>
-                        <div style="flex: 0 0 17%;">H.RECARGO</div>
-                        <div style="flex: 0 0 26%;">OBRA</div>
-                    </div>
-                    <div class="vacio-encabezado"></div>
+                <div class="datos-encabezado">
+                    <div class="c-dia">DÍA</div>
+                    <div class="c-ent">ENTRADA</div>
+                    <div class="c-sal">SALIDA</div>
+                    <div class="c-hn">H.NORMAL</div>
+                    <div class="c-hr">H.RECARGO</div>
+                    <div class="c-ob">OBRA</div>
                 </div>
                 """, unsafe_allow_html=True)
 
