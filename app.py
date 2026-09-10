@@ -76,8 +76,8 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
 .es-datos { color: #ffffff !important; font-size: 0.85rem !important; }
 
 .contenedor-tabla > div {
-    border-right: 1px solid #353b4d !important;
-    padding: 4 8px !important;
+    border-right: 3px solid #353b4d !important;
+    padding: 3 8px !important;
     display: flex !important;
     align-items: center !important;
     height: 100% !important;
