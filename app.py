@@ -30,18 +30,22 @@ div[data-testid="stToolbar"] { visibility: hidden !important; }
 footer { visibility: hidden !important; }
 div[data-testid="stDecoration"] { display: none !important; }
 
-/* Contenedor principal con espacio holgado abajo para que no corte la pantalla */
+/* Solución definitiva al corte de pantalla: Scroll fluido y espacio gigante abajo */
+.main {
+    overflow-y: auto !important;
+}
+
 .block-container { 
     max-width: 95% !important; 
-    padding: 1.2rem !important; 
-    padding-bottom: 6rem !important; 
+    padding: 1.5rem !important; 
+    padding-bottom: 20rem !important; 
 }
 
 div[data-testid="stForm"] { 
     border: none !important; 
     padding: 0 !important; 
-    margin-top: 0.8rem !important; 
-    margin-bottom: 0.4rem !important; 
+    margin-top: 1rem !important; 
+    margin-bottom: 0.5rem !important; 
 }
 
 /* ELIMINACIÓN TOTAL DE FRANJAS NEGRAS Y ESPACIOS ENTRE FILAS */
@@ -56,7 +60,7 @@ div[data-testid="stVerticalBlock"] {
     gap: 0.1rem !important;
 }
 
-/* Fila horizontal unificada de la tabla (todo en un solo bloque para evitar desalineación del lápiz) */
+/* Fila horizontal principal de la tabla */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     display: flex !important;
     flex-direction: row !important;
@@ -71,28 +75,37 @@ div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
     background-color: #222634 !important;
 }
 
+/* Proporciones exactas: Tabla izquierda (88%), Botón derecha (12%) */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
-    flex: 1 1 100% !important;
-    max-width: 100% !important;
+    flex: 0 0 88% !important;
+    max-width: 88% !important;
     min-width: 0 !important;
 }
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child {
+    flex: 0 0 12% !important;
+    max-width: 12% !important;
+    display: flex !important; 
+    align-items: center !important; 
+    justify-content: center !important;
+    border-left: 1px solid #353b4d !important;
+}
 
-/* Estructura interna unificada de la tabla (7 columnas incluyendo el botón de editar) */
+/* Estructura interna de la tabla de 6 columnas */
 .contenedor-tabla {
     display: grid !important;
-    grid-template-columns: 8% 15% 15% 15% 15% 24% 8% !important;
+    grid-template-columns: 8% 16% 16% 16% 16% 28% !important;
     width: 100% !important;
     align-items: center !important;
     box-sizing: border-box !important;
     margin: 0 !important;
 }
 
-.es-encabezado { font-weight: 700 !important; color: #a3adc2 !important; font-size: 0.62rem !important; }
-.es-datos { color: #ffffff !important; font-size: 0.8rem !important; }
+.es-encabezado { font-weight: 700 !important; color: #a3adc2 !important; font-size: 0.6rem !important; }
+.es-datos { color: #ffffff !important; font-size: 0.78rem !important; }
 
 .contenedor-tabla > div {
     border-right: 1px solid #353b4d !important;
-    padding: 6px 4px !important;
+    padding: 5px 4px !important;
     display: flex !important;
     align-items: center !important;
     box-sizing: border-box !important;
@@ -100,7 +113,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
     overflow: hidden !important;
     text-overflow: ellipsis !important;
 }
-.contenedor-tabla > div:last-child { border-right: none !important; justify-content: center !important; }
+.contenedor-tabla > div:last-child { border-right: none !important; }
 
 div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p { 
     margin: 0 !important; 
@@ -108,21 +121,20 @@ div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p {
     line-height: 1.1 !important; 
 }
 
-/* Estilo para el botón de edición integrado */
-.btn-editar-inline {
-    background: transparent !important;
-    border: none !important;
-    color: #ff4b4b !important;
-    font-size: 0.9rem !important;
-    cursor: pointer !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    display: flex !important;
-    align-items: center !important;
+/* Botón de edición perfectamente centrado */
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
+    height: 24px !important; 
+    width: 24px !important; 
+    min-width: 24px !important;
+    padding: 0 !important; 
+    margin: auto !important;
+    background-color: transparent !important; 
+    border: 1px solid transparent !important;
+    display: flex !important; 
+    align-items: center !important; 
     justify-content: center !important;
-    width: 100% !important;
-    height: 100% !important;
 }
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button:hover { border: 1px solid #a3adc2 !important; }
 </style>""", unsafe_allow_html=True)
 
 SECRET_KEY = "control_de_horas_firmado_token_2026"
@@ -634,7 +646,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-        # --- VISTA 2: RESUMEN MENSUAL CON LÁPIZ INTEGRADO Y 80% DE ESCALA ---
+        # --- VISTA 2: RESUMEN MENSUAL CON BOTÓN ALINEADO Y SIN CORTE ---
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
@@ -660,20 +672,23 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # --- ENCABEZADO UNIFICADO ---
-                st.markdown('''
-                <div class="contenedor-tabla es-encabezado" style="background-color: #222634 !important; border: 1px solid #353b4d !important;">
-                    <div class="col-dia">DÍA</div>
-                    <div class="col-ent">ENTRADA</div>
-                    <div class="col-sal">SALIDA</div>
-                    <div class="col-hn">H.NORMAL</div>
-                    <div class="col-hr">H.RECARGO</div>
-                    <div class="col-ob">OBRA</div>
-                    <div class="col-btn">EDIT</div>
-                </div>
-                ''', unsafe_allow_html=True)
+                # --- ENCABEZADO SINCRONIZADO ---
+                c_h1, c_h2 = st.columns([0.88, 0.12], vertical_alignment="center")
+                with c_h1:
+                    st.markdown('''
+                    <div class="contenedor-tabla es-encabezado">
+                        <div class="col-dia">DÍA</div>
+                        <div class="col-ent">ENTRADA</div>
+                        <div class="col-sal">SALIDA</div>
+                        <div class="col-hn">H.NORMAL</div>
+                        <div class="col-hr">H.RECARGO</div>
+                        <div class="col-ob">OBRA</div>
+                    </div>
+                    ''', unsafe_allow_html=True)
+                with c_h2:
+                    pass
 
-                # --- FILAS DE DATOS CON LÁPIZ INTEGRADO EN LA MISMA LÍNEA ---
+                # --- FILAS DE DATOS CON BOTÓN LÁPIZ LIMPIO ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     
@@ -694,12 +709,12 @@ else:
                     else:
                         dia_html = str(d)
 
-                    hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
-                    hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
+                    c_dat, c_b = st.columns([0.88, 0.12], vertical_alignment="center")
                     
-                    # Fila de datos visual con botón de lápiz integrado nativamente
-                    col_fila1, col_fila2 = st.columns([0.9, 0.1], vertical_alignment="center")
-                    with col_fila1:
+                    with c_dat:
+                        hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
+                        hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
+                        
                         st.markdown(f'''
                         <div class="contenedor-tabla es-datos">
                             <div class="col-dia">{dia_html}</div>
@@ -708,15 +723,17 @@ else:
                             <div class="col-hn">{hn_val}</div>
                             <div class="col-hr">{hr_val}</div>
                             <div class="col-ob">{r["OBRA"]}</div>
-                            <div class="col-btn">✏️</div>
                         </div>
                         ''', unsafe_allow_html=True)
-                    with col_fila2:
-                        if st.button("✏️", key=f"btn_edit_{d}", help=f"Editar día {d}"):
-                            st.session_state["dia_en_edicion"] = None if st.session_state.get("dia_en_edicion") == d else d
+                    with c_b:
+                        if st.button("✏️", key=f"btn_edit_{d}"):
+                            if st.session_state.get("dia_en_edicion") == d:
+                                st.session_state["dia_en_edicion"] = None
+                            else:
+                                st.session_state["dia_en_edicion"] = d
                             st.rerun()
 
-                    # Lógica de edición desplegable
+                    # Lógica de edición
                     if st.session_state.get("dia_en_edicion") == d:
                         datos_d = dict_por_dia.get(d, {})
                         val_e = str_a_time(datos_d.get("entrada", ""))
