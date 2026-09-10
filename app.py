@@ -71,21 +71,21 @@ div[data-testid="stForm"] {
     width: 8% !important;
 }
 
-/* Ajuste de la separación del encabezado */
+/* LA SOLUCIÓN AL ESPACIO: Aumentamos el margen inferior para separar el encabezado de los datos */
 div[data-testid="stMarkdownContainer"]:has(.encabezado-puro) p {
     margin: 0 !important;
     padding: 0 !important;
 }
 div.element-container:has(.encabezado-puro),
 div.stElementContainer:has(.encabezado-puro) {
-    margin-bottom: -4px !important; 
+    margin-bottom: 8px !important; /* <--- AUMENTADO PARA DAR SEPARACIÓN VISUAL */
 }
 
 /* --- 2. FILAS DE DATOS Y COLUMNAS --- */
 div.element-container:has(.fila-datos),
 div.stElementContainer:has(.fila-datos) {
     margin-top: -16px !important;
-    margin-bottom: -16px !important; 
+    margin-bottom: -16px !important; /* Mantiene unidas las filas de datos entre sí */
 }
 
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
@@ -118,25 +118,23 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"
     justify-content: center !important;
 }
 
-/* --- 3. ALINEACIÓN VERTICAL PERFECTA --- */
+/* --- 3. ALINEACIÓN VERTICAL PERFECTA (Textos) --- */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="column"] > div[data-testid="stVerticalBlock"] {
     gap: 0 !important;
     justify-content: center !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) div.stElementContainer,
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) div.element-container,
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"],
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stButton"] {
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"] {
     margin: 0 !important;
     padding: 0 !important;
 }
 
-/* MAGIA: EMPUJE DEL TEXTO HACIA ABAJO PARA ALINEAR CON EL LÁPIZ */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"] p {
     margin: 0 !important;
     padding: 0 !important;
-    line-height: 28px !important;
-    transform: translateY(10px) !important; /* <--- AQUÍ SE BAJA EL TEXTO 2PX */
+    line-height: 28px !important; 
+    transform: none !important; /* Limpiamos cualquier empuje extraño */
 }
 
 .fila-datos {
@@ -156,7 +154,15 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdow
 .c-hr  { flex: 0 0 17%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .c-ob  { flex: 0 0 26%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* --- 4. DISEÑO DEL BOTÓN LÁPIZ Y EMOJI --- */
+/* --- 4. DISEÑO DEL BOTÓN LÁPIZ Y EMOJI (Restaurado al centro exacto) --- */
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stButton"] {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) button {
     height: 28px !important;
     min-height: 28px !important;
@@ -180,7 +186,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) button p {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    transform: none !important; /* Protege al emoji del empuje del texto */
+    transform: none !important; /* Asegura que el icono no se caiga */
 }
 </style>""", unsafe_allow_html=True)
 
