@@ -584,7 +584,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-                elif st.session_state["vista_actual"] == "RESUMEN":
+                        elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
             val_hn_str = minutos_a_hora_str(total_hn)
@@ -608,34 +608,40 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                props = [0.8, 1.6, 1.6, 1.5, 1.5, 2.4, 0.6]
+                # --- ENCABEZADO HTML PURO ---
+                st.markdown("""
+                <div class="encabezado-puro">
+                    <div class="datos-encabezado">
+                        <div style="flex: 0 0 8%;">DÍA</div>
+                        <div style="flex: 0 0 16%;">ENTRADA</div>
+                        <div style="flex: 0 0 16%;">SALIDA</div>
+                        <div style="flex: 0 0 17%;">H.NORMAL</div>
+                        <div style="flex: 0 0 17%;">H.RECARGO</div>
+                        <div style="flex: 0 0 26%;">OBRA</div>
+                    </div>
+                    <div class="vacio-encabezado"></div>
+                </div>
+                """, unsafe_allow_html=True)
 
-                # --- FILA DE ENCABEZADO ---
-                hc = st.columns(props, vertical_alignment="center")
-                hc[0].markdown("<div class='fila-marcador encabezado-marcador txt-encabezado'>DÍA</div>", unsafe_allow_html=True)
-                hc[1].markdown("<div class='txt-encabezado'>ENTRADA</div>", unsafe_allow_html=True)
-                hc[2].markdown("<div class='txt-encabezado'>SALIDA</div>", unsafe_allow_html=True)
-                hc[3].markdown("<div class='txt-encabezado'>H.NORMAL</div>", unsafe_allow_html=True)
-                hc[4].markdown("<div class='txt-encabezado'>H.RECARGO</div>", unsafe_allow_html=True)
-                hc[5].markdown("<div class='txt-encabezado'>OBRA</div>", unsafe_allow_html=True)
-                hc[6].markdown("<div class='txt-encabezado'>&nbsp;</div>", unsafe_allow_html=True)
-
-                # --- FILAS DE DATOS ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
-                    hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "-"
-                    hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "-"
-                    ob_val = r["OBRA"].strip() if r["OBRA"].strip() else "-"
+                    c_dat, c_b = st.columns([0.92, 0.08], vertical_alignment="center")
                     
-                    dc = st.columns(props, vertical_alignment="center")
-                    dc[0].markdown(f"<div class='fila-marcador datos-marcador txt-datos'><b>{d}</b></div>", unsafe_allow_html=True)
-                    dc[1].markdown(f"<div class='txt-datos'>{r['ENTRADA']}</div>", unsafe_allow_html=True)
-                    dc[2].markdown(f"<div class='txt-datos'>{r['SALIDA']}</div>", unsafe_allow_html=True)
-                    dc[3].markdown(f"<div class='txt-datos'>{hn_val}</div>", unsafe_allow_html=True)
-                    dc[4].markdown(f"<div class='txt-datos'>{hr_val}</div>", unsafe_allow_html=True)
-                    dc[5].markdown(f"<div class='txt-datos'>{ob_val}</div>", unsafe_allow_html=True)
-                    
-                    with dc[6]:
+                    with c_dat:
+                        hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
+                        hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
+                        
+                        st.markdown(f"""
+                        <div class="fila-datos">
+                            <div class="c-dia">{d}</div>
+                            <div class="c-ent">{r["ENTRADA"]}</div>
+                            <div class="c-sal">{r["SALIDA"]}</div>
+                            <div class="c-hn">{hn_val}</div>
+                            <div class="c-hr">{hr_val}</div>
+                            <div class="c-ob">{r["OBRA"]}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    with c_b:
                         if st.button("✏️", key=f"btn_edit_{d}"):
                             if st.session_state.get("dia_en_edicion") == d:
                                 st.session_state["dia_en_edicion"] = None
