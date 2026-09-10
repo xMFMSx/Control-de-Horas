@@ -35,86 +35,139 @@ div[data-testid="stDecoration"] { display: none !important; }
 }
 
 div[data-testid="stExpander"] { width: 100% !important; }
-div[data-testid="stExpander"] summary { width: 100% !important; }
 div[data-testid="stExpander"] summary p {
     font-family: 'Consolas', 'Courier New', monospace !important;
     font-size: 0.72rem !important;
     font-weight: 500 !important;
     color: #FFFFFF !important;
-    white-space: pre !important;
+}
+
+/* Espacio seguro para el formulario de edición */
+div[data-testid="stForm"] {
+    border: none !important;
+    padding: 0 !important;
+    margin-top: 1.5rem !important;
+    margin-bottom: 1rem !important;
+}
+
+/* --- 1. ENCABEZADO PURO HTML --- */
+.encabezado-puro {
+    display: flex !important;
     width: 100% !important;
-}
-div[data-testid="stForm"] { border: none !important; padding: 0 !important; margin-top: 1.5rem !important; margin-bottom: 1rem !important; }
-
-/* --- 1. ESTRUCTURA INTERNA DE LOS TEXTOS (HTML Puro) --- */
-.encabezado-tabla {
-    display: flex; width: 100%; font-size: 0.65rem; color: #838c9e; font-weight: 600; align-items: center;
-}
-.fila-datos {
-    display: flex; width: 100%; font-size: 0.75rem; color: #ffffff; align-items: center;
-}
-
-/* Proporciones de las columnas de texto (Evita desbordes) */
-.c-dia { flex: 0 0 8%; font-weight: bold; }
-.c-ent { flex: 0 0 16%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.c-sal { flex: 0 0 16%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.c-hn  { flex: 0 0 17%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.c-hr  { flex: 0 0 17%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.c-ob  { flex: 0 0 26%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-/* --- 2. COLAPSO DE MÁRGENES DE STREAMLIT --- */
-/* Elimina márgenes invisibles de los textos para que se centren con el botón */
-div[data-testid="stMarkdownContainer"] p {
-    margin-bottom: 0 !important;
-    padding-bottom: 0 !important;
-}
-
-/* Junta las filas como un imán para eliminar la separación gigante */
-.element-container:has(.fila-datos),
-.stElementContainer:has(.fila-datos) {
-    margin-top: -16px !important;
-}
-
-/* --- 3. BORDES ENVOLVENTES (No cortan el texto) --- */
-div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) {
     border-top: 1px solid #282d3c !important;
     border-bottom: 1px solid #282d3c !important;
-    align-items: center !important;
-    padding-top: 4px !important;
-    padding-bottom: 4px !important;
+    padding: 6px 0px !important;
+    margin-top: 10px !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
-    border-bottom: 1px solid #1c202a !important;
-    align-items: center !important;
-    padding-top: 4px !important;
-    padding-bottom: 4px !important;
-}
-
-/* Centrado vertical del botón dentro de su propia columna */
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:last-child {
+.datos-encabezado {
+    width: 92% !important;
     display: flex !important;
+    font-size: 0.65rem !important;
+    color: #838c9e !important;
+    font-weight: 600 !important;
+    align-items: center !important;
+}
+.vacio-encabezado {
+    width: 8% !important;
+}
+
+/* Eliminar márgenes del markdown del encabezado y succionar la fila de abajo */
+div[data-testid="stMarkdownContainer"]:has(.encabezado-puro) p {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+div.element-container:has(.encabezado-puro),
+div.stElementContainer:has(.encabezado-puro) {
+    margin-bottom: -18px !important;
+}
+
+/* --- 2. FILAS DE DATOS (Bloqueo Anti-Móvil) --- */
+/* Succionar las filas hacia arriba para que no haya espacios */
+div.element-container:has(.fila-datos),
+div.stElementContainer:has(.fila-datos) {
+    margin-top: -10px !important;
+    margin-bottom: -10px !important;
+}
+
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 0px !important; 
+    border-bottom: 1px solid #1c202a !important;
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+    width: 100% !important;
+}
+
+/* MAGIA: Forzar anchos mínimos para que el botón jamás caiga a la línea de abajo */
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:first-child {
+    width: 92% !important;
+    min-width: 92% !important; /* Bloquea el modo móvil de Streamlit */
+    max-width: 92% !important;
+    flex: 0 0 92% !important;
+    display: flex !important;
+    align-items: center !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:last-child {
+    width: 8% !important;
+    min-width: 8% !important; /* Bloquea el modo móvil de Streamlit */
+    max-width: 8% !important;
+    flex: 0 0 8% !important;
+    display: flex !important;
+    align-items: center !important;
     justify-content: center !important;
+}
+
+/* --- 3. ALINEACIÓN VERTICAL TEXTOS --- */
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"] p {
+    margin: 0px !important;
+    padding: 0px !important;
+    line-height: 28px !important; 
+}
+
+.fila-datos {
+    display: flex !important;
+    width: 100% !important;
+    height: 28px !important;
+    font-size: 0.75rem !important;
+    color: #ffffff !important;
     align-items: center !important;
 }
 
-/* --- 4. DISEÑO DEL BOTÓN LÁPIZ --- */
+/* --- 4. DISEÑO DEL BOTÓN LÁPIZ Y EMOJI --- */
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stButton"] {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) button {
-    width: 28px !important;
-    min-width: 28px !important;
     height: 28px !important;
     min-height: 28px !important;
+    width: 28px !important;
+    min-width: 28px !important;
     padding: 0 !important;
-    margin: 0 !important;
+    margin: 0 auto !important;
     background-color: #1a1e29 !important;
     border: 1px solid #2e3547 !important;
     border-radius: 6px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
-/* Hace reaparecer el emoji centrado */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) button p {
     font-size: 14px !important;
-    line-height: normal !important; 
+    line-height: 1 !important; 
     margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 </style>""", unsafe_allow_html=True)
 
@@ -591,35 +644,37 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # --- ENCABEZADO (Calculado nativamente por Streamlit) ---
-                c_h1, c_h2 = st.columns([0.92, 0.08], vertical_alignment="center")
-                with c_h1:
-                    st.markdown("""
-                    <div class="encabezado-tabla">
-                        <div class="c-dia">DÍA</div>
-                        <div class="c-ent">ENTRADA</div>
-                        <div class="c-sal">SALIDA</div>
-                        <div class="c-hn">H.NORMAL</div>
-                        <div class="c-hr">H.RECARGO</div>
-                        <div class="c-ob">OBRA</div>
+                # --- ENCABEZADO HTML PURO ---
+                st.markdown("""
+                <div class="encabezado-puro">
+                    <div class="datos-encabezado">
+                        <div style="flex: 0 0 8%;">DÍA</div>
+                        <div style="flex: 0 0 16%;">ENTRADA</div>
+                        <div style="flex: 0 0 16%;">SALIDA</div>
+                        <div style="flex: 0 0 17%;">H.NORMAL</div>
+                        <div style="flex: 0 0 17%;">H.RECARGO</div>
+                        <div style="flex: 0 0 26%;">OBRA</div>
                     </div>
-                    """, unsafe_allow_html=True)
+                    <div class="vacio-encabezado"></div>
+                </div>
+                """, unsafe_allow_html=True)
 
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     c_dat, c_b = st.columns([0.92, 0.08], vertical_alignment="center")
+                    
                     with c_dat:
                         hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
                         hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
                         
                         st.markdown(f"""
                         <div class="fila-datos">
-                            <div class="c-dia">{d}</div>
-                            <div class="c-ent">{r["ENTRADA"]}</div>
-                            <div class="c-sal">{r["SALIDA"]}</div>
-                            <div class="c-hn">{hn_val}</div>
-                            <div class="c-hr">{hr_val}</div>
-                            <div class="c-ob">{r["OBRA"]}</div>
+                            <div style="flex: 0 0 8%; font-weight: bold;">{d}</div>
+                            <div style="flex: 0 0 16%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["ENTRADA"]}</div>
+                            <div style="flex: 0 0 16%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["SALIDA"]}</div>
+                            <div style="flex: 0 0 17%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{hn_val}</div>
+                            <div style="flex: 0 0 17%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{hr_val}</div>
+                            <div style="flex: 0 0 26%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["OBRA"]}</div>
                         </div>
                         """, unsafe_allow_html=True)
                     with c_b:
