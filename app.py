@@ -50,24 +50,40 @@ div[data-testid="stForm"] {
     margin-bottom: 1rem !important;
 }
 
-/* --- 1. ENCABEZADO ALINEADO PERFECTO --- */
+/* --- 1. SISTEMA GRID (COMPORTAMIENTO DE TABLA RÍGIDA) --- */
+.grilla-tabla {
+    display: grid !important;
+    grid-template-columns: 8% 16% 16% 17% 17% 26% !important; /* Columnas inquebrantables */
+    width: 100% !important;
+    align-items: center !important;
+}
+
+.datos-encabezado {
+    font-size: 0.65rem !important;
+    color: #838c9e !important;
+    font-weight: 600 !important;
+}
+
+.fila-datos {
+    height: 28px !important; 
+    font-size: 0.95rem !important;
+    color: #ffffff !important;
+}
+
+.c-dia { font-weight: bold; }
+.c-ob { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Contenedor del Encabezado */
 div[data-testid="stHorizontalBlock"]:has(.datos-encabezado) {
     border-top: 1px solid #282d3c !important;
     border-bottom: 1px solid #282d3c !important;
     padding: 6px 0px !important;
     margin-top: 10px !important;
-    margin-bottom: 24px !important; /* Mantiene tu separación con la primera fila */
+    margin-bottom: 24px !important;
     gap: 0px !important;
 }
-.datos-encabezado {
-    display: flex !important;
-    width: 100% !important;
-    font-size: 0.65rem !important;
-    color: #838c9e !important;
-    font-weight: 600 !important;
-    align-items: center !important;
-}
-/* Aniquila los márgenes invisibles de Streamlit solo para el encabezado */
+
+/* Aniquila los márgenes invisibles de Streamlit para el encabezado */
 div.element-container:has(.datos-encabezado),
 div.stElementContainer:has(.datos-encabezado),
 div[data-testid="stMarkdownContainer"]:has(.datos-encabezado) p {
@@ -75,10 +91,10 @@ div[data-testid="stMarkdownContainer"]:has(.datos-encabezado) p {
     padding: 0 !important;
 }
 
-/* --- 2. FILAS DE DATOS Y COLUMNAS --- */
+/* Contenedor de las Filas de Datos */
 div.element-container:has(div[data-testid="stHorizontalBlock"]:has(.fila-datos)),
 div.stElementContainer:has(div[data-testid="stHorizontalBlock"]:has(.fila-datos)) {
-    margin-top: -24px !important; /* Mantiene unidas las filas enteras */
+    margin-top: -24px !important; 
     margin-bottom: 0px !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
@@ -95,7 +111,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
     min-height: 20px !important;
 }
 
-/* Forzar anchos mínimos exactos anti-móvil (CLONACIÓN DE ENCABEZADO Y DATOS) */
+/* Forzar anchos mínimos de las columnas nativas de Streamlit (92% datos / 8% botón) */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:first-child,
 div[data-testid="stHorizontalBlock"]:has(.datos-encabezado) > div[data-testid="column"]:first-child {
     width: 92% !important;
@@ -117,7 +133,7 @@ div[data-testid="stHorizontalBlock"]:has(.datos-encabezado) > div[data-testid="c
     padding: 0 !important; 
 }
 
-/* --- 3. ALINEACIÓN VERTICAL PERFECTA (Textos) --- */
+/* Alineación Vertical de Textos */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="column"] > div[data-testid="stVerticalBlock"] {
     gap: 0 !important;
     justify-content: center !important;
@@ -128,7 +144,6 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdow
     margin: 0 !important;
     padding: 0 !important;
 }
-
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"] p {
     margin: 0 !important;
     padding: 0 !important;
@@ -136,24 +151,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdow
     transform: none !important; 
 }
 
-.fila-datos {
-    display: flex !important;
-    width: 100% !important;
-    height: 28px !important; 
-    font-size: 0.95rem !important;
-    color: #ffffff !important;
-    align-items: center !important;
-}
-
-/* Proporciones de las celdas de texto */
-.c-dia { flex: 0 0 8%; font-weight: bold; }
-.c-ent { flex: 0 0 16%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.c-sal { flex: 0 0 16%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.c-hn  { flex: 0 0 17%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.c-hr  { flex: 0 0 17%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.c-ob  { flex: 0 0 26%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-/* --- 4. DISEÑO DEL BOTÓN LÁPIZ Y EMOJI --- */
+/* DISEÑO DEL BOTÓN LÁPIZ Y EMOJI */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stButton"] {
     display: flex !important;
     align-items: center !important;
@@ -161,7 +159,6 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stButton"
     margin: 0 !important;
     padding: 0 !important;
 }
-
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) button {
     height: 24px !important;
     min-height: 24px !important;
@@ -176,7 +173,6 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) button {
     align-items: center !important;
     justify-content: center !important;
 }
-
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) button p {
     font-size: 11px !important;
     line-height: 1 !important; 
@@ -662,16 +658,16 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # --- ENCABEZADO ALINEADO PERFECTO ---
+                # --- ENCABEZADO CON GRILLA PERFECTA ---
                 c_h1, c_h2 = st.columns([0.92, 0.08], vertical_alignment="center")
                 with c_h1:
                     st.markdown("""
-                    <div class="datos-encabezado">
+                    <div class="grilla-tabla datos-encabezado">
                         <div class="c-dia">DÍA</div>
-                        <div class="c-ent">ENTRADA</div>
-                        <div class="c-sal">SALIDA</div>
-                        <div class="c-hn">H.NORMAL</div>
-                        <div class="c-hr">H.RECARGO</div>
+                        <div>ENTRADA</div>
+                        <div>SALIDA</div>
+                        <div>H.NORMAL</div>
+                        <div>H.RECARGO</div>
                         <div class="c-ob">OBRA</div>
                     </div>
                     """, unsafe_allow_html=True)
@@ -684,13 +680,14 @@ else:
                         hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
                         hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
                         
+                        # --- FILA DE DATOS CON LA MISMA GRILLA ---
                         st.markdown(f"""
-                        <div class="fila-datos">
+                        <div class="grilla-tabla fila-datos">
                             <div class="c-dia">{d}</div>
-                            <div class="c-ent">{r["ENTRADA"]}</div>
-                            <div class="c-sal">{r["SALIDA"]}</div>
-                            <div class="c-hn">{hn_val}</div>
-                            <div class="c-hr">{hr_val}</div>
+                            <div>{r["ENTRADA"]}</div>
+                            <div>{r["SALIDA"]}</div>
+                            <div>{hn_val}</div>
+                            <div>{hr_val}</div>
                             <div class="c-ob">{r["OBRA"]}</div>
                         </div>
                         """, unsafe_allow_html=True)
