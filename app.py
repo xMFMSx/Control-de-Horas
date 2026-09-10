@@ -94,7 +94,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
     flex-wrap: nowrap !important;
     align-items: center !important;
     gap: 0px !important; 
-    border-bottom: 1px solid #1c202a !important;
+    border-bottom: 0px solid #1c202a !important;
     padding-top: 6px !important;
     padding-bottom: 0px !important;
     width: 100% !important;
@@ -133,7 +133,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdow
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"] p {
     margin: 0 !important;
     padding: 0 !important;
-    line-height: 10px !important; 
+    line-height: 28px !important; 
     transform: none !important; /* Limpiamos cualquier empuje extraño */
 }
 
