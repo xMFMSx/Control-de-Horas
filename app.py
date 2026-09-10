@@ -59,7 +59,7 @@ div[data-testid="stForm"] {
     width: 100% !important;
     border-top: 1px solid #282d3c !important;
     border-bottom: 1px solid #282d3c !important;
-    padding: 6px 0px !important;
+    padding: 8px 0px !important;
     margin-top: 10px !important;
 }
 .datos-encabezado {
@@ -78,24 +78,30 @@ div[data-testid="stMarkdownContainer"]:has(.encabezado-puro) p {
     padding: 0 !important;
 }
 
-/* --- 2. FILAS DE DATOS (Succión hacia arriba para anular el gap) --- */
+/* --- 2. FILAS DE DATOS (Sin límite estricto de altura) --- */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
     margin-top: -16px !important; 
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    align-items: center !important;
-    gap: 0px !important; 
-    height: 38px !important; 
     border-bottom: 1px solid #1c202a !important;
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+    align-items: center !important;
+}
+
+/* DESTRUIR CUALQUIER MARGEN FANTASMA DE STREAMLIT */
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"] {
+    padding: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stVerticalBlock"] {
+    gap: 0 !important; /* Anula el hueco interno de las columnas de Streamlit */
 }
 
 /* Distribución exacta: 92% para textos, 8% para el botón */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:first-child {
     width: 92% !important;
     flex: 0 0 92% !important;
-    display: flex !important;
-    align-items: center !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"]:last-child {
     width: 8% !important;
@@ -106,41 +112,37 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"
 }
 
 /* --- 3. ALINEACIÓN VERTICAL TEXTOS --- */
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"] {
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"] {
+    margin: 0 !important;
+    padding: 0 !important;
 }
-
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"] p {
-    margin: 0px !important;
-    padding: 0px !important;
-    line-height: 28px !important; 
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 .fila-datos {
     display: flex !important;
     width: 100% !important;
-    height: 28px !important;
     font-size: 0.75rem !important;
     color: #ffffff !important;
     align-items: center !important;
 }
 
-/* --- 4. DISEÑO DEL BOTÓN LÁPIZ (Pequeño y centrado absoluto) --- */
+/* --- 4. CENTRADO MILIMÉTRICO DEL BOTÓN Y EL EMOJI --- */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stButton"] {
+    margin: 0 !important;
+    padding: 0 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    margin: 0 !important;
-    padding: 0 !important;
 }
 
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) button {
-    height: 22px !important;
-    min-height: 22px !important;
-    width: 24px !important;
-    min-width: 24px !important;
+    height: 26px !important;
+    min-height: 26px !important;
+    width: 28px !important;
+    min-width: 28px !important;
     padding: 0 !important;
     margin: 0 !important;
     background-color: #1a1e29 !important;
@@ -151,18 +153,14 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) button {
     justify-content: center !important;
 }
 
-/* Forzar centrado de las capas internas del botón de Streamlit */
-div[data-testid="stHorizontalBlock"]:has(.fila-datos) button div[data-testid="stMarkdownContainer"],
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) button p {
+    font-size: 13px !important;
+    line-height: 0 !important; 
+    margin: 0 !important;
+    padding: 0 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    font-size: 11px !important; /* Lápiz más delicado */
-    line-height: normal !important; 
-    height: 100% !important;
-    width: 100% !important;
 }
 </style>""", unsafe_allow_html=True)
 
