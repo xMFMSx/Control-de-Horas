@@ -30,11 +30,12 @@ div[data-testid="stDecoration"] { display: none !important; }
 div[data-testid="stForm"] { border: none !important; padding: 0 !important; margin-top: 1.5rem !important; margin-bottom: 1rem !important; }
 
 /* =========================================
-   TABLA LIMPIA Y ENCUADRADA
+   FUSIÓN TOTAL: ELIMINAR ESPACIOS NEGROS ENTRE FILAS
    ========================================= */
+/* El margen negativo absorbe cualquier espacio negro vertical entre contenedores */
 div.element-container:has(.contenedor-tabla), 
 div.stElementContainer:has(.contenedor-tabla) {
-    margin-bottom: -16px !important;
+    margin-bottom: -41px !important; 
 }
 
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
@@ -42,14 +43,16 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     flex-direction: row !important;
     align-items: center !important; 
     background-color: #1a1e29 !important;
-    border: 1px solid #353b4d !important;
-    margin-bottom: -1px !important; 
+    border-left: 1px solid #353b4d !important;
+    border-right: 1px solid #353b4d !important;
+    border-bottom: 1px solid #353b4d !important;
     width: 100% !important;
     height: 40px !important;
     box-sizing: border-box !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
     background-color: #222634 !important;
+    border-top: 1px solid #353b4d !important;
 }
 
 /* Proporciones: 92% Tabla, 8% Botón */
@@ -100,7 +103,7 @@ div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p {
     height: 40px !important; 
 }
 
-/* BAJAR EL TEXTO DEL ENCABEZADO 6 PÍXELES EXACTOS */
+/* Bajar el texto del encabezado */
 div[data-testid="stHorizontalBlock"]:has(.es-encabezado) div[data-testid="stMarkdownContainer"] p {
     padding-top: 6px !important;
 }
@@ -110,10 +113,10 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) div[data-testid="stV
     justify-content: center !important; 
 }
 
-/* Botón de edición - Ajustado para subirlo y centrarlo */
+/* Botón de edición centrado */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
     height: 28px !important; width: 28px !important; min-width: 28px !important;
-    padding: 0 !important; margin: -4px auto 0 auto !important; /* <--- Subido 4 píxeles con margen negativo */
+    padding: 0 !important; margin: -4px auto 0 auto !important;
     background-color: transparent !important; border: 1px solid transparent !important;
     display: flex !important; align-items: center !important; justify-content: center !important;
 }
