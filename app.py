@@ -62,7 +62,7 @@ div[data-testid="stVerticalBlock"] {
     gap: 0.1rem !important;
 }
 
-/* Fila interactiva completa que actúa como botón */
+/* Fila interactiva completa alineada milimétricamente */
 .fila-enlace-tabla {
     display: block !important;
     text-decoration: none !important;
@@ -71,6 +71,8 @@ div[data-testid="stVerticalBlock"] {
     width: 100% !important;
     box-sizing: border-box !important;
     margin: 0 !important;
+    padding: 0 !important;
+    cursor: pointer !important;
 }
 .fila-enlace-tabla:hover {
     background-color: #222736 !important;
@@ -79,9 +81,10 @@ div[data-testid="stVerticalBlock"] {
 
 .fila-encabezado {
     background-color: #222634 !important;
+    cursor: default !important;
 }
 
-/* Estructura interna idéntica para encabezado y datos (alineación perfecta) */
+/* Estructura interna de la tabla idéntica para header y datos */
 .contenedor-tabla {
     display: grid !important;
     grid-template-columns: 10% 18% 18% 18% 18% 18% !important;
@@ -101,7 +104,7 @@ div[data-testid="stVerticalBlock"] {
 .es-datos { 
     color: #ffffff !important; 
     font-size: 0.78rem !important; 
-    padding: 8px 8px !important; /* Altura generosa para que los números no se corten */
+    padding: 8px 8px !important; 
 }
 
 .contenedor-tabla > div {
@@ -632,7 +635,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-        # --- VISTA 2: RESUMEN MENSUAL CON FILA 100% CLICKEABLE Y ALINEACIÓN PERFECTA ---
+        # --- VISTA 2: RESUMEN MENSUAL CON COLORES EN DÍAS Y FILA 100% CLICKEABLE ---
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
@@ -672,7 +675,7 @@ else:
                 </div>
                 ''', unsafe_allow_html=True)
 
-                # --- FILAS CLICKEABLES COMPLETAS ---
+                # --- FILAS CLICKEABLES CON COLORES DE SÁBADOS, DOMINGOS Y FERIADOS ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     
@@ -686,17 +689,17 @@ else:
                     
                     es_festivo = iso_f in FERIADOS
                     
+                    # Colores correspondientes
                     if es_festivo or w_day == 6:
-                        dia_txt = f"{d} (F)" if es_festivo else str(d)
+                        color_dia = "#b388ff" # Violeta para Feriados y Domingos
                     elif w_day == 5:
-                        dia_txt = str(d)
+                        color_dia = "#448aff" # Azul para Sábados
                     else:
-                        dia_txt = str(d)
+                        color_dia = "#ffffff" # Blanco para días normales
 
                     hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
                     hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
                     
-                    # Cada fila es un enlace/botón que cubre todo el ancho
                     st.markdown(f'''
                     <form action="" method="get" style="margin:0; width:100%;">
                         <input type="hidden" name="session" value="{session_actual}">
@@ -704,7 +707,7 @@ else:
                         <input type="hidden" name="edit_dia" value="{d}">
                         <button type="submit" class="fila-enlace-tabla">
                             <div class="contenedor-tabla es-datos">
-                                <div style="color: #448aff; font-weight: 700;">{dia_txt}</div>
+                                <div style="color: {color_dia}; font-weight: 700;">{d}</div>
                                 <div>{r["ENTRADA"]}</div>
                                 <div>{r["SALIDA"]}</div>
                                 <div>{hn_val}</div>
