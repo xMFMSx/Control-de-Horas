@@ -68,14 +68,36 @@ div[data-testid="stForm"] { border: none !important; padding: 0 !important; }
 
 
 
-/* --- EVITAR APILAMIENTO DE LA FILA Y EL LÁPIZ (NO IMPORTA EL ZOOM) --- */
+
+/* --- TABLA RESUMEN COMPLETA Y ALINEADA --- */
+.tabla-resumen-header {
+    display: flex !important;
+    align-items: center !important;
+    border-top: 1px solid #282d3c !important;
+    border-bottom: 1px solid #282d3c !important;
+    padding: 6px 4px !important;
+    font-size: 0.62rem !important;
+    font-weight: 600 !important;
+    color: #838c9e !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+.fila-tabla-contenido {
+    display: flex !important;
+    align-items: center !important;
+    height: 36px !important;
+    padding: 0 4px !important;
+    font-size: 0.75rem !important;
+    color: #ffffff !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
 div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) {
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     align-items: center !important;
     width: 100% !important;
-    gap: 0px !important;
     border-bottom: 1px solid #1c202a !important;
     margin: 0 !important;
     padding: 0 !important;
@@ -96,7 +118,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) > div[data-testi
     justify-content: center !important;
     min-width: 0 !important;
 }
-/* Tamaño exacto y proporcionado para el botón del lápiz */
+/* Botón del lápiz pequeño y proporcionado al lado */
 div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) button {
     height: 24px !important;
     min-height: 24px !important;
@@ -118,6 +140,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) button p {
     padding: 0 !important;
 }
 </style>
+
 
 
 
