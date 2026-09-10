@@ -58,7 +58,7 @@ div[data-testid="stForm"] {
     border-bottom: 1px solid #282d3c !important;
     padding: 6px 0px !important;
     margin-top: 0px !important;
-    margin-bottom: 20px !important; /* <--- AQUÍ: Esto empuja la primera fila hacia abajo para que no choque */
+    margin-bottom: 16px !important; /* <--- AQUÍ: Esto empuja la primera fila hacia abajo para que no choque */
 }
 .datos-encabezado {
     width: 92% !important;
