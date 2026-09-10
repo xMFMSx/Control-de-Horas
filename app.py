@@ -513,7 +513,41 @@ div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) button p {
     text-overflow: clip !important;
     white-space: nowrap !important;
 }
+
+/* --- ALINEACIÓN PERFECTA (SIN COLAPSOS POR CELDAS VACÍAS) --- */
+.tabla-resumen-header, .fila-tabla-contenido {
+    display: grid !important;
+    /* 6 columnas con anchos fijos que suman 100% */
+    grid-template-columns: 8% 16% 16% 17% 17% 26% !important;
+    align-items: center !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.tabla-resumen-header {
+    border-top: 1px solid #282d3c !important;
+    border-bottom: 1px solid #282d3c !important;
+    padding: 6px 4px !important;
+    font-size: 0.55rem !important;
+    font-weight: 700 !important;
+    color: #a0aab8 !important;
+}
+
+.fila-tabla-contenido {
+    height: 38px !important;
+    padding: 0 4px !important;
+    font-size: 0.72rem !important;
+    color: #ffffff !important;
+}
+
+/* Alineación a la izquierda y sin recortar textos largos */
+.tabla-resumen-header span, .fila-tabla-contenido span {
+    text-align: left !important;
+    overflow: visible !important;
+    white-space: nowrap !important;
+}
 </style>
+
 
 
 
