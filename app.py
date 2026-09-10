@@ -85,7 +85,7 @@ div.stElementContainer:has(.encabezado-puro) {
 div.element-container:has(.fila-datos),
 div.stElementContainer:has(.fila-datos) {
     margin-top: -16px !important;
-    margin-bottom: 0px !important; /* Mantiene unidas las filas de datos entre sí */
+    margin-bottom: -16px !important; /* Mantiene unidas las filas de datos entre sí */
 }
 
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
@@ -98,7 +98,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
     padding-top: 6px !important;
     padding-bottom: 0px !important;
     width: 100% !important;
-    min-height: 10px !important;
+    min-height: 0px !important;
 }
 
 /* Forzar anchos mínimos exactos anti-móvil */
