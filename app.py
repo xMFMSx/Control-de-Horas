@@ -25,8 +25,8 @@ div[data-testid="stToolbar"] { visibility: hidden !important; }
 footer { visibility: hidden !important; }
 div[data-testid="stDecoration"] { display: none !important; }
 
-.block-container { max-width: 95% !important; padding: 2rem !important; padding-bottom: 3rem !important; }
-div[data-testid="stForm"] { border: none !important; padding: 0 !important; margin-top: 1.5rem !important; margin-bottom: 1rem !important; }
+.block-container { max-width: 95% !important; padding: 1.5rem !important; padding-bottom: 3rem !important; }
+div[data-testid="stForm"] { border: none !important; padding: 0 !important; margin-top: 1rem !important; margin-bottom: 0.5rem !important; }
 
 /* ELIMINACIÓN TOTAL DE FRANJAS NEGRAS Y ESPACIOS ENTRE FILAS */
 div.element-container:has(.contenedor-tabla), 
@@ -37,10 +37,10 @@ div.stElementContainer:has(.contenedor-tabla) {
 }
 
 div[data-testid="stVerticalBlock"] {
-    gap: 0.2rem !important;
+    gap: 0.1rem !important;
 }
 
-/* Fila horizontal principal de la tabla */
+/* Fila horizontal principal de la tabla adaptada a pantalla */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     display: flex !important;
     flex-direction: row !important;
@@ -55,37 +55,37 @@ div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
     background-color: #222634 !important;
 }
 
-/* Proporciones exactas: Tabla izquierda (88%), Botón derecha (12%) */
+/* Proporciones estrictas para evitar desajustes de escala: Tabla (89%), Botón (11%) */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
-    flex: 0 0 88% !important;
-    max-width: 88% !important;
+    flex: 0 0 89% !important;
+    max-width: 89% !important;
     min-width: 0 !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child {
-    flex: 0 0 12% !important;
-    max-width: 12% !important;
+    flex: 0 0 11% !important;
+    max-width: 11% !important;
     display: flex !important; 
     align-items: center !important; 
     justify-content: center !important;
     border-left: 1px solid #353b4d !important;
 }
 
-/* Estructura interna de la tabla */
+/* Estructura interna de la tabla optimizada */
 .contenedor-tabla {
     display: grid !important;
-    grid-template-columns: 8% 16% 16% 16% 16% 28% !important;
+    grid-template-columns: 8% 16% 16% 17% 17% 26% !important;
     width: 100% !important;
     align-items: center !important;
     box-sizing: border-box !important;
     margin: 0 !important;
 }
 
-.es-encabezado { font-weight: 700 !important; color: #a3adc2 !important; font-size: 0.65rem !important; }
-.es-datos { color: #ffffff !important; font-size: 0.85rem !important; }
+.es-encabezado { font-weight: 700 !important; color: #a3adc2 !important; font-size: 0.6rem !important; }
+.es-datos { color: #ffffff !important; font-size: 0.78rem !important; }
 
 .contenedor-tabla > div {
     border-right: 1px solid #353b4d !important;
-    padding: 6px 8px !important;
+    padding: 5px 4px !important;
     display: flex !important;
     align-items: center !important;
     box-sizing: border-box !important;
@@ -98,14 +98,14 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
 div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p { 
     margin: 0 !important; 
     padding: 0 !important; 
-    line-height: 1.2 !important; 
+    line-height: 1.1 !important; 
 }
 
 /* Botón de edición perfectamente centrado */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
-    height: 26px !important; 
-    width: 26px !important; 
-    min-width: 26px !important;
+    height: 24px !important; 
+    width: 24px !important; 
+    min-width: 24px !important;
     padding: 0 !important; 
     margin: auto !important;
     background-color: transparent !important; 
@@ -331,7 +331,7 @@ else:
     es_admin = st.session_state.get("rol_usuario", "trabajador") == "admin"
     hoja_usuario = obtener_hoja_trabajador(nombre_trabajador)
 
-    # --- MENÚ DESPLEGABLE DE CONFIGURACIÓN (⚙️) ---
+    # --- MENÚ DESPLEGABLE DE CONFIGURACIÓN (⚙️) CON ACCESO ADMIN DIRECTO ---
     c_gear, _ = st.columns([2.0, 8.0])
     with c_gear:
         with st.popover("⚙️"):
@@ -342,12 +342,12 @@ else:
             
             if es_admin:
                 if st.button("🛠️ Panel Administrador", use_container_width=True):
-                    st.session_state["modo_admin_activo"] = not st.session_state.get("modo_admin_activo", False)
+                    st.session_state["modo_admin_activo"] = True
+                    st.session_state["cambiando_password"] = False
                     st.rerun()
-                st.markdown("---")
 
             if st.button("🔑 Cambiar Contraseña", use_container_width=True):
-                st.session_state.cambiando_password = True
+                st.session_state["cambiando_password"] = True
                 st.session_state["modo_admin_activo"] = False
                 st.rerun()
 
@@ -565,7 +565,6 @@ else:
                     espacio_relleno = " " * (9 - len(nom_dia))
                     dia_base = f"{nom_dia}{espacio_relleno} | {num_dia:02d}"
 
-                    # RESTAURACIÓN DE COLORES PARA SÁBADOS, DOMINGOS Y FERIADOS
                     if es_festivo or f.weekday() == 6:
                         col_dia_num = f":violet[{dia_base}]"
                     elif f.weekday() == 5:
@@ -618,7 +617,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-        # --- VISTA 2: RESUMEN MENSUAL Y REPORTE PDF ABAJO ---
+        # --- VISTA 2: RESUMEN MENSUAL CON COLORES Y REPORTE ABAJO ---
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
@@ -645,7 +644,7 @@ else:
 
             if registros_tabla:
                 # --- ENCABEZADO SINCRONIZADO ---
-                c_h1, c_h2 = st.columns([0.88, 0.12], vertical_alignment="center")
+                c_h1, c_h2 = st.columns([0.89, 0.11], vertical_alignment="center")
                 with c_h1:
                     st.markdown('''
                     <div class="contenedor-tabla es-encabezado">
@@ -660,10 +659,30 @@ else:
                 with c_h2:
                     pass
 
-                # --- FILAS DE DATOS ---
+                # --- FILAS DE DATOS CON COLORES APLICADOS SEGÚN FECHA ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
-                    c_dat, c_b = st.columns([0.88, 0.12], vertical_alignment="center")
+                    
+                    # Calcular el día de la semana correspondiente para el color
+                    try:
+                        fecha_fila = date(2026, 9, d)
+                        w_day = fecha_fila.weekday()
+                        iso_f = fecha_fila.strftime("%Y-%m-%d")
+                    except:
+                        w_day = 0
+                        iso_f = ""
+                    
+                    es_festivo = iso_f in FERIADOS
+                    
+                    # Estilo de color para el número de día en el resumen
+                    if es_festivo or w_day == 6:
+                        dia_html = f'<span style="color: #b388ff; font-weight: 700;">{d} (F)</span>' if es_festivo else f'<span style="color: #b388ff; font-weight: 700;">{d}</span>'
+                    elif w_day == 5:
+                        dia_html = f'<span style="color: #448aff; font-weight: 700;">{d}</span>'
+                    else:
+                        dia_html = str(d)
+
+                    c_dat, c_b = st.columns([0.89, 0.11], vertical_alignment="center")
                     
                     with c_dat:
                         hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
@@ -671,7 +690,7 @@ else:
                         
                         st.markdown(f'''
                         <div class="contenedor-tabla es-datos">
-                            <div class="col-dia">{d}</div>
+                            <div class="col-dia">{dia_html}</div>
                             <div class="col-ent">{r["ENTRADA"]}</div>
                             <div class="col-sal">{r["SALIDA"]}</div>
                             <div class="col-hn">{hn_val}</div>
@@ -750,6 +769,6 @@ else:
                 st.info("Aún no tienes jornadas registradas en este mes.")
 
             st.markdown("---")
-            # --- BOTÓN DE REPORTE PDF ABAJO DEL TODO ---
-            if st.button("📄 Descargar Reporte en PDF"):
+            # --- BOTÓN DE REPORTE PDF ABAJO CON EL NOMBRE REQUERIDO ---
+            if st.button("📄 DESCARGAR HORAS DEL MES EN PDF", use_container_width=True):
                 st.info("ℹ️ Módulo de PDF listo para ser conectado.")
