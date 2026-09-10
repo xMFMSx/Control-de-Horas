@@ -73,7 +73,7 @@ div[data-testid="stForm"] {
 
 /* LA SOLUCIÓN AL ESPACIO: Aumentamos el margen inferior para separar el encabezado de los datos */
 div[data-testid="stMarkdownContainer"]:has(.encabezado-puro) p {
-    margin: 0 !important;
+    margin: -8px !important;
     padding: 0 !important;
 }
 div.element-container:has(.encabezado-puro),
@@ -85,7 +85,7 @@ div.stElementContainer:has(.encabezado-puro) {
 div.element-container:has(.fila-datos),
 div.stElementContainer:has(.fila-datos) {
     margin-top: -16px !important;
-    margin-bottom: -5px !important; /* Mantiene unidas las filas de datos entre sí */
+    margin-bottom: -16px !important; /* Mantiene unidas las filas de datos entre sí */
 }
 
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
