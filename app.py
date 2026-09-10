@@ -70,7 +70,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
     display: grid !important;
     grid-template-columns: 8% 16% 16% 16% 16% 28% !important;
     width: 100% !important;
-    height: 20px !important; /* Cemento: 40px inamovibles */
+    height: px !important; /* Cemento: 20px inamovibles */
     align-items: start !important;
     box-sizing: border-box !important;
     margin: 0 !important;
