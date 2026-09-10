@@ -50,14 +50,7 @@ div[data-testid="stForm"] {
     margin-bottom: 1rem !important;
 }
 
-/* --- 1. SISTEMA GRID (COMPORTAMIENTO DE TABLA RÍGIDA) --- */
-.grilla-tabla {
-    display: grid !important;
-    grid-template-columns: 8% 16% 16% 17% 17% 26% !important; /* Columnas inquebrantables */
-    width: 100% !important;
-    align-items: center !important;
-}
-
+/* --- ESTILOS DE TEXTO (Para que la tabla luzca bien) --- */
 .datos-encabezado {
     font-size: 0.65rem !important;
     color: #838c9e !important;
@@ -73,6 +66,7 @@ div[data-testid="stForm"] {
 .c-dia { font-weight: bold; }
 .c-ob { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
+/* --- 1. CONTENEDORES DE SEPARACIÓN (Mantienen tu espacio vertical perfecto) --- */
 /* Contenedor del Encabezado */
 div[data-testid="stHorizontalBlock"]:has(.datos-encabezado) {
     border-top: 1px solid #282d3c !important;
@@ -151,7 +145,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdow
     transform: none !important; 
 }
 
-/* DISEÑO DEL BOTÓN LÁPIZ Y EMOJI */
+/* --- 2. DISEÑO DEL BOTÓN LÁPIZ Y EMOJI --- */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stButton"] {
     display: flex !important;
     align-items: center !important;
@@ -658,17 +652,19 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # --- ENCABEZADO CON GRILLA PERFECTA ---
+                # --- ENCABEZADO CON TABLA HTML (Evita estilos base de Streamlit) ---
                 c_h1, c_h2 = st.columns([0.92, 0.08], vertical_alignment="center")
                 with c_h1:
                     st.markdown("""
-                    <div class="grilla-tabla datos-encabezado">
-                        <div class="c-dia">DÍA</div>
-                        <div>ENTRADA</div>
-                        <div>SALIDA</div>
-                        <div>H.NORMAL</div>
-                        <div>H.RECARGO</div>
-                        <div class="c-ob">OBRA</div>
+                    <div class="datos-encabezado" style="display: table; width: 100%; table-layout: fixed;">
+                        <div style="display: table-row;">
+                            <div style="display: table-cell; width: 8%; text-align: left;" class="c-dia">DÍA</div>
+                            <div style="display: table-cell; width: 16%; text-align: left;">ENTRADA</div>
+                            <div style="display: table-cell; width: 16%; text-align: left;">SALIDA</div>
+                            <div style="display: table-cell; width: 17%; text-align: left;">H.NORMAL</div>
+                            <div style="display: table-cell; width: 17%; text-align: left;">H.RECARGO</div>
+                            <div style="display: table-cell; width: 26%; text-align: left;">OBRA</div>
+                        </div>
                     </div>
                     """, unsafe_allow_html=True)
 
@@ -680,15 +676,17 @@ else:
                         hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
                         hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
                         
-                        # --- FILA DE DATOS CON LA MISMA GRILLA ---
+                        # --- FILA DE DATOS CON LA MISMA TABLA EXACTA ---
                         st.markdown(f"""
-                        <div class="grilla-tabla fila-datos">
-                            <div class="c-dia">{d}</div>
-                            <div>{r["ENTRADA"]}</div>
-                            <div>{r["SALIDA"]}</div>
-                            <div>{hn_val}</div>
-                            <div>{hr_val}</div>
-                            <div class="c-ob">{r["OBRA"]}</div>
+                        <div class="fila-datos" style="display: table; width: 100%; table-layout: fixed;">
+                            <div style="display: table-row;">
+                                <div style="display: table-cell; width: 8%; text-align: left;" class="c-dia">{d}</div>
+                                <div style="display: table-cell; width: 16%; text-align: left;">{r["ENTRADA"]}</div>
+                                <div style="display: table-cell; width: 16%; text-align: left;">{r["SALIDA"]}</div>
+                                <div style="display: table-cell; width: 17%; text-align: left;">{hn_val}</div>
+                                <div style="display: table-cell; width: 17%; text-align: left;">{hr_val}</div>
+                                <div style="display: table-cell; width: 26%; text-align: left;" class="c-ob">{r["OBRA"]}</div>
+                            </div>
                         </div>
                         """, unsafe_allow_html=True)
                     with c_b:
