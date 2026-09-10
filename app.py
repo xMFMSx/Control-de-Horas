@@ -57,24 +57,27 @@ div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
 }
 
 /* =========================================
-   CONTROL ESTRICTO DE COLUMNAS (TABLA | BOTÓN)
+   CONTROL FLEXIBLE PARA LA TABLA Y EL BOTÓN
    ========================================= */
-/* Columna 1: La tabla (92%)[cite: 1] */
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:nth-child(1) {
-    width: 92% !important; 
-    min-width: 92% !important; 
-    max-width: 92% !important; 
-    flex: 0 0 92% !important;
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"] {
+    display: flex !important;
+    align-items: center !important;
 }
 
-/* Columna 2: El botón de edición (8%)[cite: 1] */
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:nth-child(2) {
-    width: 8% !important; 
-    min-width: 8% !important; 
-    max-width: 8% !important; 
-    flex: 0 0 8% !important;
-    display: flex !important; 
-    align-items: center !important; 
+/* La columna que contiene la tabla toma todo el espacio posible */
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:has(.contenedor-tabla) {
+    flex-grow: 1 !important;
+    width: auto !important;
+}
+
+/* La columna del botón se alinea perfectamente a la derecha dentro de la misma fila */
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:has(button) {
+    width: 45px !important;
+    min-width: 45px !important;
+    max-width: 45px !important;
+    flex: 0 0 45px !important;
+    display: flex !important;
+    align-items: center !important;
     justify-content: center !important;
     border-left: 1px solid #353b4d !important;
     height: 40px !important;
