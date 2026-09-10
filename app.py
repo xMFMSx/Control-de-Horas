@@ -30,54 +30,44 @@ div[data-testid="stDecoration"] { display: none !important; }
 div[data-testid="stForm"] { border: none !important; padding: 0 !important; margin-top: 1.5rem !important; margin-bottom: 1rem !important; }
 
 /* =========================================
-   FUSIÓN DE FILAS (ADIÓS A LOS ESPACIOS NEGROS)
+   SOLUCIÓN 2: ELIMINAR LAS FRANJAS NEGRAS (UNIÓN PERFECTA)
    ========================================= */
 div.element-container:has(.contenedor-tabla), 
 div.stElementContainer:has(.contenedor-tabla) {
-    margin-bottom: -41px !important; 
+    margin-bottom: -16px !important; 
 }
 
-/* Fila horizontal principal */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
-    align-items: center !important; 
+    align-items: stretch !important; 
     background-color: #1a1e29 !important;
-    border-left: 1px solid #353b4d !important;
-    border-right: 1px solid #353b4d !important;
-    border-bottom: 1px solid #353b4d !important;
+    border: 1px solid #353b4d !important;
     width: 100% !important;
     height: 40px !important;
     box-sizing: border-box !important;
+    margin-bottom: -1px !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
     background-color: #222634 !important;
-    border-top: 1px solid #353b4d !important;
 }
 
 /* =========================================
-   CONTROL FLEXIBLE PARA LA TABLA Y EL BOTÓN
+   SOLUCIÓN 3: ALINEACIÓN PERFECTA DEL LÁPIZ DENTRO DE LA FILA
    ========================================= */
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"] {
-    display: flex !important;
-    align-items: center !important;
-}
-
-/* La columna que contiene la tabla toma todo el espacio posible */
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:has(.contenedor-tabla) {
-    flex-grow: 1 !important;
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
+    flex: 1 1 auto !important;
     width: auto !important;
+    min-width: 0 !important;
 }
 
-/* La columna del botón se alinea perfectamente a la derecha dentro de la misma fila */
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:has(button) {
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child {
+    flex: 0 0 45px !important;
     width: 45px !important;
     min-width: 45px !important;
-    max-width: 45px !important;
-    flex: 0 0 45px !important;
-    display: flex !important;
-    align-items: center !important;
+    display: flex !important; 
+    align-items: center !important; 
     justify-content: center !important;
     border-left: 1px solid #353b4d !important;
     height: 40px !important;
@@ -89,7 +79,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
     grid-template-columns: 8% 16% 16% 16% 16% 28% !important;
     width: 100% !important;
     height: 40px !important;
-    align-items: start !important;
+    align-items: center !important;
     box-sizing: border-box !important;
     margin: 0 !important;
 }
@@ -110,19 +100,15 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
 }
 .contenedor-tabla > div:last-child { border-right: none !important; }
 
-/* Ajuste de etiquetas <p> de Streamlit */
+/* =========================================
+   SOLUCIÓN 1: CENTRADO VERTICAL DEL ENCABEZADO Y TEXTOS
+   ========================================= */
 div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p { 
     margin: 0 !important; 
     padding: 0 !important; 
-    line-height: 1 !important; 
-    display: flex !important; 
-    align-items: center !important; 
+    line-height: 40px !important; 
     height: 40px !important; 
-}
-
-/* Bajar el texto del encabezado para centrarlo verticalmente */
-div[data-testid="stHorizontalBlock"]:has(.es-encabezado) div[data-testid="stMarkdownContainer"] p {
-    padding-top: 6px !important;
+    display: block !important;
 }
 
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) div[data-testid="stVerticalBlock"] { 
@@ -130,10 +116,10 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) div[data-testid="stV
     justify-content: center !important; 
 }
 
-/* Botón de edición perfectamente centrado en su celda derecha */
+/* Botón de edición perfectamente centrado */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
     height: 28px !important; width: 28px !important; min-width: 28px !important;
-    padding: 0 !important; margin: -4px auto 0 auto !important;
+    padding: 0 !important; margin: 0 auto !important;
     background-color: transparent !important; border: 1px solid transparent !important;
     display: flex !important; align-items: center !important; justify-content: center !important;
 }
