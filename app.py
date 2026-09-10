@@ -94,7 +94,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
     flex-wrap: nowrap !important;
     align-items: center !important;
     gap: 0px !important; 
-    border-bottom: 0px solid #1c202a !important;
+    border-bottom: 2px solid #1c202a !important;
     padding-top: 6px !important;
     padding-bottom: 0px !important;
     width: 100% !important;
