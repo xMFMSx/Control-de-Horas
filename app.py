@@ -59,11 +59,19 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
 div[data-testid="stHorizontalBlock"]:has(.encabezado-tabla) {
     border-top: 1px solid #282d3c !important;
     border-bottom: 1px solid #282d3c !important;
-    padding: 2px 0 !important;
+    padding: 4px 0 !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) {
     border-bottom: 1px solid #1c202a !important;
-    padding: 2px 0 !important;
+    padding: 4px 0 !important;
+}
+
+/* MAGIA: Aniquilar el margen inferior invisible de Streamlit que empujaba el texto hacia arriba */
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"] p,
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) div[data-testid="stMarkdownContainer"] div,
+div[data-testid="stHorizontalBlock"]:has(.fila-datos) div.element-container {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
 }
 
 /* Proporciones de las columnas (92% datos, 8% botón) */
@@ -83,12 +91,12 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) > div[data-testid="column"
     min-width: 0 !important;
 }
 
-/* --- ESTILO DEL BOTÓN LÁPIZ (PEQUEÑO Y CENTRADO) --- */
+/* --- ESTILO DEL BOTÓN LÁPIZ (EXACTAMENTE 26x26 AL IGUAL QUE EL TEXTO) --- */
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) button {
-    height: 24px !important;
-    min-height: 24px !important;
-    width: 24px !important;
-    min-width: 24px !important;
+    height: 26px !important;
+    min-height: 26px !important;
+    width: 26px !important;
+    min-width: 26px !important;
     padding: 0 !important;
     background-color: #1a1e29 !important;
     border: 1px solid #2e3547 !important;
@@ -99,7 +107,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-datos) button {
     margin: 0 auto !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.fila-datos) button p {
-    font-size: 11px !important;
+    font-size: 12px !important;
     margin: 0 !important;
     padding: 0 !important;
     line-height: 1 !important;
@@ -605,9 +613,9 @@ else:
                             hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
                             hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
                             
-                            # --- FILA DE DATOS HTML SIN BORDES INTERNOS ---
+                            # --- FILA DE DATOS CON ALTURA EXACTA AL BOTÓN (26px) ---
                             st.markdown(f"""
-                            <div class="fila-datos" style="display: grid; grid-template-columns: 8% 16% 16% 17% 17% 26%; width: 100%; height: 32px; font-size: 0.75rem; color: #ffffff; align-items: center;">
+                            <div class="fila-datos" style="display: grid; grid-template-columns: 8% 16% 16% 17% 17% 26%; width: 100%; height: 26px; font-size: 0.75rem; color: #ffffff; align-items: center; margin: 0; padding: 0;">
                                 <div style="font-weight: bold;">{d}</div>
                                 <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["ENTRADA"]}</div>
                                 <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["SALIDA"]}</div>
