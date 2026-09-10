@@ -244,7 +244,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) button p {
 /* --- TABLA CON CSS GRID (ALINEACIÓN PERFECTA E INAMOVIBLE) --- */
 .tabla-resumen-header {
     display: grid !important;
-    grid-template-columns: 20% 16% 16% 17% 17% 26% !important;
+    grid-template-columns: 10% 16% 16% 17% 17% 26% !important;
     align-items: center !important;
     border-top: 1px solid #282d3c !important;
     border-bottom: 1px solid #282d3c !important;
@@ -258,7 +258,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-tabla-contenido) button p {
 
 .fila-tabla-contenido {
     display: grid !important;
-    grid-template-columns: 8% 16% 16% 17% 17% 26% !important;
+    grid-template-columns: 20% 16% 16% 17% 17% 26% !important;
     align-items: center !important;
     height: 36px !important;
     padding: 0 4px !important;
