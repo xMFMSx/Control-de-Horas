@@ -49,22 +49,21 @@ div[data-testid="stExpander"] summary p {
 div[data-testid="stExpander"] summary svg { width: 1.2rem !important; height: 1.2rem !important; }
 div[data-testid="stForm"] { border: none !important; padding: 0 !important; }
 
-/* --- BLOQUEO EXCLUSIVO PARA LA FILA DEL LÁPIZ (NO AFECTA LOS FORMULARIOS) --- */
-/* El uso de :has(.fila-unica-registro) aísla completamente este estilo */
-div[data-testid="stHorizontalBlock"]:has(.fila-unica-registro) {
+/* --- BLOQUEO EXCLUSIVO PARA LA FILA DEL LÁPIZ Y EL ENCABEZADO --- */
+/* La clase .marcador-fila protege los demás menús de tu app */
+div[data-testid="stHorizontalBlock"]:has(.marcador-fila) {
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     align-items: center !important;
-    border-bottom: 1px solid #1c202a !important;
     gap: 0px !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.fila-unica-registro) > div[data-testid="column"]:first-child {
+div[data-testid="stHorizontalBlock"]:has(.marcador-fila) > div[data-testid="column"]:first-child {
     width: 92% !important;
     flex: 0 0 92% !important;
     min-width: 0 !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.fila-unica-registro) > div[data-testid="column"]:last-child {
+div[data-testid="stHorizontalBlock"]:has(.marcador-fila) > div[data-testid="column"]:last-child {
     width: 8% !important;
     flex: 0 0 8% !important;
     display: flex !important;
@@ -73,7 +72,7 @@ div[data-testid="stHorizontalBlock"]:has(.fila-unica-registro) > div[data-testid
 }
 
 /* Solo afecta al lápiz, manteniendo a salvo el botón de Guardar Registro y el Menú */
-div[data-testid="stHorizontalBlock"]:has(.fila-unica-registro) button {
+div[data-testid="stHorizontalBlock"]:has(.marcador-fila) button {
     height: 28px !important;
     min-height: 28px !important;
     width: 32px !important;
@@ -87,21 +86,10 @@ div[data-testid="stHorizontalBlock"]:has(.fila-unica-registro) button {
     justify-content: center !important;
     margin: 0 auto !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.fila-unica-registro) button p {
+div[data-testid="stHorizontalBlock"]:has(.marcador-fila) button p {
     font-size: 12px !important;
     margin: 0 !important;
     padding: 0 !important;
-}
-
-/* Eliminar márgenes y bordes fantasma de la tabla HTML */
-div[data-testid="stMarkdownContainer"] table {
-    margin-bottom: 0 !important;
-    border: none !important;
-}
-div[data-testid="stMarkdownContainer"] table th,
-div[data-testid="stMarkdownContainer"] table td {
-    border: none !important;
-    background: transparent !important;
 }
 </style>""", unsafe_allow_html=True)
 
@@ -581,19 +569,20 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # --- TABLA HTML NATIVA (INQUEBRANTABLE) ---
-                st.markdown("""
-                <table style="width: 100%; table-layout: fixed; border-collapse: collapse; text-align: left; font-size: 0.65rem; color: #838c9e; font-weight: 600; margin: 0;">
-                    <tr style="height: 36px; border-top: 1px solid #282d3c; border-bottom: 1px solid #282d3c;">
-                        <td style="width: 8%; padding: 0 4px; border: none;">DÍA</td>
-                        <td style="width: 16%; padding: 0 4px; border: none;">ENTRADA</td>
-                        <td style="width: 16%; padding: 0 4px; border: none;">SALIDA</td>
-                        <td style="width: 17%; padding: 0 4px; border: none;">H.NORMAL</td>
-                        <td style="width: 17%; padding: 0 4px; border: none;">H.RECARGO</td>
-                        <td style="width: 26%; padding: 0 4px; border: none;">OBRA</td>
-                    </tr>
-                </table>
-                """, unsafe_allow_html=True)
+                # --- CABECERA ALINEADA EN LA MISMA ESTRUCTURA DE 92/8 ---
+                # Esto obliga al encabezado a tener el mismo ancho matemático que los datos
+                col_h1, col_h2 = st.columns([0.92, 0.08], vertical_alignment="center")
+                with col_h1:
+                    st.markdown("""
+                    <div class="marcador-fila" style="display: grid; grid-template-columns: 8% 16% 16% 17% 17% 26%; width: 100%; border-top: 1px solid #282d3c; border-bottom: 1px solid #282d3c; padding: 6px 4px; font-size: 0.65rem; color: #838c9e; font-weight: 600; align-items: center;">
+                        <div>DÍA</div>
+                        <div>ENTRADA</div>
+                        <div>SALIDA</div>
+                        <div>H.NORMAL</div>
+                        <div>H.RECARGO</div>
+                        <div>OBRA</div>
+                    </div>
+                    """, unsafe_allow_html=True)
 
                 for r in registros_tabla:
                     d = r["DÍA"]
@@ -601,17 +590,19 @@ else:
                     with col_unica:
                         c_dat, c_b = st.columns([0.92, 0.08], vertical_alignment="center")
                         with c_dat:
+                            # Protegemos los vacíos insertando un espacio HTML
+                            hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
+                            hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
+                            
                             st.markdown(f"""
-                            <table class="fila-unica-registro" style="width: 100%; table-layout: fixed; border-collapse: collapse; text-align: left; font-size: 0.75rem; color: #ffffff; margin: 0;">
-                                <tr style="height: 38px;">
-                                    <td style="width: 8%; padding: 0 4px; font-weight: bold; border: none;">{d}</td>
-                                    <td style="width: 16%; padding: 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border: none;">{r["ENTRADA"]}</td>
-                                    <td style="width: 16%; padding: 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border: none;">{r["SALIDA"]}</td>
-                                    <td style="width: 17%; padding: 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border: none;">{r["HORA EXTRA"]}</td>
-                                    <td style="width: 17%; padding: 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border: none;">{r["HORA RECARGO"]}</td>
-                                    <td style="width: 26%; padding: 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border: none;">{r["OBRA"]}</td>
-                                </tr>
-                            </table>
+                            <div class="marcador-fila" style="display: grid; grid-template-columns: 8% 16% 16% 17% 17% 26%; width: 100%; height: 38px; padding: 0 4px; font-size: 0.75rem; color: #ffffff; align-items: center; border-bottom: 1px solid #1c202a;">
+                                <div style="font-weight: bold;">{d}</div>
+                                <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["ENTRADA"]}</div>
+                                <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["SALIDA"]}</div>
+                                <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{hn_val}</div>
+                                <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{hr_val}</div>
+                                <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{r["OBRA"]}</div>
+                            </div>
                             """, unsafe_allow_html=True)
                         with c_b:
                             if st.button("✏️", key=f"btn_edit_{d}"):
