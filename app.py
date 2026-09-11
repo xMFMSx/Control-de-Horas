@@ -65,7 +65,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     background-color: #1a1e29 !important;
     border: 1px solid #353b4d !important;
     border-top: none !important;
-    width: 85% !important; /* <--- CAMBIA ESTA LÍNEA */
+    width: 100% !important; /* <--- CAMBIA ESTA LÍNEA */
     box-sizing: border-box !important;
     margin: 0 !important;
     gap: 0px !important;
