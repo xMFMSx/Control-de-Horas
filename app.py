@@ -81,33 +81,13 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
     padding: 0 !important;
 }
 
-/* Proporciones exactas de 82% y 18% tanto para el encabezado como para las filas de datos */
-    div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child,
-    div[data-testid="stHorizontalBlock"]:has(.es-encabezado) > div[data-testid="column"]:first-child {
-        width: 82% !important;
-        flex: 0 0 82% !important;
-        max-width: 82% !important;
-    }
-    div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child,
-    div[data-testid="stHorizontalBlock"]:has(.es-encabezado) > div[data-testid="column"]:last-child {
-        width: 18% !important;
-        flex: 0 0 18% !important;
-        max-width: 18% !important;
-        display: flex !important; 
-        align-items: center !important; 
-        justify-content: center !important;
-    }
-
 /* Estructura CSS Grid para la tabla de datos */
 .contenedor-tabla {
     display: grid !important;
-    grid-template-columns: 6% 10% 8% 9% 8% 59% !important;
+    grid-template-columns: 8% 14% 12% 14% 12% 40% !important; /* Ajusta estos números para que sumen 100% y la obra quede ancha */
     width: 100% !important;
-    align-items: center !important;
-    box-sizing: border-box !important;
-    margin: 0 !important;
+    ...
 }
-
 .es-encabezado { 
     font-weight: 700 !important; 
     color: #a3adc2 !important; 
@@ -737,27 +717,18 @@ else:
                     hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
                     hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
 
-                    c_dat, c_b = st.columns([0.92, 0.08], vertical_alignment="center")
-                    with c_dat:
-                        st.markdown(f'''
-                        <div class="es-datos">
-                            <div class="contenedor-tabla">
-                                <div style="color: {color_dia}; font-weight: 700;">{dia_txt}</div>
-                                <div>{r["ENTRADA"]}</div>
-                                <div>{r["SALIDA"]}</div>
-                                <div>{hn_val}</div>
-                                <div>{hr_val}</div>
-                                <div>{r["OBRA"]}</div>
-                            </div>
+                    st.markdown(f'''
+                    <div class="es-datos">
+                        <div class="contenedor-tabla">
+                            <div style="color: {color_dia}; font-weight: 700;">{dia_txt}</div>
+                            <div>{r["ENTRADA"]}</div>
+                            <div>{r["SALIDA"]}</div>
+                            <div>{hn_val}</div>
+                            <div>{hr_val}</div>
+                            <div>{r["OBRA"]}</div>
                         </div>
-                        ''', unsafe_allow_html=True)
-                    with c_b:
-                        if st.button("✏️", key=f"btn_edit_{d}"):
-                            if st.session_state.get("dia_en_edicion") == d:
-                                st.session_state["dia_en_edicion"] = None
-                            else:
-                                st.session_state["dia_en_edicion"] = d
-                            st.rerun()
+                    </div>
+                    ''', unsafe_allow_html=True)
 
                     # Lógica de edición desplegable al presionar el botón (sin recargar la página web)
                     if st.session_state.get("dia_en_edicion") == d:
