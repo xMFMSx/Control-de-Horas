@@ -133,7 +133,7 @@ div.lapiz-lateral-wrapper button {
     align-items: center !important;
     justify-content: center !important;
     margin: 0 !important;
-    margin-top: 5px !important;
+    margin-top: 10px !important;
     transition: all 0.2s ease-in-out !important;
 }
 
