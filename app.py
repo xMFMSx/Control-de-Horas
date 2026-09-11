@@ -62,7 +62,7 @@ div[data-testid="stVerticalBlock"] {
     gap: 0.1rem !important;
 }
 
-/* Fila horizontal principal de la tabla */
+/* Fila horizontal principal de la tabla al 100% de ancho sin espacio sobrante */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     display: flex !important;
     flex-direction: row !important;
@@ -77,25 +77,17 @@ div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
     background-color: #222634 !important;
 }
 
-/* Proporciones exactas: Tabla izquierda (89%), Botón derecha (11%) */
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
-    flex: 0 0 89% !important;
-    max-width: 89% !important;
+/* Hacemos que la única columna ocupe el 100% real sin dejar huecos a la derecha */
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"] {
+    flex: 1 1 100% !important;
+    max-width: 100% !important;
     min-width: 0 !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child {
-    flex: 0 0 11% !important;
-    max-width: 11% !important;
-    display: flex !important; 
-    align-items: center !important; 
-    justify-content: center !important;
-    border-left: 1px solid #353b4d !important;
-}
 
-/* Estructura interna de la tabla con ancho ajustado para que el botón quede perfecto */
+/* Estructura interna de la tabla distribuida exactamente en 6 columnas proporcionales */
 .contenedor-tabla {
     display: grid !important;
-    grid-template-columns: 4.5% 9% 9% 11% 11% 10% !important;
+    grid-template-columns: 8% 18% 18% 16% 16% 24% !important;
     width: 100% !important;
     align-items: center !important;
     box-sizing: border-box !important;
@@ -123,20 +115,26 @@ div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p {
     line-height: 1.1 !important; 
 }
 
-/* Botón de edición perfectamente centrado (sin icono) */
+/* Botón invisible o interactivo que cubre toda la fila para hacerla clickeable */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
-    height: 24px !important; 
-    width: 24px !important; 
-    min-width: 24px !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    height: 100% !important; 
+    width: 100% !important;
     padding: 0 !important; 
-    margin: auto !important;
+    margin: 0 !important;
     background-color: transparent !important; 
-    border: 1px solid transparent !important;
-    display: flex !important; 
-    align-items: center !important; 
-    justify-content: center !important;
+    border: none !important;
+    cursor: pointer !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button:hover { border: 1px solid #a3adc2 !important; }
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
+    position: relative !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla):hover {
+    border-color: #448aff !important;
+    background-color: #222736 !important;
+}
 </style>""", unsafe_allow_html=True)
 
 SECRET_KEY = "control_de_horas_firmado_token_2026"
@@ -648,7 +646,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-        # --- VISTA 2: RESUMEN MENSUAL CON TABLA LIMPIA Y SIN ICONO DE LÁPIZ ---
+        # --- VISTA 2: RESUMEN MENSUAL CON TABLA 100% ANCHA Y SIN ESPACIOS ---
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
@@ -674,23 +672,21 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # --- ENCABEZADO SINCRONIZADO ---
-                c_h1, c_h2 = st.columns([0.89, 0.11], vertical_alignment="center")
-                with c_h1:
-                    st.markdown('''
-                    <div class="contenedor-tabla es-encabezado">
-                        <div class="col-dia">DÍA</div>
-                        <div class="col-ent">ENTRADA</div>
-                        <div class="col-sal">SALIDA</div>
-                        <div class="col-hn">H.NORMAL</div>
-                        <div class="col-hr">H.RECARGO</div>
-                        <div class="col-ob">OBRA</div>
+                # --- ENCABEZADO 100% ANCHO ---
+                st.markdown('''
+                <div style="display: flex; background-color: #222634; border: 1px solid #353b4d; border-radius: 4px 4px 0 0; padding: 9px 8px; font-weight: 700; color: #a3adc2; font-size: 0.6rem;">
+                    <div class="contenedor-tabla">
+                        <div>DÍA</div>
+                        <div>ENTRADA</div>
+                        <div>SALIDA</div>
+                        <div>H.NORMAL</div>
+                        <div>H.RECARGO</div>
+                        <div>OBRA</div>
                     </div>
-                    ''', unsafe_allow_html=True)
-                with c_h2:
-                    pass
+                </div>
+                ''', unsafe_allow_html=True)
 
-                # --- FILAS DE DATOS (SIN ICONO) ---
+                # --- FILAS COMPLETAS CLICKEABLES ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     
@@ -705,38 +701,43 @@ else:
                     es_festivo = iso_f in FERIADOS
                     
                     if es_festivo or w_day == 6:
-                        dia_html = f'<span style="color: #b388ff; font-weight: 700;">{d} (F)</span>' if es_festivo else f'<span style="color: #b388ff; font-weight: 700;">{d}</span>'
+                        dia_txt = f"{d} (F)" if es_festivo else str(d)
+                        color_dia = "#b388ff"
                     elif w_day == 5:
-                        dia_html = f'<span style="color: #448aff; font-weight: 700;">{d}</span>'
+                        dia_txt = str(d)
+                        color_dia = "#448aff"
                     else:
-                        dia_html = str(d)
+                        dia_txt = str(d)
+                        color_dia = "#ffffff"
 
-                    c_dat, c_b = st.columns([0.89, 0.11], vertical_alignment="center")
+                    hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
+                    hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
                     
-                    with c_dat:
-                        hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
-                        hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
-                        
-                        st.markdown(f'''
-                        <div class="contenedor-tabla es-datos">
-                            <div class="col-dia">{dia_html}</div>
-                            <div class="col-ent">{r["ENTRADA"]}</div>
-                            <div class="col-sal">{r["SALIDA"]}</div>
-                            <div class="col-hn">{hn_val}</div>
-                            <div class="col-hr">{hr_val}</div>
-                            <div class="col-ob">{r["OBRA"]}</div>
-                        </div>
-                        ''', unsafe_allow_html=True)
-                    with c_b:
-                        # Botón sin icono (espacio vacío o texto limpio invisible pero interactivo)
-                        if st.button("⠀", key=f"btn_edit_{d}", help=f"Editar día {d}"):
-                            if st.session_state.get("dia_en_edicion") == d:
-                                st.session_state["dia_en_edicion"] = None
-                            else:
-                                st.session_state["dia_en_edicion"] = d
+                    # Fila completa con botón interactivo abarcando el 100%
+                    c_row1, = st.columns(1)
+                    with c_row1:
+                        if st.button("", key=f"btn_row_{d}", help=f"Editar día {d}"):
+                            st.session_state["dia_en_edicion"] = None if st.session_state.get("dia_en_edicion") == d else d
                             st.rerun()
 
-                    # Lógica de edición
+                    # Contenido visual superpuesto perfectamente alineado
+                    st.markdown(f'''
+                    <div style="margin-top: -36px; pointer-events: none; padding: 6px 8px; background: transparent; position: relative; z-index: 2;">
+                        <div class="contenedor-tabla es-datos">
+                            <div style="color: {color_dia}; font-weight: 700;">{dia_txt}</div>
+                            <div>{r["ENTRADA"]}</div>
+                            <div>{r["SALIDA"]}</div>
+                            <div>{hn_val}</div>
+                            <div>{hr_val}</div>
+                            <div>{r["OBRA"]}</div>
+                        </div>
+                    </div>
+                    ''', unsafe_allow_html=True)
+
+                    # Espaciador sutil entre filas
+                    st.markdown("<div style='height: 2px;'></div>", unsafe_allow_html=True)
+
+                    # Lógica de edición desplegable
                     if st.session_state.get("dia_en_edicion") == d:
                         datos_d = dict_por_dia.get(d, {})
                         val_e = str_a_time(datos_d.get("entrada", ""))
@@ -745,6 +746,7 @@ else:
                         idx_o = lista_obras.index(val_o) if val_o and val_o in lista_obras else 0
 
                         with st.form(key=f"form_inline_dia_{d}"):
+                            st.markdown(f"**✏️ Editando Día {d}**")
                             c1e, c2e = st.columns(2)
                             with c1e:
                                 edit_ent = st.time_input("Entrada", value=val_e, key=f"re_{d}")
@@ -800,5 +802,5 @@ else:
 
             st.markdown("---")
             # --- BOTÓN DE REPORTE PDF ABAJO ---
-            if st.button("📄 DESCARGAR HORAS DEL MES EN PDF", use_container_width=True):
+            if st.button("📄 DESCARGAR HORAS DEL MES EM PDF", use_container_width=True):
                 st.info("ℹ️ Módulo de PDF listo para ser conectado.")
