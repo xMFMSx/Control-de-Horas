@@ -693,7 +693,7 @@ else:
 
             if registros_tabla:
                 # --- ENCABEZADO PERFECTAMENTE UNIFICADO ---
-                c_h1, c_h2 = st.columns([0.89, 0.11], vertical_alignment="center")
+                c_h1, c_h2 = st.columns([0.75, 0.25], vertical_alignment="center")
                 with c_h1:
                     st.markdown('''
                     <div class="contenedor-tabla es-encabezado">
