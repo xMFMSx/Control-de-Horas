@@ -54,7 +54,48 @@ div[data-testid="stVerticalBlock"] {
     gap: 0.1rem !important;
 }
 
-/* Estructura CSS Grid perfecta para la tabla */
+/* ==========================================================
+   FUSIÓN SEAMLESS DE COLUMNAS PARA UNIFICAR LA TABLA Y EL BOTÓN
+   ========================================================== */
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: stretch !important; 
+    background-color: #1a1e29 !important;
+    border: 1px solid #353b4d !important;
+    border-top: none !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    gap: 0px !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
+    background-color: #222634 !important;
+    border-top: 1px solid #353b4d !important;
+    border-radius: 4px 4px 0 0 !important;
+}
+
+/* Eliminar márgenes y padding internos de las columnas divididas para que se unan */
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"] {
+    padding: 0 !important;
+}
+
+/* Proporciones exactas: Tabla izquierda (89%), Botón derecha (11%) */
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
+    flex: 0 0 89% !important;
+    max-width: 89% !important;
+    min-width: 0 !important;
+    border-right: 1px solid #353b4d !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child {
+    flex: 0 0 11% !important;
+    max-width: 11% !important;
+    display: flex !important; 
+    align-items: center !important; 
+    justify-content: center !important;
+}
+
+/* Estructura CSS Grid para la tabla de datos */
 .contenedor-tabla {
     display: grid !important;
     grid-template-columns: 12% 18% 18% 18% 18% 16% !important;
@@ -68,21 +109,13 @@ div[data-testid="stVerticalBlock"] {
     font-weight: 700 !important; 
     color: #a3adc2 !important; 
     font-size: 0.65rem !important; 
-    background-color: #222634 !important;
-    border: 1px solid #353b4d !important;
-    border-radius: 4px 4px 0 0;
     padding: 10px 8px !important;
-    margin-bottom: -1px !important;
 }
 
 .es-datos { 
     color: #ffffff !important; 
     font-size: 0.78rem !important; 
-    background-color: #1a1e29 !important;
-    border: 1px solid #353b4d !important;
-    border-top: none !important;
     padding: 9px 8px !important;
-    margin-bottom: -1px !important;
 }
 
 .contenedor-tabla > div {
@@ -103,11 +136,11 @@ div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p {
     line-height: 1.1 !important; 
 }
 
-/* Botón de edición compacto y ordenado */
+/* Botón de edición compacto y ordenado dentro de su celda */
 div[data-testid="stHorizontalBlock"] button {
-    height: 28px !important; 
-    width: 32px !important; 
-    min-width: 32px !important;
+    height: 26px !important; 
+    width: 30px !important; 
+    min-width: 30px !important;
     padding: 0 !important; 
     margin: auto !important;
     background-color: transparent !important; 
@@ -311,7 +344,7 @@ if "modo_admin_activo" not in st.session_state:
 
 if not st.session_state.autenticado:
     st.title("🔐 Acceso a APP DE HORAS")
-    st.write(f"Por favor, ingresa tu correo electrónico y contraseña para continuar[cite: 1].")
+    st.write("Por favor, ingresa tu correo electrónico y contraseña para continuar[cite: 1].")
     
     with st.form("form_login"):
         correo_input = st.text_input("Correo Electrónico")
@@ -633,7 +666,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-        # --- VISTA 2: RESUMEN MENSUAL CON BOTONES NATIVOS ESTABLES (SIN RECARGAR PÁGINA) ---
+        # --- VISTA 2: RESUMEN MENSUAL CON CAJA UNIFICADA Y BOTÓN FLUIDO ---
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
@@ -659,7 +692,7 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # --- ENCABEZADO PERFECTO ---
+                # --- ENCABEZADO PERFECTAMENTE UNIFICADO ---
                 c_h1, c_h2 = st.columns([0.89, 0.11], vertical_alignment="center")
                 with c_h1:
                     st.markdown('''
@@ -675,7 +708,7 @@ else:
                 with c_h2:
                     st.markdown('<div class="es-encabezado" style="text-align: center; border-radius: 0 4px 4px 0;">EDITAR</div>', unsafe_allow_html=True)
 
-                # --- FILAS DE DATOS ---
+                # --- FILAS DE DATOS UNIFICADAS ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     
@@ -724,7 +757,7 @@ else:
                                 st.session_state["dia_en_edicion"] = d
                             st.rerun()
 
-                    # Lógica de edición desplegable al presionar el botón (mantiene el estado nativo de Streamlit)
+                    # Lógica de edición desplegable al presionar el botón (sin recargar la página web)
                     if st.session_state.get("dia_en_edicion") == d:
                         datos_d = dict_por_dia.get(d, {})
                         val_e = str_a_time(datos_d.get("entrada", ""))
