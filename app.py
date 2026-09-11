@@ -46,8 +46,7 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {
 div[data-testid="stForm"] { 
     border: none !important; 
     padding: 0 !important; 
-    margin-top: 0.5rem !important; 
-    margin-bottom: 0.5rem !important; 
+    margin: 0 !important; 
 }
 
 div[data-testid="stVerticalBlock"] {
@@ -83,7 +82,7 @@ div[data-testid="stVerticalBlock"] {
 .es-datos-7 { 
     color: #ffffff !important; 
     font-size: 0.78rem !important; 
-    padding: 6px 8px !important;
+    padding: 4px 8px !important;
     margin-bottom: -1px !important;
 }
 
@@ -109,21 +108,22 @@ div[data-testid="stMarkdownContainer"] p {
     line-height: 1.1 !important; 
 }
 
-/* Botón de editar compacto dentro de la grilla */
-.btn-editar-grid {
-    background: transparent !important;
+/* Estilo compacto para los botones de editar dentro de la grilla */
+div[data-testid="stForm"] button {
+    height: 24px !important;
+    width: 28px !important;
+    min-width: 28px !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+    background-color: transparent !important;
     border: 1px solid #353b4d !important;
-    color: white !important;
     border-radius: 4px !important;
-    padding: 2px 6px !important;
-    font-size: 0.75rem !important;
-    cursor: pointer !important;
-    text-decoration: none !important;
-    display: inline-flex !important;
+    display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    cursor: pointer !important;
 }
-.btn-editar-grid:hover {
+div[data-testid="stForm"] button:hover {
     border-color: #a3adc2 !important;
     background-color: #222736 !important;
 }
@@ -609,7 +609,7 @@ else:
                             st.write("")
                             col_btn, _ = st.columns([1, 3])
                             with col_btn:
-                                guardar_btn = st.form_submit_button("💾 Guardar Registro", use_container_width=True)
+                                guardar_btn = st.form_submit_button("💾 Guardار Registro", use_container_width=True)
 
                             if guardar_btn:
                                 es_especial = inp_ob and inp_ob.strip().upper() in ["PERMISO", "NO TRABAJA"]
@@ -638,7 +638,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-        # --- VISTA 2: RESUMEN MENSUAL CON LA TABLA 100% UNIFICADA EN UNA SOLA GRILLA REAL ---
+        # --- VISTA 2: RESUMEN MENSUAL CON LA TABLA 100% UNIFICADA ---
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
@@ -664,21 +664,8 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # Gestionar clics de edición mediante query params limpios para evitar tablas separadas
-                q_params = st.query_params
-                if "editar_dia" in q_params:
-                    try:
-                        d_target = int(q_params["editar_dia"])
-                        if st.session_state.get("dia_en_edicion") != d_target:
-                            st.session_state["dia_en_edicion"] = d_target
-                            del st.query_params["editar_dia"]
-                            st.rerun()
-                    except:
-                        pass
-
                 # --- ENCABEZADO DE 7 COLUMNAS EN CSS GRID UNIFICADO ---
-                session_token_url = st.query_params.get("session", "")
-                st.markdown(f'''
+                st.markdown('''
                 <div class="contenedor-tabla-7 es-encabezado-7">
                     <div>DÍA</div>
                     <div>ENTRADA</div>
@@ -690,7 +677,7 @@ else:
                 </div>
                 ''', unsafe_allow_html=True)
 
-                # --- FILAS DE DATOS DE 7 COLUMNAS PURAS ---
+                # --- FILAS DE DATOS DE 7 COLUMNAS PURAS CON FORMULARIO INTERNO ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     
@@ -717,20 +704,29 @@ else:
                     hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
                     hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
 
-                    # Renderizamos toda la fila dentro de la misma y única grilla HTML con un enlace de botón integrado
-                    st.markdown(f'''
-                    <div class="es-datos-7 contenedor-tabla-7">
-                        <div style="color: {color_dia}; font-weight: 700;">{dia_txt}</div>
-                        <div>{r["ENTRADA"]}</div>
-                        <div>{r["SALIDA"]}</div>
-                        <div>{hn_val}</div>
-                        <div>{hr_val}</div>
-                        <div>{r["OBRA"]}</div>
-                        <div style="display: flex; justify-content: center; align-items: center;">
-                            <a href="?session={session_token_url}&editar_dia={d}" class="btn-editar-grid" target="_self">✏️</a>
-                        </div>
-                    </div>
-                    ''', unsafe_allow_html=True)
+                    # Renderizamos toda la fila dentro de la misma y única grilla HTML usando un formulario interno de Streamlit para el botón
+                    with st.form(key=f"form_grid_row_{d}"):
+                        st.markdown(f'''
+                        <div class="es-datos-7 contenedor-tabla-7" style="border-top: none !important;">
+                            <div style="color: {color_dia}; font-weight: 700;">{dia_txt}</div>
+                            <div>{r["ENTRADA"]}</div>
+                            <div>{r["SALIDA"]}</div>
+                            <div>{hn_val}</div>
+                            <div>{hr_val}</div>
+                            <div>{r["OBRA"]}</div>
+                            <div style="display: flex; justify-content: center; align-items: center;">
+                        ''', unsafe_allow_html=True)
+                        
+                        btn_click = st.form_submit_button("✏️")
+                        
+                        st.markdown('</div></div>', unsafe_allow_html=True)
+
+                        if btn_click:
+                            if st.session_state.get("dia_en_edicion") == d:
+                                st.session_state["dia_en_edicion"] = None
+                            else:
+                                st.session_state["dia_en_edicion"] = d
+                            st.rerun()
 
                     # Lógica de edición desplegable al presionar el botón de la fila
                     if st.session_state.get("dia_en_edicion") == d:
