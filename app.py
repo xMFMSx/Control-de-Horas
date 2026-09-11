@@ -84,10 +84,10 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
     border-left: 1px solid #353b4d !important;
 }
 
-/* Estructura CSS Grid para la tabla */
+/* Estructura CSS Grid de 7 columnas exactas */
 .contenedor-tabla {
     display: grid !important;
-    grid-template-columns: 12% 18% 18% 18% 18% 16% !important;
+    grid-template-columns: 8% 16% 16% 16% 16% 18% 10% !important;
     width: 100% !important;
     align-items: center !important;
     box-sizing: border-box !important;
@@ -326,7 +326,7 @@ if "modo_admin_activo" not in st.session_state:
 
 if not st.session_state.autenticado:
     st.title("🔐 Acceso a APP DE HORAS")
-    st.write("Por favor, ingresa tu correo electrónico y contraseña para continuar[cite: 1].")
+    st.write(f"Por favor, ingresa tu correo electrónico y contraseña para continuar[cite: 1].")
     
     with st.form("form_login"):
         correo_input = st.text_input("Correo Electrónico")
@@ -648,7 +648,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-        # --- VISTA 2: RESUMEN MENSUAL CON LA NUEVA COLUMNA DE EDICIÓN AL FINAL ---
+        # --- VISTA 2: RESUMEN MENSUAL CON LAS 7 COLUMNAS REALES EN EL CSS GRID ---
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
@@ -674,23 +674,20 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # --- ENCABEZADO CON COLUMNA EXTRA DE EDICIÓN A LA DERECHA ---
-                c_h1, c_h2 = st.columns([0.89, 0.11], vertical_alignment="center")
-                with c_h1:
-                    st.markdown('''
-                    <div class="contenedor-tabla es-encabezado">
-                        <div>DÍA</div>
-                        <div>ENTRADA</div>
-                        <div>SALIDA</div>
-                        <div>H.NORMAL</div>
-                        <div>H.RECARGO</div>
-                        <div>OBRA</div>
-                    </div>
-                    ''', unsafe_allow_html=True)
-                with c_h2:
-                    st.markdown('<div class="es-encabezado" style="text-align: center; border-radius: 0 4px 4px 0;">EDITAR</div>', unsafe_allow_html=True)
+                # --- ENCABEZADO CON 7 COLUMNAS REALES ---
+                st.markdown('''
+                <div class="contenedor-tabla es-encabezado">
+                    <div>DÍA</div>
+                    <div>ENTRADA</div>
+                    <div>SALIDA</div>
+                    <div>H.NORMAL</div>
+                    <div>H.RECARGO</div>
+                    <div>OBRA</div>
+                    <div style="text-align: center;">EDITAR</div>
+                </div>
+                ''', unsafe_allow_html=True)
 
-                # --- FILAS DE DATOS CON BOTÓN DE EDITAR A LA DERECHA ---
+                # --- FILAS DE DATOS DE 7 COLUMNAS ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     
@@ -717,22 +714,23 @@ else:
                     hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
                     hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
 
-                    c_dat, c_b = st.columns([0.89, 0.11], vertical_alignment="center")
-                    with c_dat:
-                        st.markdown(f'''
-                        <div class="es-datos">
-                            <div class="contenedor-tabla">
-                                <div style="color: {color_dia}; font-weight: 700;">{dia_txt}</div>
-                                <div>{r["ENTRADA"]}</div>
-                                <div>{r["SALIDA"]}</div>
-                                <div>{hn_val}</div>
-                                <div>{hr_val}</div>
-                                <div>{r["OBRA"]}</div>
-                            </div>
-                        </div>
-                        ''', unsafe_allow_html=True)
-                    with c_b:
-                        if st.button("✏️", key=f"btn_edit_{d}"):
+                    # Usamos st.columns con 7 columnas nativas sincronizadas con el CSS Grid de 7 columnas
+                    c_d, c_e, c_s, c_hn, c_hr, c_o, c_btn = st.columns([0.08, 0.16, 0.16, 0.16, 0.16, 0.18, 0.10], vertical_alignment="center")
+                    
+                    with c_d:
+                        st.markdown(f'<div class="es-datos"><div style="color: {color_dia}; font-weight: 700;">{dia_txt}</div></div>', unsafe_allow_html=True)
+                    with c_e:
+                        st.markdown(f'<div class="es-datos"><div>{r["ENTRADA"]}</div></div>', unsafe_allow_html=True)
+                    with c_s:
+                        st.markdown(f'<div class="es-datos"><div>{r["SALIDA"]}</div></div>', unsafe_allow_html=True)
+                    with c_hn:
+                        st.markdown(f'<div class="es-datos"><div>{hn_val}</div></div>', unsafe_allow_html=True)
+                    with c_hr:
+                        st.markdown(f'<div class="es-datos"><div>{hr_val}</div></div>', unsafe_allow_html=True)
+                    with c_o:
+                        st.markdown(f'<div class="es-datos"><div>{r["OBRA"]}</div></div>', unsafe_allow_html=True)
+                    with c_btn:
+                        if st.button("✏️", key=f"btn_edit_{d}", use_container_width=True):
                             if st.session_state.get("dia_en_edicion") == d:
                                 st.session_state["dia_en_edicion"] = None
                             else:
