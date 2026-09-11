@@ -54,153 +54,29 @@ div[data-testid="stVerticalBlock"] {
     gap: 0.1rem !important;
 }
 
-/* ==========================================================
-   ESTRUCTURA CSS GRID DEL ENCABEZADO HTML
-   ========================================================== */
-.contenedor-tabla-7 {
-    display: grid !important;
-    grid-template-columns: 6% 12% 12% 12% 12% 46% 10% !important;
-    width: 100% !important;
-    align-items: center !important;
-    box-sizing: border-box !important;
-    margin: 0 !important;
-    background-color: #1a1e29 !important;
+/* Redondear y estilizar el data editor para integrarlo al tema */
+[data-testid="stDataEditor"] {
     border: 1px solid #353b4d !important;
-    border-top: none !important;
-}
-
-.es-encabezado-7 { 
-    font-weight: 700 !important; 
-    color: #a3adc2 !important; 
-    font-size: 0.65rem !important; 
-    background-color: #222634 !important;
-    border: 1px solid #353b4d !important;
-    border-radius: 4px 4px 0 0;
-    padding: 10px 8px !important;
-    margin-bottom: -1px !important;
-}
-
-.contenedor-tabla-7 > div {
-    border-right: 1px solid #353b4d !important;
-    padding: 0 4px !important;
-    display: flex !important;
-    align-items: center !important;
-    box-sizing: border-box !important;
-    white-space: nowrap !important;
+    border-radius: 6px !important;
     overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    height: 100% !important;
-}
-.contenedor-tabla-7 > div:last-child { 
-    border-right: none !important; 
-    justify-content: center !important; 
 }
 
-div[data-testid="stMarkdownContainer"] p { 
-    margin: 0 !important; 
-    padding: 0 !important; 
-    line-height: 1.1 !important; 
-}
-
-/* ==========================================================
-   ALINEACIÓN Y ANCHOS EXACTOS DE LAS 7 COLUMNAS
-   ========================================================== */
-
-/* 1. Forzar que el bloque horizontal use el ancho total exacto y sin desfases */
-div[data-testid="stHorizontalBlock"] {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    width: 100% !important;
-    gap: 0 !important;
-    margin: 0 !important;
-    box-sizing: border-box !important;
-}
-
-/* 2. Anchos idénticos al encabezado (8%, 16%, 16%, 16%, 16%, 18%, 10%) */
-div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child:nth-last-child(7) { 
-    width: 8% !important; min-width: 8% !important; max-width: 8% !important; flex: none !important; 
-}
-div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(2):nth-last-child(6) { 
-    width: 16% !important; min-width: 16% !important; max-width: 16% !important; flex: none !important; 
-}
-div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(3):nth-last-child(5) { 
-    width: 16% !important; min-width: 16% !important; max-width: 16% !important; flex: none !important; 
-}
-div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(4):nth-last-child(4) { 
-    width: 16% !important; min-width: 16% !important; max-width: 16% !important; flex: none !important; 
-}
-div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(5):nth-last-child(3) { 
-    width: 16% !important; min-width: 16% !important; max-width: 16% !important; flex: none !important; 
-}
-div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(6):nth-last-child(2) { 
-    width: 18% !important; min-width: 18% !important; max-width: 18% !important; flex: none !important; 
-}
-div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(7):last-child { 
-    width: 10% !important; min-width: 10% !important; max-width: 10% !important; flex: none !important; 
-}
-
-/* 3. Bordes y rellenos calculados hacia adentro */
-div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child:nth-last-child(7),
-div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child:nth-last-child(7) ~ div[data-testid="column"] {
-    box-sizing: border-box !important;
-    background-color: #1a1e29 !important;
-    border-bottom: 1px solid #353b4d !important;
-    border-right: 1px solid #353b4d !important;
-    padding: 6px 8px !important;
-    display: flex !important;
-    align-items: center !important;
-    min-height: 38px !important;
-    margin: 0 !important;
-}
-
-div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child:nth-last-child(7) {
-    border-left: 1px solid #353b4d !important;
-}
-
-div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child:nth-child(7) {
-    border-right: 1px solid #353b4d !important;
-    justify-content: center !important;
-    padding: 2px !important;
-}
-
-/* Eliminar espaciado vertical entre filas */
-div[data-testid="stVerticalBlock"] > div[data-testid="element-container"] > div[data-testid="stHorizontalBlock"] {
+/* Expanders unificados continuos */
+div[data-testid="stExpander"] {
     margin-bottom: -1px !important;
-}
-
-/* 4. Tipografía y corte de texto */
-div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child:nth-last-child(7) p,
-div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child:nth-last-child(7) ~ div[data-testid="column"] p,
-div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child:nth-last-child(7) span,
-div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child:nth-last-child(7) ~ div[data-testid="column"] span {
-    color: #ffffff !important;
-    font-size: 0.78rem !important;
-    margin: 0 !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-}
-
-/* 5. Botón centrado */
-div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child:nth-child(7) button {
-    background: transparent !important;
+    border-radius: 0 !important;
     border: 1px solid #353b4d !important;
-    color: white !important;
-    border-radius: 4px !important;
-    padding: 0 !important;
-    min-height: 0 !important;
-    height: 24px !important;
-    width: 32px !important;
-    font-size: 0.75rem !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    margin: 0 auto !important;
+    background-color: #1a1e29 !important;
 }
 
-div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child:nth-child(7) button:hover {
-    border-color: #a3adc2 !important;
+div[data-testid="stExpander"] details summary {
+    background-color: #1a1e29 !important;
+    border-radius: 0 !important;
+    padding: 10px 14px !important;
+    border: none !important;
+}
+
+div[data-testid="stExpander"] details summary:hover {
     background-color: #222736 !important;
 }
 </style>""", unsafe_allow_html=True)
@@ -392,7 +268,7 @@ if "modo_admin_activo" not in st.session_state:
 
 if not st.session_state.autenticado:
     st.title("🔐 Acceso a APP DE HORAS")
-    st.write(f"Por favor, ingresa tu correo electrónico y contraseña para continuar.")
+    st.write("Por favor, ingresa tu correo electrónico y contraseña para continuar.")
     
     with st.form("form_login"):
         correo_input = st.text_input("Correo Electrónico")
@@ -536,39 +412,21 @@ else:
             st.error(f"No se pudo cargar el resumen global: {e}")
 
     else:
-        # --- NAVEGACIÓN PRINCIPAL (SEPTIEMBRE / RESUMEN LADO A LADO) ---
+        # --- NAVEGACIÓN PRINCIPAL (SEPTIEMBRE / RESUMEN) ---
         if "vista_actual" not in st.session_state:
             st.session_state["vista_actual"] = "SEPTIEMBRE"
 
-        is_sep = st.session_state["vista_actual"] == "SEPTIEMBRE"
-        bg_sep = "#ff4b4b" if is_sep else "#1a1e29"
-        border_sep = "#ff4b4b" if is_sep else "#2e3547"
-        bg_res = "#ff4b4b" if not is_sep else "#1a1e29"
-        border_res = "#ff4b4b" if not is_sep else "#2e3547"
+        col_nav1, col_nav2 = st.columns(2)
+        with col_nav1:
+            tipo_btn_sep = "primary" if st.session_state["vista_actual"] == "SEPTIEMBRE" else "secondary"
+            if st.button("📅 SEPTIEMBRE 2026", type=tipo_btn_sep, use_container_width=True):
+                st.session_state["vista_actual"] = "SEPTIEMBRE"
+                st.rerun()
 
-        session_actual = st.query_params.get("session", "")
-
-        st.markdown(f'''
-            <div style="display: flex; gap: 8px; width: 100%; margin-bottom: 1rem;">
-                <form action="" method="get" style="flex: 1; margin: 0;">
-                    <input type="hidden" name="session" value="{session_actual}">
-                    <button type="submit" name="nav_vista" value="SEPTIEMBRE" style="width: 100%; background-color: {bg_sep}; border: 1px solid {border_sep}; color: white; padding: 0.6rem 0.2rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.82rem; white-space: nowrap; cursor: pointer;">📅 SEPTIEMBRE 2026</button>
-                </form>
-                <form action="" method="get" style="flex: 1; margin: 0;">
-                    <input type="hidden" name="session" value="{session_actual}">
-                    <button type="submit" name="nav_vista" value="RESUMEN" style="width: 100%; background-color: {bg_res}; border: 1px solid {border_res}; color: white; padding: 0.6rem 0.2rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.82rem; white-space: nowrap; cursor: pointer;">📊 RESUMEN DEL MES</button>
-                </form>
-            </div>
-        ''', unsafe_allow_html=True)
-
-        q_params = st.query_params
-        if "nav_vista" in q_params:
-            val_nav = q_params["nav_vista"]
-            if val_nav in ["SEPTIEMBRE", "RESUMEN"] and st.session_state["vista_actual"] != val_nav:
-                st.session_state["vista_actual"] = val_nav
-                if val_nav == "SEPTIEMBRE":
-                    st.session_state["dia_en_edicion"] = None
-                del st.query_params["nav_vista"]
+        with col_nav2:
+            tipo_btn_res = "primary" if st.session_state["vista_actual"] == "RESUMEN" else "secondary"
+            if st.button("📊 RESUMEN DEL MES", type=tipo_btn_res, use_container_width=True):
+                st.session_state["vista_actual"] = "RESUMEN"
                 st.rerun()
 
         st.markdown("---")
@@ -714,14 +572,14 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-        # --- VISTA 2: RESUMEN MENSUAL CON EDICIÓN NATIVA ---
+        # --- VISTA 2: RESUMEN MENSUAL CON TABLA CONTINUA EDITABLE ---
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
             val_hn_str = minutos_a_hora_str(total_hn)
             val_hr_str = minutos_a_hora_str(total_hr)
             
-            html_cards_res = f"""
+            st.markdown(f"""
             <div style="display: flex; gap: 10px; width: 100%; margin-bottom: 1rem;">
                 <div style="flex: 1; min-width: 0; background-color: #0e1117; border: 1px solid #262d3d; border-radius: 8px; padding: 14px;">
                     <div style="font-size: 0.68rem; color: #838c9e; margin-bottom: 4px; font-weight: 500; white-space: nowrap;">Total Horas Extras (Mes)</div>
@@ -732,144 +590,58 @@ else:
                     <div style="font-size: 1.6rem; font-weight: 700; color: #ffffff; white-space: nowrap;">{val_hr_str}</div>
                 </div>
             </div>
-            """
-            st.markdown(html_cards_res, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
             st.markdown("---")
 
-            if "dia_en_edicion" not in st.session_state:
-                st.session_state["dia_en_edicion"] = None
-
             if registros_tabla:
-                # --- ENCABEZADO HTML DE 7 COLUMNAS ---
-                st.markdown(f'''
-                <div class="contenedor-tabla-7 es-encabezado-7">
-                    <div>DÍA</div>
-                    <div>ENTRADA</div>
-                    <div>SALIDA</div>
-                    <div>H.NORMAL</div>
-                    <div>H.RECARGO</div>
-                    <div>OBRA</div>
-                    <div style="text-align: center;">EDITAR</div>
-                </div>
-                ''', unsafe_allow_html=True)
+                df_resumen = pd.DataFrame(registros_tabla)
 
-                # --- FILAS DE DATOS DE 7 COLUMNAS NATIVAS STREAMLIT (Con CSS oculto) ---
-                for r in registros_tabla:
-                    d = r["DÍA"] 
-                    
-                    try:
-                        fecha_fila = date(2026, 9, d)
-                        w_day = fecha_fila.weekday()
-                        iso_f = fecha_fila.strftime("%Y-%m-%d")
-                    except:
-                        w_day = 0
-                        iso_f = ""
-                    
-                    es_festivo = iso_f in FERIADOS
-                    
-                    if es_festivo or w_day == 6:
-                        color_dia = "#b388ff"
-                        dia_txt = f"{d} (F)" if es_festivo else str(d)
-                    elif w_day == 5:
-                        color_dia = "#448aff"
-                        dia_txt = str(d)
-                    else:
-                        color_dia = "#ffffff"
-                        dia_txt = str(d)
+                st.caption("💡 Haz doble clic sobre cualquier celda para editar el valor directamente.")
+                df_editado = st.data_editor(
+                    df_resumen,
+                    column_config={
+                        "DÍA": st.column_config.NumberColumn("DÍA", disabled=True, width="small"),
+                        "ENTRADA": st.column_config.TextColumn("ENTRADA", width="medium"),
+                        "SALIDA": st.column_config.TextColumn("SALIDA", width="medium"),
+                        "HORA EXTRA": st.column_config.TextColumn("H.NORMAL", disabled=True, width="medium"),
+                        "HORA RECARGO": st.column_config.TextColumn("H.RECARGO", disabled=True, width="medium"),
+                        "OBRA": st.column_config.SelectboxColumn("OBRA", options=lista_obras, required=True, width="large"),
+                    },
+                    hide_index=True,
+                    use_container_width=True,
+                    key="editor_horas_tabla"
+                )
 
-                    hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
-                    hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
-                    ob_val = r["OBRA"].strip() if r["OBRA"].strip() else "&nbsp;"
+                c_btn, _ = st.columns([2, 8])
+                with c_btn:
+                    if st.button("💾 Guardar Cambios Editados", use_container_width=True):
+                        with st.spinner("Guardando en la planilla..."):
+                            try:
+                                for _, fila in df_editado.iterrows():
+                                    dia_num = int(fila["DÍA"])
+                                    fila_n = fila_segun_dia(dia_num)
+                                    ent = str(fila["ENTRADA"]).strip()
+                                    sal = str(fila["SALIDA"]).strip()
+                                    ob = str(fila["OBRA"]).strip()
 
-                    # Las proporciones [8, 16, 16, 16, 16, 18, 10] coinciden EXACTAMENTE con las tuyas originales del CSS.
-                    # El selector mágico CSS en la parte superior transformará este bloque de forma invisible para que se vea como HTML.
-                    c1, c2, c3, c4, c5, c6, c7 = st.columns([8, 16, 16, 16, 16, 18, 10])
-                    
-                    with c1:
-                        st.markdown(f"<span style='color: {color_dia}; font-weight: 700;'>{dia_txt}</span>", unsafe_allow_html=True)
-                    with c2:
-                        st.markdown(r["ENTRADA"], unsafe_allow_html=True)
-                    with c3:
-                        st.markdown(r["SALIDA"], unsafe_allow_html=True)
-                    with c4:
-                        st.markdown(hn_val, unsafe_allow_html=True)
-                    with c5:
-                        st.markdown(hr_val, unsafe_allow_html=True)
-                    with c6:
-                        st.markdown(ob_val, unsafe_allow_html=True)
-                    with c7:
-                        # Al presionar el botón, verifica si ya está abierto para cerrarlo
-                        if st.button("✏️", key=f"editar_dia_{d}"):
-                            if st.session_state.get("dia_en_edicion") == d:
-                                st.session_state["dia_en_edicion"] = None
-                            else:
-                                st.session_state["dia_en_edicion"] = d
-                            st.rerun()
+                                    es_esp = ob.upper() in ["PERMISO", "NO TRABAJA"]
+                                    if es_esp:
+                                        hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["-", "-"]], value_input_option="RAW")
+                                        hoja_usuario.update(f"G{fila_n}", [[ob]], value_input_option="RAW")
+                                    else:
+                                        hoja_usuario.update(f"C{fila_n}:D{fila_n}", [[ent, sal]], value_input_option="USER_ENTERED")
+                                        hoja_usuario.update(f"G{fila_n}", [[ob]], value_input_option="USER_ENTERED")
 
-                    # Lógica de edición desplegable al presionar el botón de la fila
-                    if st.session_state.get("dia_en_edicion") == d:
-                        datos_d = dict_por_dia.get(d, {})
-                        val_e = str_a_time(datos_d.get("entrada", ""))
-                        val_s = str_a_time(datos_d.get("salida", ""))
-                        val_o = datos_d.get("obra", "")
-                        idx_o = lista_obras.index(val_o) if val_o and val_o in lista_obras else 0
-
-                        with st.form(key=f"form_inline_dia_{d}"):
-                            st.markdown(f"**✏️ Editando Día {d}**")
-                            c1e, c2e = st.columns(2)
-                            with c1e:
-                                edit_ent = st.time_input("Entrada", value=val_e, key=f"re_{d}")
-                            with c2e:
-                                edit_sal = st.time_input("Salida", value=val_s, key=f"rs_{d}")
-                            
-                            edit_ob = st.selectbox("Obra", options=lista_obras, index=idx_o, key=f"ro_{d}")
-
-                            st.write("")
-                            b1, b2 = st.columns(2)
-                            with b1:
-                                btn_guardar_edit = st.form_submit_button("💾 Guardar Cambios", use_container_width=True)
-                            with b2:
-                                btn_borrar_edit = st.form_submit_button("🧹 Limpiar Registro", use_container_width=True)
-
-                            if btn_guardar_edit:
-                                es_especial_edit = edit_ob and edit_ob.strip().upper() in ["PERMISO", "NO TRABAJA"]
-                                if not edit_ob:
-                                    st.warning("⚠️ Debes seleccionar Obra.")
-                                elif not es_especial_edit and (edit_ent is None or edit_sal is None):
-                                    st.warning("⚠️ Debes completar Entrada y Salida.")
-                                else:
-                                    with st.spinner("Actualizando planilla..."):
-                                        fila_n = fila_segun_dia(d)
-                                        if es_especial_edit:
-                                            hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["-", "-"]], value_input_option="RAW")
-                                            hoja_usuario.update(f"G{fila_n}", [[edit_ob]], value_input_option="RAW")
-                                        else:
-                                            ent_str = edit_ent.strftime("%H:%M")
-                                            sal_str = edit_sal.strftime("%H:%M")
-                                            hoja_usuario.update(f"C{fila_n}:D{fila_n}", [[ent_str, sal_str]], value_input_option="USER_ENTERED")
-                                            hoja_usuario.update(f"G{fila_n}", [[edit_ob]], value_input_option="USER_ENTERED")
-
-                                        if "filas_planilla" in st.session_state:
-                                            del st.session_state["filas_planilla"]
-                                        st.session_state["dia_en_edicion"] = None
-                                        st.rerun()
-
-                            if btn_borrar_edit:
-                                with st.spinner("Limpiando registro..."):
-                                    fila_n = fila_segun_dia(d)
-                                    hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["", ""]], value_input_option="USER_ENTERED")
-                                    hoja_usuario.update(f"G{fila_n}", [[""]], value_input_option="USER_ENTERED")
-
-                                    if "filas_planilla" in st.session_state:
-                                        del st.session_state["filas_planilla"]
-                                    st.session_state["dia_en_edicion"] = None
-                                    st.session_state["vista_actual"] = "SEPTIEMBRE"
-                                    st.rerun()
+                                if "filas_planilla" in st.session_state:
+                                    del st.session_state["filas_planilla"]
+                                st.success("✔ Planilla actualizada correctamente.")
+                                st.rerun()
+                            except Exception as e:
+                                st.error(f"Error al guardar los cambios: {e}")
 
             else:
                 st.info("Aún no tienes jornadas registradas en este mes.")
 
             st.markdown("---")
-            # --- BOTÓN DE REPORTE PDF ABAJO ---
             if st.button("📄 DESCARGAR HORAS DEL MES EN PDF", use_container_width=True):
                 st.info("ℹ️ Módulo de PDF listo para ser conectado.")
