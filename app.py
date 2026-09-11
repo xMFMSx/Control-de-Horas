@@ -115,8 +115,10 @@ div.lapiz-lateral-wrapper {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    width: 100% !important;
     height: 100% !important;
-    margin-top: 3px !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 div.lapiz-lateral-wrapper button {
@@ -125,18 +127,22 @@ div.lapiz-lateral-wrapper button {
     color: white !important;
     border-radius: 5px !important;
     padding: 0 !important;
-    min-height: 24px !important;
-    height: 24px !important;
-    width: 30px !important;
-    font-size: 0.50rem !important;
+    min-height: 22px !important;
+    height: 22px !important;
+    width: 28px !important;
+    font-size: 0.65rem !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    margin: 0 !important;
-    margin-top: 10px !important;
-    transition: all 0.2s ease-in-out !important;
+    transform: translateY(6px) !important; /* Mueve el botón hacia abajo */
 }
 
+/* Achica el emoji/ícono dentro del botón */
+div.lapiz-lateral-wrapper button p {
+    font-size: 0.70rem !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+}
 /* Forzar que las columnas nunca se rompan verticalmente sin importar el zoom */
 div[data-testid="stHorizontalBlock"] {
     display: flex !important;
