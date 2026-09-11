@@ -80,16 +80,16 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
     padding: 0 !important;
 }
 
-/* Proporciones exactas: Tabla izquierda (89%), Botón derecha (11%) */
+/* Proporciones exactas: Tabla izquierda (70%), Botón derecha (30%) */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
-    flex: 0 0 89% !important;
-    max-width: 89% !important;
+    flex: 0 0 70% !important;
+    max-width: 70% !important;
     min-width: 0 !important;
     border-right: 1px solid #353b4d !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child {
-    flex: 0 0 11% !important;
-    max-width: 11% !important;
+    flex: 0 0 30% !important;
+    max-width: 30% !important;
     display: flex !important; 
     align-items: center !important; 
     justify-content: center !important;
