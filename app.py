@@ -30,7 +30,7 @@ div[data-testid="stToolbar"] { visibility: hidden !important; }
 footer { visibility: hidden !important; }
 div[data-testid="stDecoration"] { display: none !important; }
 
-/* Scroll fluido total en la vista para evitar cortes inferiores */
+/* SOLUCIÓN DEFINITIVA AL CORTE INFERIOR: Liberar scroll en contenedores de Streamlit */
 html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {
     overflow-y: auto !important;
     height: auto !important;
@@ -77,7 +77,7 @@ div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
     background-color: #222634 !important;
 }
 
-/* Proporciones exactas: Tabla izquierda (89%), Columna derecha vacía/botón (11%) */
+/* Proporciones exactas: Tabla izquierda (89%), Botón derecha (11%) */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
     flex: 0 0 89% !important;
     max-width: 89% !important;
@@ -123,20 +123,20 @@ div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p {
     line-height: 1.1 !important; 
 }
 
-/* Botón totalmente limpio sin icono ni bordes molestos, integrado a la derecha */
+/* Botón de edición perfectamente centrado y limpio (sin icono) */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
-    height: 100% !important; 
-    width: 100% !important; 
-    min-height: 24px !important;
+    height: 24px !important; 
+    width: 24px !important; 
+    min-width: 24px !important;
     padding: 0 !important; 
-    margin: 0 !important;
+    margin: auto !important;
     background-color: transparent !important; 
-    border: none !important;
+    border: 1px solid transparent !important;
     display: flex !important; 
     align-items: center !important; 
     justify-content: center !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button:hover { background-color: #222736 !important; }
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button:hover { border: 1px solid #a3adc2 !important; }
 </style>""", unsafe_allow_html=True)
 
 SECRET_KEY = "control_de_horas_firmado_token_2026"
@@ -648,7 +648,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-        # --- VISTA 2: RESUMEN MENSUAL CON ENCABEZADO COMPLETADO A LA DERECHA Y SIN ICONO EN EL BOTÓN ---
+        # --- VISTA 2: RESUMEN MENSUAL (TABLA ORIGINAL CON EL LÁPIZ) ---
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
@@ -674,7 +674,7 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # --- ENCABEZADO CON COLUMNA EXTRA A LA DERECHA (EN BLANCO) ---
+                # --- ENCABEZADO ORIGINAL[cite: 1] ---
                 c_h1, c_h2 = st.columns([0.89, 0.11], vertical_alignment="center")
                 with c_h1:
                     st.markdown('''
@@ -688,9 +688,9 @@ else:
                     </div>
                     ''', unsafe_allow_html=True)
                 with c_h2:
-                    st.markdown('<div style="font-weight: 700; color: #a3adc2; font-size: 0.6rem; text-align: center;">&nbsp;</div>', unsafe_allow_html=True)
+                    pass
 
-                # --- FILAS DE DATOS CON BOTÓN LIMPIO A LA DERECHA (SIN ICONO) ---
+                # --- FILAS DE DATOS ORIGINALES CON EL LÁPIZ[cite: 1] ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     
@@ -728,15 +728,14 @@ else:
                         </div>
                         ''', unsafe_allow_html=True)
                     with c_b:
-                        # Botón totalmente limpio sin texto ni icono, ubicado en la columna derecha
-                        if st.button("", key=f"btn_edit_{d}", help=f"Editar día {d}"):
+                        if st.button("✏️", key=f"btn_edit_{d}"):
                             if st.session_state.get("dia_en_edicion") == d:
                                 st.session_state["dia_en_edicion"] = None
                             else:
                                 st.session_state["dia_en_edicion"] = d
                             st.rerun()
 
-                    # Lógica de edición
+                    # Lógica de edición[cite: 1]
                     if st.session_state.get("dia_en_edicion") == d:
                         datos_d = dict_por_dia.get(d, {})
                         val_e = str_a_time(datos_d.get("entrada", ""))
