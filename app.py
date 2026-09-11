@@ -696,7 +696,7 @@ else:
 
             if registros_tabla:
                 # --- ENCABEZADO PERFECTAMENTE UNIFICADO ---
-                c_h1, c_h2 = st.columns([0.80, 0.20], vertical_alignment="center")
+ c_h1, c_h2 = st.columns([0.80, 0.20], vertical_alignment="center")
                 with c_h1:
                     st.markdown('''
                     <div class="contenedor-tabla es-encabezado">
@@ -709,7 +709,8 @@ else:
                     </div>
                     ''', unsafe_allow_html=True)
                 with c_h2:
-                    st.markdown('<div class="es-encabezado" style="text-align: center; border-radius: 0 4px 4px 0;">EDITAR</div>', unsafe_allow_html=True)
+                    # Se deja vacío para que mantenga el espacio exacto del botón sin mostrar texto
+                    pass
                 # --- FILAS DE DATOS UNIFICADAS ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
