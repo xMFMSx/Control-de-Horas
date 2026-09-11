@@ -30,7 +30,7 @@ div[data-testid="stToolbar"] { visibility: hidden !important; }
 footer { visibility: hidden !important; }
 div[data-testid="stDecoration"] { display: none !important; }
 
-/* SOLUCIÓN DEFINITIVA AL CORTE INFERIOR: Liberar scroll en contenedores de Streamlit */
+/* Scroll fluido total en la vista */
 html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {
     overflow-y: auto !important;
     height: auto !important;
@@ -62,24 +62,25 @@ div[data-testid="stVerticalBlock"] {
     gap: 0.1rem !important;
 }
 
-/* Fila entera clickeable y limpia sin recuadros extraños */
-.fila-tabla-click {
-    display: block !important;
-    width: 100% !important;
+/* Transformar los botones de Streamlit para que actúen como filas de tabla limpias */
+div[data-testid="column"] button {
     background-color: #1a1e29 !important;
     border: 1px solid #353b4d !important;
+    padding: 6px 8px !important;
     margin: 0 !important;
-    padding: 0 !important;
-    cursor: pointer !important;
-    box-sizing: border-box !important;
-    border-radius: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    box-shadow: none !important;
+    text-align: left !important;
+    width: 100% !important;
+    border-radius: 0px !important;
 }
-.fila-tabla-click:hover {
+div[data-testid="column"] button:hover {
     background-color: #222736 !important;
     border-color: #448aff !important;
 }
 
-/* Estructura interna de la tabla distribuida exactamente en 6 columnas */
+/* Estructura de la tabla en Grid CSS Puro */
 .contenedor-tabla {
     display: grid !important;
     grid-template-columns: 8% 18% 18% 16% 16% 24% !important;
@@ -105,7 +106,7 @@ div[data-testid="stVerticalBlock"] {
 
 .contenedor-tabla > div {
     border-right: 1px solid #353b4d !important;
-    padding: 7px 6px !important;
+    padding: 0 4px !important;
     display: flex !important;
     align-items: center !important;
     box-sizing: border-box !important;
@@ -115,7 +116,7 @@ div[data-testid="stVerticalBlock"] {
 }
 .contenedor-tabla > div:last-child { border-right: none !important; }
 
-div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p { 
+div[data-testid="stMarkdownContainer"] p { 
     margin: 0 !important; 
     padding: 0 !important; 
     line-height: 1.1 !important; 
@@ -306,6 +307,8 @@ if "cambiando_password" not in st.session_state:
     st.session_state.cambiando_password = False
 if "modo_admin_activo" not in st.session_state:
     st.session_state.modo_admin_activo = False
+if "dia_en_edicion" not in st.session_state:
+    st.session_state.dia_en_edicion = None
 
 if not st.session_state.autenticado:
     st.title("🔐 Acceso a APP DE HORAS")
@@ -631,7 +634,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-        # --- VISTA 2: RESUMEN MENSUAL CON FILA 100% CLICKEABLE Y SIN RECUADROS ---
+        # --- VISTA 2: RESUMEN MENSUAL CON FILA 100% CLICKEABLE Y SIN RECARGAS ---
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
@@ -671,7 +674,7 @@ else:
                 </div>
                 ''', unsafe_allow_html=True)
 
-                # --- FILAS CLICKEABLES COMPLETAS (CON FORMULARIO GET LIMPIO SIN RECUADROS) ---
+                # --- FILAS CLICKEABLES COMPLETAS (CON MEMORIA INTERNA) ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     
@@ -698,27 +701,16 @@ else:
                     hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
                     hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
                     
-                    # Renderizamos toda la fila como un botón HTML de enlace limpio sin bordes ni recuadros
-                    st.markdown(f'''
-                    <form action="" method="get" style="margin:0; width:100%;">
-                        <input type="hidden" name="session" value="{session_actual}">
-                        <input type="hidden" name="nav_vista" value="RESUMEN">
-                        <input type="hidden" name="edit_dia" value="{d}">
-                        <button type="submit" class="fila-tabla-click">
-                            <div class="contenedor-tabla es-datos">
-                                <div style="color: {color_dia}; font-weight: 700;">{dia_txt}</div>
-                                <div>{r["ENTRADA"]}</div>
-                                <div>{r["SALIDA"]}</div>
-                                <div>{hn_val}</div>
-                                <div>{hr_val}</div>
-                                <div>{r["OBRA"]}</div>
-                            </div>
-                        </button>
-                    </form>
-                    ''', unsafe_allow_html=True)
+                    # Botón nativo de Streamlit transparente que cubre toda la fila
+                    if st.button(f"Día {dia_txt} | {r['ENTRADA']} | {r['SALIDA']} | {hn_val} | {hr_val} | {r['OBRA']}", key=f"btn_row_{d}", use_container_width=True):
+                        if st.session_state["dia_en_edicion"] == d:
+                            st.session_state["dia_en_edicion"] = None
+                        else:
+                            st.session_state["dia_en_edicion"] = d
+                        st.rerun()
 
-                    # Si se hizo clic en esta fila, se muestra el formulario de edición debajo
-                    if str(q_params.get("edit_dia", "")) == str(d):
+                    # Si este día está seleccionado, se abre el formulario de edición al instante
+                    if st.session_state.get("dia_en_edicion") == d:
                         datos_d = dict_por_dia.get(d, {})
                         val_e = str_a_time(datos_d.get("entrada", ""))
                         val_s = str_a_time(datos_d.get("salida", ""))
@@ -762,7 +754,7 @@ else:
 
                                         if "filas_planilla" in st.session_state:
                                             del st.session_state["filas_planilla"]
-                                        del st.query_params["edit_dia"]
+                                        st.session_state["dia_en_edicion"] = None
                                         st.rerun()
 
                             if btn_borrar_edit:
@@ -773,8 +765,7 @@ else:
 
                                     if "filas_planilla" in st.session_state:
                                         del st.session_state["filas_planilla"]
-                                    if "edit_dia" in st.query_params:
-                                        del st.query_params["edit_dia"]
+                                    st.session_state["dia_en_edicion"] = None
                                     st.session_state["vista_actual"] = "SEPTIEMBRE"
                                     st.rerun()
 
