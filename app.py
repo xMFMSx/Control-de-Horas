@@ -693,7 +693,7 @@ else:
 
             if registros_tabla:
                 # --- ENCABEZADO PERFECTAMENTE UNIFICADO ---
-                c_h1, c_h2 = st.columns([0.75, 0.25], vertical_alignment="center")
+                c_h1, c_h2 = st.columns([0.82, 0.18], vertical_alignment="center")
                 with c_h1:
                     st.markdown('''
                     <div class="contenedor-tabla es-encabezado">
@@ -735,7 +735,7 @@ else:
                     hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
                     hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
 
-                    c_dat, c_b = st.columns([0.75, 0.25], vertical_alignment="center")
+                    c_dat, c_b = st.columns([0.82, 0.18], vertical_alignment="center")
                     with c_dat:
                         st.markdown(f'''
                         <div class="es-datos">
