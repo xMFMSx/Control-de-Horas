@@ -60,6 +60,7 @@ div[data-testid="stVerticalBlock"] {
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     display: flex !important;
     flex-direction: row !important;
+    flex-wrap: nowrap !important; /* <--- ESTO EVITA QUE EL BOTÓN BAJE */
     align-items: stretch !important; 
     background-color: #1a1e29 !important;
     border: 1px solid #353b4d !important;
