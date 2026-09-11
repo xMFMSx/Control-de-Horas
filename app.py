@@ -87,7 +87,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
 /* Estructura CSS Grid de 7 columnas exactas */
 .contenedor-tabla {
     display: grid !important;
-    grid-template-columns: 8% 16% 16% 16% 16% 18% 10% !important;
+    grid-template-columns: 4% 9% 9% 11% 11% 11% 5% !important;
     width: 100% !important;
     align-items: center !important;
     box-sizing: border-box !important;
