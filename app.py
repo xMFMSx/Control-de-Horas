@@ -46,13 +46,104 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {
 div[data-testid="stForm"] { 
     border: none !important; 
     padding: 0 !important; 
-    margin-top: 0.5rem !important; 
+    margin-top: 1rem !important; 
     margin-bottom: 0.5rem !important; 
 }
 
-div[data-testid="stVerticalBlock"] {
-    gap: 0.2rem !important;
+/* ELIMINACIÓN TOTAL DE FRANJAS NEGRAS Y ESPACIOS ENTRE FILAS */
+div.element-container:has(.contenedor-tabla), 
+div.stElementContainer:has(.contenedor-tabla) {
+    margin-bottom: -1px !important; 
+    padding-bottom: 0 !important;
+    padding-top: 0 !important;
 }
+
+div[data-testid="stVerticalBlock"] {
+    gap: 0.1rem !important;
+}
+
+/* Fila horizontal principal de la tabla con altura unificada */
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: stretch !important; 
+    background-color: #1a1e29 !important;
+    border: 1px solid #353b4d !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    height: 34px !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
+    background-color: #222634 !important;
+    height: 32px !important;
+}
+
+/* Proporciones exactas de la tabla */
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
+    flex: 0 0 89% !important;
+    max-width: 89% !important;
+    min-width: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child {
+    flex: 0 0 11% !important;
+    max-width: 11% !important;
+    display: flex !important; 
+    align-items: center !important; 
+    justify-content: center !important;
+    border-left: 1px solid #353b4d !important;
+    padding: 0 !important;
+}
+
+/* Estructura interna de la tabla */
+.contenedor-tabla {
+    display: grid !important;
+    grid-template-columns: 4.5% 9% 9% 11% 11% 10% !important;
+    width: 100% !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+}
+
+.es-encabezado { font-weight: 700 !important; color: #a3adc2 !important; font-size: 0.6rem !important; }
+.es-datos { color: #ffffff !important; font-size: 0.78rem !important; }
+
+.contenedor-tabla > div {
+    border-right: 1px solid #353b4d !important;
+    padding: 0 4px !important;
+    display: flex !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    height: 100% !important;
+}
+.contenedor-tabla > div:last-child { border-right: none !important; }
+
+div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p { 
+    margin: 0 !important; 
+    padding: 0 !important; 
+    line-height: 1.1 !important; 
+}
+
+/* Botón de edición perfectamente integrado a la altura de la celda */
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
+    height: 100% !important; 
+    width: 100% !important; 
+    min-height: unset !important;
+    padding: 0 !important; 
+    margin: 0 !important;
+    background-color: transparent !important; 
+    border: none !important;
+    display: flex !important; 
+    align-items: center !important; 
+    justify-content: center !important;
+    border-radius: 0 !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button:hover { background-color: #222736 !important; }
 </style>""", unsafe_allow_html=True)
 
 SECRET_KEY = "control_de_horas_firmado_token_2026"
@@ -242,7 +333,7 @@ if "modo_admin_activo" not in st.session_state:
 
 if not st.session_state.autenticado:
     st.title("🔐 Acceso a APP DE HORAS")
-    st.write("Por favor, ingresa tu correo electrónico y contraseña para continuar.")
+    st.write("Por favor, ingresa tu correo electrónico y contraseña para continuar[cite: 1].")
     
     with st.form("form_login"):
         correo_input = st.text_input("Correo Electrónico")
@@ -386,7 +477,43 @@ else:
             st.error(f"No se pudo cargar el resumen global: {e}")
 
     else:
-        # --- CARGA DE DATOS Y PERÍODO ---
+        # --- NAVEGACIÓN PRINCIPAL (SEPTIEMBRE / RESUMEN LADO A LADO) ---
+        if "vista_actual" not in st.session_state:
+            st.session_state["vista_actual"] = "SEPTIEMBRE"
+
+        is_sep = st.session_state["vista_actual"] == "SEPTIEMBRE"
+        bg_sep = "#ff4b4b" if is_sep else "#1a1e29"
+        border_sep = "#ff4b4b" if is_sep else "#2e3547"
+        bg_res = "#ff4b4b" if not is_sep else "#1a1e29"
+        border_res = "#ff4b4b" if not is_sep else "#2e3547"
+
+        session_actual = st.query_params.get("session", "")
+
+        st.markdown(f'''
+            <div style="display: flex; gap: 8px; width: 100%; margin-bottom: 1rem;">
+                <form action="" method="get" style="flex: 1; margin: 0;">
+                    <input type="hidden" name="session" value="{session_actual}">
+                    <button type="submit" name="nav_vista" value="SEPTIEMBRE" style="width: 100%; background-color: {bg_sep}; border: 1px solid {border_sep}; color: white; padding: 0.6rem 0.2rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.82rem; white-space: nowrap; cursor: pointer;">📅 SEPTIEMBRE 2026</button>
+                </form>
+                <form action="" method="get" style="flex: 1; margin: 0;">
+                    <input type="hidden" name="session" value="{session_actual}">
+                    <button type="submit" name="nav_vista" value="RESUMEN" style="width: 100%; background-color: {bg_res}; border: 1px solid {border_res}; color: white; padding: 0.6rem 0.2rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.82rem; white-space: nowrap; cursor: pointer;">📊 RESUMEN DEL MES</button>
+                </form>
+            </div>
+        ''', unsafe_allow_html=True)
+
+        q_params = st.query_params
+        if "nav_vista" in q_params:
+            val_nav = q_params["nav_vista"]
+            if val_nav in ["SEPTIEMBRE", "RESUMEN"] and st.session_state["vista_actual"] != val_nav:
+                st.session_state["vista_actual"] = val_nav
+                if val_nav == "SEPTIEMBRE":
+                    st.session_state["dia_en_edicion"] = None
+                del st.query_params["nav_vista"]
+                st.rerun()
+
+        st.markdown("---")
+
         inicio_mes = date(2026, 8, 31)
         fin_mes = date(2026, 9, 30)
         delta_dias = (fin_mes - inicio_mes).days + 1
@@ -400,7 +527,7 @@ else:
 
         filas_planilla = st.session_state["filas_planilla"]
         dict_por_dia = {}
-        registros_completos = []
+        registros_tabla = []
         total_hn = 0
         total_hr = 0
 
@@ -431,147 +558,13 @@ else:
             except Exception: pass
 
             if entrada or salida or obra_val:
-                registros_completos.append({
+                registros_tabla.append({
                     "DÍA": num_dia, "ENTRADA": entrada, "SALIDA": salida,
                     "HORA EXTRA": hn_val, "HORA RECARGO": hr_val, "OBRA": obra_val
                 })
 
-        dias_pendientes = []
-        for f in fechas_periodo:
-            num_dia = f.day
-            guardado = dict_por_dia.get(num_dia, {})
-            if not (guardado.get("entrada") or guardado.get("salida") or guardado.get("obra")):
-                dias_pendientes.append(f)
-
-        # --- NAVEGACIÓN PRINCIPAL (SEPTIEMBRE / RESUMEN) ---
-        if "vista_actual" not in st.session_state:
-            st.session_state["vista_actual"] = "RESUMEN" if not dias_pendientes else "SEPTIEMBRE"
-
-        is_sep = st.session_state["vista_actual"] == "SEPTIEMBRE"
-        bg_sep = "#ff4b4b" if is_sep else "#1a1e29"
-        border_sep = "#ff4b4b" if is_sep else "#2e3547"
-        bg_res = "#ff4b4b" if not is_sep else "#1a1e29"
-        border_res = "#ff4b4b" if not is_sep else "#2e3547"
-
-        col_b1, col_b2 = st.columns(2)
-        with col_b1:
-            if st.button("📅 SEPTIEMBRE 2026", use_container_width=True):
-                st.session_state["vista_actual"] = "SEPTIEMBRE"
-                st.rerun()
-        with col_b2:
-            if st.button("📊 RESUMEN DEL MES", use_container_width=True):
-                st.session_state["vista_actual"] = "RESUMEN"
-                st.rerun()
-
-        st.markdown("---")
-
-        # --- VISTA 2: RESUMEN MENSUAL CON EXPANDERS (LIMPIO Y ESTABLE) ---
-        if st.session_state["vista_actual"] == "RESUMEN":
-            st.subheader("RESUMEN MENSUAL")
-            
-            val_hn_str = minutos_a_hora_str(total_hn)
-            val_hr_str = minutos_a_hora_str(total_hr)
-            
-            html_cards_res = f"""
-            <div style="display: flex; gap: 10px; width: 100%; margin-bottom: 1rem;">
-                <div style="flex: 1; min-width: 0; background-color: #0e1117; border: 1px solid #262d3d; border-radius: 8px; padding: 14px;">
-                    <div style="font-size: 0.68rem; color: #838c9e; margin-bottom: 4px; font-weight: 500; white-space: nowrap;">Total Horas Extras (Mes)</div>
-                    <div style="font-size: 1.6rem; font-weight: 700; color: #ffffff; white-space: nowrap;">{val_hn_str}</div>
-                </div>
-                <div style="flex: 1; min-width: 0; background-color: #0e1117; border: 1px solid #262d3d; border-radius: 8px; padding: 14px;">
-                    <div style="font-size: 0.68rem; color: #838c9e; margin-bottom: 4px; font-weight: 500; white-space: nowrap;">Total Horas Recargo (Mes)</div>
-                    <div style="font-size: 1.6rem; font-weight: 700; color: #ffffff; white-space: nowrap;">{val_hr_str}</div>
-                </div>
-            </div>
-            """
-            st.markdown(html_cards_res, unsafe_allow_html=True)
-            st.markdown("---")
-
-            if registros_completos:
-                st.write("### 📋 Jornadas Registradas (Haz clic en un día para editar)")
-                
-                for r in registros_completos:
-                    d = r["DÍA"] 
-                    
-                    try:
-                        fecha_fila = date(2026, 9, d)
-                        w_day = fecha_fila.weekday()
-                        iso_f = fecha_fila.strftime("%Y-%m-%d")
-                        nom_dia = DIAS_MAP[w_day]
-                    except:
-                        w_day = 0
-                        iso_f = ""
-                        nom_dia = ""
-                    
-                    es_festivo = iso_f in FERIADOS
-                    
-                    # Colores y etiqueta clara estilo expander
-                    if es_festivo or w_day == 6:
-                        etiqueta = f"🟣 Día {d:02d} ({nom_dia}) | {r['ENTRADA']} - {r['SALIDA']} | H.Normal: {r['HORA EXTRA'] or '-'} | H.Recargo: {r['HORA RECARGO'] or '-'} | Obra: {r['OBRA']} [FERIADO]" if es_festivo else f"🟣 Día {d:02d} ({nom_dia}) | {r['ENTRADA']} - {r['SALIDA']} | H.Normal: {r['HORA EXTRA'] or '-'} | H.Recargo: {r['HORA RECARGO'] or '-'} | Obra: {r['OBRA']}"
-                    elif w_day == 5:
-                        etiqueta = f"🔵 Día {d:02d} ({nom_dia}) | {r['ENTRADA']} - {r['SALIDA']} | H.Normal: {r['HORA EXTRA'] or '-'} | H.Recargo: {r['HORA RECARGO'] or '-'} | Obra: {r['OBRA']}"
-                    else:
-                        etiqueta = f"⚪ Día {d:02d} ({nom_dia}) | {r['ENTRADA']} - {r['SALIDA']} | H.Normal: {r['HORA EXTRA'] or '-'} | H.Recargo: {r['HORA RECARGO'] or '-'} | Obra: {r['OBRA']}"
-
-                    with st.expander(etiqueta):
-                        datos_d = dict_por_dia.get(d, {})
-                        val_e = str_a_time(datos_d.get("entrada", ""))
-                        val_s = str_a_time(datos_d.get("salida", ""))
-                        val_o = datos_d.get("obra", "")
-                        idx_o = lista_obras.index(val_o) if val_o and val_o in lista_obras else 0
-
-                        with st.form(key=f"form_inline_res_{d}"):
-                            c1e, c2e = st.columns(2)
-                            with c1e:
-                                edit_ent = st.time_input("Entrada", value=val_e, key=f"re_r_{d}")
-                            with c2e:
-                                edit_sal = st.time_input("Salida", value=val_s, key=f"rs_r_{d}")
-                            
-                            edit_ob = st.selectbox("Obra", options=lista_obras, index=idx_o, key=f"ro_r_{d}")
-
-                            b1, b2 = st.columns(2)
-                            with b1:
-                                btn_g = st.form_submit_button("💾 Guardar Cambios", use_container_width=True)
-                            with b2:
-                                btn_l = st.form_submit_button("🧹 Limpiar Registro", use_container_width=True)
-
-                            if btn_g:
-                                es_esp = edit_ob.upper() in ["PERMISO", "NO TRABAJA"]
-                                if not edit_ob:
-                                    st.warning("⚠️ Selecciona Obra.")
-                                elif not es_esp and (edit_ent is None or edit_sal is None):
-                                    st.warning("⚠️ Completa Entrada y Salida.")
-                                else:
-                                    fila_n = fila_segun_dia(d)
-                                    if es_esp:
-                                        hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["-", "-"]], value_input_option="RAW")
-                                        hoja_usuario.update(f"G{fila_n}", [[edit_ob]], value_input_option="RAW")
-                                    else:
-                                        hoja_usuario.update(f"C{fila_n}:D{fila_n}", [[edit_ent.strftime("%H:%M"), edit_sal.strftime("%H:%M")]], value_input_option="USER_ENTERED")
-                                        hoja_usuario.update(f"G{fila_n}", [[edit_ob]], value_input_option="USER_ENTERED")
-
-                                    if "filas_planilla" in st.session_state:
-                                        del st.session_state["filas_planilla"]
-                                    st.rerun()
-
-                            if btn_l:
-                                fila_n = fila_segun_dia(d)
-                                hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["", ""]], value_input_option="USER_ENTERED")
-                                hoja_usuario.update(f"G{fila_n}", [[""]], value_input_option="USER_ENTERED")
-                                if "filas_planilla" in st.session_state:
-                                    del st.session_state["filas_planilla"]
-                                st.session_state["vista_actual"] = "SEPTIEMBRE"
-                                st.rerun()
-
-            else:
-                st.info("Aún no tienes jornadas registradas en este mes.")
-
-            st.markdown("---")
-            if st.button("📄 DESCARGAR HORAS DEL MES EN PDF", use_container_width=True):
-                st.info("ℹ️ Módulo de PDF listo para ser conectado.")
-
         # --- VISTA 1: SEPTIEMBRE (REGISTRO DIARIO) ---
-        else:
+        if st.session_state["vista_actual"] == "SEPTIEMBRE":
             st.subheader("SEPTIEMBRE 2026")
             
             val_hn_str = minutos_a_hora_str(total_hn)
@@ -591,10 +584,15 @@ else:
             ''', unsafe_allow_html=True)
             st.markdown("---")
 
+            dias_pendientes = []
+            for f in fechas_periodo:
+                num_dia = f.day
+                guardado = dict_por_dia.get(num_dia, {})
+                if not (guardado.get("entrada") or guardado.get("salida") or guardado.get("obra")):
+                    dias_pendientes.append(f)
+
             if not dias_pendientes:
                 st.success("🎉 ¡Todos los días del mes ya han sido completados!")
-                st.session_state["vista_actual"] = "RESUMEN"
-                st.rerun()
             else:
                 for f in dias_pendientes:
                     nom_dia = DIAS_MAP[f.weekday()]
@@ -656,3 +654,157 @@ else:
                                             st.rerun()
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
+
+        # --- VISTA 2: RESUMEN MENSUAL CON ALTURA PERFECTAMENTE AJUSTADA Y LÁPIZ ORIGINAL ---
+        elif st.session_state["vista_actual"] == "RESUMEN":
+            st.subheader("RESUMEN MENSUAL")
+            
+            val_hn_str = minutos_a_hora_str(total_hn)
+            val_hr_str = minutos_a_hora_str(total_hr)
+            
+            html_cards_res = f"""
+            <div style="display: flex; gap: 10px; width: 100%; margin-bottom: 1rem;">
+                <div style="flex: 1; min-width: 0; background-color: #0e1117; border: 1px solid #262d3d; border-radius: 8px; padding: 14px;">
+                    <div style="font-size: 0.68rem; color: #838c9e; margin-bottom: 4px; font-weight: 500; white-space: nowrap;">Total Horas Extras (Mes)</div>
+                    <div style="font-size: 1.6rem; font-weight: 700; color: #ffffff; white-space: nowrap;">{val_hn_str}</div>
+                </div>
+                <div style="flex: 1; min-width: 0; background-color: #0e1117; border: 1px solid #262d3d; border-radius: 8px; padding: 14px;">
+                    <div style="font-size: 0.68rem; color: #838c9e; margin-bottom: 4px; font-weight: 500; white-space: nowrap;">Total Horas Recargo (Mes)</div>
+                    <div style="font-size: 1.6rem; font-weight: 700; color: #ffffff; white-space: nowrap;">{val_hr_str}</div>
+                </div>
+            </div>
+            """
+            st.markdown(html_cards_res, unsafe_allow_html=True)
+            st.markdown("---")
+
+            if "dia_en_edicion" not in st.session_state:
+                st.session_state["dia_en_edicion"] = None
+
+            if registros_tabla:
+                # --- ENCABEZADO ORIGINAL[cite: 1] CON ALTURA FIJA ---
+                c_h1, c_h2 = st.columns([0.89, 0.11], vertical_alignment="center")
+                with c_h1:
+                    st.markdown('''
+                    <div class="contenedor-tabla es-encabezado">
+                        <div class="col-dia">DÍA</div>
+                        <div class="col-ent">ENTRADA</div>
+                        <div class="col-sal">SALIDA</div>
+                        <div class="col-hn">H.NORMAL</div>
+                        <div class="col-hr">H.RECARGO</div>
+                        <div class="col-ob">OBRA</div>
+                    </div>
+                    ''', unsafe_allow_html=True)
+                with c_h2:
+                    pass
+
+                # --- FILAS DE DATOS ORIGINALES CON EL LÁPIZ[cite: 1] Y ALTURA UNIFORME ---
+                for r in registros_tabla:
+                    d = r["DÍA"] 
+                    
+                    try:
+                        fecha_fila = date(2026, 9, d)
+                        w_day = fecha_fila.weekday()
+                        iso_f = fecha_fila.strftime("%Y-%m-%d")
+                    except:
+                        w_day = 0
+                        iso_f = ""
+                    
+                    es_festivo = iso_f in FERIADOS
+                    
+                    if es_festivo or w_day == 6:
+                        dia_html = f'<span style="color: #b388ff; font-weight: 700;">{d} (F)</span>' if es_festivo else f'<span style="color: #b388ff; font-weight: 700;">{d}</span>'
+                    elif w_day == 5:
+                        dia_html = f'<span style="color: #448aff; font-weight: 700;">{d}</span>'
+                    else:
+                        dia_html = str(d)
+
+                    c_dat, c_b = st.columns([0.89, 0.11], vertical_alignment="center")
+                    
+                    with c_dat:
+                        hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
+                        hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
+                        
+                        st.markdown(f'''
+                        <div class="contenedor-tabla es-datos">
+                            <div class="col-dia">{dia_html}</div>
+                            <div class="col-ent">{r["ENTRADA"]}</div>
+                            <div class="col-sal">{r["SALIDA"]}</div>
+                            <div class="col-hn">{hn_val}</div>
+                            <div class="col-hr">{hr_val}</div>
+                            <div class="col-ob">{r["OBRA"]}</div>
+                        </div>
+                        ''', unsafe_allow_html=True)
+                    with c_b:
+                        if st.button("✏️", key=f"btn_edit_{d}"):
+                            if st.session_state.get("dia_en_edicion") == d:
+                                st.session_state["dia_en_edicion"] = None
+                            else:
+                                st.session_state["dia_en_edicion"] = d
+                            st.rerun()
+
+                    # Lógica de edición[cite: 1]
+                    if st.session_state.get("dia_en_edicion") == d:
+                        datos_d = dict_por_dia.get(d, {})
+                        val_e = str_a_time(datos_d.get("entrada", ""))
+                        val_s = str_a_time(datos_d.get("salida", ""))
+                        val_o = datos_d.get("obra", "")
+                        idx_o = lista_obras.index(val_o) if val_o and val_o in lista_obras else 0
+
+                        with st.form(key=f"form_inline_dia_{d}"):
+                            c1e, c2e = st.columns(2)
+                            with c1e:
+                                edit_ent = st.time_input("Entrada", value=val_e, key=f"re_{d}")
+                            with c2e:
+                                edit_sal = st.time_input("Salida", value=val_s, key=f"rs_{d}")
+                            
+                            edit_ob = st.selectbox("Obra", options=lista_obras, index=idx_o, key=f"ro_{d}")
+
+                            st.write("")
+                            b1, b2 = st.columns(2)
+                            with b1:
+                                btn_guardar_edit = st.form_submit_button("💾 Guardar Cambios", use_container_width=True)
+                            with b2:
+                                btn_borrar_edit = st.form_submit_button("🧹 Limpiar", use_container_width=True)
+
+                            if btn_guardar_edit:
+                                es_especial_edit = edit_ob and edit_ob.strip().upper() in ["PERMISO", "NO TRABAJA"]
+                                if not edit_ob:
+                                    st.warning("⚠️ Debes seleccionar Obra.")
+                                elif not es_especial_edit and (edit_ent is None or edit_sal is None):
+                                    st.warning("⚠️ Debes completar Entrada y Salida.")
+                                else:
+                                    with st.spinner("Actualizando planilla..."):
+                                        fila_n = fila_segun_dia(d)
+                                        if es_especial_edit:
+                                            hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["-", "-"]], value_input_option="RAW")
+                                            hoja_usuario.update(f"G{fila_n}", [[edit_ob]], value_input_option="RAW")
+                                        else:
+                                            ent_str = edit_ent.strftime("%H:%M")
+                                            sal_str = edit_sal.strftime("%H:%M")
+                                            hoja_usuario.update(f"C{fila_n}:D{fila_n}", [[ent_str, sal_str]], value_input_option="USER_ENTERED")
+                                            hoja_usuario.update(f"G{fila_n}", [[edit_ob]], value_input_option="USER_ENTERED")
+
+                                        if "filas_planilla" in st.session_state:
+                                            del st.session_state["filas_planilla"]
+                                        st.session_state["dia_en_edicion"] = None
+                                        st.rerun()
+
+                            if btn_borrar_edit:
+                                with st.spinner("Limpiando registro..."):
+                                    fila_n = fila_segun_dia(d)
+                                    hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["", ""]], value_input_option="USER_ENTERED")
+                                    hoja_usuario.update(f"G{fila_n}", [[""]], value_input_option="USER_ENTERED")
+
+                                    if "filas_planilla" in st.session_state:
+                                        del st.session_state["filas_planilla"]
+                                    st.session_state["dia_en_edicion"] = None
+                                    st.session_state["vista_actual"] = "SEPTIEMBRE"
+                                    st.rerun()
+
+            else:
+                st.info("Aún no tienes jornadas registradas en este mes.")
+
+            st.markdown("---")
+            # --- BOTÓN DE REPORTE PDF ABAJO ---
+            if st.button("📄 DESCARGAR HORAS DEL MES EN PDF", use_container_width=True):
+                st.info("ℹ️ Módulo de PDF listo para ser conectado.")
