@@ -54,40 +54,12 @@ div[data-testid="stVerticalBlock"] {
     gap: 0.1rem !important;
 }
 
-/* Fila horizontal principal de la tabla */
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: stretch !important; 
-    background-color: #1a1e29 !important;
-    border: 1px solid #353b4d !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-    margin: 0 !important;
-}
-div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
-    background-color: #222634 !important;
-}
-
-/* Proporciones exactas: Tabla izquierda (89%), Botón derecha (11%) */
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
-    flex: 0 0 89% !important;
-    max-width: 89% !important;
-    min-width: 0 !important;
-}
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child {
-    flex: 0 0 11% !important;
-    max-width: 11% !important;
-    display: flex !important; 
-    align-items: center !important; 
-    justify-content: center !important;
-    border-left: 1px solid #353b4d !important;
-}
-
-/* Estructura CSS Grid para la tabla */
+/* ==========================================================
+   ESTRUCTURA CSS GRID DE 7 COLUMNAS EXACTAS (DÍA A DÍA UNIFICADO)
+   ========================================================== */
 .contenedor-tabla {
     display: grid !important;
-    grid-template-columns: 12% 18% 18% 18% 18% 16% !important;
+    grid-template-columns: 8% 16% 16% 16% 16% 18% 10% !important;
     width: 100% !important;
     align-items: center !important;
     box-sizing: border-box !important;
@@ -98,16 +70,26 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
     font-weight: 700 !important; 
     color: #a3adc2 !important; 
     font-size: 0.65rem !important; 
+    background-color: #222634 !important;
+    border: 1px solid #353b4d !important;
+    border-radius: 4px 4px 0 0;
+    padding: 10px 8px !important;
+    margin-bottom: -1px !important;
 }
 
 .es-datos { 
     color: #ffffff !important; 
     font-size: 0.78rem !important; 
+    background-color: #1a1e29 !important;
+    border: 1px solid #353b4d !important;
+    border-top: none !important;
+    padding: 6px 8px !important;
+    margin-bottom: -1px !important;
 }
 
 .contenedor-tabla > div {
     border-right: 1px solid #353b4d !important;
-    padding: 9px 8px !important;
+    padding: 0 4px !important;
     display: flex !important;
     align-items: center !important;
     box-sizing: border-box !important;
@@ -115,29 +97,33 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
     overflow: hidden !important;
     text-overflow: ellipsis !important;
 }
-.contenedor-tabla > div:last-child { border-right: none !important; }
+.contenedor-tabla > div:last-child { 
+    border-right: none !important; 
+    justify-content: center !important; 
+}
 
-div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p { 
+div[data-testid="stMarkdownContainer"] p { 
     margin: 0 !important; 
     padding: 0 !important; 
     line-height: 1.1 !important; 
 }
 
-/* AJUSTE MANUAL DEL BOTÓN DEL LÁPIZ (Tamaño pequeño y centrado) */
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
-    height: 28px !important; 
+/* Botón del lápiz pequeño, ordenado y exactamente centrado en la 7ma columna */
+.contenedor-tabla button {
+    height: 26px !important; 
     width: 32px !important; 
     min-width: 32px !important;
     padding: 0 !important; 
-    margin: auto !important;
+    margin: 0 auto !important;
     background-color: transparent !important; 
     border: 1px solid #353b4d !important;
     border-radius: 4px !important;
     display: flex !important; 
     align-items: center !important; 
     justify-content: center !important;
+    cursor: pointer !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button:hover { 
+.contenedor-tabla button:hover { 
     border-color: #a3adc2 !important; 
     background-color: #222736 !important;
 }
@@ -652,7 +638,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-        # --- VISTA 2: RESUMEN MENSUAL CON EL BOTÓN DEL LÁPIZ COMPACTO Y CENTRADO ---
+        # --- VISTA 2: RESUMEN MENSUAL CON LA TABLA DE 7 COLUMNAS PERFECTAMENTE INTEGRADA ---
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
@@ -678,23 +664,20 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # --- ENCABEZADO DE 7 COLUMNAS ---
-                c_h1, c_h2 = st.columns([0.89, 0.11], vertical_alignment="center")
-                with c_h1:
-                    st.markdown('''
-                    <div class="contenedor-tabla es-encabezado">
-                        <div>DÍA</div>
-                        <div>ENTRADA</div>
-                        <div>SALIDA</div>
-                        <div>H.NORMAL</div>
-                        <div>H.RECARGO</div>
-                        <div>OBRA</div>
-                    </div>
-                    ''', unsafe_allow_html=True)
-                with c_h2:
-                    st.markdown('<div class="es-encabezado" style="text-align: center; border-radius: 0 4px 4px 0;">EDITAR</div>', unsafe_allow_html=True)
+                # --- ENCABEZADO DE 7 COLUMNAS EN CSS GRID ---
+                st.markdown('''
+                <div class="contenedor-tabla es-encabezado">
+                    <div>DÍA</div>
+                    <div>ENTRADA</div>
+                    <div>SALIDA</div>
+                    <div>H.NORMAL</div>
+                    <div>H.RECARGO</div>
+                    <div>OBRA</div>
+                    <div style="text-align: center;">EDITAR</div>
+                </div>
+                ''', unsafe_allow_html=True)
 
-                # --- FILAS DE DATOS ---
+                # --- FILAS DE DATOS DE 7 COLUMNAS EN CSS GRID ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     
@@ -721,8 +704,9 @@ else:
                     hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
                     hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
 
-                    c_dat, c_b = st.columns([0.89, 0.11], vertical_alignment="center")
-                    with c_dat:
+                    # Renderizamos la fila completa en el CSS Grid de 7 columnas usando contenedores separados solo para insertar el botón de Streamlit
+                    c_izq, c_der = st.columns([0.90, 0.10], vertical_alignment="center")
+                    with c_izq:
                         st.markdown(f'''
                         <div class="es-datos">
                             <div class="contenedor-tabla">
@@ -732,11 +716,12 @@ else:
                                 <div>{hn_val}</div>
                                 <div>{hr_val}</div>
                                 <div>{r["OBRA"]}</div>
+                                <div></div>
                             </div>
                         </div>
                         ''', unsafe_allow_html=True)
-                    with c_b:
-                        if st.button("✏️", key=f"btn_edit_{d}"):
+                    with c_der:
+                        if st.button("✏️", key=f"btn_edit_{d}", use_container_width=True):
                             if st.session_state.get("dia_en_edicion") == d:
                                 st.session_state["dia_en_edicion"] = None
                             else:
