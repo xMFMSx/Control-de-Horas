@@ -110,9 +110,9 @@ div[data-testid="stMarkdownContainer"] p {
 
 /* Forzar que la columna derecha del botón sea estrecha y compacta */
 div[data-testid="stHorizontalBlock"]:has(.es-datos) > div[data-testid="column"]:last-child {
-    flex: 0 0 20px !important;
-    max-width: 20px !important;
-    margin: 0 auto !important;
+    flex: 0 0 40px !important;
+    max-width: 40px !important;
+    margin: 1 auto !important;
 }
 
 /* Botón del lápiz pequeño y ordenado */
