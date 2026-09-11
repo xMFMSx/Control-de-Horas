@@ -30,7 +30,7 @@ div[data-testid="stToolbar"] { visibility: hidden !important; }
 footer { visibility: hidden !important; }
 div[data-testid="stDecoration"] { display: none !important; }
 
-/* Scroll fluido total en la vista para evitar cortes inferiores */
+/* SOLUCIÓN DEFINITIVA AL CORTE INFERIOR: Liberar scroll en contenedores de Streamlit */
 html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {
     overflow-y: auto !important;
     height: auto !important;
@@ -77,7 +77,7 @@ div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
     background-color: #222634 !important;
 }
 
-/* Proporciones exactas de la tabla limpia */
+/* Proporciones exactas: Tabla izquierda (89%), Botón derecha (11%) */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
     flex: 0 0 89% !important;
     max-width: 89% !important;
@@ -92,7 +92,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
     border-left: 1px solid #353b4d !important;
 }
 
-/* Estructura interna de la tabla milimétricamente ajustada */
+/* Estructura interna de la tabla con ancho ajustado para que el lápiz quede perfecto */
 .contenedor-tabla {
     display: grid !important;
     grid-template-columns: 4.5% 9% 9% 11% 11% 10% !important;
@@ -123,7 +123,7 @@ div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p {
     line-height: 1.1 !important; 
 }
 
-/* Botón limpio y centrado para activar la edición al hacer clic */
+/* Botón de edición perfectamente centrado con el lápiz */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
     height: 24px !important; 
     width: 24px !important; 
@@ -135,11 +135,8 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
     display: flex !important; 
     align-items: center !important; 
     justify-content: center !important;
-    color: #448aff !important;
-    font-weight: 700 !important;
-    font-size: 0.75rem !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button:hover { border: 1px solid #a3adc2 !important; background-color: #222736 !important; }
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button:hover { border: 1px solid #a3adc2 !important; }
 </style>""", unsafe_allow_html=True)
 
 SECRET_KEY = "control_de_horas_firmado_token_2026"
@@ -651,7 +648,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-        # --- VISTA 2: RESUMEN MENSUAL CON LA TABLA LIMPIA ORIGINAL Y SIN LÁPIZ ---
+        # --- VISTA 2: RESUMEN MENSUAL CON LA TABLA ESTABLE Y EL LÁPIZ CORRECTO ---
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
@@ -677,21 +674,23 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # --- ENCABEZADO IDÉNTICO AL ORIGINAL SIN COLUMNA DE LÁPIZ ---
-                st.markdown('''
-                <div style="display: flex; background-color: #222634; border: 1px solid #353b4d; border-radius: 4px 4px 0 0; padding: 9px 8px; font-weight: 700; color: #a3adc2; font-size: 0.6rem;">
-                    <div class="contenedor-tabla-original" style="display: grid !important; grid-template-columns: 12% 18% 18% 18% 18% 16% !important; width: 100% !important; align-items: center !important;">
-                        <div>DÍA</div>
-                        <div>ENTRADA</div>
-                        <div>SALIDA</div>
-                        <div>H.NORMAL</div>
-                        <div>H.RECARGO</div>
-                        <div>OBRA</div>
+                # --- ENCABEZADO SINCRONIZADO ---
+                c_h1, c_h2 = st.columns([0.89, 0.11], vertical_alignment="center")
+                with c_h1:
+                    st.markdown('''
+                    <div class="contenedor-tabla es-encabezado">
+                        <div class="col-dia">DÍA</div>
+                        <div class="col-ent">ENTRADA</div>
+                        <div class="col-sal">SALIDA</div>
+                        <div class="col-hn">H.NORMAL</div>
+                        <div class="col-hr">H.RECARGO</div>
+                        <div class="col-ob">OBRA</div>
                     </div>
-                </div>
-                ''', unsafe_allow_html=True)
+                    ''', unsafe_allow_html=True)
+                with c_h2:
+                    pass
 
-                # --- FILAS DE DATOS ORIGINALES ---
+                # --- FILAS DE DATOS ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     
@@ -706,43 +705,37 @@ else:
                     es_festivo = iso_f in FERIADOS
                     
                     if es_festivo or w_day == 6:
-                        color_dia = "#b388ff"
-                        dia_txt = f"{d} (F)" if es_festivo else str(d)
+                        dia_html = f'<span style="color: #b388ff; font-weight: 700;">{d} (F)</span>' if es_festivo else f'<span style="color: #b388ff; font-weight: 700;">{d}</span>'
                     elif w_day == 5:
-                        color_dia = "#448aff"
-                        dia_txt = str(d)
+                        dia_html = f'<span style="color: #448aff; font-weight: 700;">{d}</span>'
                     else:
-                        color_dia = "#ffffff"
-                        dia_txt = str(d)
+                        dia_html = str(d)
 
-                    hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
-                    hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
+                    c_dat, c_b = st.columns([0.89, 0.11], vertical_alignment="center")
                     
-                    # Fila limpia usando columnas nativas para alinear perfectamente sin recuadros extraños
-                    c1, c2, c3, c4, c5, c6 = st.columns([0.12, 0.18, 0.18, 0.18, 0.18, 0.16])
-                    
-                    with c1:
-                        if st.button(dia_txt, key=f"btn_dia_{d}", help=f"Editar día {d}"):
+                    with c_dat:
+                        hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
+                        hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
+                        
+                        st.markdown(f'''
+                        <div class="contenedor-tabla es-datos">
+                            <div class="col-dia">{dia_html}</div>
+                            <div class="col-ent">{r["ENTRADA"]}</div>
+                            <div class="col-sal">{r["SALIDA"]}</div>
+                            <div class="col-hn">{hn_val}</div>
+                            <div class="col-hr">{hr_val}</div>
+                            <div class="col-ob">{r["OBRA"]}</div>
+                        </div>
+                        ''', unsafe_allow_html=True)
+                    with c_b:
+                        if st.button("✏️", key=f"btn_edit_{d}"):
                             if st.session_state.get("dia_en_edicion") == d:
                                 st.session_state["dia_en_edicion"] = None
                             else:
                                 st.session_state["dia_en_edicion"] = d
                             st.rerun()
-                    with c2:
-                        st.markdown(f"<div style='color: {color_dia}; font-size: 0.78rem; padding-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;'>{r['ENTRADA']}</div>", unsafe_allow_html=True)
-                    with c3:
-                        st.markdown(f"<div style='color: {color_dia}; font-size: 0.78rem; padding-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;'>{r['SALIDA']}</div>", unsafe_allow_html=True)
-                    with c4:
-                        st.markdown(f"<div style='color: {color_dia}; font-size: 0.78rem; padding-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;'>{hn_val}</div>", unsafe_allow_html=True)
-                    with c5:
-                        st.markdown(f"<div style='color: {color_dia}; font-size: 0.78rem; padding-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;'>{hr_val}</div>", unsafe_allow_html=True)
-                    with c6:
-                        st.markdown(f"<div style='color: {color_dia}; font-size: 0.78rem; padding-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;'>{r['OBRA']}</div>", unsafe_allow_html=True)
 
-                    # Línea separadora sutil entre filas
-                    st.markdown("<div style='border-bottom: 1px solid #353b4d; margin-top: 2px; margin-bottom: 2px;'></div>", unsafe_allow_html=True)
-
-                    # Lógica de edición desplegable al hacer clic en el día
+                    # Lógica de edición
                     if st.session_state.get("dia_en_edicion") == d:
                         datos_d = dict_por_dia.get(d, {})
                         val_e = str_a_time(datos_d.get("entrada", ""))
@@ -751,7 +744,6 @@ else:
                         idx_o = lista_obras.index(val_o) if val_o and val_o in lista_obras else 0
 
                         with st.form(key=f"form_inline_dia_{d}"):
-                            st.markdown(f"**✏️ Editando Día {d}**")
                             c1e, c2e = st.columns(2)
                             with c1e:
                                 edit_ent = st.time_input("Entrada", value=val_e, key=f"re_{d}")
