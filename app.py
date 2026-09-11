@@ -108,9 +108,16 @@ div[data-testid="stMarkdownContainer"] p {
     line-height: 1.1 !important; 
 }
 
-/* Botón de Streamlit adaptado para quedar como un lápiz compacto dentro de la grilla */
+/* Forzar que la columna derecha del botón sea estrecha y compacta */
+div[data-testid="stHorizontalBlock"]:has(.es-datos) > div[data-testid="column"]:last-child {
+    flex: 0 0 40px !important;
+    max-width: 40px !important;
+    margin: 0 auto !important;
+}
+
+/* Botón del lápiz pequeño y ordenado */
 .es-datos button {
-    height: 10px !important; 
+    height: 26px !important; 
     width: 32px !important; 
     min-width: 32px !important;
     padding: 0 !important; 
