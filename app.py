@@ -55,11 +55,11 @@ div[data-testid="stVerticalBlock"] {
 }
 
 /* ==========================================================
-   ESTRUCTURA CSS GRID DE 7 COLUMNAS UNIFICADAS (TABLA ÚNICA)
+   ESTRUCTURA CSS GRID DE 6 COLUMNAS (TABLA SIN COLUMNA EDITAR)
    ========================================================== */
-.contenedor-tabla-7 {
+.contenedor-tabla-6 {
     display: grid !important;
-    grid-template-columns: 8% 16% 16% 16% 16% 18% 10% !important;
+    grid-template-columns: 8% 18% 18% 18% 18% 20% !important;
     width: 100% !important;
     align-items: center !important;
     box-sizing: border-box !important;
@@ -69,7 +69,7 @@ div[data-testid="stVerticalBlock"] {
     border-top: none !important;
 }
 
-.es-encabezado-7 { 
+.es-encabezado-6 { 
     font-weight: 700 !important; 
     color: #a3adc2 !important; 
     font-size: 0.65rem !important; 
@@ -80,16 +80,16 @@ div[data-testid="stVerticalBlock"] {
     margin-bottom: -1px !important;
 }
 
-.es-datos-7 { 
+.es-datos-6 { 
     color: #ffffff !important; 
     font-size: 0.78rem !important; 
     padding: 6px 8px !important;
     margin-bottom: -1px !important;
 }
 
-.contenedor-tabla-7 > div {
+.contenedor-tabla-6 > div {
     border-right: 1px solid #353b4d !important;
-    padding: 0 4px !important;
+    padding: 0 6px !important;
     display: flex !important;
     align-items: center !important;
     box-sizing: border-box !important;
@@ -98,9 +98,8 @@ div[data-testid="stVerticalBlock"] {
     text-overflow: ellipsis !important;
     height: 100% !important;
 }
-.contenedor-tabla-7 > div:last-child { 
+.contenedor-tabla-6 > div:last-child { 
     border-right: none !important; 
-    justify-content: center !important; 
 }
 
 div[data-testid="stMarkdownContainer"] p { 
@@ -109,50 +108,38 @@ div[data-testid="stMarkdownContainer"] p {
     line-height: 1.1 !important; 
 }
 
-/* Botón de editar compacto dentro de la grilla */
-.btn-editar-grid {
-    background: transparent !important;
-    border: 1px solid #353b4d !important;
-    color: white !important;
-    border-radius: 4px !important;
-    padding: 2px 6px !important;
-    font-size: 0.75rem !important;
-    cursor: pointer !important;
-    text-decoration: none !important;
-    display: inline-flex !important;
+/* ==========================================================
+   BOTÓN LÁPIZ LATERAL FLOTANTE / EXTERNO A LA TABLA
+   ========================================================== */
+div.lapiz-lateral-wrapper {
+    display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-}
-.btn-editar-grid:hover {
-    border-color: #a3adc2 !important;
-    background-color: #222736 !important;
+    height: 100% !important;
+    margin-top: 3px !important;
 }
 
-/* Adaptación del botón nativo para que luzca idéntico al HTML original */
-div.edit-btn-container button {
-    background: transparent !important;
+div.lapiz-lateral-wrapper button {
+    background-color: #1a1e29 !important;
     border: 1px solid #353b4d !important;
     color: white !important;
-    border-radius: 4px !important;
-    padding: 0px !important;
-    font-size: 0.75rem !important;
-    min-height: 24px !important;
-    height: 24px !important;
-    width: 32px !important;
+    border-radius: 6px !important;
+    padding: 0 !important;
+    min-height: 28px !important;
+    height: 28px !important;
+    width: 34px !important;
+    font-size: 0.82rem !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     margin: 0 !important;
+    transition: all 0.2s ease-in-out !important;
 }
-div.edit-btn-container button:hover {
+
+div.lapiz-lateral-wrapper button:hover {
     border-color: #a3adc2 !important;
     background-color: #222736 !important;
-}
-div.edit-btn-container {
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    width: 100% !important;
+    transform: scale(1.05) !important;
 }
 </style>""", unsafe_allow_html=True)
 
@@ -665,7 +652,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-        # --- VISTA 2: RESUMEN MENSUAL CON LA TABLA 100% ORIGINAL ---
+        # --- VISTA 2: RESUMEN MENSUAL CON TABLA LIMPIA Y LÁPIZ LATERAL ---
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
@@ -691,20 +678,21 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # --- ENCABEZADO DE 7 COLUMNAS EN CSS GRID ORIGINAL ---
-                st.markdown(f'''
-                <div class="contenedor-tabla-7 es-encabezado-7">
-                    <div>DÍA</div>
-                    <div>ENTRADA</div>
-                    <div>SALIDA</div>
-                    <div>H.NORMAL</div>
-                    <div>H.RECARGO</div>
-                    <div>OBRA</div>
-                    <div style="text-align: center;">EDITAR</div>
-                </div>
-                ''', unsafe_allow_html=True)
+                # Contenedor 93% tabla achicada + 7% para el lápiz exterior
+                col_encabezado, _ = st.columns([93, 7])
+                with col_encabezado:
+                    st.markdown('''
+                    <div class="contenedor-tabla-6 es-encabezado-6">
+                        <div>DÍA</div>
+                        <div>ENTRADA</div>
+                        <div>SALIDA</div>
+                        <div>H.NORMAL</div>
+                        <div>H.RECARGO</div>
+                        <div>OBRA</div>
+                    </div>
+                    ''', unsafe_allow_html=True)
 
-                # --- FILAS DE DATOS ORIGINALES (90% HTML PURO + 10% BOTÓN STREAMLIT SIN RECARGA) ---
+                # --- FILAS DE DATOS + BOTÓN LÁPIZ LATERAL EXTERIOR ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     
@@ -731,27 +719,23 @@ else:
                     hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
                     hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
 
-                    # Usamos 2 columnas [90, 10] para que la tabla sea 100% tu HTML original,
-                    # manteniendo la alineación exacta y colocando el botón nativo en el espacio exacto del 10%
-                    c_datos, c_btn = st.columns([90, 10], gap="small")
+                    c_fila, c_lapiz = st.columns([93, 7])
 
-                    with c_datos:
-                        # Cuadrícula HTML con las 6 primeras columnas exactas a tu diseño original
+                    with c_fila:
                         st.markdown(f'''
-                        <div class="es-datos-7" style="display: grid; grid-template-columns: 8.88% 17.77% 17.77% 17.77% 17.77% 20.04%; width: 100%; align-items: center; box-sizing: border-box; margin: 0; background-color: #1a1e29; border: 1px solid #353b4d; border-top: none; border-right: none;">
-                            <div style="border-right: 1px solid #353b4d; padding: 0 4px; display: flex; align-items: center; color: {color_dia}; font-weight: 700;">{dia_txt}</div>
-                            <div style="border-right: 1px solid #353b4d; padding: 0 4px; display: flex; align-items: center;">{r["ENTRADA"]}</div>
-                            <div style="border-right: 1px solid #353b4d; padding: 0 4px; display: flex; align-items: center;">{r["SALIDA"]}</div>
-                            <div style="border-right: 1px solid #353b4d; padding: 0 4px; display: flex; align-items: center;">{hn_val}</div>
-                            <div style="border-right: 1px solid #353b4d; padding: 0 4px; display: flex; align-items: center;">{hr_val}</div>
-                            <div style="border-right: 1px solid #353b4d; padding: 0 4px; display: flex; align-items: center;">{r["OBRA"]}</div>
+                        <div class="es-datos-6 contenedor-tabla-6">
+                            <div style="color: {color_dia}; font-weight: 700;">{dia_txt}</div>
+                            <div>{r["ENTRADA"]}</div>
+                            <div>{r["SALIDA"]}</div>
+                            <div>{hn_val}</div>
+                            <div>{hr_val}</div>
+                            <div>{r["OBRA"]}</div>
                         </div>
                         ''', unsafe_allow_html=True)
 
-                    with c_btn:
-                        # Columna 7 exacta: Botón Streamlit con soporte toggle (abrir/cerrar) sin recargar la página
-                        st.markdown('<div class="edit-btn-container" style="background-color: #1a1e29; border: 1px solid #353b4d; border-top: none; padding: 5.5px 0px;">', unsafe_allow_html=True)
-                        if st.button("✏️", key=f"btn_edit_{d}"):
+                    with c_lapiz:
+                        st.markdown('<div class="lapiz-lateral-wrapper">', unsafe_allow_html=True)
+                        if st.button("✏️", key=f"edit_btn_{d}"):
                             if st.session_state.get("dia_en_edicion") == d:
                                 st.session_state["dia_en_edicion"] = None
                             else:
@@ -759,7 +743,7 @@ else:
                             st.rerun()
                         st.markdown('</div>', unsafe_allow_html=True)
 
-                    # Formulario desplegable de edición
+                    # Formulario desplegable al presionar el lápiz (Toggle abrir/cerrar)
                     if st.session_state.get("dia_en_edicion") == d:
                         datos_d = dict_por_dia.get(d, {})
                         val_e = str_a_time(datos_d.get("entrada", ""))
