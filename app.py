@@ -62,7 +62,7 @@ div[data-testid="stVerticalBlock"] {
     gap: 0.1rem !important;
 }
 
-/* Fila horizontal principal de la tabla */
+/* Fila horizontal principal de la tabla (ahora con 2 columnas: Datos y Botón Editar) */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     display: flex !important;
     flex-direction: row !important;
@@ -77,22 +77,23 @@ div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
     background-color: #222634 !important;
 }
 
-/* Proporciones exactas: Tabla izquierda (89%), Botón derecha (11%) */
+/* Proporciones exactas: Tabla izquierda (91%), Botón de Editar derecha (9%) */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
-    flex: 0 0 89% !important;
-    max-width: 89% !important;
+    flex: 0 0 91% !important;
+    max-width: 91% !important;
     min-width: 0 !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child {
-    flex: 0 0 11% !important;
-    max-width: 11% !important;
+    flex: 0 0 9% !important;
+    max-width: 9% !important;
     display: flex !important; 
     align-items: center !important; 
-    justify-content: center !important;
+    justify-content: flex-end !important;
+    padding-right: 12px !important;
     border-left: 1px solid #353b4d !important;
 }
 
-/* Estructura interna de la tabla con ancho ajustado para que el lápiz quede perfecto */
+/* Estructura interna de la tabla con 6 columnas distribuidas */
 .contenedor-tabla {
     display: grid !important;
     grid-template-columns: 4.5% 9% 9% 11% 11% 10% !important;
@@ -123,13 +124,13 @@ div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p {
     line-height: 1.1 !important; 
 }
 
-/* Botón de edición perfectamente centrado */
+/* Botón de edición alineado a la derecha en su propia columna */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
     height: 24px !important; 
     width: 24px !important; 
     min-width: 24px !important;
     padding: 0 !important; 
-    margin: auto !important;
+    margin: 0 !important;
     background-color: transparent !important; 
     border: 1px solid transparent !important;
     display: flex !important; 
@@ -648,7 +649,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-        # --- VISTA 2: RESUMEN MENSUAL CON LA TABLA EXACTA Y EL LÁPIZ ORIGINAL ---
+        # --- VISTA 2: RESUMEN MENSUAL CON NUEVA COLUMNA DE EDICIÓN A LA DERECHA ---
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
@@ -674,8 +675,8 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # --- ENCABEZADO ORIGINAL[cite: 1] ---
-                c_h1, c_h2 = st.columns([0.89, 0.11], vertical_alignment="center")
+                # --- ENCABEZADO CON LA NUEVA COLUMNA EDITAR A LA DERECHA ---
+                c_h1, c_h2 = st.columns([0.91, 0.09], vertical_alignment="center")
                 with c_h1:
                     st.markdown('''
                     <div class="contenedor-tabla es-encabezado">
@@ -688,9 +689,9 @@ else:
                     </div>
                     ''', unsafe_allow_html=True)
                 with c_h2:
-                    pass
+                    st.markdown('<div class="es-encabezado" style="text-align: right; width: 100%;">EDITAR</div>', unsafe_allow_html=True)
 
-                # --- FILAS DE DATOS ORIGINALES CON EL LÁPIZ[cite: 1] ---
+                # --- FILAS DE DATOS CON ICONO A LA DERECHA EN SU PROPIA COLUMNA ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     
@@ -711,7 +712,7 @@ else:
                     else:
                         dia_html = str(d)
 
-                    c_dat, c_b = st.columns([0.89, 0.11], vertical_alignment="center")
+                    c_dat, c_b = st.columns([0.91, 0.09], vertical_alignment="center")
                     
                     with c_dat:
                         hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
@@ -735,7 +736,7 @@ else:
                                 st.session_state["dia_en_edicion"] = d
                             st.rerun()
 
-                    # Lógica de edición[cite: 1]
+                    # Lógica de edición desplegable
                     if st.session_state.get("dia_en_edicion") == d:
                         datos_d = dict_por_dia.get(d, {})
                         val_e = str_a_time(datos_d.get("entrada", ""))
