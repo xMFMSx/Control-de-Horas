@@ -165,14 +165,20 @@ div.lapiz-lateral-wrapper {
     margin: 0 !important;
 }
 
-/* Eliminar el espacio y separación vertical entre cada fila de la tabla */
-div[data-testid="stVerticalBlock"] > div:has(> div[data-testid="stHorizontalBlock"]) {
-    margin-bottom: -1px !important;
+/* Eliminar completamente el espacio entre filas forzando solape vertical */
+div[data-testid="stVerticalBlock"]:has(div.es-datos-6) {
     gap: 0 !important;
+    row-gap: 0 !important;
 }
 
-div[data-testid="element-container"]:has(div.es-datos-6) {
-    margin-bottom: -1px !important;
+div[data-testid="stVerticalBlock"]:has(div.es-datos-6) > div {
+    margin-bottom: -7px !important;
+    padding-bottom: 0 !important;
+    padding-top: 0 !important;
+}
+
+div[data-testid="stHorizontalBlock"] {
+    margin-bottom: 0 !important;
 }
 </style>""", unsafe_allow_html=True)
 
