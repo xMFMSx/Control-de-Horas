@@ -46,7 +46,7 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {
 div[data-testid="stForm"] { 
     border: none !important; 
     padding: 0 !important; 
-    margin-top: 0.5rem !important; 
+    margin-top: 1rem !important; 
     margin-bottom: 0.5rem !important; 
 }
 
@@ -54,22 +54,17 @@ div[data-testid="stVerticalBlock"] {
     gap: 0.1rem !important;
 }
 
-/* ==========================================================
-   ESTRUCTURA CSS GRID DE 7 COLUMNAS UNIFICADAS (TABLA ÚNICA)
-   ========================================================== */
-.contenedor-tabla-7 {
+/* Estructura CSS Grid perfecta para la tabla */
+.contenedor-tabla {
     display: grid !important;
-    grid-template-columns: 8% 16% 16% 16% 16% 18% 10% !important;
+    grid-template-columns: 12% 18% 18% 18% 18% 16% !important;
     width: 100% !important;
     align-items: center !important;
     box-sizing: border-box !important;
     margin: 0 !important;
-    background-color: #1a1e29 !important;
-    border: 1px solid #353b4d !important;
-    border-top: none !important;
 }
 
-.es-encabezado-7 { 
+.es-encabezado { 
     font-weight: 700 !important; 
     color: #a3adc2 !important; 
     font-size: 0.65rem !important; 
@@ -80,14 +75,17 @@ div[data-testid="stVerticalBlock"] {
     margin-bottom: -1px !important;
 }
 
-.es-datos-7 { 
+.es-datos { 
     color: #ffffff !important; 
     font-size: 0.78rem !important; 
-    padding: 6px 8px !important;
+    background-color: #1a1e29 !important;
+    border: 1px solid #353b4d !important;
+    border-top: none !important;
+    padding: 9px 8px !important;
     margin-bottom: -1px !important;
 }
 
-.contenedor-tabla-7 > div {
+.contenedor-tabla > div {
     border-right: 1px solid #353b4d !important;
     padding: 0 4px !important;
     display: flex !important;
@@ -96,35 +94,32 @@ div[data-testid="stVerticalBlock"] {
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
-    height: 100% !important;
 }
-.contenedor-tabla-7 > div:last-child { 
-    border-right: none !important; 
-    justify-content: center !important; 
-}
+.contenedor-tabla > div:last-child { border-right: none !important; }
 
-div[data-testid="stMarkdownContainer"] p { 
+div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p { 
     margin: 0 !important; 
     padding: 0 !important; 
     line-height: 1.1 !important; 
 }
 
-/* Botón de editar compacto dentro de la grilla */
-.btn-editar-grid {
-    background: transparent !important;
+/* Botón de edición compacto y ordenado */
+div[data-testid="stHorizontalBlock"] button {
+    height: 28px !important; 
+    width: 32px !important; 
+    min-width: 32px !important;
+    padding: 0 !important; 
+    margin: auto !important;
+    background-color: transparent !important; 
     border: 1px solid #353b4d !important;
-    color: white !important;
     border-radius: 4px !important;
-    padding: 2px 6px !important;
-    font-size: 0.75rem !important;
-    cursor: pointer !important;
-    text-decoration: none !important;
-    display: inline-flex !important;
-    align-items: center !important;
+    display: flex !important; 
+    align-items: center !important; 
     justify-content: center !important;
+    cursor: pointer !important;
 }
-.btn-editar-grid:hover {
-    border-color: #a3adc2 !important;
+div[data-testid="stHorizontalBlock"] button:hover { 
+    border-color: #a3adc2 !important; 
     background-color: #222736 !important;
 }
 </style>""", unsafe_allow_html=True)
@@ -638,7 +633,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-        # --- VISTA 2: RESUMEN MENSUAL CON LA TABLA 100% UNIFICADA EN UNA SOLA GRILLA REAL ---
+        # --- VISTA 2: RESUMEN MENSUAL CON BOTONES NATIVOS ESTABLES (SIN RECARGAR PÁGINA) ---
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
@@ -664,33 +659,23 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # Gestionar clics de edición mediante query params limpios para evitar tablas separadas
-                q_params = st.query_params
-                if "editar_dia" in q_params:
-                    try:
-                        d_target = int(q_params["editar_dia"])
-                        if st.session_state.get("dia_en_edicion") != d_target:
-                            st.session_state["dia_en_edicion"] = d_target
-                            del st.query_params["editar_dia"]
-                            st.rerun()
-                    except:
-                        pass
+                # --- ENCABEZADO PERFECTO ---
+                c_h1, c_h2 = st.columns([0.89, 0.11], vertical_alignment="center")
+                with c_h1:
+                    st.markdown('''
+                    <div class="contenedor-tabla es-encabezado">
+                        <div>DÍA</div>
+                        <div>ENTRADA</div>
+                        <div>SALIDA</div>
+                        <div>H.NORMAL</div>
+                        <div>H.RECARGO</div>
+                        <div>OBRA</div>
+                    </div>
+                    ''', unsafe_allow_html=True)
+                with c_h2:
+                    st.markdown('<div class="es-encabezado" style="text-align: center; border-radius: 0 4px 4px 0;">EDITAR</div>', unsafe_allow_html=True)
 
-                # --- ENCABEZADO DE 7 COLUMNAS EN CSS GRID UNIFICADO ---
-                session_token_url = st.query_params.get("session", "")
-                st.markdown(f'''
-                <div class="contenedor-tabla-7 es-encabezado-7">
-                    <div>DÍA</div>
-                    <div>ENTRADA</div>
-                    <div>SALIDA</div>
-                    <div>H.NORMAL</div>
-                    <div>H.RECARGO</div>
-                    <div>OBRA</div>
-                    <div style="text-align: center;">EDITAR</div>
-                </div>
-                ''', unsafe_allow_html=True)
-
-                # --- FILAS DE DATOS DE 7 COLUMNAS PURAS ---
+                # --- FILAS DE DATOS ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     
@@ -717,22 +702,29 @@ else:
                     hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
                     hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
 
-                    # Renderizamos toda la fila dentro de la misma y única grilla HTML con un enlace de botón integrado
-                    st.markdown(f'''
-                    <div class="es-datos-7 contenedor-tabla-7">
-                        <div style="color: {color_dia}; font-weight: 700;">{dia_txt}</div>
-                        <div>{r["ENTRADA"]}</div>
-                        <div>{r["SALIDA"]}</div>
-                        <div>{hn_val}</div>
-                        <div>{hr_val}</div>
-                        <div>{r["OBRA"]}</div>
-                        <div style="display: flex; justify-content: center; align-items: center;">
-                            <a href="?session={session_token_url}&editar_dia={d}" class="btn-editar-grid" target="_self">✏️</a>
+                    c_dat, c_b = st.columns([0.89, 0.11], vertical_alignment="center")
+                    with c_dat:
+                        st.markdown(f'''
+                        <div class="es-datos">
+                            <div class="contenedor-tabla">
+                                <div style="color: {color_dia}; font-weight: 700;">{dia_txt}</div>
+                                <div>{r["ENTRADA"]}</div>
+                                <div>{r["SALIDA"]}</div>
+                                <div>{hn_val}</div>
+                                <div>{hr_val}</div>
+                                <div>{r["OBRA"]}</div>
+                            </div>
                         </div>
-                    </div>
-                    ''', unsafe_allow_html=True)
+                        ''', unsafe_allow_html=True)
+                    with c_b:
+                        if st.button("✏️", key=f"btn_edit_{d}"):
+                            if st.session_state.get("dia_en_edicion") == d:
+                                st.session_state["dia_en_edicion"] = None
+                            else:
+                                st.session_state["dia_en_edicion"] = d
+                            st.rerun()
 
-                    # Lógica de edición desplegable al presionar el botón de la fila
+                    # Lógica de edición desplegable al presionar el botón (mantiene el estado nativo de Streamlit)
                     if st.session_state.get("dia_en_edicion") == d:
                         datos_d = dict_por_dia.get(d, {})
                         val_e = str_a_time(datos_d.get("entrada", ""))
