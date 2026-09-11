@@ -103,28 +103,47 @@ div[data-testid="stMarkdownContainer"] p {
 }
 
 /* ==========================================================
-   TABLA NATIVA STREAMLIT - COMPATIBLE CON TODOS LOS NAVEGADORES
+   ALINEACIÓN Y ANCHOS EXACTOS DE LAS 7 COLUMNAS
    ========================================================== */
 
-/* 1. ANULAR EL APILAMIENTO MÓVIL DE STREAMLIT */
-@media (max-width: 1024px) {
-    div[data-testid="stHorizontalBlock"] {
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-    }
-    /* Restaurar anchos forzados para 7 columnas */
-    div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child:nth-last-child(7) { width: 8% !important; flex: none !important; }
-    div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(2):nth-last-child(6) { width: 16% !important; flex: none !important; }
-    div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(3):nth-last-child(5) { width: 16% !important; flex: none !important; }
-    div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(4):nth-last-child(4) { width: 16% !important; flex: none !important; }
-    div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(5):nth-last-child(3) { width: 16% !important; flex: none !important; }
-    div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(6):nth-last-child(2) { width: 18% !important; flex: none !important; }
-    div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(7):last-child { width: 10% !important; flex: none !important; }
+/* 1. Forzar que el bloque horizontal use el ancho total exacto y sin desfases */
+div[data-testid="stHorizontalBlock"] {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    width: 100% !important;
+    gap: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
 }
 
-/* 2. ESTILOS APLICADOS DIRECTAMENTE A LAS CELDAS (Evita usar :has) */
+/* 2. Anchos idénticos al encabezado (8%, 16%, 16%, 16%, 16%, 18%, 10%) */
+div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child:nth-last-child(7) { 
+    width: 8% !important; min-width: 8% !important; max-width: 8% !important; flex: none !important; 
+}
+div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(2):nth-last-child(6) { 
+    width: 16% !important; min-width: 16% !important; max-width: 16% !important; flex: none !important; 
+}
+div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(3):nth-last-child(5) { 
+    width: 16% !important; min-width: 16% !important; max-width: 16% !important; flex: none !important; 
+}
+div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(4):nth-last-child(4) { 
+    width: 16% !important; min-width: 16% !important; max-width: 16% !important; flex: none !important; 
+}
+div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(5):nth-last-child(3) { 
+    width: 16% !important; min-width: 16% !important; max-width: 16% !important; flex: none !important; 
+}
+div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(6):nth-last-child(2) { 
+    width: 18% !important; min-width: 18% !important; max-width: 18% !important; flex: none !important; 
+}
+div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(7):last-child { 
+    width: 10% !important; min-width: 10% !important; max-width: 10% !important; flex: none !important; 
+}
+
+/* 3. Bordes y rellenos calculados hacia adentro */
 div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child:nth-last-child(7),
 div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child:nth-last-child(7) ~ div[data-testid="column"] {
+    box-sizing: border-box !important;
     background-color: #1a1e29 !important;
     border-bottom: 1px solid #353b4d !important;
     border-right: 1px solid #353b4d !important;
@@ -135,23 +154,22 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child:nth
     margin: 0 !important;
 }
 
-/* Borde izquierdo exclusivo para la primera columna */
 div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child:nth-last-child(7) {
     border-left: 1px solid #353b4d !important;
 }
 
-/* Quitar borde derecho y centrar botón en la última columna */
 div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child:nth-child(7) {
-    border-right: none !important;
+    border-right: 1px solid #353b4d !important;
     justify-content: center !important;
+    padding: 2px !important;
 }
 
-/* Eliminar la separación vertical entre filas */
+/* Eliminar espaciado vertical entre filas */
 div[data-testid="stVerticalBlock"] > div[data-testid="element-container"] > div[data-testid="stHorizontalBlock"] {
     margin-bottom: -1px !important;
 }
 
-/* 3. ESTILIZAR EL TEXTO DE LAS CELDAS */
+/* 4. Tipografía y corte de texto */
 div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child:nth-last-child(7) p,
 div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child:nth-last-child(7) ~ div[data-testid="column"] p,
 div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child:nth-last-child(7) span,
@@ -164,7 +182,7 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child:nth
     text-overflow: ellipsis !important;
 }
 
-/* 4. BOTÓN DE EDICIÓN IDÉNTICO AL ORIGINAL */
+/* 5. Botón centrado */
 div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child:nth-child(7) button {
     background: transparent !important;
     border: 1px solid #353b4d !important;
@@ -180,11 +198,11 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child:nth-
     justify-content: center !important;
     margin: 0 auto !important;
 }
+
 div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child:nth-child(7) button:hover {
     border-color: #a3adc2 !important;
     background-color: #222736 !important;
 }
-</style>
 </style>""", unsafe_allow_html=True)
 
 SECRET_KEY = "control_de_horas_firmado_token_2026"
