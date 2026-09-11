@@ -82,18 +82,18 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
 
 /* Proporciones exactas: Tabla izquierda (70%), Botón derecha (30%) */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
-    flex: 0 0 70% !important;
-    max-width: 70% !important;
-    min-width: 0 !important;
-    border-right: 1px solid #353b4d !important;
-}
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child {
-    flex: 0 0 30% !important;
-    max-width: 30% !important;
-    display: flex !important; 
-    align-items: center !important; 
-    justify-content: center !important;
-}
+        width: 75% !important;
+        flex: 0 0 75% !important;
+        max-width: 75% !important;
+    }
+    div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child {
+        width: 25% !important;
+        flex: 0 0 25% !important;
+        max-width: 25% !important;
+        display: flex !important; 
+        align-items: center !important; 
+        justify-content: center !important;
+    }
 
 /* Estructura CSS Grid para la tabla de datos */
 .contenedor-tabla {
