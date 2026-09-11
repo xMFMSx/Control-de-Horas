@@ -677,20 +677,20 @@ else:
                 # --- ENCABEZADO CON COLUMNA EXTRA DE EDICIÓN A LA DERECHA ---
                 c_h1, c_h2 = st.columns([0.89, 0.11], vertical_alignment="center")
                 with c_h1:
-                    st.markdown('''
-                    <div class="contenedor-tabla es-encabezado">
-                        <div>DÍA</div>
-                        <div>ENTRADA</div>
-                        <div>SALIDA</div>
-                        <div>H.NORMAL</div>
-                        <div>H.RECARGO</div>
-                        <div>OBRA</div>
-                    </div>
-                    ''', unsafe_allow_html=True)
-                with c_h2:
-                    st.markdown('<div class="es-encabezado" style="text-align: center; border-radius: 0 4px 4px 0;">EDITAR</div>', unsafe_allow_html=True)
+                    # --- ENCABEZADO UNIFICADO DE 7 COLUMNAS ---
+                st.markdown('''
+                <div class="contenedor-tabla es-encabezado">
+                    <div>DÍA</div>
+                    <div>ENTRADA</div>
+                    <div>SALIDA</div>
+                    <div>H.NORMAL</div>
+                    <div>H.RECARGO</div>
+                    <div>OBRA</div>
+                    <div style="text-align: center;">EDITAR</div>
+                </div>
+                ''', unsafe_allow_html=True)
 
-                # --- FILAS DE DATOS CON BOTÓN DE EDITAR A LA DERECHA ---
+                # --- FILAS DE DATOS UNIFICADAS ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     
@@ -717,27 +717,31 @@ else:
                     hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
                     hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
 
-                    c_dat, c_b = st.columns([0.89, 0.11], vertical_alignment="center")
-                    with c_dat:
-                        st.markdown(f'''
-                        <div class="es-datos">
-                            <div class="contenedor-tabla">
-                                <div style="color: {color_dia}; font-weight: 700;">{dia_txt}</div>
-                                <div>{r["ENTRADA"]}</div>
-                                <div>{r["SALIDA"]}</div>
-                                <div>{hn_val}</div>
-                                <div>{hr_val}</div>
-                                <div>{r["OBRA"]}</div>
+                    # Renderizamos la fila completa en una sola línea CSS Grid de 7 columnas
+                    cols_container = st.container()
+                    with cols_container:
+                        # Usamos un botón invisible o un botón de acción limpio en la última celda de la grilla
+                        col_izq, col_der = st.columns([0.90, 0.10], vertical_alignment="center")
+                        with col_izq:
+                            st.markdown(f'''
+                            <div class="es-datos">
+                                <div class="contenedor-tabla">
+                                    <div style="color: {color_dia}; font-weight: 700;">{dia_txt}</div>
+                                    <div>{r["ENTRADA"]}</div>
+                                    <div>{r["SALIDA"]}</div>
+                                    <div>{hn_val}</div>
+                                    <div>{hr_val}</div>
+                                    <div>{r["OBRA"]}</div>
+                                </div>
                             </div>
-                        </div>
-                        ''', unsafe_allow_html=True)
-                    with c_b:
-                        if st.button("✏️", key=f"btn_edit_{d}"):
-                            if st.session_state.get("dia_en_edicion") == d:
-                                st.session_state["dia_en_edicion"] = None
-                            else:
-                                st.session_state["dia_en_edicion"] = d
-                            st.rerun()
+                            ''', unsafe_allow_html=True)
+                        with col_der:
+                            if st.button("✏️", key=f"btn_edit_{d}", use_container_width=True):
+                                if st.session_state.get("dia_en_edicion") == d:
+                                    st.session_state["dia_en_edicion"] = None
+                                else:
+                                    st.session_state["dia_en_edicion"] = d
+                                st.rerun()
 
                     # Lógica de edición desplegable al presionar el botón de la derecha
                     if st.session_state.get("dia_en_edicion") == d:
