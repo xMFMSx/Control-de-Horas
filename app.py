@@ -103,16 +103,26 @@ div[data-testid="stMarkdownContainer"] p {
 }
 
 /* ==========================================================
-   MAGIA CSS PARA LAS FILAS NATIVAS DE STREAMLIT (SIN RECARGA)
+   TABLA NATIVA STREAMLIT - COMPATIBLE CON TODOS LOS NAVEGADORES
    ========================================================== */
 
-/* 1. Forzar horizontalidad siempre (evita que se apilen como en tu imagen) y quitar separaciones */
-div[data-testid="stHorizontalBlock"] {
-    flex-wrap: nowrap !important;
-    gap: 0 !important; 
+/* 1. ANULAR EL APILAMIENTO MÓVIL DE STREAMLIT */
+@media (max-width: 1024px) {
+    div[data-testid="stHorizontalBlock"] {
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+    }
+    /* Restaurar anchos forzados para 7 columnas */
+    div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child:nth-last-child(7) { width: 8% !important; flex: none !important; }
+    div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(2):nth-last-child(6) { width: 16% !important; flex: none !important; }
+    div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(3):nth-last-child(5) { width: 16% !important; flex: none !important; }
+    div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(4):nth-last-child(4) { width: 16% !important; flex: none !important; }
+    div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(5):nth-last-child(3) { width: 16% !important; flex: none !important; }
+    div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(6):nth-last-child(2) { width: 18% !important; flex: none !important; }
+    div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(7):last-child { width: 10% !important; flex: none !important; }
 }
 
-/* 2. Estilizar unificadamente solo las filas de exactamente 7 columnas (tu tabla) */
+/* 2. ESTILOS APLICADOS DIRECTAMENTE A LAS CELDAS (Evita usar :has) */
 div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child:nth-last-child(7),
 div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child:nth-last-child(7) ~ div[data-testid="column"] {
     background-color: #1a1e29 !important;
@@ -122,15 +132,26 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child:nth
     display: flex !important;
     align-items: center !important;
     min-height: 38px !important;
-    margin-bottom: 0 !important;
+    margin: 0 !important;
 }
 
-/* Borde izquierdo para cerrar la primera celda */
+/* Borde izquierdo exclusivo para la primera columna */
 div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child:nth-last-child(7) {
     border-left: 1px solid #353b4d !important;
 }
 
-/* Forzar fuentes consistentes idénticas al HTML */
+/* Quitar borde derecho y centrar botón en la última columna */
+div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child:nth-child(7) {
+    border-right: none !important;
+    justify-content: center !important;
+}
+
+/* Eliminar la separación vertical entre filas */
+div[data-testid="stVerticalBlock"] > div[data-testid="element-container"] > div[data-testid="stHorizontalBlock"] {
+    margin-bottom: -1px !important;
+}
+
+/* 3. ESTILIZAR EL TEXTO DE LAS CELDAS */
 div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child:nth-last-child(7) p,
 div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child:nth-last-child(7) ~ div[data-testid="column"] p,
 div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child:nth-last-child(7) span,
@@ -143,10 +164,7 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child:nth
     text-overflow: ellipsis !important;
 }
 
-/* Centrar y estilizar el botón de la última columna */
-div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child:nth-child(7) {
-    justify-content: center !important;
-}
+/* 4. BOTÓN DE EDICIÓN IDÉNTICO AL ORIGINAL */
 div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child:nth-child(7) button {
     background: transparent !important;
     border: 1px solid #353b4d !important;
@@ -166,6 +184,7 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child:nth-
     border-color: #a3adc2 !important;
     background-color: #222736 !important;
 }
+</style>
 </style>""", unsafe_allow_html=True)
 
 SECRET_KEY = "control_de_horas_firmado_token_2026"
