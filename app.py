@@ -70,6 +70,14 @@ div[data-testid="stVerticalBlock"] {
     align-items: center !important;
     box-sizing: border-box !important;
 }
+
+/* Ocultar la flecha de los expanders para un diseño más limpio */
+details summary svg {
+    display: none !important;
+}
+details summary {
+    padding-left: 8px !important;
+}
 </style>""", unsafe_allow_html=True)
 
 SECRET_KEY = "control_de_horas_firmado_token_2026"
@@ -168,8 +176,8 @@ def cargar_obras():
 
 FERIADOS = ["2026-09-18", "2026-09-19", "2026-09-20"]
 DIAS_MAP = {
-    0: "LUNES", 1: "MARTES", 2: "MIÉRCOLES", 3: "JUEVES",
-    4: "VIERNES", 5: "SÁBADO", 6: "DOMINGO"
+    0: "Lunes", 1: "Martes", 2: "Miércoles", 3: "Jueves",
+    4: "Viernes", 5: "Sábado", 6: "Domingo"
 }
 
 def minutos_a_hora_str(total_minutos: int) -> str:
@@ -581,7 +589,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-        # --- VISTA 2: RESUMEN MENSUAL CON ENCABEZADO Y TARJETAS EXPANDIBLES ---
+        # --- VISTA 2: RESUMEN MENSUAL CON ENCABEZADO Y FORMATO "Lunes 31" ---
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
@@ -631,12 +639,13 @@ else:
                     
                     es_festivo = iso_f in FERIADOS
                     
+                    # Formato requerido: "Lunes 31" y sin flecha lateral gracias al CSS
                     if es_festivo or w_day == 6:
-                        etiqueta = f"🟣 Día {d:02d} ({nom_dia}) | {r['ENTRADA']} - {r['SALIDA']} | H.Normal: {r['HORA EXTRA'] or '-'} | H.Recargo: {r['HORA RECARGO'] or '-'} | Obra: {r['OBRA']} [FERIADO]" if es_festivo else f"🟣 Día {d:02d} ({nom_dia}) | {r['ENTRADA']} - {r['SALIDA']} | H.Normal: {r['HORA EXTRA'] or '-'} | H.Recargo: {r['HORA RECARGO'] or '-'} | Obra: {r['OBRA']}"
+                        etiqueta = f"🟣 {nom_dia} {d} | Entrada: {r['ENTRADA']} | Salida: {r['SALIDA']} | H.Normal: {r['HORA EXTRA'] or '-'} | H.Recargo: {r['HORA RECARGO'] or '-'} | Obra: {r['OBRA']} [FERIADO]" if es_festivo else f"🟣 {nom_dia} {d} | Entrada: {r['ENTRADA']} | Salida: {r['SALIDA']} | H.Normal: {r['HORA EXTRA'] or '-'} | H.Recargo: {r['HORA RECARGO'] or '-'} | Obra: {r['OBRA']}"
                     elif w_day == 5:
-                        etiqueta = f"🔵 Día {d:02d} ({nom_dia}) | {r['ENTRADA']} - {r['SALIDA']} | H.Normal: {r['HORA EXTRA'] or '-'} | H.Recargo: {r['HORA RECARGO'] or '-'} | Obra: {r['OBRA']}"
+                        etiqueta = f"🔵 {nom_dia} {d} | Entrada: {r['ENTRADA']} | Salida: {r['SALIDA']} | H.Normal: {r['HORA EXTRA'] or '-'} | H.Recargo: {r['HORA RECARGO'] or '-'} | Obra: {r['OBRA']}"
                     else:
-                        etiqueta = f"⚪ Día {d:02d} ({nom_dia}) | {r['ENTRADA']} - {r['SALIDA']} | H.Normal: {r['HORA EXTRA'] or '-'} | H.Recargo: {r['HORA RECARGO'] or '-'} | Obra: {r['OBRA']}"
+                        etiqueta = f"⚪ {nom_dia} {d} | Entrada: {r['ENTRADA']} | Salida: {r['SALIDA']} | H.Normal: {r['HORA EXTRA'] or '-'} | H.Recargo: {r['HORA RECARGO'] or '-'} | Obra: {r['OBRA']}"
 
                     with st.expander(etiqueta):
                         datos_d = dict_por_dia.get(d, {})
