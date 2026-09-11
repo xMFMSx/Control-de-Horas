@@ -111,8 +111,8 @@ div[data-testid="stMarkdownContainer"] p {
 /* Botón del lápiz pequeño, ordenado y exactamente centrado en la 7ma columna */
 .contenedor-tabla button {
     height: 26px !important; 
-    width: 32px !important; 
-    min-width: 32px !important;
+    width: 10px !important; 
+    min-width: 10px !important;
     padding: 0 !important; 
     margin: 0 auto !important;
     background-color: transparent !important; 
