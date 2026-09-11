@@ -123,16 +123,17 @@ div.lapiz-lateral-wrapper button {
     background-color: #1a1e29 !important;
     border: 1px solid #353b4d !important;
     color: white !important;
-    border-radius: 6px !important;
+    border-radius: 5px !important;
     padding: 0 !important;
-    min-height: 28px !important;
-    height: 28px !important;
-    width: 34px !important;
-    font-size: 0.82rem !important;
+    min-height: 24px !important;
+    height: 24px !important;
+    width: 30px !important;
+    font-size: 0.70rem !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     margin: 0 !important;
+    margin-top: 5px !important;
     transition: all 0.2s ease-in-out !important;
 }
 
