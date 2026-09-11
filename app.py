@@ -110,8 +110,8 @@ div[data-testid="stMarkdownContainer"] p {
 
 /* Forzar que la columna derecha del botón sea estrecha y compacta */
 div[data-testid="stHorizontalBlock"]:has(.es-datos) > div[data-testid="column"]:last-child {
-    flex: 0 0 40px !important;
-    max-width: 40px !important;
+    flex: 0 0 10px !important;
+    max-width: 10px !important;
     margin: 1 auto !important;
 }
 
