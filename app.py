@@ -53,6 +53,23 @@ div[data-testid="stForm"] {
 div[data-testid="stVerticalBlock"] {
     gap: 0.2rem !important;
 }
+
+/* Encabezado clásico de la tabla */
+.es-encabezado { 
+    font-weight: 700 !important; 
+    color: #a3adc2 !important; 
+    font-size: 0.65rem !important; 
+    background-color: #222634 !important;
+    border: 1px solid #353b4d !important;
+    border-radius: 4px 4px 0 0;
+    padding: 10px 8px !important;
+    margin-bottom: -1px !important;
+    display: grid !important;
+    grid-template-columns: 12% 18% 18% 18% 18% 16% !important;
+    width: 100% !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+}
 </style>""", unsafe_allow_html=True)
 
 SECRET_KEY = "control_de_horas_firmado_token_2026"
@@ -564,7 +581,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-        # --- VISTA 2: RESUMEN MENSUAL CON TARJETAS EXPANDIBLES (100% ESTABLE Y LIMPIO) ---
+        # --- VISTA 2: RESUMEN MENSUAL CON ENCABEZADO Y TARJETAS EXPANDIBLES ---
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
@@ -587,7 +604,17 @@ else:
             st.markdown("---")
 
             if registros_tabla:
-                st.write("### 📋 Jornadas Registradas (Haz clic en un día para editar)")
+                # --- ENCABEZADO CLÁSICO DE LA TABLA ---
+                st.markdown('''
+                <div class="es-encabezado">
+                    <div>DÍA</div>
+                    <div>ENTRADA</div>
+                    <div>SALIDA</div>
+                    <div>H.NORMAL</div>
+                    <div>H.RECARGO</div>
+                    <div>OBRA</div>
+                </div>
+                ''', unsafe_allow_html=True)
                 
                 for r in registros_tabla:
                     d = r["DÍA"] 
