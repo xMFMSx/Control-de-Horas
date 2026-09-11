@@ -81,13 +81,15 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
     padding: 0 !important;
 }
 
-/* Proporciones exactas: Tabla izquierda (82%), Botón derecha (18%) */
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
+/* Proporciones exactas de 82% y 18% tanto para el encabezado como para las filas de datos */
+    div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child,
+    div[data-testid="stHorizontalBlock"]:has(.es-encabezado) > div[data-testid="column"]:first-child {
         width: 82% !important;
         flex: 0 0 82% !important;
         max-width: 82% !important;
     }
-    div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child {
+    div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child,
+    div[data-testid="stHorizontalBlock"]:has(.es-encabezado) > div[data-testid="column"]:last-child {
         width: 18% !important;
         flex: 0 0 18% !important;
         max-width: 18% !important;
