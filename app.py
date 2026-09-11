@@ -55,7 +55,7 @@ div[data-testid="stVerticalBlock"] {
 }
 
 /* ==========================================================
-   ESTRUCTURA CSS GRID DE 7 COLUMNAS UNIFICADAS (TABLA ÚNICA)
+   ESTRUCTURA CSS GRID DEL ENCABEZADO HTML
    ========================================================== */
 .contenedor-tabla-7 {
     display: grid !important;
@@ -77,13 +77,6 @@ div[data-testid="stVerticalBlock"] {
     border: 1px solid #353b4d !important;
     border-radius: 4px 4px 0 0;
     padding: 10px 8px !important;
-    margin-bottom: -1px !important;
-}
-
-.es-datos-7 { 
-    color: #ffffff !important; 
-    font-size: 0.78rem !important; 
-    padding: 6px 8px !important;
     margin-bottom: -1px !important;
 }
 
@@ -109,21 +102,62 @@ div[data-testid="stMarkdownContainer"] p {
     line-height: 1.1 !important; 
 }
 
-/* Botón de editar compacto dentro de la grilla */
-.btn-editar-grid {
+/* ==========================================================
+   MAGIA CSS PARA LAS FILAS NATIVAS DE STREAMLIT (SIN RECARGA)
+   Mantiene la estética IDÉNTICA al grid HTML original
+   ========================================================== */
+div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(7)) {
+    background-color: #1a1e29 !important;
+    border: 1px solid #353b4d !important;
+    border-top: none !important;
+    margin: 0 !important;
+    margin-bottom: -1px !important;
+    gap: 0 !important;
+    min-height: 34px !important;
+    align-items: stretch !important;
+}
+
+div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(7)) > div[data-testid="column"] {
+    border-right: 1px solid #353b4d !important;
+    padding: 6px 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    margin-bottom: 0 !important;
+}
+
+div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(7)) > div[data-testid="column"]:last-child {
+    border-right: none !important;
+    justify-content: center !important;
+    padding: 2px !important;
+}
+
+div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(7)) p,
+div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(7)) span {
+    color: #ffffff !important;
+    font-size: 0.78rem !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+/* Estilo del botón editar convertido a nativo Streamlit */
+div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(7)) button {
     background: transparent !important;
     border: 1px solid #353b4d !important;
     color: white !important;
     border-radius: 4px !important;
-    padding: 2px 6px !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+    height: 24px !important;
+    width: 32px !important;
     font-size: 0.75rem !important;
-    cursor: pointer !important;
-    text-decoration: none !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
+    margin: 0 auto !important;
 }
-.btn-editar-grid:hover {
+div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(7)) button:hover {
     border-color: #a3adc2 !important;
     background-color: #222736 !important;
 }
@@ -316,7 +350,7 @@ if "modo_admin_activo" not in st.session_state:
 
 if not st.session_state.autenticado:
     st.title("🔐 Acceso a APP DE HORAS")
-    st.write(f"Por favor, ingresa tu correo electrónico y contraseña para continuar[cite: 1].")
+    st.write(f"Por favor, ingresa tu correo electrónico y contraseña para continuar.")
     
     with st.form("form_login"):
         correo_input = st.text_input("Correo Electrónico")
@@ -638,7 +672,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-        # --- VISTA 2: RESUMEN MENSUAL CON LA TABLA 100% UNIFICADA EN UNA SOLA GRILLA REAL ---
+        # --- VISTA 2: RESUMEN MENSUAL CON EDICIÓN NATIVA ---
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
@@ -664,20 +698,7 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # Gestionar clics de edición mediante query params limpios para evitar tablas separadas
-                q_params = st.query_params
-                if "editar_dia" in q_params:
-                    try:
-                        d_target = int(q_params["editar_dia"])
-                        if st.session_state.get("dia_en_edicion") != d_target:
-                            st.session_state["dia_en_edicion"] = d_target
-                            del st.query_params["editar_dia"]
-                            st.rerun()
-                    except:
-                        pass
-
-                # --- ENCABEZADO DE 7 COLUMNAS EN CSS GRID UNIFICADO ---
-                session_token_url = st.query_params.get("session", "")
+                # --- ENCABEZADO HTML DE 7 COLUMNAS ---
                 st.markdown(f'''
                 <div class="contenedor-tabla-7 es-encabezado-7">
                     <div>DÍA</div>
@@ -690,7 +711,7 @@ else:
                 </div>
                 ''', unsafe_allow_html=True)
 
-                # --- FILAS DE DATOS DE 7 COLUMNAS PURAS ---
+                # --- FILAS DE DATOS DE 7 COLUMNAS NATIVAS STREAMLIT (Con CSS oculto) ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     
@@ -716,21 +737,29 @@ else:
 
                     hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
                     hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
+                    ob_val = r["OBRA"].strip() if r["OBRA"].strip() else "&nbsp;"
 
-                    # Renderizamos toda la fila dentro de la misma y única grilla HTML con un enlace de botón integrado
-                    st.markdown(f'''
-                    <div class="es-datos-7 contenedor-tabla-7">
-                        <div style="color: {color_dia}; font-weight: 700;">{dia_txt}</div>
-                        <div>{r["ENTRADA"]}</div>
-                        <div>{r["SALIDA"]}</div>
-                        <div>{hn_val}</div>
-                        <div>{hr_val}</div>
-                        <div>{r["OBRA"]}</div>
-                        <div style="display: flex; justify-content: center; align-items: center;">
-                            <a href="?session={session_token_url}&editar_dia={d}" class="btn-editar-grid" target="_self">✏️</a>
-                        </div>
-                    </div>
-                    ''', unsafe_allow_html=True)
+                    # Las proporciones [8, 16, 16, 16, 16, 18, 10] coinciden EXACTAMENTE con las tuyas originales del CSS.
+                    # El selector mágico CSS en la parte superior transformará este bloque de forma invisible para que se vea como HTML.
+                    c1, c2, c3, c4, c5, c6, c7 = st.columns([8, 16, 16, 16, 16, 18, 10])
+                    
+                    with c1:
+                        st.markdown(f"<span style='color: {color_dia}; font-weight: 700;'>{dia_txt}</span>", unsafe_allow_html=True)
+                    with c2:
+                        st.markdown(r["ENTRADA"], unsafe_allow_html=True)
+                    with c3:
+                        st.markdown(r["SALIDA"], unsafe_allow_html=True)
+                    with c4:
+                        st.markdown(hn_val, unsafe_allow_html=True)
+                    with c5:
+                        st.markdown(hr_val, unsafe_allow_html=True)
+                    with c6:
+                        st.markdown(ob_val, unsafe_allow_html=True)
+                    with c7:
+                        # Al usar st.button, evitamos el link HTTP que recarga la página por completo
+                        if st.button("✏️", key=f"editar_dia_{d}"):
+                            st.session_state["dia_en_edicion"] = d
+                            st.rerun()
 
                     # Lógica de edición desplegable al presionar el botón de la fila
                     if st.session_state.get("dia_en_edicion") == d:
