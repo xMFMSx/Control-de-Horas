@@ -84,10 +84,10 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
     border-left: 1px solid #353b4d !important;
 }
 
-/* Estructura CSS Grid para la tabla */
+/* Estructura CSS Grid para la tabla de 7 columnas */
 .contenedor-tabla {
     display: grid !important;
-    grid-template-columns: 4.5% 9% 9% 18% 18% 16% !important;
+    grid-template-columns: 4.5% 9% 9% 11% 11% 18% 10% !important;
     width: 100% !important;
     align-items: center !important;
     box-sizing: border-box !important;
