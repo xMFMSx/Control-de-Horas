@@ -165,7 +165,6 @@ div.lapiz-lateral-wrapper {
     margin: 0 !important;
 }
 </style>""", unsafe_allow_html=True)
-</style>""", unsafe_allow_html=True)
 
 SECRET_KEY = "control_de_horas_firmado_token_2026"
 
