@@ -128,7 +128,7 @@ div.lapiz-lateral-wrapper button {
     min-height: 24px !important;
     height: 24px !important;
     width: 30px !important;
-    font-size: 0.70rem !important;
+    font-size: 0.50rem !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
