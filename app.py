@@ -30,7 +30,7 @@ div[data-testid="stToolbar"] { visibility: hidden !important; }
 footer { visibility: hidden !important; }
 div[data-testid="stDecoration"] { display: none !important; }
 
-/* Scroll fluido total en la vista para evitar cortes inferiores */
+/* SOLUCIÓN DEFINITIVA AL CORTE INFERIOR: Liberar scroll en contenedores de Streamlit */
 html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {
     overflow-y: auto !important;
     height: auto !important;
@@ -50,49 +50,93 @@ div[data-testid="stForm"] {
     margin-bottom: 0.5rem !important; 
 }
 
+/* ELIMINACIÓN TOTAL DE FRANJAS NEGRAS Y ESPACIOS ENTRE FILAS */
+div.element-container:has(.contenedor-tabla), 
+div.stElementContainer:has(.contenedor-tabla) {
+    margin-bottom: -1px !important; 
+    padding-bottom: 0 !important;
+    padding-top: 0 !important;
+}
+
 div[data-testid="stVerticalBlock"] {
     gap: 0.1rem !important;
 }
 
-/* Estilo para los botones de los días dentro de la tabla */
-div[data-testid="column"] button {
-    background-color: transparent !important;
-    border: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    min-height: 0 !important;
-    height: auto !important;
-    font-weight: 700 !important;
-    font-size: 0.78rem !important;
-    box-shadow: none !important;
-    text-align: left !important;
-    width: 100% !important;
-    border-radius: 0px !important;
-}
-div[data-testid="column"] button:hover {
-    text-decoration: underline !important;
-}
-
-/* Contenedor de filas de la tabla unificadas */
-.fila-tabla-estilo {
+/* Fila horizontal principal de la tabla */
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: stretch !important; 
     background-color: #1a1e29 !important;
     border: 1px solid #353b4d !important;
-    margin-bottom: -1px !important;
+    width: 100% !important;
     box-sizing: border-box !important;
-    padding: 4px 0 !important;
+    margin: 0 !important;
 }
-.fila-tabla-estilo:hover {
-    background-color: #222736 !important;
-    border-color: #448aff !important;
+div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
+    background-color: #222634 !important;
 }
 
-.fila-encabezado-estilo {
-    background-color: #222634 !important;
-    border: 1px solid #353b4d !important;
-    border-radius: 4px 4px 0 0 !important;
-    padding: 6px 0 !important;
-    margin-bottom: -1px !important;
+/* Proporciones exactas: Tabla izquierda (89%), Botón derecha (11%) */
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
+    flex: 0 0 89% !important;
+    max-width: 89% !important;
+    min-width: 0 !important;
 }
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child {
+    flex: 0 0 11% !important;
+    max-width: 11% !important;
+    display: flex !important; 
+    align-items: center !important; 
+    justify-content: center !important;
+    border-left: 1px solid #353b4d !important;
+}
+
+/* Estructura interna de la tabla con ancho ajustado para que el lápiz quede perfecto */
+.contenedor-tabla {
+    display: grid !important;
+    grid-template-columns: 4.5% 9% 9% 11% 11% 10% !important;
+    width: 100% !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+}
+
+.es-encabezado { font-weight: 700 !important; color: #a3adc2 !important; font-size: 0.6rem !important; }
+.es-datos { color: #ffffff !important; font-size: 0.78rem !important; }
+
+.contenedor-tabla > div {
+    border-right: 1px solid #353b4d !important;
+    padding: 5px 4px !important;
+    display: flex !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+.contenedor-tabla > div:last-child { border-right: none !important; }
+
+div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p { 
+    margin: 0 !important; 
+    padding: 0 !important; 
+    line-height: 1.1 !important; 
+}
+
+/* Botón de edición perfectamente centrado */
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
+    height: 24px !important; 
+    width: 24px !important; 
+    min-width: 24px !important;
+    padding: 0 !important; 
+    margin: auto !important;
+    background-color: transparent !important; 
+    border: 1px solid transparent !important;
+    display: flex !important; 
+    align-items: center !important; 
+    justify-content: center !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button:hover { border: 1px solid #a3adc2 !important; }
 </style>""", unsafe_allow_html=True)
 
 SECRET_KEY = "control_de_horas_firmado_token_2026"
@@ -604,7 +648,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-        # --- VISTA 2: RESUMEN MENSUAL CON TABLA EXACTA Y DÍA CLICKEABLE ---
+        # --- VISTA 2: RESUMEN MENSUAL CON LA TABLA EXACTA Y EL LÁPIZ ORIGINAL ---
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
@@ -630,24 +674,23 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # --- ENCABEZADO IDÉNTICO AL ORIGINAL ---
-                st.markdown('<div class="fila-encabezado-estilo">', unsafe_allow_html=True)
-                ch_dia, ch_ent, ch_sal, ch_hn, ch_hr, ch_ob = st.columns([0.12, 0.18, 0.18, 0.18, 0.18, 0.16], vertical_alignment="center")
-                with ch_dia:
-                    st.markdown("<div style='font-weight: 700; color: #a3adc2; font-size: 0.6rem; padding-left: 4px;'>DÍA</div>", unsafe_allow_html=True)
-                with ch_ent:
-                    st.markdown("<div style='font-weight: 700; color: #a3adc2; font-size: 0.6rem;'>ENTRADA</div>", unsafe_allow_html=True)
-                with ch_sal:
-                    st.markdown("<div style='font-weight: 700; color: #a3adc2; font-size: 0.6rem;'>SALIDA</div>", unsafe_allow_html=True)
-                with ch_hn:
-                    st.markdown("<div style='font-weight: 700; color: #a3adc2; font-size: 0.6rem;'>H.NORMAL</div>", unsafe_allow_html=True)
-                with ch_hr:
-                    st.markdown("<div style='font-weight: 700; color: #a3adc2; font-size: 0.6rem;'>H.RECARGO</div>", unsafe_allow_html=True)
-                with ch_ob:
-                    st.markdown("<div style='font-weight: 700; color: #a3adc2; font-size: 0.6rem;'>OBRA</div>", unsafe_allow_html=True)
-                st.markdown('</div>', unsafe_allow_html=True)
+                # --- ENCABEZADO ORIGINAL[cite: 1] ---
+                c_h1, c_h2 = st.columns([0.89, 0.11], vertical_alignment="center")
+                with c_h1:
+                    st.markdown('''
+                    <div class="contenedor-tabla es-encabezado">
+                        <div class="col-dia">DÍA</div>
+                        <div class="col-ent">ENTRADA</div>
+                        <div class="col-sal">SALIDA</div>
+                        <div class="col-hn">H.NORMAL</div>
+                        <div class="col-hr">H.RECARGO</div>
+                        <div class="col-ob">OBRA</div>
+                    </div>
+                    ''', unsafe_allow_html=True)
+                with c_h2:
+                    pass
 
-                # --- FILAS DE DATOS CON DÍA CLICKEABLE ---
+                # --- FILAS DE DATOS ORIGINALES CON EL LÁPIZ[cite: 1] ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     
@@ -662,41 +705,37 @@ else:
                     es_festivo = iso_f in FERIADOS
                     
                     if es_festivo or w_day == 6:
-                        color_dia = "#b388ff"
-                        dia_txt = f"{d} (F)" if es_festivo else str(d)
+                        dia_html = f'<span style="color: #b388ff; font-weight: 700;">{d} (F)</span>' if es_festivo else f'<span style="color: #b388ff; font-weight: 700;">{d}</span>'
                     elif w_day == 5:
-                        color_dia = "#448aff"
-                        dia_txt = str(d)
+                        dia_html = f'<span style="color: #448aff; font-weight: 700;">{d}</span>'
                     else:
-                        color_dia = "#ffffff"
-                        dia_txt = str(d)
+                        dia_html = str(d)
 
-                    hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
-                    hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
+                    c_dat, c_b = st.columns([0.89, 0.11], vertical_alignment="center")
                     
-                    st.markdown('<div class="fila-tabla-estilo">', unsafe_allow_html=True)
-                    c_dia, c_ent, c_sal, c_hn, c_hr, c_ob = st.columns([0.12, 0.18, 0.18, 0.18, 0.18, 0.16], vertical_alignment="center")
-                    
-                    with c_dia:
-                        if st.button(dia_txt, key=f"btn_dia_{d}", help=f"Editar día {d}"):
+                    with c_dat:
+                        hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
+                        hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
+                        
+                        st.markdown(f'''
+                        <div class="contenedor-tabla es-datos">
+                            <div class="col-dia">{dia_html}</div>
+                            <div class="col-ent">{r["ENTRADA"]}</div>
+                            <div class="col-sal">{r["SALIDA"]}</div>
+                            <div class="col-hn">{hn_val}</div>
+                            <div class="col-hr">{hr_val}</div>
+                            <div class="col-ob">{r["OBRA"]}</div>
+                        </div>
+                        ''', unsafe_allow_html=True)
+                    with c_b:
+                        if st.button("✏️", key=f"btn_edit_{d}"):
                             if st.session_state.get("dia_en_edicion") == d:
                                 st.session_state["dia_en_edicion"] = None
                             else:
                                 st.session_state["dia_en_edicion"] = d
                             st.rerun()
-                    with c_ent:
-                        st.markdown(f"<div style='color: {color_dia}; font-size: 0.78rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;'>{r['ENTRADA']}</div>", unsafe_allow_html=True)
-                    with c_sal:
-                        st.markdown(f"<div style='color: {color_dia}; font-size: 0.78rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;'>{r['SALIDA']}</div>", unsafe_allow_html=True)
-                    with c_hn:
-                        st.markdown(f"<div style='color: {color_dia}; font-size: 0.78rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;'>{hn_val}</div>", unsafe_allow_html=True)
-                    with c_hr:
-                        st.markdown(f"<div style='color: {color_dia}; font-size: 0.78rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;'>{hr_val}</div>", unsafe_allow_html=True)
-                    with c_ob:
-                        st.markdown(f"<div style='color: {color_dia}; font-size: 0.78rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;'>{r['OBRA']}</div>", unsafe_allow_html=True)
-                    st.markdown('</div>', unsafe_allow_html=True)
 
-                    # Lógica de edición desplegable al hacer clic en el día
+                    # Lógica de edición[cite: 1]
                     if st.session_state.get("dia_en_edicion") == d:
                         datos_d = dict_por_dia.get(d, {})
                         val_e = str_a_time(datos_d.get("entrada", ""))
@@ -705,7 +744,6 @@ else:
                         idx_o = lista_obras.index(val_o) if val_o and val_o in lista_obras else 0
 
                         with st.form(key=f"form_inline_dia_{d}"):
-                            st.markdown(f"**✏️ Editando Día {d}**")
                             c1e, c2e = st.columns(2)
                             with c1e:
                                 edit_ent = st.time_input("Entrada", value=val_e, key=f"re_{d}")
