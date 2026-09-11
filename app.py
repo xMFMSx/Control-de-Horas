@@ -59,7 +59,7 @@ div[data-testid="stVerticalBlock"] {
    ========================================================== */
 .contenedor-tabla-7 {
     display: grid !important;
-    grid-template-columns: 8% 16% 16% 16% 16% 18% 10% !important;
+    grid-template-columns: 5% 9% 9% 11% 11% 18% 10% !important;
     width: 100% !important;
     align-items: center !important;
     box-sizing: border-box !important;
