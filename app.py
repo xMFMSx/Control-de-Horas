@@ -172,7 +172,7 @@ div[data-testid="stVerticalBlock"]:has(div.es-datos-6) {
 }
 
 div[data-testid="stVerticalBlock"]:has(div.es-datos-6) > div {
-    margin-bottom: -9px !important;
+    margin-bottom: -10px !important;
     padding-bottom: 0 !important;
     padding-top: 0 !important;
 }
