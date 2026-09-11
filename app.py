@@ -62,7 +62,7 @@ div[data-testid="stVerticalBlock"] {
     gap: 0.1rem !important;
 }
 
-/* Fila horizontal principal de la tabla (ahora con 2 columnas: Datos y Botón Editar) */
+/* Fila horizontal principal de la tabla */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     display: flex !important;
     flex-direction: row !important;
@@ -77,23 +77,30 @@ div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
     background-color: #222634 !important;
 }
 
-/* Proporciones exactas: Tabla izquierda (91%), Botón de Editar derecha (9%) */
+/* Forzar que las columnas internas nunca se bajen y queden en una sola línea */
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"] {
+    float: none !important;
+    flex: none !important;
+    display: flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Proporciones exactas: Tabla izquierda (91%), Columna Editar derecha (9%) */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
-    flex: 0 0 91% !important;
+    width: 91% !important;
     max-width: 91% !important;
-    min-width: 0 !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child {
-    flex: 0 0 9% !important;
+    width: 9% !important;
     max-width: 9% !important;
-    display: flex !important; 
-    align-items: center !important; 
     justify-content: flex-end !important;
     padding-right: 12px !important;
     border-left: 1px solid #353b4d !important;
 }
 
-/* Estructura interna de la tabla con 6 columnas distribuidas */
+/* Estructura interna de la tabla con ancho ajustado */
 .contenedor-tabla {
     display: grid !important;
     grid-template-columns: 4.5% 9% 9% 11% 11% 10% !important;
@@ -124,7 +131,7 @@ div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p {
     line-height: 1.1 !important; 
 }
 
-/* Botón de edición alineado a la derecha en su propia columna */
+/* Botón de edición perfectamente alineado a la derecha en su columna */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
     height: 24px !important; 
     width: 24px !important; 
