@@ -54,40 +54,10 @@ div[data-testid="stVerticalBlock"] {
     gap: 0.1rem !important;
 }
 
-/* Fila horizontal principal de la tabla */
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: stretch !important; 
-    background-color: #1a1e29 !important;
-    border: 1px solid #353b4d !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-    margin: 0 !important;
-}
-div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
-    background-color: #222634 !important;
-}
-
-/* Proporciones exactas: Tabla izquierda (89%), Botón derecha (11%) */
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
-    flex: 0 0 89% !important;
-    max-width: 89% !important;
-    min-width: 0 !important;
-}
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child {
-    flex: 0 0 11% !important;
-    max-width: 11% !important;
-    display: flex !important; 
-    align-items: center !important; 
-    justify-content: center !important;
-    border-left: 1px solid #353b4d !important;
-}
-
-/* Estructura CSS Grid de 7 columnas exactas */
+/* Estructura CSS Grid unificada de exactamente 7 columnas */
 .contenedor-tabla {
     display: grid !important;
-    grid-template-columns: 4% 9% 9% 11% 11% 11% 5% !important;
+    grid-template-columns: 8% 16% 16% 16% 16% 18% 10% !important;
     width: 100% !important;
     align-items: center !important;
     box-sizing: border-box !important;
@@ -98,16 +68,26 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
     font-weight: 700 !important; 
     color: #a3adc2 !important; 
     font-size: 0.65rem !important; 
+    background-color: #222634 !important;
+    border: 1px solid #353b4d !important;
+    border-radius: 4px 4px 0 0;
+    padding: 10px 8px !important;
+    margin-bottom: -1px !important;
 }
 
 .es-datos { 
     color: #ffffff !important; 
     font-size: 0.78rem !important; 
+    background-color: #1a1e29 !important;
+    border: 1px solid #353b4d !important;
+    border-top: none !important;
+    padding: 7px 8px !important;
+    margin-bottom: -1px !important;
 }
 
 .contenedor-tabla > div {
     border-right: 1px solid #353b4d !important;
-    padding: 9px 8px !important;
+    padding: 0 4px !important;
     display: flex !important;
     align-items: center !important;
     box-sizing: border-box !important;
@@ -115,19 +95,19 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
     overflow: hidden !important;
     text-overflow: ellipsis !important;
 }
-.contenedor-tabla > div:last-child { border-right: none !important; }
+.contenedor-tabla > div:last-child { border-right: none !important; justify-content: center !important; }
 
-div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p { 
+div[data-testid="stMarkdownContainer"] p { 
     margin: 0 !important; 
     padding: 0 !important; 
     line-height: 1.1 !important; 
 }
 
-/* Botón de edición perfectamente centrado */
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
+/* Botón de edición perfectamente integrado dentro de la celda de la grilla */
+.contenedor-tabla button {
     height: 24px !important; 
-    width: 24px !important; 
-    min-width: 24px !important;
+    width: 28px !important; 
+    min-width: 28px !important;
     padding: 0 !important; 
     margin: auto !important;
     background-color: transparent !important; 
@@ -136,7 +116,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
     align-items: center !important; 
     justify-content: center !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button:hover { border: 1px solid #a3adc2 !important; }
+.contenedor-tabla button:hover { border: 1px solid #a3adc2 !important; }
 </style>""", unsafe_allow_html=True)
 
 SECRET_KEY = "control_de_horas_firmado_token_2026"
@@ -326,7 +306,7 @@ if "modo_admin_activo" not in st.session_state:
 
 if not st.session_state.autenticado:
     st.title("🔐 Acceso a APP DE HORAS")
-    st.write(f"Por favor, ingresa tu correo electrónico y contraseña para continuar[cite: 1].")
+    st.write("Por favor, ingresa tu correo electrónico y contraseña para continuar[cite: 1].")
     
     with st.form("form_login"):
         correo_input = st.text_input("Correo Electrónico")
@@ -648,7 +628,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-        # --- VISTA 2: RESUMEN MENSUAL CON LAS 7 COLUMNAS REALES EN EL CSS GRID ---
+        # --- VISTA 2: RESUMEN MENSUAL CON LA TABLA 100% UNIFICADA EN CSS GRID DE 7 COLUMNAS ---
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
@@ -674,7 +654,7 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # --- ENCABEZADO CON 7 COLUMNAS REALES ---
+                # --- ENCABEZADO DE 7 COLUMNAS ---
                 st.markdown('''
                 <div class="contenedor-tabla es-encabezado">
                     <div>DÍA</div>
@@ -687,7 +667,7 @@ else:
                 </div>
                 ''', unsafe_allow_html=True)
 
-                # --- FILAS DE DATOS DE 7 COLUMNAS ---
+                # --- FILAS DE DATOS DE 7 COLUMNAS EN UN SOLO BLOQUE ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     
@@ -714,22 +694,23 @@ else:
                     hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
                     hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
 
-                    # Usamos st.columns con 7 columnas nativas sincronizadas con el CSS Grid de 7 columnas
-                    c_d, c_e, c_s, c_hn, c_hr, c_o, c_btn = st.columns([0.08, 0.16, 0.16, 0.16, 0.16, 0.18, 0.10], vertical_alignment="center")
+                    # Creamos el botón nativo de Streamlit para la última columna del Grid
+                    btn_html = ""
+                    # Renderizamos la fila completa mediante HTML Grid inyectando el botón o manejando el estado
+                    col1, col2, col3, col4, col5, col6, col7 = f"<div style='color: {color_dia}; font-weight: 700;'>{dia_txt}</div>", f"<div>{r['ENTRADA']}</div>", f"<div>{r['SALIDA']}</div>", f"<div>{hn_val}</div>", f"<div>{hr_val}</div>", f"<div>{r['OBRA']}</div>", ""
                     
-                    with c_d:
-                        st.markdown(f'<div class="es-datos"><div style="color: {color_dia}; font-weight: 700;">{dia_txt}</div></div>', unsafe_allow_html=True)
-                    with c_e:
-                        st.markdown(f'<div class="es-datos"><div>{r["ENTRADA"]}</div></div>', unsafe_allow_html=True)
-                    with c_s:
-                        st.markdown(f'<div class="es-datos"><div>{r["SALIDA"]}</div></div>', unsafe_allow_html=True)
-                    with c_hn:
-                        st.markdown(f'<div class="es-datos"><div>{hn_val}</div></div>', unsafe_allow_html=True)
-                    with c_hr:
-                        st.markdown(f'<div class="es-datos"><div>{hr_val}</div></div>', unsafe_allow_html=True)
-                    with c_o:
-                        st.markdown(f'<div class="es-datos"><div>{r["OBRA"]}</div></div>', unsafe_allow_html=True)
-                    with c_btn:
+                    st.markdown(f'''
+                    <div class="es-datos">
+                        <div class="contenedor-tabla">
+                            {col1}{col2}{col3}{col4}{col5}{col6}
+                            <div style="display: flex; justify-content: center; align-items: center;"></div>
+                        </div>
+                    </div>
+                    ''', unsafe_allow_html=True)
+                    
+                    # Ubicamos el botón de editar exactamente superpuesto en la última columna de la grilla anterior
+                    c_h_izq, c_h_der = st.columns([0.90, 0.10])
+                    with c_h_der:
                         if st.button("✏️", key=f"btn_edit_{d}", use_container_width=True):
                             if st.session_state.get("dia_en_edicion") == d:
                                 st.session_state["dia_en_edicion"] = None
@@ -737,7 +718,7 @@ else:
                                 st.session_state["dia_en_edicion"] = d
                             st.rerun()
 
-                    # Lógica de edición desplegable al presionar el botón de la derecha
+                    # Lógica de edición desplegable al presionar el botón
                     if st.session_state.get("dia_en_edicion") == d:
                         datos_d = dict_por_dia.get(d, {})
                         val_e = str_a_time(datos_d.get("entrada", ""))
