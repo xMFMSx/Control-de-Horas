@@ -164,6 +164,16 @@ div.lapiz-lateral-wrapper {
     width: 100% !important;
     margin: 0 !important;
 }
+
+/* Eliminar el espacio y separación vertical entre cada fila de la tabla */
+div[data-testid="stVerticalBlock"] > div:has(> div[data-testid="stHorizontalBlock"]) {
+    margin-bottom: -1px !important;
+    gap: 0 !important;
+}
+
+div[data-testid="element-container"]:has(div.es-datos-6) {
+    margin-bottom: -1px !important;
+}
 </style>""", unsafe_allow_html=True)
 
 SECRET_KEY = "control_de_horas_firmado_token_2026"
