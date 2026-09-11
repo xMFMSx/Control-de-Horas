@@ -710,7 +710,6 @@ else:
                     ''', unsafe_allow_html=True)
                 with c_h2:
                     st.markdown('<div class="es-encabezado" style="text-align: center; border-radius: 0 4px 4px 0;">EDITAR</div>', unsafe_allow_html=True)
-
                 # --- FILAS DE DATOS UNIFICADAS ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
