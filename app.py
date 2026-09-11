@@ -62,52 +62,47 @@ div[data-testid="stVerticalBlock"] {
     gap: 0.1rem !important;
 }
 
-/* Fila horizontal principal de la tabla */
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: stretch !important; 
+/* Fila entera de la tabla convertida en un botón limpio y perfectamente alineado */
+div[data-testid="column"] button {
     background-color: #1a1e29 !important;
     border: 1px solid #353b4d !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
+    padding: 6px 8px !important;
     margin: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    box-shadow: none !important;
+    text-align: left !important;
+    width: 100% !important;
+    border-radius: 0px !important;
 }
-div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
-    background-color: #222634 !important;
-}
-
-/* Proporciones exactas: Tabla izquierda (89%), Columna derecha vacía/botón (11%) */
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
-    flex: 0 0 89% !important;
-    max-width: 89% !important;
-    min-width: 0 !important;
-}
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child {
-    flex: 0 0 11% !important;
-    max-width: 11% !important;
-    display: flex !important; 
-    align-items: center !important; 
-    justify-content: center !important;
-    border-left: 1px solid #353b4d !important;
+div[data-testid="column"] button:hover {
+    background-color: #222736 !important;
+    border-color: #448aff !important;
 }
 
-/* Estructura interna de la tabla con ancho ajustado */
+/* Estructura interna de la tabla milimétricamente ajustada */
 .contenedor-tabla {
     display: grid !important;
-    grid-template-columns: 4.5% 9% 9% 11% 11% 10% !important;
+    grid-template-columns: 12% 18% 18% 18% 18% 16% !important;
     width: 100% !important;
     align-items: center !important;
     box-sizing: border-box !important;
     margin: 0 !important;
 }
 
-.es-encabezado { font-weight: 700 !important; color: #a3adc2 !important; font-size: 0.6rem !important; }
-.es-datos { color: #ffffff !important; font-size: 0.78rem !important; }
+.es-encabezado { 
+    font-weight: 700 !important; 
+    color: #a3adc2 !important; 
+    font-size: 0.6rem !important; 
+    background-color: #222634 !important;
+    border: 1px solid #353b4d !important;
+    border-radius: 4px 4px 0 0;
+    padding: 9px 8px !important;
+}
 
 .contenedor-tabla > div {
     border-right: 1px solid #353b4d !important;
-    padding: 5px 4px !important;
+    padding: 0 4px !important;
     display: flex !important;
     align-items: center !important;
     box-sizing: border-box !important;
@@ -117,26 +112,11 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
 }
 .contenedor-tabla > div:last-child { border-right: none !important; }
 
-div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p { 
+div[data-testid="stMarkdownContainer"] p { 
     margin: 0 !important; 
     padding: 0 !important; 
     line-height: 1.1 !important; 
 }
-
-/* Botón totalmente limpio sin icono ni bordes molestos, integrado a la derecha */
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
-    height: 100% !important; 
-    width: 100% !important; 
-    min-height: 24px !important;
-    padding: 0 !important; 
-    margin: 0 !important;
-    background-color: transparent !important; 
-    border: none !important;
-    display: flex !important; 
-    align-items: center !important; 
-    justify-content: center !important;
-}
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button:hover { background-color: #222736 !important; }
 </style>""", unsafe_allow_html=True)
 
 SECRET_KEY = "control_de_horas_firmado_token_2026"
@@ -648,7 +628,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-        # --- VISTA 2: RESUMEN MENSUAL CON ENCABEZADO COMPLETADO A LA DERECHA Y SIN ICONO EN EL BOTÓN ---
+        # --- VISTA 2: RESUMEN MENSUAL CON FILA 100% CLICKEABLE Y SIN RECARGAS ---
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
@@ -674,23 +654,21 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # --- ENCABEZADO CON COLUMNA EXTRA A LA DERECHA (EN BLANCO) ---
-                c_h1, c_h2 = st.columns([0.89, 0.11], vertical_alignment="center")
-                with c_h1:
-                    st.markdown('''
-                    <div class="contenedor-tabla es-encabezado">
-                        <div class="col-dia">DÍA</div>
-                        <div class="col-ent">ENTRADA</div>
-                        <div class="col-sal">SALIDA</div>
-                        <div class="col-hn">H.NORMAL</div>
-                        <div class="col-hr">H.RECARGO</div>
-                        <div class="col-ob">OBRA</div>
+                # --- ENCABEZADO IDÉNTICO AL ORIGINAL ---
+                st.markdown('''
+                <div class="es-encabezado">
+                    <div class="contenedor-tabla">
+                        <div>DÍA</div>
+                        <div>ENTRADA</div>
+                        <div>SALIDA</div>
+                        <div>H.NORMAL</div>
+                        <div>H.RECARGO</div>
+                        <div>OBRA</div>
                     </div>
-                    ''', unsafe_allow_html=True)
-                with c_h2:
-                    st.markdown('<div style="font-weight: 700; color: #a3adc2; font-size: 0.6rem; text-align: center;">&nbsp;</div>', unsafe_allow_html=True)
+                </div>
+                ''', unsafe_allow_html=True)
 
-                # --- FILAS DE DATOS CON BOTÓN LIMPIO A LA DERECHA (SIN ICONO) ---
+                # --- FILAS DE DATOS 100% CLICKEABLES ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     
@@ -705,38 +683,27 @@ else:
                     es_festivo = iso_f in FERIADOS
                     
                     if es_festivo or w_day == 6:
-                        dia_html = f'<span style="color: #b388ff; font-weight: 700;">{d} (F)</span>' if es_festivo else f'<span style="color: #b388ff; font-weight: 700;">{d}</span>'
+                        color_dia = "#b388ff"
+                        dia_txt = f"{d} (F)" if es_festivo else str(d)
                     elif w_day == 5:
-                        dia_html = f'<span style="color: #448aff; font-weight: 700;">{d}</span>'
+                        color_dia = "#448aff"
+                        dia_txt = str(d)
                     else:
-                        dia_html = str(d)
+                        color_dia = "#ffffff"
+                        dia_txt = str(d)
 
-                    c_dat, c_b = st.columns([0.89, 0.11], vertical_alignment="center")
+                    hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
+                    hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
                     
-                    with c_dat:
-                        hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
-                        hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
-                        
-                        st.markdown(f'''
-                        <div class="contenedor-tabla es-datos">
-                            <div class="col-dia">{dia_html}</div>
-                            <div class="col-ent">{r["ENTRADA"]}</div>
-                            <div class="col-sal">{r["SALIDA"]}</div>
-                            <div class="col-hn">{hn_val}</div>
-                            <div class="col-hr">{hr_val}</div>
-                            <div class="col-ob">{r["OBRA"]}</div>
-                        </div>
-                        ''', unsafe_allow_html=True)
-                    with c_b:
-                        # Botón totalmente limpio sin texto ni icono, ubicado en la columna derecha
-                        if st.button("", key=f"btn_edit_{d}", help=f"Editar día {d}"):
-                            if st.session_state.get("dia_en_edicion") == d:
-                                st.session_state["dia_en_edicion"] = None
-                            else:
-                                st.session_state["dia_en_edicion"] = d
-                            st.rerun()
+                    # Botón nativo transparente que abarca toda la fila para editar al hacer clic (sin recargas)
+                    if st.button(f"Día {dia_txt} | {r['ENTRADA']} | {r['SALIDA']} | {hn_val} | {hr_val} | {r['OBRA']}", key=f"btn_row_{d}", use_container_width=True):
+                        if st.session_state["dia_en_edicion"] == d:
+                            st.session_state["dia_en_edicion"] = None
+                        else:
+                            st.session_state["dia_en_edicion"] = d
+                        st.rerun()
 
-                    # Lógica de edición
+                    # Si este día está seleccionado, se abre el formulario de edición al instante
                     if st.session_state.get("dia_en_edicion") == d:
                         datos_d = dict_por_dia.get(d, {})
                         val_e = str_a_time(datos_d.get("entrada", ""))
@@ -745,6 +712,7 @@ else:
                         idx_o = lista_obras.index(val_o) if val_o and val_o in lista_obras else 0
 
                         with st.form(key=f"form_inline_dia_{d}"):
+                            st.markdown(f"**✏️ Editando Día {d}**")
                             c1e, c2e = st.columns(2)
                             with c1e:
                                 edit_ent = st.time_input("Entrada", value=val_e, key=f"re_{d}")
