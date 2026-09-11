@@ -761,9 +761,12 @@ else:
                     with c6:
                         st.markdown(ob_val, unsafe_allow_html=True)
                     with c7:
-                        # Al usar st.button, evitamos el link HTTP que recarga la página por completo
+                        # Al presionar el botón, verifica si ya está abierto para cerrarlo
                         if st.button("✏️", key=f"editar_dia_{d}"):
-                            st.session_state["dia_en_edicion"] = d
+                            if st.session_state.get("dia_en_edicion") == d:
+                                st.session_state["dia_en_edicion"] = None
+                            else:
+                                st.session_state["dia_en_edicion"] = d
                             st.rerun()
 
                     # Lógica de edición desplegable al presionar el botón de la fila
