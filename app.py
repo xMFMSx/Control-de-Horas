@@ -54,7 +54,7 @@ div[data-testid="stVerticalBlock"] {
     gap: 0.1rem !important;
 }
 
-/* Fila horizontal principal de la tabla con la nueva columna al final */
+/* Fila horizontal principal de la tabla */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     display: flex !important;
     flex-direction: row !important;
@@ -69,7 +69,7 @@ div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
     background-color: #222634 !important;
 }
 
-/* Proporciones exactas: Tabla izquierda (89%), Botón editar derecha (11%) */
+/* Proporciones exactas: Tabla izquierda (89%), Botón derecha (11%) */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
     flex: 0 0 89% !important;
     max-width: 89% !important;
@@ -84,10 +84,10 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
     border-left: 1px solid #353b4d !important;
 }
 
-/* Estructura CSS Grid para la tabla de 7 columnas */
+/* Estructura CSS Grid para la tabla */
 .contenedor-tabla {
     display: grid !important;
-    grid-template-columns: 5% 10% 8% 11% 12% 10% 10% !important;
+    grid-template-columns: 12% 18% 18% 18% 18% 16% !important;
     width: 100% !important;
     align-items: center !important;
     box-sizing: border-box !important;
@@ -123,7 +123,7 @@ div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p {
     line-height: 1.1 !important; 
 }
 
-/* Botón de edición perfectamente centrado en la nueva columna */
+/* Botón de edición perfectamente centrado */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
     height: 24px !important; 
     width: 24px !important; 
@@ -677,20 +677,20 @@ else:
                 # --- ENCABEZADO CON COLUMNA EXTRA DE EDICIÓN A LA DERECHA ---
                 c_h1, c_h2 = st.columns([0.89, 0.11], vertical_alignment="center")
                 with c_h1:
-                    # --- ENCABEZADO UNIFICADO DE 7 COLUMNAS ---
-                st.markdown('''
-                <div class="contenedor-tabla es-encabezado">
-                    <div>DÍA</div>
-                    <div>ENTRADA</div>
-                    <div>SALIDA</div>
-                    <div>H.NORMAL</div>
-                    <div>H.RECARGO</div>
-                    <div>OBRA</div>
-                    <div style="text-align: center;">EDITAR</div>
-                </div>
-                ''', unsafe_allow_html=True)
+                    st.markdown('''
+                    <div class="contenedor-tabla es-encabezado">
+                        <div>DÍA</div>
+                        <div>ENTRADA</div>
+                        <div>SALIDA</div>
+                        <div>H.NORMAL</div>
+                        <div>H.RECARGO</div>
+                        <div>OBRA</div>
+                    </div>
+                    ''', unsafe_allow_html=True)
+                with c_h2:
+                    st.markdown('<div class="es-encabezado" style="text-align: center; border-radius: 0 4px 4px 0;">EDITAR</div>', unsafe_allow_html=True)
 
-                # --- FILAS DE DATOS UNIFICADAS ---
+                # --- FILAS DE DATOS CON BOTÓN DE EDITAR A LA DERECHA ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     
@@ -717,31 +717,27 @@ else:
                     hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
                     hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
 
-                    # Renderizamos la fila completa en una sola línea CSS Grid de 7 columnas
-                    cols_container = st.container()
-                    with cols_container:
-                        # Usamos un botón invisible o un botón de acción limpio en la última celda de la grilla
-                        col_izq, col_der = st.columns([0.90, 0.10], vertical_alignment="center")
-                        with col_izq:
-                            st.markdown(f'''
-                            <div class="es-datos">
-                                <div class="contenedor-tabla">
-                                    <div style="color: {color_dia}; font-weight: 700;">{dia_txt}</div>
-                                    <div>{r["ENTRADA"]}</div>
-                                    <div>{r["SALIDA"]}</div>
-                                    <div>{hn_val}</div>
-                                    <div>{hr_val}</div>
-                                    <div>{r["OBRA"]}</div>
-                                </div>
+                    c_dat, c_b = st.columns([0.89, 0.11], vertical_alignment="center")
+                    with c_dat:
+                        st.markdown(f'''
+                        <div class="es-datos">
+                            <div class="contenedor-tabla">
+                                <div style="color: {color_dia}; font-weight: 700;">{dia_txt}</div>
+                                <div>{r["ENTRADA"]}</div>
+                                <div>{r["SALIDA"]}</div>
+                                <div>{hn_val}</div>
+                                <div>{hr_val}</div>
+                                <div>{r["OBRA"]}</div>
                             </div>
-                            ''', unsafe_allow_html=True)
-                        with col_der:
-                            if st.button("✏️", key=f"btn_edit_{d}", use_container_width=True):
-                                if st.session_state.get("dia_en_edicion") == d:
-                                    st.session_state["dia_en_edicion"] = None
-                                else:
-                                    st.session_state["dia_en_edicion"] = d
-                                st.rerun()
+                        </div>
+                        ''', unsafe_allow_html=True)
+                    with c_b:
+                        if st.button("✏️", key=f"btn_edit_{d}"):
+                            if st.session_state.get("dia_en_edicion") == d:
+                                st.session_state["dia_en_edicion"] = None
+                            else:
+                                st.session_state["dia_en_edicion"] = d
+                            st.rerun()
 
                     # Lógica de edición desplegable al presionar el botón de la derecha
                     if st.session_state.get("dia_en_edicion") == d:
