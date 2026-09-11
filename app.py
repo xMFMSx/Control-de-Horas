@@ -30,7 +30,7 @@ div[data-testid="stToolbar"] { visibility: hidden !important; }
 footer { visibility: hidden !important; }
 div[data-testid="stDecoration"] { display: none !important; }
 
-/* Scroll fluido total en la vista para evitar cortes inferiores */
+/* Scroll fluido total en la vista */
 html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {
     overflow-y: auto !important;
     height: auto !important;
@@ -62,16 +62,14 @@ div[data-testid="stVerticalBlock"] {
     gap: 0.1rem !important;
 }
 
-/* Botones de Streamlit estilizados como filas de tabla integradas */
+/* Transformar los botones de Streamlit en filas de tabla perfectamente alineadas */
 div[data-testid="column"] button {
     background-color: #1a1e29 !important;
     border: 1px solid #353b4d !important;
-    padding: 6px 8px !important;
+    padding: 0 !important;
     margin: 0 !important;
     min-height: 0 !important;
     height: auto !important;
-    font-weight: 700 !important;
-    font-size: 0.78rem !important;
     box-shadow: none !important;
     text-align: left !important;
     width: 100% !important;
@@ -82,7 +80,7 @@ div[data-testid="column"] button:hover {
     border-color: #448aff !important;
 }
 
-/* Estructura de la tabla en Grid CSS Puro */
+/* Estructura de la tabla en Grid CSS Puro idéntica para header y filas */
 .contenedor-tabla-resumen {
     display: grid !important;
     grid-template-columns: 10% 18% 18% 18% 18% 18% !important;
@@ -103,15 +101,15 @@ div[data-testid="column"] button:hover {
 }
 
 .es-datos { 
-    color: #ffffff !important; 
     font-size: 0.78rem !important; 
-    padding: 6px 8px !important; 
-    background-color: #1a1e29 !important;
-    border: 1px solid #353b4d !important;
+    padding: 7px 8px !important; 
     box-sizing: border-box !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
+    display: flex !important;
+    align-items: center !important;
+    width: 100% !important;
 }
 
 .contenedor-tabla-resumen > div {
@@ -317,8 +315,6 @@ if "cambiando_password" not in st.session_state:
     st.session_state.cambiando_password = False
 if "modo_admin_activo" not in st.session_state:
     st.session_state.modo_admin_activo = False
-if "dia_en_edicion" not in st.session_state:
-    st.session_state.dia_en_edicion = None
 
 if not st.session_state.autenticado:
     st.title("🔐 Acceso a APP DE HORAS")
@@ -569,6 +565,9 @@ else:
             st.markdown(html_cards_res, unsafe_allow_html=True)
             st.markdown("---")
 
+            if "dia_en_edicion" not in st.session_state:
+                st.session_state["dia_en_edicion"] = None
+
             if registros_completos:
                 # --- ENCABEZADO RESUMEN ---
                 st.markdown('''
@@ -611,7 +610,8 @@ else:
                     hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
                     hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
                     
-                    if st.button(f"__Día {dia_txt}__ | {r['ENTRADA']} | {r['SALIDA']} | {hn_val} | {hr_val} | {r['OBRA']}", key=f"btn_res_d_{d}", use_container_width=True):
+                    # Botón Streamlit que actúa como fila completa perfectamente alineada
+                    if st.button(f"Día {dia_txt} | {r['ENTRADA']} | {r['SALIDA']} | {hn_val} | {hr_val} | {r['OBRA']}", key=f"btn_res_d_{d}", use_container_width=True):
                         st.session_state["dia_en_edicion"] = d if st.session_state.get("dia_en_edicion") != d else None
                         st.rerun()
 
