@@ -92,7 +92,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
     border-left: 1px solid #353b4d !important;
 }
 
-/* Estructura interna de la tabla con ancho ajustado para que el lápiz quede perfecto */
+/* Estructura interna de la tabla con ancho ajustado para que el botón quede perfecto */
 .contenedor-tabla {
     display: grid !important;
     grid-template-columns: 4.5% 9% 9% 11% 11% 10% !important;
@@ -123,7 +123,7 @@ div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p {
     line-height: 1.1 !important; 
 }
 
-/* Botón de edición perfectamente centrado */
+/* Botón de edición perfectamente centrado (sin icono) */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
     height: 24px !important; 
     width: 24px !important; 
@@ -648,7 +648,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-        # --- VISTA 2: RESUMEN MENSUAL CON SCROLL LIBRE Y LÁPIZ EN SU SITIO ---
+        # --- VISTA 2: RESUMEN MENSUAL CON TABLA LIMPIA Y SIN ICONO DE LÁPIZ ---
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
@@ -690,7 +690,7 @@ else:
                 with c_h2:
                     pass
 
-                # --- FILAS DE DATOS ---
+                # --- FILAS DE DATOS (SIN ICONO) ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     
@@ -728,7 +728,8 @@ else:
                         </div>
                         ''', unsafe_allow_html=True)
                     with c_b:
-                        if st.button("✏️", key=f"btn_edit_{d}"):
+                        # Botón sin icono (espacio vacío o texto limpio invisible pero interactivo)
+                        if st.button("⠀", key=f"btn_edit_{d}", help=f"Editar día {d}"):
                             if st.session_state.get("dia_en_edicion") == d:
                                 st.session_state["dia_en_edicion"] = None
                             else:
