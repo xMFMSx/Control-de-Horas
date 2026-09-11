@@ -709,8 +709,7 @@ else:
                     </div>
                     ''', unsafe_allow_html=True)
                 with c_h2:
-                 
-                    pass
+                    st.markdown('<div style="background: transparent; border: none; height: 100%;"></div>', unsafe_allow_html=True)
                 # --- FILAS DE DATOS UNIFICADAS ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
