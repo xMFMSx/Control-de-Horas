@@ -72,30 +72,35 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) {
     width: 100% !important;
     box-sizing: border-box !important;
     margin: 0 !important;
+    height: 32px !important; /* Altura fija unificada para todas las filas */
 }
 div[data-testid="stHorizontalBlock"]:has(.es-encabezado) {
     background-color: #222634 !important;
+    height: 30px !important;
 }
 
-/* Proporciones exactas: Tabla izquierda (89%), Columna derecha vacía/botón (11%) */
+/* Proporciones exactas: Tabla izquierda (93%), Columna derecha (7% para el botón de edición) */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:first-child {
-    flex: 0 0 89% !important;
-    max-width: 89% !important;
+    flex: 0 0 93% !important;
+    max-width: 93% !important;
     min-width: 0 !important;
+    display: flex !important;
+    align-items: center !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="column"]:last-child {
-    flex: 0 0 11% !important;
-    max-width: 11% !important;
+    flex: 0 0 7% !important;
+    max-width: 7% !important;
     display: flex !important; 
     align-items: center !important; 
     justify-content: center !important;
     border-left: 1px solid #353b4d !important;
+    padding: 0 !important;
 }
 
 /* Estructura interna de la tabla con ancho ajustado */
 .contenedor-tabla {
     display: grid !important;
-    grid-template-columns: 4.5% 9% 9% 11% 11% 10% !important;
+    grid-template-columns: 8% 18% 18% 18% 18% 20% !important;
     width: 100% !important;
     align-items: center !important;
     box-sizing: border-box !important;
@@ -107,13 +112,14 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) > div[data-testid="c
 
 .contenedor-tabla > div {
     border-right: 1px solid #353b4d !important;
-    padding: 5px 4px !important;
+    padding: 0 4px !important;
     display: flex !important;
     align-items: center !important;
     box-sizing: border-box !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
+    height: 100% !important;
 }
 .contenedor-tabla > div:last-child { border-right: none !important; }
 
@@ -123,11 +129,11 @@ div[data-testid="stMarkdownContainer"]:has(.contenedor-tabla) p {
     line-height: 1.1 !important; 
 }
 
-/* Botón totalmente limpio sin icono ni bordes molestos, integrado a la derecha */
+/* Botón de edición adaptado al 100% del alto y ancho de la celda derecha */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
     height: 100% !important; 
     width: 100% !important; 
-    min-height: 24px !important;
+    min-height: unset !important;
     padding: 0 !important; 
     margin: 0 !important;
     background-color: transparent !important; 
@@ -135,6 +141,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button {
     display: flex !important; 
     align-items: center !important; 
     justify-content: center !important;
+    border-radius: 0 !important;
 }
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla) button:hover { background-color: #222736 !important; }
 </style>""", unsafe_allow_html=True)
@@ -648,7 +655,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-        # --- VISTA 2: RESUMEN MENSUAL CON ENCABEZADO COMPLETADO A LA DERECHA Y SIN ICONO EN EL BOTÓN ---
+        # --- VISTA 2: RESUMEN MENSUAL CON ALTURA PERFECTAMENTE AJUSTADA ---
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
@@ -674,8 +681,8 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # --- ENCABEZADO CON COLUMNA EXTRA A LA DERECHA (EN BLANCO) ---
-                c_h1, c_h2 = st.columns([0.89, 0.11], vertical_alignment="center")
+                # --- ENCABEZADO CON ALTURA FIJA Y COLUMNA VACÍA DERECHA ALINEADA ---
+                c_h1, c_h2 = st.columns([0.93, 0.07], vertical_alignment="center")
                 with c_h1:
                     st.markdown('''
                     <div class="contenedor-tabla es-encabezado">
@@ -688,9 +695,9 @@ else:
                     </div>
                     ''', unsafe_allow_html=True)
                 with c_h2:
-                    st.markdown('<div style="font-weight: 700; color: #a3adc2; font-size: 0.6rem; text-align: center;">&nbsp;</div>', unsafe_allow_html=True)
+                    st.markdown('<div style="background-color: #222634; border: 1px solid #353b4d; border-radius: 0 4px 4px 0; height: 30px;">&nbsp;</div>', unsafe_allow_html=True)
 
-                # --- FILAS DE DATOS CON BOTÓN LIMPIO A LA DERECHA (SIN ICONO) ---
+                # --- FILAS DE DATOS CON ALTURA UNIFORME ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     
@@ -711,7 +718,7 @@ else:
                     else:
                         dia_html = str(d)
 
-                    c_dat, c_b = st.columns([0.89, 0.11], vertical_alignment="center")
+                    c_dat, c_b = st.columns([0.93, 0.07], vertical_alignment="center")
                     
                     with c_dat:
                         hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
@@ -728,7 +735,6 @@ else:
                         </div>
                         ''', unsafe_allow_html=True)
                     with c_b:
-                        # Botón totalmente limpio sin texto ni icono, ubicado en la columna derecha
                         if st.button("", key=f"btn_edit_{d}", help=f"Editar día {d}"):
                             if st.session_state.get("dia_en_edicion") == d:
                                 st.session_state["dia_en_edicion"] = None
