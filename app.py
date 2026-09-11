@@ -75,23 +75,14 @@ div[data-testid="stVerticalBlock"] {
     margin-bottom: -1px !important;
 }
 
-/* Botones de Streamlit estilizados exactamente como las filas de la tabla */
-div[data-testid="column"] button {
+.es-datos { 
+    color: #ffffff !important; 
+    font-size: 0.78rem !important; 
     background-color: #1a1e29 !important;
     border: 1px solid #353b4d !important;
     border-top: none !important;
     padding: 9px 8px !important;
-    margin: 0 !important;
-    min-height: 0 !important;
-    height: auto !important;
-    box-shadow: none !important;
-    text-align: left !important;
-    width: 100% !important;
-    border-radius: 0px !important;
-}
-div[data-testid="column"] button:hover {
-    background-color: #222736 !important;
-    border-color: #448aff !important;
+    margin-bottom: -1px !important;
 }
 
 .contenedor-tabla > div {
@@ -105,6 +96,25 @@ div[data-testid="column"] button:hover {
     text-overflow: ellipsis !important;
 }
 .contenedor-tabla > div:last-child { border-right: none !important; }
+
+/* Estilo para transformar el número del día en un botón limpio integrado en la grilla */
+div[data-testid="column"] button {
+    background-color: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    font-weight: 700 !important;
+    font-size: 0.78rem !important;
+    box-shadow: none !important;
+    text-align: left !important;
+    width: 100% !important;
+    border-radius: 0px !important;
+}
+div[data-testid="column"] button:hover {
+    text-decoration: underline !important;
+}
 
 div[data-testid="stMarkdownContainer"] p { 
     margin: 0 !important; 
@@ -624,7 +634,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-        # --- VISTA 2: RESUMEN MENSUAL CON FILAS CLICKEABLES EXACTAS ---
+        # --- VISTA 2: RESUMEN MENSUAL CON TABLA LIMPIA Y DÍA CLICKEABLE ---
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
@@ -650,7 +660,7 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # --- ENCABEZADO ---
+                # --- ENCABEZADO IDÉNTICO ---
                 st.markdown('''
                 <div class="contenedor-tabla es-encabezado">
                     <div>DÍA</div>
@@ -662,7 +672,7 @@ else:
                 </div>
                 ''', unsafe_allow_html=True)
 
-                # --- FILAS CLICKEABLES ---
+                # --- FILAS DE DATOS CON EL DÍA CLICKEABLE ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     
@@ -689,16 +699,31 @@ else:
                     hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
                     hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
                     
-                    # Botón invisible con la estructura exacta de la tabla para hacer click en toda la fila
-                    btn_label = f"Día {dia_txt}  |  {r['ENTRADA']}  |  {r['SALIDA']}  |  {hn_val}  |  {hr_val}  |  {r['OBRA']}"
-                    if st.button(btn_label, key=f"btn_fila_{d}", use_container_width=True):
-                        if st.session_state["dia_en_edicion"] == d:
-                            st.session_state["dia_en_edicion"] = None
-                        else:
-                            st.session_state["dia_en_edicion"] = d
-                        st.rerun()
+                    # Renderizamos la fila utilizando 6 columnas nativas perfectamente alineadas dentro de un contenedor con estilo de tabla
+                    st.markdown('<div class="es-datos"><div class="contenedor-tabla" style="padding:0; margin:0; background:transparent; border:none;">', unsafe_allow_html=True)
+                    
+                    c1, c2, c3, c4, c5, c6 = st.columns([0.12, 0.18, 0.18, 0.18, 0.18, 0.16], vertical_alignment="center")
+                    with c1:
+                        if st.button(dia_txt, key=f"btn_dia_{d}", help=f"Editar día {d}"):
+                            if st.session_state.get("dia_en_edicion") == d:
+                                st.session_state["dia_en_edicion"] = None
+                            else:
+                                st.session_state["dia_en_edicion"] = d
+                            st.rerun()
+                    with c2:
+                        st.markdown(f"<div style='color: {color_dia};'>{r['ENTRADA']}</div>", unsafe_allow_html=True)
+                    with c3:
+                        st.markdown(f"<div style='color: {color_dia};'>{r['SALIDA']}</div>", unsafe_allow_html=True)
+                    with c4:
+                        st.markdown(f"<div style='color: {color_dia};'>{hn_val}</div>", unsafe_allow_html=True)
+                    with c5:
+                        st.markdown(f"<div style='color: {color_dia};'>{hr_val}</div>", unsafe_allow_html=True)
+                    with c6:
+                        st.markdown(f"<div style='color: {color_dia};'>{r['OBRA']}</div>", unsafe_allow_html=True)
+                        
+                    st.markdown('</div></div>', unsafe_allow_html=True)
 
-                    # Si está en edición, se despliega el formulario de inmediato
+                    # Si se hace clic en el día, se despliega el formulario de edición justo debajo
                     if st.session_state.get("dia_en_edicion") == d:
                         datos_d = dict_por_dia.get(d, {})
                         val_e = str_a_time(datos_d.get("entrada", ""))
