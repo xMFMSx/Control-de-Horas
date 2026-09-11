@@ -55,11 +55,11 @@ div[data-testid="stVerticalBlock"] {
 }
 
 /* ==========================================================
-   ESTRUCTURA CSS GRID DE 7 COLUMNAS EXACTAS (DÍA A DÍA UNIFICADO)
+   ESTRUCTURA CSS GRID DE 7 COLUMNAS EXACTAS
    ========================================================== */
 .contenedor-tabla {
     display: grid !important;
-    grid-template-columns: 5% 11% 8.5% 12% 13% 25% 10% !important;
+    grid-template-columns: 8% 16% 16% 16% 16% 18% 10% !important;
     width: 100% !important;
     align-items: center !important;
     box-sizing: border-box !important;
@@ -108,11 +108,11 @@ div[data-testid="stMarkdownContainer"] p {
     line-height: 1.1 !important; 
 }
 
-/* Botón del lápiz pequeño, ordenado y exactamente centrado en la 7ma columna */
-.contenedor-tabla button {
+/* Botón de Streamlit adaptado para quedar como un lápiz compacto dentro de la grilla */
+.es-datos button {
     height: 26px !important; 
-    width: 10px !important; 
-    min-width: 10px !important;
+    width: 32px !important; 
+    min-width: 32px !important;
     padding: 0 !important; 
     margin: 0 auto !important;
     background-color: transparent !important; 
@@ -123,7 +123,7 @@ div[data-testid="stMarkdownContainer"] p {
     justify-content: center !important;
     cursor: pointer !important;
 }
-.contenedor-tabla button:hover { 
+.es-datos button:hover { 
     border-color: #a3adc2 !important; 
     background-color: #222736 !important;
 }
@@ -638,7 +638,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-        # --- VISTA 2: RESUMEN MENSUAL CON LA TABLA DE 7 COLUMNAS PERFECTAMENTE INTEGRADA ---
+        # --- VISTA 2: RESUMEN MENSUAL CON LA TABLA DE 7 COLUMNAS REALES ---
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
@@ -664,7 +664,7 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
-                # --- ENCABEZADO DE 7 COLUMNAS EN CSS GRID ---
+                # --- ENCABEZADO DE 7 COLUMNAS ---
                 st.markdown('''
                 <div class="contenedor-tabla es-encabezado">
                     <div>DÍA</div>
@@ -677,7 +677,7 @@ else:
                 </div>
                 ''', unsafe_allow_html=True)
 
-                # --- FILAS DE DATOS DE 7 COLUMNAS EN CSS GRID ---
+                # --- FILAS DE DATOS DE 7 COLUMNAS CON EL BOTÓN INTEGRADO ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     
@@ -704,24 +704,25 @@ else:
                     hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
                     hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
 
-                    # Renderizamos la fila completa en el CSS Grid de 7 columnas usando contenedores separados solo para insertar el botón de Streamlit
-                    c_izq, c_der = st.columns([0.90, 0.10], vertical_alignment="center")
-                    with c_izq:
-                        st.markdown(f'''
-                        <div class="es-datos">
-                            <div class="contenedor-tabla">
-                                <div style="color: {color_dia}; font-weight: 700;">{dia_txt}</div>
-                                <div>{r["ENTRADA"]}</div>
-                                <div>{r["SALIDA"]}</div>
-                                <div>{hn_val}</div>
-                                <div>{hr_val}</div>
-                                <div>{r["OBRA"]}</div>
-                                <div></div>
-                            </div>
+                    # Creamos el botón nativo de Streamlit que se inyectará en la 7ma columna
+                    btn_key = f"btn_edit_{d}"
+                    
+                    # Renderizamos la fila completa en el CSS Grid de 7 columnas usando columnas internas simuladas o espacios reservados
+                    c1, c2, c3, c4, c5, c6 = f"<div style='color: {color_dia}; font-weight: 700;'>{dia_txt}</div>", f"<div>{r['ENTRADA']}</div>", f"<div>{r['SALIDA']}</div>", f"<div>{hn_val}</div>", f"<div>{hr_val}</div>", f"<div>{r['OBRA']}</div>"
+                    
+                    st.markdown(f'''
+                    <div class="es-datos">
+                        <div class="contenedor-tabla" id="row_{d}">
+                            {c1}{c2}{c3}{c4}{c5}{c6}
+                            <div style="display: flex; justify-content: center;" id="slot_btn_{d}"></div>
                         </div>
-                        ''', unsafe_allow_html=True)
-                    with c_der:
-                        if st.button("✏️", key=f"btn_edit_{d}", use_container_width=True):
+                    </div>
+                    ''', unsafe_allow_html=True)
+                    
+                    # Usamos un truco de contenedor flotante transparente para capturar el clic exactamente sobre la celda de la derecha
+                    col_s, col_b = st.columns([0.90, 0.10], vertical_alignment="center")
+                    with col_b:
+                        if st.button("✏️", key=btn_key, use_container_width=True):
                             if st.session_state.get("dia_en_edicion") == d:
                                 st.session_state["dia_en_edicion"] = None
                             else:
