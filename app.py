@@ -136,11 +136,35 @@ div.lapiz-lateral-wrapper button {
     transition: all 0.2s ease-in-out !important;
 }
 
-div.lapiz-lateral-wrapper button:hover {
-    border-color: #a3adc2 !important;
-    background-color: #222736 !important;
-    transform: scale(1.05) !important;
+/* Forzar que las columnas nunca se rompan verticalmente sin importar el zoom */
+div[data-testid="stHorizontalBlock"] {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 8px !important;
 }
+
+div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child {
+    min-width: 0 !important;
+    flex: 1 1 93% !important;
+    width: 93% !important;
+}
+
+div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child {
+    min-width: 38px !important;
+    flex: 0 0 7% !important;
+    width: 7% !important;
+}
+
+div.lapiz-lateral-wrapper {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    margin: 0 !important;
+}
+</style>""", unsafe_allow_html=True)
 </style>""", unsafe_allow_html=True)
 
 SECRET_KEY = "control_de_horas_firmado_token_2026"
