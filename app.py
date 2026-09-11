@@ -104,35 +104,37 @@ div[data-testid="stMarkdownContainer"] p {
 
 /* ==========================================================
    MAGIA CSS PARA LAS FILAS NATIVAS DE STREAMLIT (SIN RECARGA)
-   Mantiene la estética IDÉNTICA al grid HTML original
    ========================================================== */
-div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(7)) {
-    background-color: #1a1e29 !important;
-    border: 1px solid #353b4d !important;
-    border-top: none !important;
-    margin: 0 !important;
-    margin-bottom: -1px !important;
-    gap: 0 !important;
-    min-height: 34px !important;
-    align-items: stretch !important;
+
+/* 1. Forzar horizontalidad siempre (evita que se apilen como en tu imagen) y quitar separaciones */
+div[data-testid="stHorizontalBlock"] {
+    flex-wrap: nowrap !important;
+    gap: 0 !important; 
 }
 
-div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(7)) > div[data-testid="column"] {
+/* 2. Estilizar unificadamente solo las filas de exactamente 7 columnas (tu tabla) */
+div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child:nth-last-child(7),
+div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child:nth-last-child(7) ~ div[data-testid="column"] {
+    background-color: #1a1e29 !important;
+    border-bottom: 1px solid #353b4d !important;
     border-right: 1px solid #353b4d !important;
     padding: 6px 8px !important;
     display: flex !important;
     align-items: center !important;
+    min-height: 38px !important;
     margin-bottom: 0 !important;
 }
 
-div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(7)) > div[data-testid="column"]:last-child {
-    border-right: none !important;
-    justify-content: center !important;
-    padding: 2px !important;
+/* Borde izquierdo para cerrar la primera celda */
+div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child:nth-last-child(7) {
+    border-left: 1px solid #353b4d !important;
 }
 
-div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(7)) p,
-div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(7)) span {
+/* Forzar fuentes consistentes idénticas al HTML */
+div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child:nth-last-child(7) p,
+div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child:nth-last-child(7) ~ div[data-testid="column"] p,
+div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child:nth-last-child(7) span,
+div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child:nth-last-child(7) ~ div[data-testid="column"] span {
     color: #ffffff !important;
     font-size: 0.78rem !important;
     margin: 0 !important;
@@ -141,8 +143,11 @@ div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(7
     text-overflow: ellipsis !important;
 }
 
-/* Estilo del botón editar convertido a nativo Streamlit */
-div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(7)) button {
+/* Centrar y estilizar el botón de la última columna */
+div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child:nth-child(7) {
+    justify-content: center !important;
+}
+div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child:nth-child(7) button {
     background: transparent !important;
     border: 1px solid #353b4d !important;
     color: white !important;
@@ -157,7 +162,7 @@ div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(7
     justify-content: center !important;
     margin: 0 auto !important;
 }
-div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"]:nth-child(7)) button:hover {
+div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child:nth-child(7) button:hover {
     border-color: #a3adc2 !important;
     background-color: #222736 !important;
 }
