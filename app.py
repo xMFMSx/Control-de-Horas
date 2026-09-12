@@ -44,9 +44,9 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {
 }
 
 /* ==========================================================
-   FILA SUPERIOR: NAVEGADOR SEGMENTADO + TUERCA ALINEADA
+   FILA SUPERIOR: NAVEGADOR + TUERCA EN LA MISMA LÍNEA (SIEMPRE)
    ========================================================== */
-div[data-testid="stHorizontalBlock"]:has([data-testid="stPills"]):has([data-testid="stPopover"]) {
+div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
@@ -56,25 +56,39 @@ div[data-testid="stHorizontalBlock"]:has([data-testid="stPills"]):has([data-test
     margin-bottom: 1rem !important;
 }
 
-div[data-testid="stHorizontalBlock"]:has([data-testid="stPills"]):has([data-testid="stPopover"]) > div:first-child {
-    flex: 1 1 88% !important;
-    width: 88% !important;
-    min-width: 0 !important;
+@media (max-width: 9999px) {
+    div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+    }
+    div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) > div[data-testid="column"] {
+        min-width: 0 !important;
+    }
+    div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) > div[data-testid="column"]:first-child {
+        flex: 1 1 85% !important;
+        width: 85% !important;
+        max-width: 85% !important;
+        min-width: 0 !important;
+    }
+    div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) > div[data-testid="column"]:last-child {
+        flex: 0 0 15% !important;
+        width: 15% !important;
+        max-width: 15% !important;
+        min-width: 44px !important;
+        display: flex !important;
+        justify-content: flex-end !important;
+    }
 }
 
-div[data-testid="stHorizontalBlock"]:has([data-testid="stPills"]):has([data-testid="stPopover"]) > div:last-child {
-    flex: 0 0 12% !important;
-    width: 12% !important;
-    min-width: 44px !important;
+div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) [data-testid="stPopover"] {
+    width: 100% !important;
     display: flex !important;
     justify-content: flex-end !important;
 }
 
-div[data-testid="stHorizontalBlock"]:has([data-testid="stPills"]):has([data-testid="stPopover"]) [data-testid="stPopover"] {
-    width: 100% !important;
-}
-
-div[data-testid="stHorizontalBlock"]:has([data-testid="stPills"]):has([data-testid="stPopover"]) [data-testid="stPopover"] > button {
+div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) [data-testid="stPopover"] > button {
     width: 100% !important;
     min-height: 38px !important;
     height: 38px !important;
@@ -117,7 +131,7 @@ div[data-testid="stPills"] button {
     border: 1px solid #2e3547 !important;
     color: #ffffff !important;
     font-weight: 700 !important;
-    font-size: clamp(0.72rem, 2.2vw, 0.82rem) !important;
+    font-size: clamp(0.70rem, 2vw, 0.82rem) !important;
     padding: 0.65rem 0.2rem !important;
     border-radius: 0.5rem !important;
     text-align: center !important;
@@ -612,8 +626,8 @@ else:
         if es_admin and st.session_state.get("fecha_admin_simulada") is not None:
             st.info(f"🕒 Modo simulación activo: **{hoy.strftime('%d/%m/%Y')}** (Configurado desde Panel Administrador)")
 
-        # --- FILA SUPERIOR COMPACTA: NAVEGADOR (88%) + TUERCA (12%) EN LA MISMA LÍNEA ---
-        c_nav, c_gear = st.columns([88, 12])
+        # --- FILA SUPERIOR FORZADA: NAVEGADOR (85%) + TUERCA (15%) EN UNA SOLA LÍNEA ---
+        c_nav, c_gear = st.columns([85, 15])
 
         with c_nav:
             opciones_nav = ["📅 SEPTIEMBRE 2026", "📊 RESUMEN DEL MES"]
