@@ -43,13 +43,6 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {
     padding-bottom: 25rem !important; 
 }
 
-div[data-testid="stForm"] { 
-    border: none !important; 
-    padding: 0 !important; 
-    margin-top: 0.5rem !important; 
-    margin-bottom: 0.5rem !important; 
-}
-
 /* ==========================================================
    ESTRUCTURA CSS GRID DE 6 COLUMNAS (TABLA SIN COLUMNA EDITAR)
    ========================================================== */
@@ -105,10 +98,9 @@ div[data-testid="stMarkdownContainer"] p {
 }
 
 /* ==========================================================
-   ALINEACIÓN HORIZONTAL Y BOTÓN LÁPIZ SIN FONDO
+   FILAS DE LA TABLA (SOLO APLICA -8px Y 93/7 A LA GRILLA)
    ========================================================== */
-/* Elimina el espacio y la línea negra entre filas */
-div[data-testid="stHorizontalBlock"] {
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) {
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
@@ -118,13 +110,13 @@ div[data-testid="stHorizontalBlock"] {
     margin-bottom: 0 !important;
 }
 
-div[data-testid="stHorizontalBlock"] > div:first-child {
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) > div:first-child {
     min-width: 0 !important;
     flex: 1 1 93% !important;
     width: 93% !important;
 }
 
-div[data-testid="stHorizontalBlock"] > div:last-child {
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) > div:last-child {
     min-width: 34px !important;
     flex: 0 0 7% !important;
     width: 7% !important;
@@ -133,8 +125,8 @@ div[data-testid="stHorizontalBlock"] > div:last-child {
     justify-content: center !important;
 }
 
-/* Botón transparente */
-div[data-testid="stHorizontalBlock"] > div:last-child button {
+/* Botón lápiz lateral transparente */
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) > div:last-child button {
     background: transparent !important;
     background-color: transparent !important;
     border: none !important;
@@ -149,48 +141,44 @@ div[data-testid="stHorizontalBlock"] > div:last-child button {
     transform: translateY(6px) !important;
 }
 
-/* Lápiz agrandado a tamaño óptimo */
-div[data-testid="stHorizontalBlock"] > div:last-child button p {
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) > div:last-child button p {
     font-size: 0.85rem !important;
     line-height: 1 !important;
     margin: 0 !important;
     padding: 0 !important;
 }
 
-div[data-testid="stHorizontalBlock"] > div:last-child button:hover {
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) > div:last-child button:hover {
     background: transparent !important;
     opacity: 0.6 !important;
 }
 
 /* ==========================================================
-   TARJETA DESPLEGABLE DE EDICIÓN AISLADA
+   FORMULARIO DE EDICIÓN LIMPIO Y COMPACTO
    ========================================================== */
-div.contenedor-edicion-inline {
+div[data-testid="stForm"] {
     background-color: #161922 !important;
     border: 1px solid #2e3547 !important;
     border-radius: 6px !important;
-    padding: 14px 16px !important;
-    margin: 8px 0 !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
+    padding: 14px 18px !important;
+    margin: 6px 0 !important;
 }
 
-/* Forzar que las columnas dentro del formulario se repartan 50% y 50% */
-div.contenedor-edicion-inline [data-testid="stHorizontalBlock"] {
+div[data-testid="stForm"] div[data-testid="stHorizontalBlock"] {
     display: flex !important;
     flex-direction: row !important;
     margin-top: 0 !important;
     margin-bottom: 0 !important;
-    gap: 12px !important;
+    gap: 14px !important;
 }
 
-div.contenedor-edicion-inline [data-testid="stHorizontalBlock"] > div {
-    flex: 1 1 0% !important;
-    min-width: 0 !important;
+div[data-testid="stForm"] div[data-testid="stHorizontalBlock"] > div {
+    flex: 1 1 50% !important;
     width: 50% !important;
+    min-width: 0 !important;
 }
 
-div.contenedor-edicion-inline label p {
+div[data-testid="stForm"] label p {
     font-size: 0.78rem !important;
     color: #a3adc2 !important;
     font-weight: 600 !important;
@@ -795,68 +783,64 @@ else:
                                 st.session_state["dia_en_edicion"] = d
                             st.rerun()
 
-                    # Formulario desplegable sin títulos redundantes ni bloques vacíos
+                    # Formulario desplegable directo (ocupa el ancho de la tabla, sin títulos ni recuadros vacíos)
                     if st.session_state.get("dia_en_edicion") == d:
-                        col_form, _ = st.columns([93, 7])
-                        with col_form:
-                            st.markdown('<div class="contenedor-edicion-inline">', unsafe_allow_html=True)
-                            datos_d = dict_por_dia.get(d, {})
-                            val_e = str_a_time(datos_d.get("entrada", ""))
-                            val_s = str_a_time(datos_d.get("salida", ""))
-                            val_o = datos_d.get("obra", "")
-                            idx_o = lista_obras.index(val_o) if val_o and val_o in lista_obras else 0
+                        datos_d = dict_por_dia.get(d, {})
+                        val_e = str_a_time(datos_d.get("entrada", ""))
+                        val_s = str_a_time(datos_d.get("salida", ""))
+                        val_o = datos_d.get("obra", "")
+                        idx_o = lista_obras.index(val_o) if val_o and val_o in lista_obras else 0
 
-                            with st.form(key=f"form_inline_dia_{d}"):
-                                c1e, c2e = st.columns(2)
-                                with c1e:
-                                    edit_ent = st.time_input("Entrada", value=val_e, key=f"re_{d}")
-                                with c2e:
-                                    edit_sal = st.time_input("Salida", value=val_s, key=f"rs_{d}")
-                                
-                                edit_ob = st.selectbox("Obra", options=lista_obras, index=idx_o, key=f"ro_{d}")
+                        with st.form(key=f"form_inline_dia_{d}"):
+                            c1e, c2e = st.columns(2)
+                            with c1e:
+                                edit_ent = st.time_input("Entrada", value=val_e, key=f"re_{d}")
+                            with c2e:
+                                edit_sal = st.time_input("Salida", value=val_s, key=f"rs_{d}")
+                            
+                            edit_ob = st.selectbox("Obra", options=lista_obras, index=idx_o, key=f"ro_{d}")
 
-                                st.write("")
-                                b1, b2 = st.columns(2)
-                                with b1:
-                                    btn_guardar_edit = st.form_submit_button("💾 Guardar Cambios", use_container_width=True)
-                                with b2:
-                                    btn_borrar_edit = st.form_submit_button("🧹 Limpiar Registro", use_container_width=True)
+                            st.write("")
+                            b1, b2 = st.columns(2)
+                            with b1:
+                                btn_guardar_edit = st.form_submit_button("💾 Guardar Cambios", use_container_width=True)
+                            with b2:
+                                btn_borrar_edit = st.form_submit_button("🧹 Limpiar Registro", use_container_width=True)
 
-                                if btn_guardar_edit:
-                                    es_especial_edit = edit_ob and edit_ob.strip().upper() in ["PERMISO", "NO TRABAJA"]
-                                    if not edit_ob:
-                                        st.warning("⚠️ Debes seleccionar Obra.")
-                                    elif not es_especial_edit and (edit_ent is None or edit_sal is None):
-                                        st.warning("⚠️ Debes completar Entrada y Salida.")
-                                    else:
-                                        with st.spinner("Actualizando planilla..."):
-                                            fila_n = fila_segun_dia(d)
-                                            if es_especial_edit:
-                                                hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["-", "-"]], value_input_option="RAW")
-                                                hoja_usuario.update(f"G{fila_n}", [[edit_ob]], value_input_option="RAW")
-                                            else:
-                                                ent_str = edit_ent.strftime("%H:%M")
-                                                sal_str = edit_sal.strftime("%H:%M")
-                                                hoja_usuario.update(f"C{fila_n}:D{fila_n}", [[ent_str, sal_str]], value_input_option="USER_ENTERED")
-                                                hoja_usuario.update(f"G{fila_n}", [[edit_ob]], value_input_option="USER_ENTERED")
-
-                                            if "filas_planilla" in st.session_state:
-                                                del st.session_state["filas_planilla"]
-                                            st.session_state["dia_en_edicion"] = None
-                                            st.rerun()
-
-                                if btn_borrar_edit:
-                                    with st.spinner("Limpiando registro..."):
+                            if btn_guardar_edit:
+                                es_especial_edit = edit_ob and edit_ob.strip().upper() in ["PERMISO", "NO TRABAJA"]
+                                if not edit_ob:
+                                    st.warning("⚠️ Debes seleccionar Obra.")
+                                elif not es_especial_edit and (edit_ent is None or edit_sal is None):
+                                    st.warning("⚠️ Debes completar Entrada y Salida.")
+                                else:
+                                    with st.spinner("Actualizando planilla..."):
                                         fila_n = fila_segun_dia(d)
-                                        hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["", ""]], value_input_option="USER_ENTERED")
-                                        hoja_usuario.update(f"G{fila_n}", [[""]], value_input_option="USER_ENTERED")
+                                        if es_especial_edit:
+                                            hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["-", "-"]], value_input_option="RAW")
+                                            hoja_usuario.update(f"G{fila_n}", [[edit_ob]], value_input_option="RAW")
+                                        else:
+                                            ent_str = edit_ent.strftime("%H:%M")
+                                            sal_str = edit_sal.strftime("%H:%M")
+                                            hoja_usuario.update(f"C{fila_n}:D{fila_n}", [[ent_str, sal_str]], value_input_option="USER_ENTERED")
+                                            hoja_usuario.update(f"G{fila_n}", [[edit_ob]], value_input_option="USER_ENTERED")
 
                                         if "filas_planilla" in st.session_state:
                                             del st.session_state["filas_planilla"]
                                         st.session_state["dia_en_edicion"] = None
-                                        st.session_state["vista_actual"] = "SEPTIEMBRE"
                                         st.rerun()
-                            st.markdown('</div>', unsafe_allow_html=True)
+
+                            if btn_borrar_edit:
+                                with st.spinner("Limpiando registro..."):
+                                    fila_n = fila_segun_dia(d)
+                                    hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["", ""]], value_input_option="USER_ENTERED")
+                                    hoja_usuario.update(f"G{fila_n}", [[""]], value_input_option="USER_ENTERED")
+
+                                    if "filas_planilla" in st.session_state:
+                                        del st.session_state["filas_planilla"]
+                                    st.session_state["dia_en_edicion"] = None
+                                    st.session_state["vista_actual"] = "SEPTIEMBRE"
+                                    st.rerun()
 
             else:
                 st.info("Aún no tienes jornadas registradas en este mes.")
