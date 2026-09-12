@@ -641,9 +641,17 @@ else:
             ''', unsafe_allow_html=True)
             st.markdown("---")
 
+            hoy = date.today()
             dias_pendientes = []
             for f in fechas_periodo:
                 num_dia = f.day
+                fecha_iso = f.strftime("%Y-%m-%d")
+                es_domingo_o_feriado = (f.weekday() == 6) or (fecha_iso in FERIADOS)
+
+                # Si el domingo/feriado ya quedó en el pasado, se omite de pendientes (ya pasó al Resumen)
+                if es_domingo_o_feriado and f < hoy:
+                    continue
+
                 guardado = dict_por_dia.get(num_dia, {})
                 if not (guardado.get("entrada") or guardado.get("salida") or guardado.get("obra")):
                     dias_pendientes.append(f)
