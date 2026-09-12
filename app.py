@@ -50,10 +50,6 @@ div[data-testid="stForm"] {
     margin-bottom: 0.5rem !important; 
 }
 
-div[data-testid="stVerticalBlock"] {
-    gap: 0.1rem !important;
-}
-
 /* ==========================================================
    ESTRUCTURA CSS GRID DE 6 COLUMNAS (TABLA SIN COLUMNA EDITAR)
    ========================================================== */
@@ -109,12 +105,8 @@ div[data-testid="stMarkdownContainer"] p {
 }
 
 /* ==========================================================
-   BOTÓN LÁPIZ LATERAL FLOTANTE / EXTERNO A LA TABLA
+   ALINEACIÓN HORIZONTAL Y BOTÓN LÁPIZ SIN FONDO
    ========================================================== */
-div[data-testid="column"]:last-child div[data-testid="stButton"] {
-    display: none !important;
-}
-
 /* Forzar que las columnas nunca se rompan verticalmente sin importar el zoom */
 div[data-testid="stHorizontalBlock"] {
     display: flex !important;
@@ -122,6 +114,7 @@ div[data-testid="stHorizontalBlock"] {
     flex-wrap: nowrap !important;
     align-items: center !important;
     gap: 8px !important;
+    margin-bottom: -1px !important;
 }
 
 div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child {
@@ -131,26 +124,42 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child {
 }
 
 div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child {
-    min-width: 38px !important;
+    min-width: 34px !important;
     flex: 0 0 7% !important;
     width: 7% !important;
-}
-
-div.lapiz-lateral-wrapper {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    width: 100% !important;
+}
+
+/* Eliminar completamente el fondo, bordes y márgenes del botón lápiz */
+div[data-testid="column"]:last-child button {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    padding: 0 !important;
     margin: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    width: auto !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
-/* Une las filas sin ocultar los días anteriores */
-div[data-testid="stVerticalBlock"]:has(div.es-datos-6) {
-    gap: 0.1rem !important;
+div[data-testid="column"]:last-child button p {
+    font-size: 0.72rem !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    transform: translateY(2px) !important;
 }
 
-div[data-testid="stHorizontalBlock"] {
-    margin-bottom: -1px !important;
+div[data-testid="column"]:last-child button:hover {
+    background: transparent !important;
+    opacity: 0.6 !important;
 }
 </style>""", unsafe_allow_html=True)
 
@@ -688,22 +697,8 @@ else:
             if "dia_en_edicion" not in st.session_state:
                 st.session_state["dia_en_edicion"] = None
 
-            # Detectar y alternar apertura/cierre al presionar el lápiz
-            q_params = st.query_params
-            if "editar_dia" in q_params:
-                try:
-                    d_sel = int(q_params["editar_dia"])
-                    if st.session_state.get("dia_en_edicion") == d_sel:
-                        st.session_state["dia_en_edicion"] = None
-                    else:
-                        st.session_state["dia_en_edicion"] = d_sel
-                except Exception:
-                    pass
-                del st.query_params["editar_dia"]
-                st.rerun()
-
             if registros_tabla:
-                # Contenedor 93% tabla achicada + 7% para el lápiz exterior
+                # Encabezado: 93% ancho para la tabla + 7% libre para alinear con el botón
                 col_encabezado, _ = st.columns([93, 7])
                 with col_encabezado:
                     st.markdown('''
@@ -717,9 +712,7 @@ else:
                     </div>
                     ''', unsafe_allow_html=True)
 
-                # --- FILAS DE DATOS + BOTÓN LÁPIZ LATERAL EXTERIOR ---
-                session_token_url = st.query_params.get("session", "")
-
+                # --- FILAS DE DATOS + BOTÓN LÁPIZ LATERAL NATIVO Y TRANSPARENTE ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     
@@ -761,14 +754,12 @@ else:
                         ''', unsafe_allow_html=True)
 
                     with c_lapiz:
-                        st.markdown(f'''
-                        <div style="display: flex; align-items: center; justify-content: center; height: 100%; padding-top: 14px;">
-                            <a href="?session={session_token_url}&editar_dia={d}" 
-                               style="text-decoration: none; font-size: 0.68rem; cursor: pointer; display: inline-block; user-select: none; line-height: 1;">
-                               ✏️
-                            </a>
-                        </div>
-                        ''', unsafe_allow_html=True)
+                        if st.button("✏️", key=f"btn_lapiz_{d}"):
+                            if st.session_state.get("dia_en_edicion") == d:
+                                st.session_state["dia_en_edicion"] = None
+                            else:
+                                st.session_state["dia_en_edicion"] = d
+                            st.rerun()
 
                     # Formulario desplegable al presionar el lápiz (Toggle abrir/cerrar)
                     if st.session_state.get("dia_en_edicion") == d:
