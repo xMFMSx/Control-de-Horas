@@ -111,39 +111,39 @@ div[data-testid="stMarkdownContainer"] p {
 /* ==========================================================
    BOTÓN LÁPIZ LATERAL FLOTANTE / EXTERNO A LA TABLA
    ========================================================== */
-div.lapiz-lateral-wrapper {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 100% !important;
-    height: 100% !important;
-    margin: 0 !important;
+/* Quita fondo, borde y sombra al botón del lápiz */
+div.lapiz-lateral-wrapper button,
+div[data-testid="column"]:last-child button {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
     padding: 0 !important;
-}
-
-div.lapiz-lateral-wrapper button {
-    background-color: #1a1e29 !important;
-    border: 1px solid #353b4d !important;
-    color: white !important;
-    border-radius: 5px !important;
-    padding: 0 !important;
-    min-height: 22px !important;
-    height: 22px !important;
-    width: 28px !important;
-    font-size: 0.65rem !important;
+    min-height: 0 !important;
+    height: auto !important;
+    width: auto !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    transform: translateY(6px) !important; /* Mueve el botón hacia abajo */
 }
 
-/* Achica el emoji/ícono dentro del botón */
-div.lapiz-lateral-wrapper button p {
-    font-size: 0.70rem !important;
+/* Controla el tamaño y la altura exacta del ícono */
+div.lapiz-lateral-wrapper button p,
+div[data-testid="column"]:last-child button p {
+    font-size: 0.62rem !important; /* Achica el lápiz */
     line-height: 1 !important;
     margin: 0 !important;
+    transform: translateY(6px) !important; /* Mueve el lápiz hacia abajo */
 }
-/* Forzar que las columnas nunca se rompan verticalmente sin importar el zoom */
+
+/* Efecto suave al pasar el mouse */
+div.lapiz-lateral-wrapper button:hover {
+    background: transparent !important;
+    opacity: 0.65 !important;
+}
+
+/* Forzar que las columnas nunca se rompan verticalmente */
 div[data-testid="stHorizontalBlock"] {
     display: flex !important;
     flex-direction: row !important;
