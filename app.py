@@ -50,7 +50,6 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {
     min-height: 100% !important;
 }
 
-/* Margen derecho amplio para que la barra/flecha nativa no tape nada */
 .block-container { 
     max-width: 96% !important; 
     padding: 1.2rem !important; 
@@ -124,14 +123,45 @@ div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) [data-testid
     justify-content: center !important;
 }
 
-/* ==========================================================
-   ALINEAR EL MENÚ DESPLEGABLE DEBAJO DE LA TUERCA (SIN TAPARLA)
-   ========================================================== */
 div[data-testid="stPopoverBody"] {
     right: 0px !important;
     left: auto !important;
     transform: translateY(50px) !important;
     box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.7) !important;
+}
+
+/* ==========================================================
+   PANEL ADMINISTRADOR: FILAS HORIZONTALES COMPACTAS (LADO A LADO)
+   ========================================================== */
+div[data-testid="stHorizontalBlock"]:has(.fila-admin-flex) {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: flex-end !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin-bottom: 0.4rem !important;
+}
+
+@media (max-width: 9999px) {
+    div[data-testid="stHorizontalBlock"]:has(.fila-admin-flex) {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+    }
+    div[data-testid="stHorizontalBlock"]:has(.fila-admin-flex) > div[data-testid="column"] {
+        min-width: 0 !important;
+    }
+}
+
+/* Botones pequeños del simulador de fecha */
+div[data-testid="stHorizontalBlock"]:has(.fila-admin-flex) button {
+    min-height: 38px !important;
+    height: 38px !important;
+    padding: 0.2rem 0.4rem !important;
+    font-size: 0.78rem !important;
+    font-weight: 600 !important;
+    white-space: nowrap !important;
 }
 
 /* ==========================================================
@@ -260,7 +290,6 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) > div:last-child {
     justify-content: center !important;
 }
 
-/* Botón lápiz lateral transparente */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) > div:last-child button {
     background: transparent !important;
     background-color: transparent !important;
@@ -694,48 +723,53 @@ else:
                         st.error(f"Error: {e}")
 
     elif st.session_state.get("modo_admin_activo", False) and es_admin:
-        st.subheader("🛠️ PANEL DE ADMINISTRADOR")
-        st.write("Control global de personal, selector de ciclos y simulación de fechas.")
-        
-        if st.button("⬅️ Volver a mi vista normal"):
-            st.session_state["modo_admin_activo"] = False
-            st.rerun()
-
-        st.markdown("---")
-        
-        st.markdown("### 🕒 Simulación de Fecha del Sistema")
-        c_sim1, c_sim2, c_sim3 = st.columns([3, 2, 2])
-        with c_sim1:
-            fecha_input_admin = st.date_input(
-                "Establecer fecha para pruebas:",
-                value=st.session_state["fecha_admin_simulada"] or date.today()
-            )
-        with c_sim2:
-            st.write("")
-            st.write("")
-            if st.button("⚡ Aplicar Fecha Simulada", use_container_width=True):
-                st.session_state["fecha_admin_simulada"] = fecha_input_admin
-                st.success(f"Fecha fijada en: {fecha_input_admin}")
-                st.rerun()
-        with c_sim3:
-            st.write("")
-            st.write("")
-            if st.button("🔄 Restablecer a Fecha Real", use_container_width=True):
-                st.session_state["fecha_admin_simulada"] = None
-                st.info("Sistema restablecido a la fecha real de hoy.")
+        # ==========================================================
+        # VISTA: MODO ADMINISTRADOR COMPACTO (LADO A LADO)
+        # ==========================================================
+        c_head1, c_head2 = st.columns([75, 25])
+        with c_head1:
+            st.markdown("### 🛠️ PANEL DE ADMINISTRADOR")
+        with c_head2:
+            if st.button("⬅️ Volver", use_container_width=True):
+                st.session_state["modo_admin_activo"] = False
                 st.rerun()
 
-        if st.session_state["fecha_admin_simulada"] is not None:
-            st.warning(f"⚠️ MODO SIMULACIÓN ACTIVO: Todo el sistema se comporta como si hoy fuera **{st.session_state['fecha_admin_simulada'].strftime('%d/%m/%Y')}**.")
+        st.caption("Control global de personal, ciclo activo y simulación de fechas.")
 
-        st.markdown("---")
-        c_f1, c_f2 = st.columns(2)
-        with c_f1:
-            nuevo_inicio = st.date_input("Fecha Inicio de Ciclo", value=date(2026, 8, 31))
-        with c_f2:
-            nuevo_fin = st.date_input("Fecha Término de Ciclo", value=date(2026, 9, 30))
+        # --- SECCIÓN 1: SIMULACIÓN DE FECHA (FECHA + BOTONES AL LADO) ---
+        with st.container(border=True):
+            st.markdown('<span class="fila-admin-flex"></span>**🕒 Simulación de Fecha del Sistema**', unsafe_allow_html=True)
+            
+            c_sim_date, c_sim_btn1, c_sim_btn2 = st.columns([52, 24, 24])
+            with c_sim_date:
+                fecha_input_admin = st.date_input(
+                    "Fecha a simular:",
+                    value=st.session_state["fecha_admin_simulada"] or date.today(),
+                    label_visibility="collapsed"
+                )
+            with c_sim_btn1:
+                if st.button("⚡ Activar", use_container_width=True):
+                    st.session_state["fecha_admin_simulada"] = fecha_input_admin
+                    st.rerun()
+            with c_sim_btn2:
+                if st.button("🔄 Reset", use_container_width=True):
+                    st.session_state["fecha_admin_simulada"] = None
+                    st.rerun()
 
-        st.markdown("### 👥 Listado General de Trabajadores")
+            if st.session_state["fecha_admin_simulada"] is not None:
+                st.warning(f"⚠️ Simulando: **{st.session_state['fecha_admin_simulada'].strftime('%d/%m/%Y')}**")
+
+        # --- SECCIÓN 2: FECHA DE CICLO (INICIO Y TÉRMINO LADO A LADO) ---
+        with st.container(border=True):
+            st.markdown('<span class="fila-admin-flex"></span>**📅 Rango de Fechas del Ciclo**', unsafe_allow_html=True)
+            c_f1, c_f2 = st.columns(2)
+            with c_f1:
+                nuevo_inicio = st.date_input("Inicio del Ciclo", value=date(2026, 8, 31))
+            with c_f2:
+                nuevo_fin = st.date_input("Término del Ciclo", value=date(2026, 9, 30))
+
+        # --- SECCIÓN 3: LISTADO GENERAL DE TRABAJADORES ---
+        st.markdown("**👥 Resumen General del Personal**")
         try:
             libro_admin = conectar_libro()
             resumen_global = []
@@ -750,14 +784,16 @@ else:
                     resumen_global.append({"Trabajador": nom, "Correo": correo_w, "Días Registrados": 0})
             
             df_global = pd.DataFrame(resumen_global)
-            st.dataframe(df_global, use_container_width=True)
+            st.dataframe(df_global, use_container_width=True, hide_index=True)
         except Exception as e:
             st.error(f"No se pudo cargar el resumen global: {e}")
 
     else:
+        # Indicador informativo si el admin está simulando fecha en su vista de usuario
         if es_admin and st.session_state.get("fecha_admin_simulada") is not None:
             st.info(f"🕒 Modo simulación activo: **{hoy.strftime('%d/%m/%Y')}** (Configurado desde Panel Administrador)")
 
+        # --- FILA SUPERIOR: NAVEGADOR Y TUERCA (POPOVER LIBRE DEBAJO) ---
         c_nav, c_gear = st.columns([88, 12])
 
         with c_nav:
@@ -1133,7 +1169,6 @@ else:
 
             st.markdown("---")
 
-            # --- GENERACIÓN Y DESCARGA NATIVA DE PDF EN MEMORIA ---
             if REPORTLAB_DISPONIBLE:
                 pdf_bytes = generar_pdf_horas(
                     nombre_trabajador,
