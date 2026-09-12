@@ -906,15 +906,21 @@ else:
                     
                     datos_trabajador = {}
                     for idx, r in enumerate(vals):
-                        if any("TOTAL" in str(x).upper() for x in r): continue
+                        if any("TOTAL" in str(x).upper() for x in r): 
+                            continue
                         txt_dia = str(r[1]).strip() if len(r) > 1 else ""
                         n_dia = int(txt_dia) if txt_dia.isdigit() else None
                         if n_dia is not None:
-                            c_ent = str(r[2]).strip() if len(r) > 2 else ""
-                            c_sal = str(r[3]).strip() if len(r) > 3 else ""
-                            c_obr = str(r[6]).strip() if len(r) > 6 else ""
-                            datos_trabajador[n_dia] = bool(c_ent or c_sal or c_obr)
-                    
+                            # Unir todo el contenido de la fila desde la columna C hasta la última
+                            contenido_fila = " ".join([str(celda).strip() for celda in r[2:] if str(celda).strip()]).upper()
+                            
+                            # Palabras o marcas que indican que el día fue justificado o registrado
+                            marcas_validas = ["VACACIONES", "PERMISO", "LICENCIA", "NO TRABAJA", "FERIADO", "-"]
+                            es_especial = any(m in contenido_fila for m in marcas_validas)
+                            
+                            # Es válido si tiene hora registrada, si tiene obra o si tiene permiso/vacaciones
+                            tiene_registro = bool(contenido_fila != "" and (len(contenido_fila) > 0))
+                            datos_trabajador[n_dia] = tiene_registro or es_especial
                     faltan = 0
                     for f in fechas_periodo:
                         if f > hoy: continue
