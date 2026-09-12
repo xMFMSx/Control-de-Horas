@@ -10,6 +10,7 @@ import time as time_lib
 import urllib.parse
 from io import BytesIO
 
+# Importación segura de ReportLab para evitar caída del servidor
 try:
     from reportlab.lib import colors
     from reportlab.lib.pagesizes import letter
@@ -130,15 +131,6 @@ div[data-testid="stPopoverBody"] {
 /* ==========================================================
    FORZAR ELEMENTOS LADO A LADO EN PANEL ADMINISTRADOR
    ========================================================== */
-.admin-fila-simulacion {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    align-items: center !important;
-    gap: 8px !important;
-    width: 100% !important;
-}
-
 div[data-testid="stHorizontalBlock"]:has(.admin-sim-marker) {
     display: flex !important;
     flex-direction: row !important;
@@ -825,11 +817,11 @@ else:
                     if f.weekday() == 5:
                         lunes_siguiente = f + timedelta(days=2)
                         if hoy < lunes_siguiente:
-                            continue # Aún es sábado o domingo, no se exige como falta
+                            continue
                     
                     dias_exigibles.append(f.day)
 
-            filas_html = ""
+            filas_html = []
             for correo_w, info_w in usuarios_autorizados.items():
                 nom = info_w["nombre"]
                 try:
@@ -852,23 +844,12 @@ else:
                 else:
                     badge = f'<span style="color: #f87171; font-weight: 700;">{faltan} días pendientes</span>'
 
-                filas_html += f"""
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 1px solid #2e3547; background-color: #1a1e29; font-size: 0.82rem;">
-                    <div style="color: #ffffff; font-weight: 600;">{nom}</div>
-                    <div>{badge}</div>
-                </div>
-                """
+                filas_html.append(f'<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid #2e3547;background-color:#1a1e29;font-size:0.82rem;"><div style="color:#ffffff;font-weight:600;">{nom}</div><div>{badge}</div></div>')
 
-            tabla_completa = f"""
-            <div style="width: 100%; border: 1px solid #2e3547; border-radius: 8px; overflow: hidden; margin-top: 6px; box-sizing: border-box;">
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background-color: #222634; border-bottom: 1px solid #2e3547; font-size: 0.72rem; font-weight: 700; color: #a3adc2;">
-                    <div>TRABAJADOR</div>
-                    <div>ESTADO DE REGISTRO</div>
-                </div>
-                {filas_html}
-            </div>
-            """
-            st.markdown(tabla_completa, unsafe_allow_html=True)
+            filas_str = "".join(filas_html)
+            tabla_html = f'<div style="width:100%;border:1px solid #2e3547;border-radius:8px;overflow:hidden;margin-top:6px;box-sizing:border-box;"><div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background-color:#222634;border-bottom:1px solid #2e3547;font-size:0.72rem;font-weight:700;color:#a3adc2;"><div>TRABAJADOR</div><div>ESTADO DE REGISTRO</div></div>{filas_str}</div>'
+
+            st.markdown(tabla_html, unsafe_allow_html=True)
         except Exception as e:
             st.error(f"No se pudo cargar el resumen global: {e}")
 
@@ -985,8 +966,6 @@ else:
                 es_domingo_o_feriado = (f_fila.weekday() == 6) or (f_fila.strftime("%Y-%m-%d") in FERIADOS)
 
             # LÓGICA SÁBADO NO TRABAJADO (AUTOMÁTICA EL LUNES):
-            # Si es sábado que ya pasó y hoy es Lunes o posterior, y no tiene registro,
-            # se muestra en blanco automáticamente en la tabla mensual
             es_sabado_pasado_sin_trabajar = False
             if f_fila and f_fila.weekday() == 5 and f_fila < hoy:
                 lunes_despues = f_fila + timedelta(days=2)
@@ -1033,13 +1012,10 @@ else:
                 fecha_iso = f.strftime("%Y-%m-%d")
                 es_domingo_o_feriado = (f.weekday() == 6) or (fecha_iso in FERIADOS)
 
-                # Si es domingo o feriado pasado, se omite
                 if es_domingo_o_feriado and f < hoy:
                     continue
 
-                # REGLA AUTOMÁTICA DEL SÁBADO:
-                # Si es sábado que ya pasó, y hoy ya es lunes (o posterior), y no tiene datos,
-                # se omite de pendientes (se asume no trabajado automáticamente)
+                # Si es sábado que ya pasó y hoy es lunes o posterior, y no tiene datos, se omite
                 if f.weekday() == 5 and f < hoy:
                     lunes_despues = f + timedelta(days=2)
                     if hoy >= lunes_despues:
