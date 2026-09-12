@@ -44,49 +44,59 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {
 }
 
 /* ==========================================================
-   NAVEGADOR SEGMENTADO SUPERIOR (50/50, NATIVO Y SIN APILARSE)
+   NAVEGADOR SEGMENTADO SUPERIOR (50/50, GRANDE Y DESTACADO)
    ========================================================== */
-div[data-testid="stSegmentedControl"],
 div[data-testid="stPills"] {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
     width: 100% !important;
-    gap: 8px !important;
-    margin-bottom: 1rem !important;
+    margin-bottom: 1.2rem !important;
 }
 
-div[data-testid="stSegmentedControl"] > div,
 div[data-testid="stPills"] > div {
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     width: 100% !important;
-    gap: 8px !important;
+    gap: 10px !important;
 }
 
-div[data-testid="stSegmentedControl"] button,
+div[data-testid="stPills"] [data-testid="stPillsItem"],
 div[data-testid="stPills"] button {
     flex: 1 1 50% !important;
     width: 50% !important;
     min-width: 0 !important;
+    min-height: 48px !important;
+    height: 48px !important;
+    padding: 0 10px !important;
     background-color: #1a1e29 !important;
     border: 1px solid #2e3547 !important;
-    color: #ffffff !important;
-    font-weight: 700 !important;
-    font-size: 0.120rem !important;
-    padding: 0.85rem 0.5rem !important;
-    min-height: 55px !important;
-    border-radius: 0.6rem !important;
-    text-align: center !important;
+    border-radius: 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     box-sizing: border-box !important;
 }
 
-div[data-testid="stSegmentedControl"] button[aria-selected="true"],
-div[data-testid="stPills"] button[aria-selected="true"] {
+div[data-testid="stPills"] button p,
+div[data-testid="stPills"] [data-testid="stPillsItem"] p,
+div[data-testid="stPills"] [data-testid="stPillsItem"] span {
+    font-size: 0.95rem !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    white-space: nowrap !important;
+    margin: 0 !important;
+    line-height: 1 !important;
+}
+
+div[data-testid="stPills"] button[aria-selected="true"],
+div[data-testid="stPills"] [data-testid="stPillsItem"][aria-selected="true"] {
     background-color: #ff4b4b !important;
     border: 1px solid #ff4b4b !important;
+}
+
+div[data-testid="stPills"] button[aria-selected="true"] p,
+div[data-testid="stPills"] [data-testid="stPillsItem"][aria-selected="true"] p {
     color: #ffffff !important;
+    font-weight: 800 !important;
 }
 
 /* ==========================================================
