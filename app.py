@@ -596,10 +596,28 @@ else:
             try: total_hr += a_minutos(hr_val)
             except Exception: pass
 
+            # Obtener fecha correspondiente a la fila
+            try:
+                f_fila = date(2026, 8, 31) if num_dia == 31 else date(2026, 9, num_dia)
+            except Exception:
+                f_fila = None
+
+            hoy = date.today()
+            es_domingo_o_feriado = False
+            if f_fila:
+                es_domingo_o_feriado = (f_fila.weekday() == 6) or (f_fila.strftime("%Y-%m-%d") in FERIADOS)
+
+            # Si ya tiene datos registrados, se muestra lo guardado
             if entrada or salida or obra_val:
                 registros_tabla.append({
                     "DÍA": num_dia, "ENTRADA": entrada, "SALIDA": salida,
                     "HORA EXTRA": hn_val, "HORA RECARGO": hr_val, "OBRA": obra_val
+                })
+            # Si es domingo o feriado que YA PASÓ (ej: ya es lunes), entra solo al resumen con NT
+            elif es_domingo_o_feriado and f_fila and f_fila < hoy:
+                registros_tabla.append({
+                    "DÍA": num_dia, "ENTRADA": "-", "SALIDA": "-",
+                    "HORA EXTRA": "", "HORA RECARGO": "", "OBRA": "NT"
                 })
 
         # --- VISTA 1: SEPTIEMBRE (REGISTRO DIARIO) ---
