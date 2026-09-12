@@ -115,14 +115,14 @@ div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) [data-testid
 }
 
 /* ==========================================================
-   ALINEAR EL MENÚ DESPLEGABLE EXACTAMENTE A LA DERECHA DEBAJO DE LA TUERCA
+   ALINEAR EL MENÚ DESPLEGABLE JUSTO DEBAJO DE LA TUERCA
    ========================================================== */
 div[data-testid="stPopoverBody"] {
     right: 0px !important;
     left: auto !important;
     transform: none !important;
-    margin-top: 6px !important;
-    box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.6) !important;
+    margin-top: 46px !important; /* Despeje vertical para iniciar debajo del botón */
+    box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.7) !important;
 }
 
 /* ==========================================================
@@ -650,7 +650,7 @@ else:
         if es_admin and st.session_state.get("fecha_admin_simulada") is not None:
             st.info(f"🕒 Modo simulación activo: **{hoy.strftime('%d/%m/%Y')}** (Configurado desde Panel Administrador)")
 
-        # --- FILA SUPERIOR: NAVEGADOR Y TUERCA CON MENÚ ALINEADO A LA DERECHA ---
+        # --- FILA SUPERIOR: NAVEGADOR Y TUERCA CON MENÚ ALINEADO A LA DERECHA Y DEBAJO ---
         c_nav, c_gear = st.columns([88, 12])
 
         with c_nav:
