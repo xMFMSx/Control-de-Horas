@@ -370,6 +370,10 @@ if "cambiando_password" not in st.session_state:
 if "modo_admin_activo" not in st.session_state:
     st.session_state.modo_admin_activo = False
 
+# Fecha simulada global para Administrador (por defecto None usa la fecha real)
+if "fecha_admin_simulada" not in st.session_state:
+    st.session_state["fecha_admin_simulada"] = None
+
 if not st.session_state.autenticado:
     st.title("🔐 Acceso a APP DE HORAS")
     st.write("Por favor, ingresa tu correo electrónico y contraseña para continuar.")
@@ -407,6 +411,12 @@ else:
     nombre_trabajador = st.session_state.nombre_usuario
     es_admin = st.session_state.get("rol_usuario", "trabajador") == "admin"
     hoja_usuario = obtener_hoja_trabajador(nombre_trabajador)
+
+    # Determinación centralizada de la fecha activa del sistema
+    if es_admin and st.session_state.get("fecha_admin_simulada") is not None:
+        hoy = st.session_state["fecha_admin_simulada"]
+    else:
+        hoy = date.today()
 
     # --- MENÚ DESPLEGABLE DE CONFIGURACIÓN (⚙️) ---
     c_gear, _ = st.columns([2.0, 8.0])
@@ -483,11 +493,39 @@ else:
     elif st.session_state.get("modo_admin_activo", False) and es_admin:
         # --- VISTA: MODO ADMINISTRADOR ---
         st.subheader("🛠️ PANEL DE ADMINISTRADOR")
-        st.write("Control global de personal y selector de ciclos mensuales.")
+        st.write("Control global de personal, selector de ciclos y simulación de fechas.")
         
         if st.button("⬅️ Volver a mi vista normal"):
             st.session_state["modo_admin_activo"] = False
             st.rerun()
+
+        st.markdown("---")
+        
+        # --- SIMULADOR DE FECHAS EXCLUSIVO ADMINISTRADOR ---
+        st.markdown("### 🕒 Simulación de Fecha del Sistema")
+        c_sim1, c_sim2, c_sim3 = st.columns([3, 2, 2])
+        with c_sim1:
+            fecha_input_admin = st.date_input(
+                "Establecer fecha para pruebas:",
+                value=st.session_state["fecha_admin_simulada"] or date.today()
+            )
+        with c_sim2:
+            st.write("")
+            st.write("")
+            if st.button("⚡ Aplicar Fecha Simulada", use_container_width=True):
+                st.session_state["fecha_admin_simulada"] = fecha_input_admin
+                st.success(f"Fecha fijada en: {fecha_input_admin}")
+                st.rerun()
+        with c_sim3:
+            st.write("")
+            st.write("")
+            if st.button("🔄 Restablecer a Fecha Real", use_container_width=True):
+                st.session_state["fecha_admin_simulada"] = None
+                st.info("Sistema restablecido a la fecha real de hoy.")
+                st.rerun()
+
+        if st.session_state["fecha_admin_simulada"] is not None:
+            st.warning(f"⚠️ MODO SIMULACIÓN ACTIVO: Todo el sistema se comporta como si hoy fuera **{st.session_state['fecha_admin_simulada'].strftime('%d/%m/%Y')}**.")
 
         st.markdown("---")
         c_f1, c_f2 = st.columns(2)
@@ -516,28 +554,13 @@ else:
             st.error(f"No se pudo cargar el resumen global: {e}")
 
     else:
-        # Selector de prueba con recarga forzada
-        c_sim, c_btn = st.columns([3, 2])
-        with c_sim:
-            opciones_fecha = [
-                date(2026, 9, 12),
-                date(2026, 9, 13),
-                date(2026, 9, 14),
-                date(2026, 9, 21),
-            ]
-            fecha_simulada = st.selectbox(
-                "🕒 Simular Fecha:",
-                options=opciones_fecha,
-                index=2, # Por defecto Lunes 14
-                key="fecha_test"
-            )
-        with c_btn:
-            st.write("")
-            st.write("")
-            if st.button("⚡ Aplicar Fecha"):
-                st.rerun()
+        # Indicador para admin si está simulando fecha en su vista de trabajo
+        if es_admin and st.session_state.get("fecha_admin_simulada") is not None:
+            st.info(f"🕒 Estás navegando con la fecha simulada: **{hoy.strftime('%d/%m/%Y')}** (Configurado desde Panel Administrador)")
 
-        hoy = fecha_simulada
+        # --- NAVEGACIÓN PRINCIPAL (SEPTIEMBRE / RESUMEN LADO A LADO) ---
+        if "vista_actual" not in st.session_state:
+            st.session_state["vista_actual"] = "SEPTIEMBRE"
 
         is_sep = st.session_state["vista_actual"] == "SEPTIEMBRE"
         bg_sep = "#ff4b4b" if is_sep else "#1a1e29"
@@ -615,13 +638,12 @@ else:
             try: total_hr += a_minutos(hr_val)
             except Exception: pass
 
-            # Obtener fecha correspondiente a la fila
+            # Fecha correspondiente de la fila para validar si ya pasó
             try:
                 f_fila = date(2026, 8, 31) if num_dia == 31 else date(2026, 9, num_dia)
             except Exception:
                 f_fila = None
 
-            hoy = date.today()
             es_domingo_o_feriado = False
             if f_fila:
                 es_domingo_o_feriado = (f_fila.weekday() == 6) or (f_fila.strftime("%Y-%m-%d") in FERIADOS)
@@ -632,12 +654,15 @@ else:
                     "DÍA": num_dia, "ENTRADA": entrada, "SALIDA": salida,
                     "HORA EXTRA": hn_val, "HORA RECARGO": hr_val, "OBRA": obra_val
                 })
-            # Si es domingo o feriado que YA PASÓ (ej: ya es lunes), entra solo al resumen con NT
+            # Si es domingo o feriado que YA PASÓ respecto a hoy, entra solo al resumen como NT
             elif es_domingo_o_feriado and f_fila and f_fila < hoy:
                 registros_tabla.append({
                     "DÍA": num_dia, "ENTRADA": "-", "SALIDA": "-",
                     "HORA EXTRA": "", "HORA RECARGO": "", "OBRA": "NT"
                 })
+
+        # Ordenar registros cronológicamente
+        registros_tabla = sorted(registros_tabla, key=lambda x: (0 if x["DÍA"] == 31 else x["DÍA"]))
 
         # --- VISTA 1: SEPTIEMBRE (REGISTRO DIARIO) ---
         if st.session_state["vista_actual"] == "SEPTIEMBRE":
@@ -660,14 +685,13 @@ else:
             ''', unsafe_allow_html=True)
             st.markdown("---")
 
-            hoy = date.today()
             dias_pendientes = []
             for f in fechas_periodo:
                 num_dia = f.day
                 fecha_iso = f.strftime("%Y-%m-%d")
                 es_domingo_o_feriado = (f.weekday() == 6) or (fecha_iso in FERIADOS)
 
-                # Si el domingo/feriado ya quedó en el pasado, se omite de pendientes (ya pasó al Resumen)
+                # Si es domingo o feriado que ya quedó en el pasado, se omite de pendientes
                 if es_domingo_o_feriado and f < hoy:
                     continue
 
@@ -784,7 +808,7 @@ else:
                     d = r["DÍA"] 
                     
                     try:
-                        fecha_fila = date(2026, 9, d)
+                        fecha_fila = date(2026, 8, 31) if d == 31 else date(2026, 9, d)
                         w_day = fecha_fila.weekday()
                         iso_f = fecha_fila.strftime("%Y-%m-%d")
                     except:
