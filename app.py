@@ -44,47 +44,61 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {
 }
 
 /* ==========================================================
-   BARRA DE NAVEGACIÓN SUPERIOR FIJA 50/50 EN CUALQUIER ZOOM/MÓVIL
+   BOTONES DE NAVEGACIÓN SUPERIORES: NATIVOS, 50/50 Y SIN PARPADEO
    ========================================================== */
-.barra-navegacion-superior {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
+div[data-testid="stHorizontalBlock"]:has(button[key="btn_nav_sep"]) {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
     gap: 8px !important;
     width: 100% !important;
-    box-sizing: border-box !important;
-    margin-bottom: 1.2rem !important;
+    margin-bottom: 1rem !important;
 }
 
-.boton-nav-item {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 10px 4px !important;
-    border-radius: 8px !important;
-    font-size: 0.80rem !important;
+div[data-testid="stHorizontalBlock"]:has(button[key="btn_nav_sep"]) > div[data-testid="column"],
+div[data-testid="stHorizontalBlock"]:has(button[key="btn_nav_sep"]) > div {
+    flex: 1 1 50% !important;
+    width: 50% !important;
+    max-width: 50% !important;
+    min-width: 0 !important;
+}
+
+/* Forzar fila horizontal incluso cuando Streamlit intenta colapsar en pantallas móviles */
+@media (max-width: 9999px) {
+    div[data-testid="stHorizontalBlock"]:has(button[key="btn_nav_sep"]) {
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+    }
+    div[data-testid="stHorizontalBlock"]:has(button[key="btn_nav_sep"]) > div[data-testid="column"] {
+        flex: 1 1 50% !important;
+        width: 50% !important;
+        max-width: 50% !important;
+        min-width: 0 !important;
+    }
+}
+
+div[data-testid="stHorizontalBlock"]:has(button[key="btn_nav_sep"]) button {
+    width: 100% !important;
+    padding: 0.55rem 0.2rem !important;
+    font-size: clamp(0.70rem, 2.1vw, 0.82rem) !important;
     font-weight: 700 !important;
-    text-align: center !important;
-    cursor: pointer !important;
-    text-decoration: none !important;
-    color: #ffffff !important;
-    user-select: none !important;
+    border-radius: 0.5rem !important;
     white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
     box-sizing: border-box !important;
-    transition: opacity 0.15s ease !important;
 }
 
-.boton-nav-item:hover {
-    opacity: 0.85 !important;
-}
-
-.boton-nav-activo {
+div[data-testid="stHorizontalBlock"]:has(button[key="btn_nav_sep"]) button[kind="primary"] {
     background-color: #ff4b4b !important;
     border: 1px solid #ff4b4b !important;
+    color: #ffffff !important;
 }
 
-.boton-nav-inactivo {
+div[data-testid="stHorizontalBlock"]:has(button[key="btn_nav_sep"]) button[kind="secondary"] {
     background-color: #1a1e29 !important;
     border: 1px solid #2e3547 !important;
+    color: #ffffff !important;
 }
 
 /* ==========================================================
@@ -603,36 +617,27 @@ else:
         if es_admin and st.session_state.get("fecha_admin_simulada") is not None:
             st.info(f"🕒 Modo simulación activo: **{hoy.strftime('%d/%m/%Y')}** (Configurado desde Panel Administrador)")
 
-        # --- NAVEGACIÓN EN GRID PURA (IMPOSIBLE QUE SE APILEN EN CUALQUIER ZOOM O PANTALLA) ---
+        # --- NAVEGACIÓN PRINCIPAL NATIVA (SIN PANTALLAZO NEGRO Y GARANTIZADA 50/50) ---
         if "vista_actual" not in st.session_state:
             st.session_state["vista_actual"] = "SEPTIEMBRE"
 
-        # Captura de cambio de vista por query param interno sin recarga completa
-        if "set_tab" in st.query_params:
-            nueva_vista = st.query_params["set_tab"]
-            if nueva_vista in ["SEPTIEMBRE", "RESUMEN"]:
-                st.session_state["vista_actual"] = nueva_vista
-                if nueva_vista == "SEPTIEMBRE":
-                    st.session_state["dia_en_edicion"] = None
-            del st.query_params["set_tab"]
-            st.rerun()
-
         is_sep = st.session_state["vista_actual"] == "SEPTIEMBRE"
-        cls_sep = "boton-nav-activo" if is_sep else "boton-nav-inactivo"
-        cls_res = "boton-nav-activo" if not is_sep else "boton-nav-inactivo"
-        token_qs = st.query_params.get("session", "")
-        param_base = f"?session={token_qs}&" if token_qs else "?"
 
-        st.markdown(f'''
-        <div class="barra-navegacion-superior">
-            <a href="{param_base}set_tab=SEPTIEMBRE" target="_self" class="boton-nav-item {cls_sep}">
-                📅 SEPTIEMBRE 2026
-            </a>
-            <a href="{param_base}set_tab=RESUMEN" target="_self" class="boton-nav-item {cls_res}">
-                📊 RESUMEN DEL MES
-            </a>
-        </div>
-        ''', unsafe_allow_html=True)
+        c_nav1, c_nav2 = st.columns(2)
+        with c_nav1:
+            tipo_sep = "primary" if is_sep else "secondary"
+            if st.button("📅 SEPTIEMBRE 2026", type=tipo_sep, use_container_width=True, key="btn_nav_sep"):
+                if st.session_state["vista_actual"] != "SEPTIEMBRE":
+                    st.session_state["vista_actual"] = "SEPTIEMBRE"
+                    st.session_state["dia_en_edicion"] = None
+                    st.rerun()
+
+        with c_nav2:
+            tipo_res = "primary" if not is_sep else "secondary"
+            if st.button("📊 RESUMEN DEL MES", type=tipo_res, use_container_width=True, key="btn_nav_res"):
+                if st.session_state["vista_actual"] != "RESUMEN":
+                    st.session_state["vista_actual"] = "RESUMEN"
+                    st.rerun()
 
         st.markdown("---")
 
