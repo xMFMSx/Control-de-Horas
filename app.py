@@ -44,45 +44,65 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {
 }
 
 /* ==========================================================
-   BOTONES DE NAVEGACIÓN SUPERIORES (FORZADOS SIEMPRE LADO A LADO)
+   BOTONES DE NAVEGACIÓN (RESPONSIVE MÓVIL Y 100% ZOOM SIN APILAMIENTO)
    ========================================================== */
-div[data-testid="stHorizontalBlock"]:not(:has(.contenedor-tabla-6)):has(button[data-testid*="baseButton"]) {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    align-items: stretch !important;
-    gap: 8px !important;
+div.nav-tabs-wrapper {
     width: 100% !important;
     margin-bottom: 1rem !important;
 }
 
-div[data-testid="stHorizontalBlock"]:not(:has(.contenedor-tabla-6)):has(button[data-testid*="baseButton"]) > div[data-testid="column"] {
+/* Forzar fila horizontal incluso en móviles rompiendo el colapso nativo */
+div.nav-tabs-wrapper div[data-testid="stHorizontalBlock"],
+div.nav-tabs-wrapper [data-testid="stHorizontalBlock"] {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+    width: 100% !important;
+    margin: 0 !important;
+}
+
+div.nav-tabs-wrapper div[data-testid="stHorizontalBlock"] > div,
+div.nav-tabs-wrapper div[data-testid="column"] {
     flex: 1 1 50% !important;
     width: 50% !important;
     max-width: 50% !important;
     min-width: 0 !important;
 }
 
-div[data-testid="stHorizontalBlock"]:not(:has(.contenedor-tabla-6)):has(button[data-testid*="baseButton"]) button {
+div.nav-tabs-wrapper button {
     width: 100% !important;
-    white-space: nowrap !important;
-    padding: 0.6rem 0.2rem !important;
-    font-size: 0.82rem !important;
     font-weight: 600 !important;
+    font-size: clamp(0.68rem, 2.2vw, 0.82rem) !important;
+    padding: 0.5rem 0.2rem !important;
     border-radius: 0.5rem !important;
-    height: 100% !important;
+    box-sizing: border-box !important;
+    text-overflow: ellipsis !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
 }
 
-div[data-testid="stHorizontalBlock"]:not(:has(.contenedor-tabla-6)):has(button[data-testid*="baseButton"]) button[data-testid="baseButton-primary"] {
+div.nav-tabs-wrapper button[kind="primary"] {
     background-color: #ff4b4b !important;
     border: 1px solid #ff4b4b !important;
     color: #ffffff !important;
 }
 
-div[data-testid="stHorizontalBlock"]:not(:has(.contenedor-tabla-6)):has(button[data-testid*="baseButton"]) button[data-testid="baseButton-secondary"] {
+div.nav-tabs-wrapper button[kind="secondary"] {
     background-color: #1a1e29 !important;
     border: 1px solid #2e3547 !important;
     color: #ffffff !important;
+}
+
+/* Anular la media query de Streamlit que fuerza flex-direction: column */
+@media (max-width: 768px) {
+    div.nav-tabs-wrapper div[data-testid="stHorizontalBlock"] {
+        flex-direction: row !important;
+    }
+    div.nav-tabs-wrapper div[data-testid="stHorizontalBlock"] > div {
+        width: 50% !important;
+        flex: 1 1 50% !important;
+    }
 }
 
 /* ==========================================================
@@ -601,12 +621,13 @@ else:
         if es_admin and st.session_state.get("fecha_admin_simulada") is not None:
             st.info(f"🕒 Modo simulación activo: **{hoy.strftime('%d/%m/%Y')}** (Configurado desde Panel Administrador)")
 
-        # --- NAVEGACIÓN PRINCIPAL (SIN PANTALLAZO NEGRO Y LADO A LADO) ---
+        # --- NAVEGACIÓN PRINCIPAL (ENCAPSULADA AL 100% SIN COLAPSO MÓVIL) ---
         if "vista_actual" not in st.session_state:
             st.session_state["vista_actual"] = "SEPTIEMBRE"
 
         is_sep = st.session_state["vista_actual"] == "SEPTIEMBRE"
 
+        st.markdown('<div class="nav-tabs-wrapper">', unsafe_allow_html=True)
         col_nav1, col_nav2 = st.columns(2)
         with col_nav1:
             tipo_sep = "primary" if is_sep else "secondary"
@@ -622,6 +643,7 @@ else:
                 if st.session_state["vista_actual"] != "RESUMEN":
                     st.session_state["vista_actual"] = "RESUMEN"
                     st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
 
         st.markdown("---")
 
