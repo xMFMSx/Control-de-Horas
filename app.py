@@ -102,9 +102,7 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {{
     box-sizing: border-box !important;
 }}
 
-/* ==========================================================
-   FILA SUPERIOR: NAVEGADOR + TUERCA
-   ========================================================== */
+/* Fila Superior */
 div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {{
     display: flex !important;
     flex-direction: row !important;
@@ -177,9 +175,7 @@ div[data-testid="stPopoverBody"] {{
     color: var(--texto-principal) !important;
 }}
 
-/* ==========================================================
-   FORZAR ELEMENTOS LADO A LADO EN PANEL ADMINISTRADOR
-   ========================================================== */
+/* Formatos de Panel Admin */
 div[data-testid="stHorizontalBlock"]:has(.admin-sim-marker) {{
     display: flex !important;
     flex-direction: row !important;
@@ -239,9 +235,7 @@ div[data-testid="stHorizontalBlock"]:has(.admin-sim-marker) button {{
     white-space: nowrap !important;
 }}
 
-/* ==========================================================
-   NAVEGADOR SEGMENTADO SUPERIOR
-   ========================================================== */
+/* Navegador Superior */
 div[data-testid="stSegmentedControl"],
 div[data-testid="stPills"] {{
     display: flex !important;
@@ -283,9 +277,7 @@ div[data-testid="stPills"] button[aria-selected="true"] {{
     color: #ffffff !important;
 }}
 
-/* ==========================================================
-   ESTRUCTURA CSS GRID DE 6 COLUMNAS
-   ========================================================== */
+/* Grilla de 6 Columnas */
 .contenedor-tabla-6 {{
     display: grid !important;
     grid-template-columns: 7% 12% 10% 13.5% 14.5% 43% !important;
@@ -678,8 +670,8 @@ def generar_pdf_horas(nombre_t, reg_tabla, tot_hn_str, tot_hr_str):
         ('ALIGN', (5, 1), (5, -1), 'LEFT'),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor("#cbd5e0")),
         ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor("#f7fafc")]),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
-        ('TOPPADDING', (0, 0), (-1, -1), 4),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 4),
+        ('TOPPADDING', (0, 0), (-1, 0), 4),
     ]))
     elementos.append(t)
     doc.build(elementos)
@@ -911,24 +903,23 @@ else:
                         txt_dia = str(r[1]).strip() if len(r) > 1 else ""
                         n_dia = int(txt_dia) if txt_dia.isdigit() else None
                         if n_dia is not None:
-                            # Unir todo el contenido de la fila desde la columna C hasta la última
+                            # Revisa de la columna C a la G
                             contenido_fila = " ".join([str(celda).strip() for celda in r[2:] if str(celda).strip()]).upper()
-                            
-                            # Palabras o marcas que indican que el día fue justificado o registrado
                             marcas_validas = ["VACACIONES", "PERMISO", "LICENCIA", "NO TRABAJA", "FERIADO", "-"]
                             es_especial = any(m in contenido_fila for m in marcas_validas)
-                            
-                            # Es válido si tiene hora registrada, si tiene obra o si tiene permiso/vacaciones
-                            tiene_registro = bool(contenido_fila != "" and (len(contenido_fila) > 0))
+                            tiene_registro = bool(len(contenido_fila) > 0)
                             datos_trabajador[n_dia] = tiene_registro or es_especial
+                    
                     faltan = 0
                     for f in fechas_periodo:
-                        if f > hoy: continue
+                        if f > hoy: 
+                            continue
                         n_dia = f.day
                         if (f.weekday() == 6) or (f.strftime("%Y-%m-%d") in FERIADOS):
                             continue
                         
                         tiene_datos = datos_trabajador.get(n_dia, False)
+                        # Sábado que pasó: si hoy es lunes o después y no vino, no cuenta como falta
                         if f.weekday() == 5 and f < hoy:
                             lunes_despues = f + timedelta(days=2)
                             if hoy >= lunes_despues and not tiene_datos:
@@ -938,7 +929,6 @@ else:
                             faltan += 1
                             
                 except Exception:
-                    # Cálculo aproximado si la hoja no se pudo leer
                     faltan = sum(1 for f in fechas_periodo if f <= hoy and f.weekday() < 5 and f.strftime("%Y-%m-%d") not in FERIADOS)
 
                 if faltan == 0:
@@ -953,7 +943,7 @@ else:
 
             st.markdown(tabla_html, unsafe_allow_html=True)
         except Exception as e:
-            st.error(f"No se pudo cargar el resumen global: {e}")
+            st.error(f"Error al cargar lista: {e}")
 
     else:
         if es_admin and st.session_state.get("fecha_admin_simulada") is not None:
