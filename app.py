@@ -84,12 +84,20 @@ div[data-testid="stToolbar"] {{ visibility: hidden !important; }}
 footer {{ visibility: hidden !important; }}
 div[data-testid="stDecoration"] {{ display: none !important; }}
 
-/* --- ELIMINAR CORONA, AVATAR Y BOTÓN FLOTANTE INFERIOR --- */
+/* --- ELIMINAR CORONA, AVATAR, STATUS Y PIE FLOTANTE --- */
+footer,
+[data-testid="stStatusWidget"],
+[data-testid="manage-app-button"],
 .viewerBadge_container__r5tak,
 .viewerBadge_link__qRIco,
-[class*="viewerBadge_"],
-div[data-testid="stStatusWidget"],
-[data-testid="manage-app-button"] {{
+div[class*="viewerBadge_"],
+div[class*="ProfileBadge_"],
+iframe[title="streamlit_share_badge"] {{
+    display: none !important;
+    visibility: hidden !important;
+}}
+
+#root > div:nth-child(1) > div > div > div > div > section ~ div {{
     display: none !important;
     visibility: hidden !important;
 }}
