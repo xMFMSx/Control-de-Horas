@@ -30,23 +30,41 @@ div[data-testid="stToolbar"] { visibility: hidden !important; }
 footer { visibility: hidden !important; }
 div[data-testid="stDecoration"] { display: none !important; }
 
-/* Scroll fluido vertical sin desplazamiento horizontal jamás */
-html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {
+/* ==========================================================
+   OCULTAR BARRAS DE SCROLLBAR (FLECHAS Y FONDO NEGRO)
+   Mantiene el desplazamiento vertical 100% operativo
+   ========================================================== */
+html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main, section.main {
     overflow-y: auto !important;
     overflow-x: hidden !important;
+    scrollbar-width: none !important; /* Firefox */
+    -ms-overflow-style: none !important;  /* IE y Edge */
     height: auto !important;
     min-height: 100% !important;
 }
 
+/* Chrome, Safari, Edge, Opera */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+[data-testid="stAppViewContainer"]::-webkit-scrollbar,
+[data-testid="stMain"]::-webkit-scrollbar,
+.main::-webkit-scrollbar,
+section.main::-webkit-scrollbar {
+    display: none !important;
+    width: 0px !important;
+    height: 0px !important;
+    background: transparent !important;
+}
+
 .block-container { 
     max-width: 95% !important; 
-    padding: 1.5rem !important; 
+    padding: 1.2rem !important; 
     padding-bottom: 25rem !important; 
     overflow-x: hidden !important;
 }
 
 /* ==========================================================
-   FILA SUPERIOR: NAVEGADOR + TUERCA EN LA MISMA LÍNEA (100% AJUSTADA)
+   FILA SUPERIOR: NAVEGADOR + TUERCA (CON MARGEN DE SEGURIDAD)
    ========================================================== */
 div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {
     display: flex !important;
@@ -58,6 +76,7 @@ div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {
     max-width: 100% !important;
     box-sizing: border-box !important;
     margin-bottom: 1rem !important;
+    padding-right: 6px !important; /* Evita cualquier roce con el borde */
 }
 
 @media (max-width: 9999px) {
@@ -73,15 +92,15 @@ div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {
     }
     div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) > div[data-testid="column"]:first-child {
         flex: 1 1 auto !important;
-        width: calc(100% - 50px) !important;
-        max-width: calc(100% - 50px) !important;
+        width: calc(100% - 48px) !important;
+        max-width: calc(100% - 48px) !important;
         min-width: 0 !important;
     }
     div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) > div[data-testid="column"]:last-child {
-        flex: 0 0 42px !important;
-        width: 42px !important;
-        max-width: 42px !important;
-        min-width: 42px !important;
+        flex: 0 0 40px !important;
+        width: 40px !important;
+        max-width: 40px !important;
+        min-width: 40px !important;
         display: flex !important;
         justify-content: flex-end !important;
     }
@@ -631,7 +650,7 @@ else:
         if es_admin and st.session_state.get("fecha_admin_simulada") is not None:
             st.info(f"🕒 Modo simulación activo: **{hoy.strftime('%d/%m/%Y')}** (Configurado desde Panel Administrador)")
 
-        # --- FILA SUPERIOR: NAVEGADOR Y TUERCA EN UN ANCHO EXACTO Y SIN BARRAS DE SCROLL ---
+        # --- FILA SUPERIOR: NAVEGADOR Y TUERCA INTEGRADA SIN SCROLLBARS PARÁSITOS ---
         c_nav, c_gear = st.columns([90, 10])
 
         with c_nav:
