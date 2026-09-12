@@ -84,6 +84,16 @@ div[data-testid="stToolbar"] {{ visibility: hidden !important; }}
 footer {{ visibility: hidden !important; }}
 div[data-testid="stDecoration"] {{ display: none !important; }}
 
+/* --- ELIMINAR CORONA, AVATAR Y BOTÓN FLOTANTE INFERIOR --- */
+.viewerBadge_container__r5tak,
+.viewerBadge_link__qRIco,
+[class*="viewerBadge_"],
+div[data-testid="stStatusWidget"],
+[data-testid="manage-app-button"] {{
+    display: none !important;
+    visibility: hidden !important;
+}}
+
 html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {{
     overflow-y: auto !important;
     overflow-x: hidden !important;
@@ -925,7 +935,6 @@ else:
                             continue
                         
                         tiene_datos = datos_trabajador.get(n_dia, False)
-                        # Sábado: si ya es lunes o posterior y no vino, no se cuenta como falta
                         if f.weekday() == 5 and f < hoy:
                             lunes_despues = f + timedelta(days=2)
                             if hoy >= lunes_despues and not tiene_datos:
