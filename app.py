@@ -845,19 +845,24 @@ else:
                         st.success("✔ ¡Hojas preparadas y limpias para el nuevo ciclo!")
                         st.rerun()
 
-        # --- SECCIÓN 3: LISTADO GENERAL ABIERTO AL 100% ---
+        # --- SECCIÓN 3: LISTADO GENERAL ABIERTO AL 100% (CORREGIDO) ---
         st.markdown("**👥 Resumen General del Personal**")
         try:
             libro_admin = conectar_libro()
+            
+            # Días hábiles que deben considerarse según la fecha activa
             dias_exigibles = []
             for f in fechas_periodo:
                 if f <= hoy:
                     es_domingo = (f.weekday() == 6)
                     es_feriado = (f.strftime("%Y-%m-%d") in FERIADOS)
-                    if es_domingo or es_feriado: continue
+                    if es_domingo or es_feriado:
+                        continue
+                    # Sábado: solo se exige si ya transcurrió el domingo (es lunes o posterior)
                     if f.weekday() == 5:
                         lunes_despues = f + timedelta(days=2)
-                        if hoy < lunes_despues: continue
+                        if hoy < lunes_despues:
+                            continue
                     dias_exigibles.append(f.day)
 
             filas_html = []
@@ -865,21 +870,41 @@ else:
                 nom = info_w["nombre"]
                 try:
                     h_w = libro_admin.worksheet(nom)
-                    # Leer solo el rango de días exacto sin filas de totales
-                    vals = h_w.get(f"A2:G{1 + len(fechas_periodo)}")
+                    vals = h_w.get_all_values()[1:] # Lee sin fallos de rango
                     dias_con_datos = set()
+                    
                     for idx, r in enumerate(vals):
-                        if any("TOTAL" in str(x).upper() for x in r): continue
-                        if len(r) > 1 and r[1].isdigit():
-                            n_dia = int(r[1])
-                            if n_dia in dias_validos_periodo:
-                                c_ent = r[2].strip() if len(r) > 2 else ""
-                                c_obr = r[6].strip() if len(r) > 6 else ""
-                                if c_ent or c_obr:
-                                    dias_con_datos.add(n_dia)
+                        if any("TOTAL" in str(celda).upper() for celda in r):
+                            continue
+                        
+                        # Extraer número de día seguro
+                        txt_dia = str(r[1]).strip() if len(r) > 1 else ""
+                        n_dia = int(txt_dia) if txt_dia.isdigit() else (31 if idx == 0 else idx)
+                        
+                        c_ent = str(r[2]).strip() if len(r) > 2 else ""
+                        c_sal = str(r[3]).strip() if len(r) > 3 else ""
+                        c_obr = str(r[6]).strip() if len(r) > 6 else ""
+                        
+                        if c_ent or c_sal or c_obr:
+                            dias_con_datos.add(n_dia)
+                            
                     faltan = sum(1 for d in dias_exigibles if d not in dias_con_datos)
-                except Exception:
+                except Exception as err_trabajador:
                     faltan = len(dias_exigibles)
+
+                if faltan == 0:
+                    badge = '<span style="color: #4ade80; font-weight: 700;">Al día ✔</span>'
+                else:
+                    badge = f'<span style="color: #f87171; font-weight: 700;">{faltan} días pendientes</span>'
+
+                filas_html.append(f'<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--borde);background-color:var(--bg-contenedor);font-size:0.82rem;"><div style="color:var(--texto-principal);font-weight:600;">{nom}</div><div>{badge}</div></div>')
+
+            filas_str = "".join(filas_html)
+            tabla_html = f'<div style="width:100%;border:1px solid var(--borde);border-radius:8px;overflow:hidden;margin-top:6px;box-sizing:border-box;"><div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background-color:var(--bg-encabezado);border-bottom:1px solid var(--borde);font-size:0.72rem;font-weight:700;color:var(--texto-secundario);"><div>TRABAJADOR</div><div>ESTADO DE REGISTRO</div></div>{filas_str}</div>'
+
+            st.markdown(tabla_html, unsafe_allow_html=True)
+        except Exception as e:
+            st.error(f"No se pudo cargar el resumen global: {e}")
 
                 if faltan == 0:
                     badge = '<span style="color: #4ade80; font-weight: 700;">Al día ✔</span>'
