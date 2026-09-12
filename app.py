@@ -516,9 +516,10 @@ else:
             st.error(f"No se pudo cargar el resumen global: {e}")
 
     else:
-        # --- NAVEGACIÓN PRINCIPAL (SEPTIEMBRE / RESUMEN LADO A LADO) ---
-        if "vista_actual" not in st.session_state:
-            st.session_state["vista_actual"] = "SEPTIEMBRE"
+        # Selector de prueba para simular el paso del tiempo
+        c_sim, _ = st.columns([3, 7])
+        with c_sim:
+            fecha_simulada = st.date_input("🕒 Fecha simulada (Prueba):", value=date.today())
 
         is_sep = st.session_state["vista_actual"] == "SEPTIEMBRE"
         bg_sep = "#ff4b4b" if is_sep else "#1a1e29"
