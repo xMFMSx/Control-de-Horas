@@ -107,7 +107,13 @@ div[data-testid="stMarkdownContainer"] p {
 /* ==========================================================
    ALINEACIÓN HORIZONTAL Y BOTÓN LÁPIZ SIN FONDO
    ========================================================== */
-/* Forzar que las columnas nunca se rompan verticalmente sin importar el zoom */
+/* Une las filas verticalmente eliminando la separación negra */
+div[data-testid="stVerticalBlock"] > div:has(> div[data-testid="stHorizontalBlock"]) {
+    margin-bottom: -1px !important;
+    gap: 0 !important;
+}
+
+/* Alineación horizontal compacta y fija sin saltos */
 div[data-testid="stHorizontalBlock"] {
     display: flex !important;
     flex-direction: row !important;
@@ -117,7 +123,7 @@ div[data-testid="stHorizontalBlock"] {
     margin-bottom: -1px !important;
 }
 
-div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child {
+div[data-testid="stHorizontalBlock"] > div:first-child {
     min-width: 0 !important;
     flex: 1 1 93% !important;
     width: 93% !important;
@@ -132,7 +138,7 @@ div[data-testid="stHorizontalBlock"] > div:last-child {
     justify-content: center !important;
 }
 
-/* Quitar fondo, recuadro, bordes y mover el lápiz */
+/* Botón transparente */
 div[data-testid="stHorizontalBlock"] > div:last-child button {
     background: transparent !important;
     background-color: transparent !important;
@@ -145,12 +151,12 @@ div[data-testid="stHorizontalBlock"] > div:last-child button {
     height: auto !important;
     width: auto !important;
     cursor: pointer !important;
-    transform: translateY(6px) !important; /* Desplaza el lápiz hacia abajo */
+    transform: translateY(6px) !important;
 }
 
-/* Achicar el ícono del lápiz */
+/* Lápiz agrandado a tamaño óptimo */
 div[data-testid="stHorizontalBlock"] > div:last-child button p {
-    font-size: 0.65rem !important;
+    font-size: 0.85rem !important;
     line-height: 1 !important;
     margin: 0 !important;
     padding: 0 !important;
