@@ -10,7 +10,7 @@ import time as time_lib
 import urllib.parse
 from io import BytesIO
 
-# Importación segura de ReportLab para evitar caída del servidor
+# Importación segura de ReportLab
 try:
     from reportlab.lib import colors
     from reportlab.lib.pagesizes import letter
@@ -27,40 +27,77 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-st.markdown("""<style>
-/* Escala fija al 80% */
-html {
+# ==========================================================
+# GESTIÓN DE TEMA (CLARO / OSCURO)
+# ==========================================================
+if "tema_actual" not in st.session_state:
+    st.session_state["tema_actual"] = "oscuro"
+
+tema = st.session_state["tema_actual"]
+
+if tema == "oscuro":
+    css_vars = """
+        --bg-principal: #0e1117;
+        --bg-contenedor: #1a1e29;
+        --bg-tarjeta: #161922;
+        --bg-encabezado: #222634;
+        --borde: #2e3547;
+        --borde-tenue: #353b4d;
+        --texto-principal: #ffffff;
+        --texto-secundario: #a3adc2;
+        --color-acento: #ff4b4b;
+        --fila-alt: #1f2430;
+    """
+else:
+    css_vars = """
+        --bg-principal: #f4f6f9;
+        --bg-contenedor: #ffffff;
+        --bg-tarjeta: #ffffff;
+        --bg-encabezado: #e2e8f0;
+        --borde: #cbd5e1;
+        --borde-tenue: #cbd5e1;
+        --texto-principal: #0f172a;
+        --texto-secundario: #475569;
+        --color-acento: #e11d48;
+        --fila-alt: #f8fafc;
+    """
+
+st.markdown(f"""<style>
+:root {{
+    {css_vars}
+}}
+
+html {{
     zoom: 80% !important;
-}
+}}
 
-/* Ocultar UI nativa de Streamlit */
-header[data-testid="stHeader"] { display: none !important; }
-#MainMenu { visibility: hidden !important; }
-div[data-testid="stToolbar"] { visibility: hidden !important; }
-footer { visibility: hidden !important; }
-div[data-testid="stDecoration"] { display: none !important; }
+/* Streamlit UI base */
+header[data-testid="stHeader"] {{ display: none !important; }}
+#MainMenu {{ visibility: hidden !important; }}
+div[data-testid="stToolbar"] {{ visibility: hidden !important; }}
+footer {{ visibility: hidden !important; }}
+div[data-testid="stDecoration"] {{ display: none !important; }}
 
-/* Scroll vertical natural */
-html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {
+html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {{
     overflow-y: auto !important;
     overflow-x: hidden !important;
     height: auto !important;
     min-height: 100% !important;
-}
+    background-color: var(--bg-principal) !important;
+    color: var(--texto-principal) !important;
+}}
 
-.block-container { 
+.block-container {{ 
     max-width: 96% !important; 
     padding: 1.2rem !important; 
     padding-right: 28px !important; 
     padding-bottom: 25rem !important; 
     overflow-x: hidden !important;
     box-sizing: border-box !important;
-}
+}}
 
-/* ==========================================================
-   FILA SUPERIOR: NAVEGADOR + TUERCA
-   ========================================================== */
-div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {
+/* Fila Superior */
+div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {{
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
@@ -71,26 +108,26 @@ div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {
     box-sizing: border-box !important;
     margin-bottom: 1rem !important;
     padding-right: 14px !important;
-}
+}}
 
-@media (max-width: 9999px) {
-    div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {
+@media (max-width: 9999px) {{
+    div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {{
         display: flex !important;
         flex-direction: row !important;
         flex-wrap: nowrap !important;
         align-items: center !important;
-    }
-    div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) > div[data-testid="column"] {
+    }}
+    div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) > div[data-testid="column"] {{
         min-width: 0 !important;
         box-sizing: border-box !important;
-    }
-    div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) > div[data-testid="column"]:first-child {
+    }}
+    div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) > div[data-testid="column"]:first-child {{
         flex: 1 1 auto !important;
         width: calc(100% - 48px) !important;
         max-width: calc(100% - 48px) !important;
         min-width: 0 !important;
-    }
-    div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) > div[data-testid="column"]:last-child {
+    }}
+    div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) > div[data-testid="column"]:last-child {{
         flex: 0 0 40px !important;
         width: 40px !important;
         max-width: 40px !important;
@@ -98,180 +135,172 @@ div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {
         display: flex !important;
         justify-content: flex-end !important;
         position: relative !important;
-    }
-}
+    }}
+}}
 
-div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) [data-testid="stPopover"] {
+div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) [data-testid="stPopover"] {{
     width: 100% !important;
     display: flex !important;
     justify-content: flex-end !important;
     position: relative !important;
-}
+}}
 
-div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) [data-testid="stPopover"] > button {
+div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) [data-testid="stPopover"] > button {{
     width: 100% !important;
     min-height: 36px !important;
     height: 36px !important;
-    background-color: #1a1e29 !important;
-    border: 1px solid #2e3547 !important;
+    background-color: var(--bg-contenedor) !important;
+    border: 1px solid var(--borde) !important;
+    color: var(--texto-principal) !important;
     border-radius: 8px !important;
     padding: 0 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-}
+}}
 
-div[data-testid="stPopoverBody"] {
+div[data-testid="stPopoverBody"] {{
     right: 0px !important;
     left: auto !important;
     transform: translateY(50px) !important;
-    box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.7) !important;
-}
+    box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.4) !important;
+    background-color: var(--bg-tarjeta) !important;
+    border: 1px solid var(--borde) !important;
+    color: var(--texto-principal) !important;
+}}
 
-/* ==========================================================
-   FORZAR ELEMENTOS LADO A LADO EN PANEL ADMINISTRADOR
-   ========================================================== */
-div[data-testid="stHorizontalBlock"]:has(.admin-sim-marker) {
+/* Formatos de Panel Admin */
+div[data-testid="stHorizontalBlock"]:has(.admin-sim-marker) {{
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     align-items: flex-end !important;
     gap: 8px !important;
     width: 100% !important;
-}
+}}
 
-@media (max-width: 9999px) {
-    div[data-testid="stHorizontalBlock"]:has(.admin-sim-marker) {
+@media (max-width: 9999px) {{
+    div[data-testid="stHorizontalBlock"]:has(.admin-sim-marker) {{
         display: flex !important;
         flex-direction: row !important;
         flex-wrap: nowrap !important;
-    }
-    div[data-testid="stHorizontalBlock"]:has(.admin-sim-marker) > div[data-testid="column"] {
-        min-width: 0 !important;
-    }
-    div[data-testid="stHorizontalBlock"]:has(.admin-sim-marker) > div[data-testid="column"]:nth-child(1) {
+    }}
+    div[data-testid="stHorizontalBlock"]:has(.admin-sim-marker) > div[data-testid="column"]:nth-child(1) {{
         flex: 1 1 54% !important;
         width: 54% !important;
-    }
-    div[data-testid="stHorizontalBlock"]:has(.admin-sim-marker) > div[data-testid="column"]:nth-child(2) {
+    }}
+    div[data-testid="stHorizontalBlock"]:has(.admin-sim-marker) > div[data-testid="column"]:nth-child(2),
+    div[data-testid="stHorizontalBlock"]:has(.admin-sim-marker) > div[data-testid="column"]:nth-child(3) {{
         flex: 1 1 23% !important;
         width: 23% !important;
-    }
-    div[data-testid="stHorizontalBlock"]:has(.admin-sim-marker) > div[data-testid="column"]:nth-child(3) {
-        flex: 1 1 23% !important;
-        width: 23% !important;
-    }
-}
+    }}
+}}
 
-div[data-testid="stHorizontalBlock"]:has(.admin-ciclo-marker) {
+div[data-testid="stHorizontalBlock"]:has(.admin-ciclo-marker) {{
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     gap: 10px !important;
     width: 100% !important;
-}
+}}
 
-@media (max-width: 9999px) {
-    div[data-testid="stHorizontalBlock"]:has(.admin-ciclo-marker) {
+@media (max-width: 9999px) {{
+    div[data-testid="stHorizontalBlock"]:has(.admin-ciclo-marker) {{
         display: flex !important;
         flex-direction: row !important;
         flex-wrap: nowrap !important;
-    }
-    div[data-testid="stHorizontalBlock"]:has(.admin-ciclo-marker) > div[data-testid="column"] {
+    }}
+    div[data-testid="stHorizontalBlock"]:has(.admin-ciclo-marker) > div[data-testid="column"] {{
         flex: 1 1 50% !important;
         width: 50% !important;
         min-width: 0 !important;
-    }
-}
+    }}
+}}
 
-div[data-testid="stHorizontalBlock"]:has(.admin-sim-marker) button {
+div[data-testid="stHorizontalBlock"]:has(.admin-sim-marker) button {{
     height: 40px !important;
     min-height: 40px !important;
     padding: 0 4px !important;
     font-size: 0.76rem !important;
     font-weight: 700 !important;
     white-space: nowrap !important;
-}
+}}
 
-/* ==========================================================
-   NAVEGADOR SEGMENTADO SUPERIOR (50/50)
-   ========================================================== */
+/* Pills Nav */
 div[data-testid="stSegmentedControl"],
-div[data-testid="stPills"] {
+div[data-testid="stPills"] {{
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     width: 100% !important;
     gap: 6px !important;
-}
+}}
 
 div[data-testid="stSegmentedControl"] > div,
-div[data-testid="stPills"] > div {
+div[data-testid="stPills"] > div {{
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     width: 100% !important;
     gap: 6px !important;
-}
+}}
 
 div[data-testid="stSegmentedControl"] button,
-div[data-testid="stPills"] button {
+div[data-testid="stPills"] button {{
     flex: 1 1 50% !important;
     width: 50% !important;
     min-width: 0 !important;
-    background-color: #1a1e29 !important;
-    border: 1px solid #2e3547 !important;
-    color: #ffffff !important;
+    background-color: var(--bg-contenedor) !important;
+    border: 1px solid var(--borde) !important;
+    color: var(--texto-principal) !important;
     font-weight: 700 !important;
     font-size: clamp(0.68rem, 1.9vw, 0.80rem) !important;
     padding: 0.55rem 0.2rem !important;
     border-radius: 0.5rem !important;
     text-align: center !important;
     box-sizing: border-box !important;
-}
+}}
 
 div[data-testid="stSegmentedControl"] button[aria-selected="true"],
-div[data-testid="stPills"] button[aria-selected="true"] {
-    background-color: #ff4b4b !important;
-    border: 1px solid #ff4b4b !important;
+div[data-testid="stPills"] button[aria-selected="true"] {{
+    background-color: var(--color-acento) !important;
+    border: 1px solid var(--color-acento) !important;
     color: #ffffff !important;
-}
+}}
 
-/* ==========================================================
-   ESTRUCTURA CSS GRID DE 6 COLUMNAS
-   ========================================================== */
-.contenedor-tabla-6 {
+/* Grilla de 6 Columnas */
+.contenedor-tabla-6 {{
     display: grid !important;
     grid-template-columns: 7% 12% 10% 13.5% 14.5% 43% !important;
     width: 100% !important;
     align-items: center !important;
     box-sizing: border-box !important;
     margin: 0 !important;
-    background-color: #1a1e29 !important;
-    border: 1px solid #353b4d !important;
+    background-color: var(--bg-contenedor) !important;
+    border: 1px solid var(--borde-tenue) !important;
     border-top: none !important;
-}
+}}
 
-.es-encabezado-6 { 
+.es-encabezado-6 {{ 
     font-weight: 700 !important; 
-    color: #a3adc2 !important; 
+    color: var(--texto-secundario) !important; 
     font-size: 0.65rem !important; 
-    background-color: #222634 !important;
-    border: 1px solid #353b4d !important;
+    background-color: var(--bg-encabezado) !important;
+    border: 1px solid var(--borde-tenue) !important;
     border-radius: 4px 4px 0 0;
     padding: 10px 8px !important;
     margin-bottom: -1px !important;
-}
+}}
 
-.es-datos-6 { 
-    color: #ffffff !important; 
+.es-datos-6 {{ 
+    color: var(--texto-principal) !important; 
     font-size: 0.78rem !important; 
     padding: 6px 8px !important;
     margin-bottom: -1px !important;
-}
+}}
 
-.contenedor-tabla-6 > div {
-    border-right: 1px solid #353b4d !important;
+.contenedor-tabla-6 > div {{
+    border-right: 1px solid var(--borde-tenue) !important;
     padding: 0 6px !important;
     display: flex !important;
     align-items: center !important;
@@ -280,18 +309,16 @@ div[data-testid="stPills"] button[aria-selected="true"] {
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     height: 100% !important;
-}
-.contenedor-tabla-6 > div:last-child { 
-    border-right: none !important; 
-}
+}}
+.contenedor-tabla-6 > div:last-child {{ border-right: none !important; }}
 
-div[data-testid="stMarkdownContainer"] p { 
+div[data-testid="stMarkdownContainer"] p {{ 
     margin: 0 !important; 
     padding: 0 !important; 
     line-height: 1.1 !important; 
-}
+}}
 
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) {
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) {{
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
@@ -299,29 +326,27 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) {
     gap: 8px !important;
     margin-top: -8px !important;
     margin-bottom: 0 !important;
-}
+}}
 
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) > div:first-child {
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) > div:first-child {{
     min-width: 0 !important;
     flex: 1 1 93% !important;
     width: 93% !important;
-}
+}}
 
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) > div:last-child {
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) > div:last-child {{
     min-width: 34px !important;
     flex: 0 0 7% !important;
     width: 7% !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-}
+}}
 
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) > div:last-child button {
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) > div:last-child button {{
     background: transparent !important;
-    background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
-    outline: none !important;
     padding: 0 !important;
     margin: 0 auto !important;
     min-height: 0 !important;
@@ -329,64 +354,26 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) > div:last-child b
     width: auto !important;
     cursor: pointer !important;
     transform: translateY(6px) !important;
-}
+}}
 
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) > div:last-child button p {
-    font-size: 0.85rem !important;
-    line-height: 1 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) > div:last-child button:hover {
-    background: transparent !important;
-    opacity: 0.6 !important;
-}
-
-div[data-testid="stDownloadButton"] > button {
+div[data-testid="stDownloadButton"] > button {{
     width: 100% !important;
-    background-color: #1a1e29 !important;
-    border: 1px solid #2e3547 !important;
-    color: #ffffff !important;
+    background-color: var(--bg-contenedor) !important;
+    border: 1px solid var(--borde) !important;
+    color: var(--texto-principal) !important;
     font-weight: 700 !important;
     font-size: 0.82rem !important;
     padding: 0.65rem !important;
     border-radius: 0.5rem !important;
-}
+}}
 
-div[data-testid="stDownloadButton"] > button:hover {
-    background-color: #242938 !important;
-    border-color: #ff4b4b !important;
-    color: #ffffff !important;
-}
-
-div[data-testid="stForm"] {
-    background-color: #161922 !important;
-    border: 1px solid #2e3547 !important;
+div[data-testid="stForm"] {{
+    background-color: var(--bg-tarjeta) !important;
+    border: 1px solid var(--borde) !important;
     border-radius: 6px !important;
     padding: 14px 18px !important;
     margin: 6px 0 !important;
-}
-
-div[data-testid="stForm"] div[data-testid="stHorizontalBlock"] {
-    display: flex !important;
-    flex-direction: row !important;
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-    gap: 14px !important;
-}
-
-div[data-testid="stForm"] div[data-testid="stHorizontalBlock"] > div {
-    flex: 1 1 50% !important;
-    width: 50% !important;
-    min-width: 0 !important;
-}
-
-div[data-testid="stForm"] label p {
-    font-size: 0.78rem !important;
-    color: #a3adc2 !important;
-    font-weight: 600 !important;
-}
+}}
 </style>""", unsafe_allow_html=True)
 
 SECRET_KEY = "control_de_horas_firmado_token_2026"
@@ -417,7 +404,6 @@ def conectar_libro():
                 creds = ServiceAccountCredentials.from_json_keyfile_dict(cred_dict, scope)
             else:
                 creds = ServiceAccountCredentials.from_json_keyfile_name("credenciales.json", scope)
-                
             client = gspread.authorize(creds)
             return client.open("APP DE HORAS")
         except Exception as e:
@@ -451,10 +437,7 @@ def cargar_trabajadores():
                 nombre = r[0].strip()
                 correo = r[1].strip().lower()
                 rol_txt = r[3].strip().lower() if len(r) > 3 and r[3].strip() else ""
-                if rol_txt == "admin" or "manuel" in nombre.lower():
-                    rol = "admin"
-                else:
-                    rol = "trabajador"
+                rol = "admin" if (rol_txt == "admin" or "manuel" in nombre.lower()) else "trabajador"
                 usuarios[correo] = {"nombre": nombre, "rol": rol}
         return usuarios
     except Exception:
@@ -467,19 +450,16 @@ def cargar_obras():
         hoja_o = libro.worksheet("OBRAS")
         filas = hoja_o.get_all_values()[1:]
         obras_brutas = [r[1].strip() for r in filas if len(r) > 1 and r[1].strip()]
-        
         obras_unicas = []
         vistas = set()
         for o in obras_brutas:
             if o.upper() not in vistas:
                 vistas.add(o.upper())
                 obras_unicas.append(o)
-                
         lista_final = obras_unicas if obras_unicas else ["LOTE 1", "LOTE 4", "LOTE 11", "MONTESSORI"]
-        for opc_especial in ["PERMISO", "NO TRABAJA"]:
-            if not any(o.upper() == opc_especial for o in lista_final):
-                lista_final.append(opc_especial)
-                
+        for opc in ["PERMISO", "NO TRABAJA"]:
+            if not any(o.upper() == opc for o in lista_final):
+                lista_final.append(opc)
         return lista_final
     except Exception:
         return ["LOTE 1", "LOTE 4", "LOTE 11", "MONTESSORI", "PERMISO", "NO TRABAJA"]
@@ -496,9 +476,7 @@ def minutos_a_hora_str(total_minutos: int) -> str:
     return f"{h:02d}:{m:02d} hrs"
 
 def fila_segun_dia(dia: int) -> int:
-    if dia == 31:
-        return 2
-    return 2 + dia
+    return 2 if dia == 31 else (2 + dia)
 
 def str_a_time(texto: str):
     if not texto or texto in ["-", "None", ""]:
@@ -506,8 +484,8 @@ def str_a_time(texto: str):
     try:
         t = str(texto).strip()
         if ":" in t:
-            partes = t.split(":")
-            return time(int(partes[0]), int(partes[1]))
+            p = t.split(":")
+            return time(int(p[0]), int(p[1]))
         val = int(float(t.replace(",", ".")))
         return time(val, 0)
     except Exception:
@@ -518,67 +496,113 @@ def validar_usuario(correo_ingresado, password_ingresada):
         libro = conectar_libro()
         hoja_t = libro.worksheet("TRABAJADORES")
         registros = hoja_t.get_all_values()[1:]
-        
         for fila in registros:
-            if len(fila) < 3:
-                continue
+            if len(fila) < 3: continue
             nombre = fila[0].strip()
             correo_db = fila[1].strip()
             password_db = fila[2].strip()
             rol_txt = fila[3].strip().lower() if len(fila) > 3 and fila[3].strip() else ""
-            
-            if rol_txt == "admin" or "manuel" in nombre.lower():
-                rol = "admin"
-            else:
-                rol = "trabajador"
-            
+            rol = "admin" if (rol_txt == "admin" or "manuel" in nombre.lower()) else "trabajador"
             if correo_ingresado.lower() == correo_db.lower() and password_ingresada == password_db:
                 return True, nombre, rol
-                
         return False, None, None
-    except Exception as e:
-        st.error(f"Error al conectar con la base de datos: {e}")
+    except Exception:
         return False, None, None
 
+# --- GENERADOR DE EXCEL CONSOLIDADO (.XLSX) ---
+def generar_excel_mes(libro_actual, usuarios_dict, fechas_ciclo):
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        resumen_data = []
+        for correo_u, datos_u in usuarios_dict.items():
+            nom = datos_u["nombre"]
+            try:
+                h_trab = libro_actual.worksheet(nom)
+                vals = h_trab.get("A2:G32")
+                thn, thr = 0, 0
+                for r in vals:
+                    def extrae_m(t):
+                        if not t: return 0
+                        t = str(t).strip()
+                        if ":" in t:
+                            p = t.split(":")
+                            return int(float(p[0])) * 60 + int(float(p[1]))
+                        return int(round(float(t.replace(",", ".")) * 60))
+                    try: thn += extrae_m(r[4] if len(r)>4 else "")
+                    except: pass
+                    try: thr += extrae_m(r[5] if len(r)>5 else "")
+                    except: pass
+                
+                resumen_data.append({
+                    "Trabajador": nom,
+                    "Total Horas Extras": minutos_a_hora_str(thn),
+                    "Total Horas Recargo": minutos_a_hora_str(thr)
+                })
+            except Exception:
+                pass
+        
+        df_resumen = pd.DataFrame(resumen_data)
+        df_resumen.to_excel(writer, sheet_name="RESUMEN GENERAL", index=False)
+
+        # Hojas individuales
+        for correo_u, datos_u in usuarios_dict.items():
+            nom = datos_u["nombre"]
+            try:
+                h_trab = libro_actual.worksheet(nom)
+                filas = h_trab.get("A2:G32")
+                registros = []
+                for r in filas:
+                    registros.append({
+                        "DÍA": r[1] if len(r)>1 else "",
+                        "ENTRADA": r[2] if len(r)>2 else "",
+                        "SALIDA": r[3] if len(r)>3 else "",
+                        "H.NORMAL": r[4] if len(r)>4 else "",
+                        "H.RECARGO": r[5] if len(r)>5 else "",
+                        "OBRA": r[6] if len(r)>6 else ""
+                    })
+                df_t = pd.DataFrame(registros)
+                nom_pestaña = nom[:28]
+                df_t.to_excel(writer, sheet_name=nom_pestaña, index=False)
+            except Exception:
+                pass
+
+    output.seek(0)
+    return output.getvalue()
+
+# --- REORGANIZACIÓN DINÁMICA DE HOJAS EN GOOGLE SHEETS ---
+def reiniciar_hojas_nuevo_ciclo(f_inicio, f_fin, usuarios_dict):
+    libro = conectar_libro()
+    delta = (f_fin - f_inicio).days + 1
+    nuevas_filas = []
+    for i in range(delta):
+        f = f_inicio + timedelta(days=i)
+        nom_d = DIAS_MAP[f.weekday()]
+        num_d = str(f.day)
+        # Estructura: A: NombreDia, B: NumDia, C: Entrada, D: Salida, E: HN, F: HR, G: Obra
+        nuevas_filas.append([nom_d, num_d, "", "", "", "", ""])
+
+    for correo_u, datos_u in usuarios_dict.items():
+        nom = datos_u["nombre"]
+        try:
+            h = libro.worksheet(nom)
+            # Limpiar contenido anterior
+            h.batch_clear(["A2:G40"])
+            # Cargar nuevo rango ajustado
+            h.update(f"A2:G{1 + len(nuevas_filas)}", nuevas_filas, value_input_option="USER_ENTERED")
+        except Exception:
+            pass
+
+# --- REPORTE PDF INDIVIDUAL ---
 def generar_pdf_horas(nombre_t, reg_tabla, tot_hn_str, tot_hr_str):
-    if not REPORTLAB_DISPONIBLE:
-        return None
+    if not REPORTLAB_DISPONIBLE: return None
     buffer = BytesIO()
-    doc = SimpleDocTemplate(
-        buffer,
-        pagesize=letter,
-        rightMargin=36,
-        leftMargin=36,
-        topMargin=36,
-        bottomMargin=36
-    )
+    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36)
     elementos = []
     estilos = getSampleStyleSheet()
 
-    estilo_titulo = ParagraphStyle(
-        'TituloPDF',
-        parent=estilos['Normal'],
-        fontName='Helvetica-Bold',
-        fontSize=16,
-        leading=20,
-        textColor=colors.HexColor("#1a1e29")
-    )
-    estilo_sub = ParagraphStyle(
-        'SubtituloPDF',
-        parent=estilos['Normal'],
-        fontName='Helvetica',
-        fontSize=10,
-        leading=14,
-        textColor=colors.HexColor("#4a5568")
-    )
-    estilo_totales = ParagraphStyle(
-        'TotalesPDF',
-        parent=estilos['Normal'],
-        fontName='Helvetica-Bold',
-        fontSize=10,
-        leading=14,
-        textColor=colors.HexColor("#ff4b4b")
-    )
+    estilo_titulo = ParagraphStyle('TituloPDF', parent=estilos['Normal'], fontName='Helvetica-Bold', fontSize=16, leading=20, textColor=colors.HexColor("#1a1e29"))
+    estilo_sub = ParagraphStyle('SubtituloPDF', parent=estilos['Normal'], fontName='Helvetica', fontSize=10, leading=14, textColor=colors.HexColor("#4a5568"))
+    estilo_totales = ParagraphStyle('TotalesPDF', parent=estilos['Normal'], fontName='Helvetica-Bold', fontSize=10, leading=14, textColor=colors.HexColor("#ff4b4b"))
 
     elementos.append(Paragraph("REPORTE MENSUAL DE HORAS TRABAJADAS", estilo_titulo))
     elementos.append(Spacer(1, 4))
@@ -588,16 +612,8 @@ def generar_pdf_horas(nombre_t, reg_tabla, tot_hn_str, tot_hr_str):
     elementos.append(Spacer(1, 14))
 
     data_tabla = [["DÍA", "ENTRADA", "SALIDA", "H.NORMAL", "H.RECARGO", "OBRA"]]
-    
     for r in reg_tabla:
-        data_tabla.append([
-            str(r["DÍA"]),
-            str(r["ENTRADA"]),
-            str(r["SALIDA"]),
-            str(r["HORA EXTRA"]),
-            str(r["HORA RECARGO"]),
-            str(r["OBRA"])
-        ])
+        data_tabla.append([str(r["DÍA"]), str(r["ENTRADA"]), str(r["SALIDA"]), str(r["HORA EXTRA"]), str(r["HORA RECARGO"]), str(r["OBRA"])])
 
     t = Table(data_tabla, colWidths=[40, 65, 65, 80, 80, 210])
     t.setStyle(TableStyle([
@@ -607,33 +623,34 @@ def generar_pdf_horas(nombre_t, reg_tabla, tot_hn_str, tot_hr_str):
         ('FONTSIZE', (0, 0), (-1, 0), 9),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('ALIGN', (5, 1), (5, -1), 'LEFT'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 6),
-        ('TOPPADDING', (0, 0), (-1, 0), 6),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor("#cbd5e0")),
-        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 1), (-1, -1), 8.5),
         ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor("#f7fafc")]),
-        ('BOTTOMPADDING', (0, 1), (-1, -1), 4),
-        ('TOPPADDING', (0, 1), (-1, -1), 4),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+        ('TOPPADDING', (0, 0), (-1, -1), 4),
     ]))
-
     elementos.append(t)
     doc.build(elementos)
     buffer.seek(0)
     return buffer.getvalue()
 
-# --- PERSISTENCIA AUTOMÁTICA (LOCALSTORAGE) ---
-if not st.session_state.get("autenticado") and "session" not in st.query_params:
+# ==========================================================
+# PERSISTENCIA ROBUSTA (ANTI-DESCONEXIÓN)
+# ==========================================================
+query_params = st.query_params
+
+# Inyección activa para recuperar token en caso de reposo del servidor
+if not st.session_state.get("autenticado"):
     st.components.v1.html("""
         <script>
             const tokenGuardado = localStorage.getItem('control_horas_token');
-            if (tokenGuardado && !window.location.search.includes('session=')) {
-                window.location.search = '?session=' + tokenGuardado;
+            const urlParams = new URLSearchParams(window.location.search);
+            if (tokenGuardado && !urlParams.has('session')) {
+                urlParams.set('session', tokenGuardado);
+                window.location.search = urlParams.toString();
             }
         </script>
     """, height=0)
 
-query_params = st.query_params
 if "session" in query_params and not st.session_state.get("autenticado"):
     correo_token = verificar_token(query_params["session"])
     if correo_token:
@@ -644,26 +661,22 @@ if "session" in query_params and not st.session_state.get("autenticado"):
             st.session_state["nombre_usuario"] = usuarios_map[correo_token.lower()]["nombre"]
             st.session_state["rol_usuario"] = usuarios_map[correo_token.lower()]["rol"]
 
-if "autenticado" not in st.session_state:
-    st.session_state.autenticado = False
-if "nombre_usuario" not in st.session_state:
-    st.session_state.nombre_usuario = ""
-if "user_email" not in st.session_state:
-    st.session_state.user_email = ""
-if "rol_usuario" not in st.session_state:
-    st.session_state.rol_usuario = "trabajador"
-if "cambiando_password" not in st.session_state:
-    st.session_state.cambiando_password = False
-if "modo_admin_activo" not in st.session_state:
-    st.session_state.modo_admin_activo = False
-
-# Fecha simulada global para Administrador (None usa la fecha real del sistema)
-if "fecha_admin_simulada" not in st.session_state:
-    st.session_state["fecha_admin_simulada"] = None
+if "autenticado" not in st.session_state: st.session_state.autenticado = False
+if "nombre_usuario" not in st.session_state: st.session_state.nombre_usuario = ""
+if "user_email" not in st.session_state: st.session_state.user_email = ""
+if "rol_usuario" not in st.session_state: st.session_state.rol_usuario = "trabajador"
+if "cambiando_password" not in st.session_state: st.session_state.cambiando_password = False
+if "modo_admin_activo" not in st.session_state: st.session_state.modo_admin_activo = False
+if "fecha_admin_simulada" not in st.session_state: st.session_state["fecha_admin_simulada"] = None
 
 # Fechas del ciclo activo
-inicio_mes = date(2026, 8, 31)
-fin_mes = date(2026, 9, 30)
+if "ciclo_inicio" not in st.session_state:
+    st.session_state["ciclo_inicio"] = date(2026, 8, 31)
+if "ciclo_fin" not in st.session_state:
+    st.session_state["ciclo_fin"] = date(2026, 9, 30)
+
+inicio_mes = st.session_state["ciclo_inicio"]
+fin_mes = st.session_state["ciclo_fin"]
 delta_dias = (fin_mes - inicio_mes).days + 1
 fechas_periodo = [inicio_mes + timedelta(days=i) for i in range(delta_dias)]
 
@@ -705,7 +718,6 @@ else:
     es_admin = st.session_state.get("rol_usuario", "trabajador") == "admin"
     hoja_usuario = obtener_hoja_trabajador(nombre_trabajador)
 
-    # Determinación centralizada de la fecha activa del sistema
     if es_admin and st.session_state.get("fecha_admin_simulada") is not None:
         hoy = st.session_state["fecha_admin_simulada"]
     else:
@@ -750,7 +762,7 @@ else:
 
     elif st.session_state.get("modo_admin_activo", False) and es_admin:
         # ==========================================================
-        # VISTA: PANEL ADMINISTRADOR ULTRA COMPACTO
+        # VISTA: PANEL ADMINISTRADOR COMPACTO Y POTENTE
         # ==========================================================
         c_head1, c_head2 = st.columns([75, 25])
         with c_head1:
@@ -760,9 +772,9 @@ else:
                 st.session_state["modo_admin_activo"] = False
                 st.rerun()
 
-        st.caption("Control global de personal, ciclo activo y simulación de fechas.")
+        st.caption("Control global, cierre de ciclos, exportación Excel y simulación.")
 
-        # --- SECCIÓN 1: SIMULACIÓN DE FECHA (TOTALMENTE LADO A LADO) ---
+        # --- SECCIÓN 1: SIMULACIÓN DE FECHA ---
         with st.container(border=True):
             st.markdown("**🕒 Simulación de Fecha del Sistema**")
             st.markdown('<span class="admin-sim-marker"></span>', unsafe_allow_html=True)
@@ -786,39 +798,57 @@ else:
             if st.session_state["fecha_admin_simulada"] is not None:
                 st.warning(f"⚠️ Simulando: **{st.session_state['fecha_admin_simulada'].strftime('%d/%m/%Y')}**")
 
-        # --- SECCIÓN 2: FECHA DE CICLO (LADO A LADO 50/50) ---
+        # --- SECCIÓN 2: FECHA DE CICLO Y CIERRE AUTOMÁTICO ---
         with st.container(border=True):
-            st.markdown("**📅 Rango de Fechas del Ciclo**")
+            st.markdown("**📅 Ciclo de Cierre y Apertura Automática**")
             st.markdown('<span class="admin-ciclo-marker"></span>', unsafe_allow_html=True)
             c_f1, c_f2 = st.columns(2)
             with c_f1:
-                nuevo_inicio = st.date_input("Inicio del Ciclo", value=inicio_mes)
+                nuevo_inicio = st.date_input("Inicio de Ciclo", value=st.session_state["ciclo_inicio"])
             with c_f2:
-                nuevo_fin = st.date_input("Término del Ciclo", value=fin_mes)
+                nuevo_fin = st.date_input("Término de Ciclo", value=st.session_state["ciclo_fin"])
 
-        # --- SECCIÓN 3: LISTADO GENERAL ABIERTO AL 100% (SIN CORREO, DÍAS PENDIENTES) ---
+            if (nuevo_inicio != st.session_state["ciclo_inicio"]) or (nuevo_fin != st.session_state["ciclo_fin"]):
+                if st.button("💾 Guardar Nuevo Rango de Fechas", use_container_width=True):
+                    st.session_state["ciclo_inicio"] = nuevo_inicio
+                    st.session_state["ciclo_fin"] = nuevo_fin
+                    st.success("✔ Rango actualizado.")
+                    st.rerun()
+
+            st.write("")
+            col_b_ciclo1, col_b_ciclo2 = st.columns(2)
+            with col_b_ciclo1:
+                # Descarga de Excel Consolidado
+                libro_adm = conectar_libro()
+                datos_excel = generar_excel_mes(libro_adm, usuarios_autorizados, fechas_periodo)
+                st.download_button(
+                    label="📊 Descargar Excel Consolidado",
+                    data=datos_excel,
+                    file_name=f"Consolidado_Horas_{inicio_mes.strftime('%Y%m%d')}_{fin_mes.strftime('%Y%m%d')}.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    use_container_width=True
+                )
+            with col_b_ciclo2:
+                if st.button("🔄 Reiniciar Hojas para Nuevo Ciclo", use_container_width=True):
+                    with st.spinner("Reorganizando hojas de todo el personal en Google Sheets..."):
+                        reiniciar_hojas_nuevo_ciclo(nuevo_inicio, nuevo_fin, usuarios_autorizados)
+                        if "filas_planilla" in st.session_state: del st.session_state["filas_planilla"]
+                        st.success("✔ ¡Hojas preparadas y limpias para el nuevo ciclo!")
+                        st.rerun()
+
+        # --- SECCIÓN 3: LISTADO GENERAL ABIERTO AL 100% ---
         st.markdown("**👥 Resumen General del Personal**")
         try:
             libro_admin = conectar_libro()
-            
-            # LÓGICA DE DÍAS EXIGIBLES:
-            # - Días de lunes a viernes y feriados pasados
-            # - Sábado: SOLO es exigible si hoy es LUNES (o posterior) en la misma semana
             dias_exigibles = []
             for f in fechas_periodo:
                 if f <= hoy:
                     es_domingo = (f.weekday() == 6)
                     es_feriado = (f.strftime("%Y-%m-%d") in FERIADOS)
-                    
-                    if es_domingo or es_feriado:
-                        continue
-                    
-                    # Si es sábado: solo se exige si ya llegó el lunes siguiente
+                    if es_domingo or es_feriado: continue
                     if f.weekday() == 5:
-                        lunes_siguiente = f + timedelta(days=2)
-                        if hoy < lunes_siguiente:
-                            continue
-                    
+                        lunes_despues = f + timedelta(days=2)
+                        if hoy < lunes_despues: continue
                     dias_exigibles.append(f.day)
 
             filas_html = []
@@ -834,7 +864,6 @@ else:
                         c_obr = r[6].strip() if len(r) > 6 else ""
                         if c_ent or c_obr:
                             dias_con_datos.add(n_dia)
-                    
                     faltan = sum(1 for d in dias_exigibles if d not in dias_con_datos)
                 except Exception:
                     faltan = len(dias_exigibles)
@@ -844,29 +873,28 @@ else:
                 else:
                     badge = f'<span style="color: #f87171; font-weight: 700;">{faltan} días pendientes</span>'
 
-                filas_html.append(f'<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid #2e3547;background-color:#1a1e29;font-size:0.82rem;"><div style="color:#ffffff;font-weight:600;">{nom}</div><div>{badge}</div></div>')
+                filas_html.append(f'<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--borde);background-color:var(--bg-contenedor);font-size:0.82rem;"><div style="color:var(--texto-principal);font-weight:600;">{nom}</div><div>{badge}</div></div>')
 
             filas_str = "".join(filas_html)
-            tabla_html = f'<div style="width:100%;border:1px solid #2e3547;border-radius:8px;overflow:hidden;margin-top:6px;box-sizing:border-box;"><div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background-color:#222634;border-bottom:1px solid #2e3547;font-size:0.72rem;font-weight:700;color:#a3adc2;"><div>TRABAJADOR</div><div>ESTADO DE REGISTRO</div></div>{filas_str}</div>'
+            tabla_html = f'<div style="width:100%;border:1px solid var(--borde);border-radius:8px;overflow:hidden;margin-top:6px;box-sizing:border-box;"><div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background-color:var(--bg-encabezado);border-bottom:1px solid var(--borde);font-size:0.72rem;font-weight:700;color:var(--texto-secundario);"><div>TRABAJADOR</div><div>ESTADO DE REGISTRO</div></div>{filas_str}</div>'
 
             st.markdown(tabla_html, unsafe_allow_html=True)
         except Exception as e:
             st.error(f"No se pudo cargar el resumen global: {e}")
 
     else:
-        # Indicador informativo si el admin está simulando fecha en su vista de usuario
         if es_admin and st.session_state.get("fecha_admin_simulada") is not None:
             st.info(f"🕒 Modo simulación activo: **{hoy.strftime('%d/%m/%Y')}** (Configurado desde Panel Administrador)")
 
-        # --- FILA SUPERIOR: NAVEGADOR Y TUERCA (POPOVER LIBRE DEBAJO) ---
+        # --- FILA SUPERIOR: NAVEGADOR Y TUERCA ---
         c_nav, c_gear = st.columns([88, 12])
 
         with c_nav:
-            opciones_nav = ["📅 SEPTIEMBRE 2026", "📊 RESUMEN DEL MES"]
+            opciones_nav = [f"📅 CICLO ACTIVO", "📊 RESUMEN DEL MES"]
             if "vista_actual" not in st.session_state:
                 st.session_state["vista_actual"] = "SEPTIEMBRE"
 
-            val_default = "📅 SEPTIEMBRE 2026" if st.session_state["vista_actual"] == "SEPTIEMBRE" else "📊 RESUMEN DEL MES"
+            val_default = f"📅 CICLO ACTIVO" if st.session_state["vista_actual"] == "SEPTIEMBRE" else "📊 RESUMEN DEL MES"
 
             seleccion = st.pills(
                 "",
@@ -876,7 +904,7 @@ else:
                 key="pills_navegacion"
             )
 
-            nueva_vista = "SEPTIEMBRE" if seleccion == "📅 SEPTIEMBRE 2026" else "RESUMEN"
+            nueva_vista = "SEPTIEMBRE" if seleccion == f"📅 CICLO ACTIVO" else "RESUMEN"
             if nueva_vista != st.session_state["vista_actual"]:
                 st.session_state["vista_actual"] = nueva_vista
                 if nueva_vista == "SEPTIEMBRE":
@@ -890,6 +918,19 @@ else:
                     st.markdown("🔑 *Rol: Administrador*")
                 st.markdown("---")
                 
+                # Selector de tema
+                nuevo_t = st.selectbox(
+                    "🎨 Tema de interfaz",
+                    options=["Oscuro", "Claro"],
+                    index=0 if st.session_state["tema_actual"] == "oscuro" else 1
+                )
+                t_str = nuevo_t.lower()
+                if t_str != st.session_state["tema_actual"]:
+                    st.session_state["tema_actual"] = t_str
+                    st.rerun()
+
+                st.markdown("---")
+
                 if es_admin:
                     if st.button("🛠️ Panel Administrador", use_container_width=True):
                         st.session_state["modo_admin_activo"] = True
@@ -920,7 +961,7 @@ else:
 
         if "filas_planilla" not in st.session_state:
             try:
-                st.session_state["filas_planilla"] = hoja_usuario.get("A2:G32")
+                st.session_state["filas_planilla"] = hoja_usuario.get("A2:G35")
             except Exception:
                 st.session_state["filas_planilla"] = []
 
@@ -965,7 +1006,6 @@ else:
             if f_fila:
                 es_domingo_o_feriado = (f_fila.weekday() == 6) or (f_fila.strftime("%Y-%m-%d") in FERIADOS)
 
-            # LÓGICA SÁBADO NO TRABAJADO (AUTOMÁTICA EL LUNES):
             es_sabado_pasado_sin_trabajar = False
             if f_fila and f_fila.weekday() == 5 and f_fila < hoy:
                 lunes_despues = f_fila + timedelta(days=2)
@@ -985,22 +1025,22 @@ else:
 
         registros_tabla = sorted(registros_tabla, key=lambda x: (0 if x["DÍA"] == 31 else x["DÍA"]))
 
-        # --- VISTA 1: SEPTIEMBRE (REGISTRO DIARIO) ---
+        # --- VISTA 1: REGISTRO DIARIO ---
         if st.session_state["vista_actual"] == "SEPTIEMBRE":
-            st.subheader("SEPTIEMBRE 2026")
+            st.subheader(f"JORNADAS {inicio_mes.strftime('%d/%m')} AL {fin_mes.strftime('%d/%m/%Y')}")
             
             val_hn_str = minutos_a_hora_str(total_hn)
             val_hr_str = minutos_a_hora_str(total_hr)
             
             st.markdown(f'''
             <div style="display: flex; gap: 10px; width: 100%; margin-bottom: 1rem;">
-                <div style="flex: 1; min-width: 0; background-color: #0e1117; border: 1px solid #262d3d; border-radius: 8px; padding: 14px;">
-                    <div style="font-size: 0.68rem; color: #838c9e; margin-bottom: 4px; font-weight: 500; white-space: nowrap;">Total Horas Extras (Mes)</div>
-                    <div style="font-size: 1.6rem; font-weight: 700; color: #ffffff; white-space: nowrap;">{val_hn_str}</div>
+                <div style="flex: 1; min-width: 0; background-color: var(--bg-tarjeta); border: 1px solid var(--borde); border-radius: 8px; padding: 14px;">
+                    <div style="font-size: 0.68rem; color: var(--texto-secundario); margin-bottom: 4px; font-weight: 500; white-space: nowrap;">Total Horas Extras (Mes)</div>
+                    <div style="font-size: 1.6rem; font-weight: 700; color: var(--texto-principal); white-space: nowrap;">{val_hn_str}</div>
                 </div>
-                <div style="flex: 1; min-width: 0; background-color: #0e1117; border: 1px solid #262d3d; border-radius: 8px; padding: 14px;">
-                    <div style="font-size: 0.68rem; color: #838c9e; margin-bottom: 4px; font-weight: 500; white-space: nowrap;">Total Horas Recargo (Mes)</div>
-                    <div style="font-size: 1.6rem; font-weight: 700; color: #ffffff; white-space: nowrap;">{val_hr_str}</div>
+                <div style="flex: 1; min-width: 0; background-color: var(--bg-tarjeta); border: 1px solid var(--borde); border-radius: 8px; padding: 14px;">
+                    <div style="font-size: 0.68rem; color: var(--texto-secundario); margin-bottom: 4px; font-weight: 500; white-space: nowrap;">Total Horas Recargo (Mes)</div>
+                    <div style="font-size: 1.6rem; font-weight: 700; color: var(--texto-principal); white-space: nowrap;">{val_hr_str}</div>
                 </div>
             </div>
             ''', unsafe_allow_html=True)
@@ -1015,7 +1055,6 @@ else:
                 if es_domingo_o_feriado and f < hoy:
                     continue
 
-                # Si es sábado que ya pasó y hoy es lunes o posterior, y no tiene datos, se omite
                 if f.weekday() == 5 and f < hoy:
                     lunes_despues = f + timedelta(days=2)
                     if hoy >= lunes_despues:
@@ -1091,7 +1130,7 @@ else:
                                         except Exception as err:
                                             st.error(f"Error al guardar: {err}")
 
-        # --- VISTA 2: RESUMEN MENSUAL CON TABLA LIMPIA Y LÁPIZ LATERAL ---
+        # --- VISTA 2: RESUMEN MENSUAL ---
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
@@ -1100,13 +1139,13 @@ else:
             
             html_cards_res = f"""
             <div style="display: flex; gap: 10px; width: 100%; margin-bottom: 1rem;">
-                <div style="flex: 1; min-width: 0; background-color: #0e1117; border: 1px solid #262d3d; border-radius: 8px; padding: 14px;">
-                    <div style="font-size: 0.68rem; color: #838c9e; margin-bottom: 4px; font-weight: 500; white-space: nowrap;">Total Horas Extras (Mes)</div>
-                    <div style="font-size: 1.6rem; font-weight: 700; color: #ffffff; white-space: nowrap;">{val_hn_str}</div>
+                <div style="flex: 1; min-width: 0; background-color: var(--bg-tarjeta); border: 1px solid var(--borde); border-radius: 8px; padding: 14px;">
+                    <div style="font-size: 0.68rem; color: var(--texto-secundario); margin-bottom: 4px; font-weight: 500; white-space: nowrap;">Total Horas Extras (Mes)</div>
+                    <div style="font-size: 1.6rem; font-weight: 700; color: var(--texto-principal); white-space: nowrap;">{val_hn_str}</div>
                 </div>
-                <div style="flex: 1; min-width: 0; background-color: #0e1117; border: 1px solid #262d3d; border-radius: 8px; padding: 14px;">
-                    <div style="font-size: 0.68rem; color: #838c9e; margin-bottom: 4px; font-weight: 500; white-space: nowrap;">Total Horas Recargo (Mes)</div>
-                    <div style="font-size: 1.6rem; font-weight: 700; color: #ffffff; white-space: nowrap;">{val_hr_str}</div>
+                <div style="flex: 1; min-width: 0; background-color: var(--bg-tarjeta); border: 1px solid var(--borde); border-radius: 8px; padding: 14px;">
+                    <div style="font-size: 0.68rem; color: var(--texto-secundario); margin-bottom: 4px; font-weight: 500; white-space: nowrap;">Total Horas Recargo (Mes)</div>
+                    <div style="font-size: 1.6rem; font-weight: 700; color: var(--texto-principal); white-space: nowrap;">{val_hr_str}</div>
                 </div>
             </div>
             """
@@ -1132,7 +1171,6 @@ else:
 
                 for r in registros_tabla:
                     d = r["DÍA"] 
-                    
                     try:
                         fecha_fila = date(2026, 8, 31) if d == 31 else date(2026, 9, d)
                         w_day = fecha_fila.weekday()
@@ -1144,13 +1182,13 @@ else:
                     es_festivo = iso_f in FERIADOS
                     
                     if es_festivo or w_day == 6:
-                        color_dia = "#b388ff"
+                        color_dia = "#8b5cf6"
                         dia_txt = f"{d} (F)" if es_festivo else str(d)
                     elif w_day == 5:
-                        color_dia = "#448aff"
+                        color_dia = "#3b82f6"
                         dia_txt = str(d)
                     else:
-                        color_dia = "#ffffff"
+                        color_dia = "var(--texto-principal)"
                         dia_txt = str(d)
 
                     ent_val = r["ENTRADA"].strip() if r["ENTRADA"].strip() else "&nbsp;"
