@@ -132,8 +132,9 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child {
     justify-content: center !important;
 }
 
-/* Eliminar completamente el fondo, bordes y márgenes del botón lápiz */
-div[data-testid="column"]:last-child button {
+/* Quita el recuadro gris, bordes y fuerza el tamaño exacto del botón */
+div[data-testid="column"]:last-child div[data-testid="stButton"],
+div[data-testid="column"]:last-child div[data-testid="stButton"] button {
     background: transparent !important;
     background-color: transparent !important;
     border: none !important;
@@ -144,20 +145,18 @@ div[data-testid="column"]:last-child button {
     min-height: 0 !important;
     height: auto !important;
     width: auto !important;
-    cursor: pointer !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
 }
 
-div[data-testid="column"]:last-child button p {
-    font-size: 0.72rem !important;
+/* Control exacto del icono del lápiz: tamaño y desplazamiento vertical */
+div[data-testid="column"]:last-child div[data-testid="stButton"] button p {
+    font-size: 0.65rem !important;
     line-height: 1 !important;
     margin: 0 !important;
-    transform: translateY(2px) !important;
+    padding: 0 !important;
+    transform: translateY(6px) !important;
 }
 
-div[data-testid="column"]:last-child button:hover {
+div[data-testid="column"]:last-child div[data-testid="stButton"] button:hover {
     background: transparent !important;
     opacity: 0.6 !important;
 }
