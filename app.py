@@ -512,15 +512,23 @@ def validar_usuario(correo_ingresado, password_ingresada):
 # --- GENERADOR DE EXCEL CONSOLIDADO (.XLSX) ---
 def generar_excel_mes(libro_actual, usuarios_dict, fechas_ciclo):
     output = BytesIO()
+    dias_validos_ciclo = {f.day for f in fechas_ciclo}
     with pd.ExcelWriter(output, engine='openpyxl') as writer:
         resumen_data = []
         for correo_u, datos_u in usuarios_dict.items():
             nom = datos_u["nombre"]
             try:
                 h_trab = libro_actual.worksheet(nom)
-                vals = h_trab.get("A2:G32")
+                vals = h_trab.get(f"A2:G{1 + len(fechas_ciclo)}")
                 thn, thr = 0, 0
                 for r in vals:
+                    # Omitir filas de totales
+                    if any("TOTAL" in str(x).upper() for x in r):
+                        continue
+                    n_dia = int(r[1]) if len(r) > 1 and r[1].isdigit() else None
+                    if n_dia not in dias_validos_ciclo:
+                        continue
+
                     def extrae_m(t):
                         if not t: return 0
                         t = str(t).strip()
@@ -544,14 +552,19 @@ def generar_excel_mes(libro_actual, usuarios_dict, fechas_ciclo):
         df_resumen = pd.DataFrame(resumen_data)
         df_resumen.to_excel(writer, sheet_name="RESUMEN GENERAL", index=False)
 
-        # Hojas individuales
+        # Hojas individuales filtradas sin totales de planilla
         for correo_u, datos_u in usuarios_dict.items():
             nom = datos_u["nombre"]
             try:
                 h_trab = libro_actual.worksheet(nom)
-                filas = h_trab.get("A2:G32")
+                filas = h_trab.get(f"A2:G{1 + len(fechas_ciclo)}")
                 registros = []
                 for r in filas:
+                    if any("TOTAL" in str(x).upper() for x in r):
+                        continue
+                    n_dia = int(r[1]) if len(r) > 1 and r[1].isdigit() else None
+                    if n_dia not in dias_validos_ciclo:
+                        continue
                     registros.append({
                         "DÍA": r[1] if len(r)>1 else "",
                         "ENTRADA": r[2] if len(r)>2 else "",
@@ -578,16 +591,13 @@ def reiniciar_hojas_nuevo_ciclo(f_inicio, f_fin, usuarios_dict):
         f = f_inicio + timedelta(days=i)
         nom_d = DIAS_MAP[f.weekday()]
         num_d = str(f.day)
-        # Estructura: A: NombreDia, B: NumDia, C: Entrada, D: Salida, E: HN, F: HR, G: Obra
         nuevas_filas.append([nom_d, num_d, "", "", "", "", ""])
 
     for correo_u, datos_u in usuarios_dict.items():
         nom = datos_u["nombre"]
         try:
             h = libro.worksheet(nom)
-            # Limpiar contenido anterior
             h.batch_clear(["A2:G40"])
-            # Cargar nuevo rango ajustado
             h.update(f"A2:G{1 + len(nuevas_filas)}", nuevas_filas, value_input_option="USER_ENTERED")
         except Exception:
             pass
@@ -625,8 +635,8 @@ def generar_pdf_horas(nombre_t, reg_tabla, tot_hn_str, tot_hr_str):
         ('ALIGN', (5, 1), (5, -1), 'LEFT'),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor("#cbd5e0")),
         ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor("#f7fafc")]),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
-        ('TOPPADDING', (0, 0), (-1, -1), 4),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 4),
+        ('TOPPADDING', (0, 0), (-1, 0), 4),
     ]))
     elementos.append(t)
     doc.build(elementos)
@@ -638,7 +648,6 @@ def generar_pdf_horas(nombre_t, reg_tabla, tot_hn_str, tot_hr_str):
 # ==========================================================
 query_params = st.query_params
 
-# Inyección activa para recuperar token en caso de reposo del servidor
 if not st.session_state.get("autenticado"):
     st.components.v1.html("""
         <script>
@@ -669,7 +678,7 @@ if "cambiando_password" not in st.session_state: st.session_state.cambiando_pass
 if "modo_admin_activo" not in st.session_state: st.session_state.modo_admin_activo = False
 if "fecha_admin_simulada" not in st.session_state: st.session_state["fecha_admin_simulada"] = None
 
-# Fechas del ciclo activo
+# Fechas del ciclo activo (Por defecto 31/08 al 30/09)
 if "ciclo_inicio" not in st.session_state:
     st.session_state["ciclo_inicio"] = date(2026, 8, 31)
 if "ciclo_fin" not in st.session_state:
@@ -679,6 +688,7 @@ inicio_mes = st.session_state["ciclo_inicio"]
 fin_mes = st.session_state["ciclo_fin"]
 delta_dias = (fin_mes - inicio_mes).days + 1
 fechas_periodo = [inicio_mes + timedelta(days=i) for i in range(delta_dias)]
+dias_validos_periodo = {f.day for f in fechas_periodo}
 
 if not st.session_state.autenticado:
     st.title("🔐 Acceso a APP DE HORAS")
@@ -762,7 +772,7 @@ else:
 
     elif st.session_state.get("modo_admin_activo", False) and es_admin:
         # ==========================================================
-        # VISTA: PANEL ADMINISTRADOR COMPACTO Y POTENTE
+        # VISTA: PANEL ADMINISTRADOR
         # ==========================================================
         c_head1, c_head2 = st.columns([75, 25])
         with c_head1:
@@ -818,7 +828,6 @@ else:
             st.write("")
             col_b_ciclo1, col_b_ciclo2 = st.columns(2)
             with col_b_ciclo1:
-                # Descarga de Excel Consolidado
                 libro_adm = conectar_libro()
                 datos_excel = generar_excel_mes(libro_adm, usuarios_autorizados, fechas_periodo)
                 st.download_button(
@@ -856,14 +865,18 @@ else:
                 nom = info_w["nombre"]
                 try:
                     h_w = libro_admin.worksheet(nom)
-                    vals = h_w.get("A2:G32")
+                    # Leer solo el rango de días exacto sin filas de totales
+                    vals = h_w.get(f"A2:G{1 + len(fechas_periodo)}")
                     dias_con_datos = set()
                     for idx, r in enumerate(vals):
-                        n_dia = int(r[1]) if len(r) > 1 and r[1].isdigit() else (idx + 1)
-                        c_ent = r[2].strip() if len(r) > 2 else ""
-                        c_obr = r[6].strip() if len(r) > 6 else ""
-                        if c_ent or c_obr:
-                            dias_con_datos.add(n_dia)
+                        if any("TOTAL" in str(x).upper() for x in r): continue
+                        if len(r) > 1 and r[1].isdigit():
+                            n_dia = int(r[1])
+                            if n_dia in dias_validos_periodo:
+                                c_ent = r[2].strip() if len(r) > 2 else ""
+                                c_obr = r[6].strip() if len(r) > 6 else ""
+                                if c_ent or c_obr:
+                                    dias_con_datos.add(n_dia)
                     faltan = sum(1 for d in dias_exigibles if d not in dias_con_datos)
                 except Exception:
                     faltan = len(dias_exigibles)
@@ -890,11 +903,11 @@ else:
         c_nav, c_gear = st.columns([88, 12])
 
         with c_nav:
-            opciones_nav = [f"📅 CICLO ACTIVO", "📊 RESUMEN DEL MES"]
+            opciones_nav = ["📅 SEPTIEMBRE 2026", "📊 RESUMEN DEL MES"]
             if "vista_actual" not in st.session_state:
                 st.session_state["vista_actual"] = "SEPTIEMBRE"
 
-            val_default = f"📅 CICLO ACTIVO" if st.session_state["vista_actual"] == "SEPTIEMBRE" else "📊 RESUMEN DEL MES"
+            val_default = "📅 SEPTIEMBRE 2026" if st.session_state["vista_actual"] == "SEPTIEMBRE" else "📊 RESUMEN DEL MES"
 
             seleccion = st.pills(
                 "",
@@ -904,7 +917,7 @@ else:
                 key="pills_navegacion"
             )
 
-            nueva_vista = "SEPTIEMBRE" if seleccion == f"📅 CICLO ACTIVO" else "RESUMEN"
+            nueva_vista = "SEPTIEMBRE" if seleccion == "📅 SEPTIEMBRE 2026" else "RESUMEN"
             if nueva_vista != st.session_state["vista_actual"]:
                 st.session_state["vista_actual"] = nueva_vista
                 if nueva_vista == "SEPTIEMBRE":
@@ -959,9 +972,11 @@ else:
 
         st.markdown("---")
 
+        # Rango exacto de días: A2:G32 para 31 días (no pasa a la fila de totales)
+        limite_fila = 1 + len(fechas_periodo)
         if "filas_planilla" not in st.session_state:
             try:
-                st.session_state["filas_planilla"] = hoja_usuario.get("A2:G35")
+                st.session_state["filas_planilla"] = hoja_usuario.get(f"A2:G{limite_fila}")
             except Exception:
                 st.session_state["filas_planilla"] = []
 
@@ -972,7 +987,15 @@ else:
         total_hr = 0
 
         for idx, r in enumerate(filas_planilla):
-            num_dia = int(r[1]) if len(r) > 1 and r[1].isdigit() else (idx + 1)
+            # Omitir cualquier fila que tenga la palabra TOTAL
+            if any("TOTAL" in str(x).upper() for x in r):
+                continue
+
+            num_dia = int(r[1]) if len(r) > 1 and r[1].isdigit() else None
+            # Si no es un día válido del ciclo configurado, se descarta
+            if num_dia not in dias_validos_periodo:
+                continue
+
             entrada = r[2] if len(r) > 2 else ""
             salida = r[3] if len(r) > 3 else ""
             hn_val = r[4] if len(r) > 4 else ""
@@ -1027,7 +1050,7 @@ else:
 
         # --- VISTA 1: REGISTRO DIARIO ---
         if st.session_state["vista_actual"] == "SEPTIEMBRE":
-            st.subheader(f"JORNADAS {inicio_mes.strftime('%d/%m')} AL {fin_mes.strftime('%d/%m/%Y')}")
+            st.subheader("SEPTIEMBRE 2026")
             
             val_hn_str = minutos_a_hora_str(total_hn)
             val_hr_str = minutos_a_hora_str(total_hr)
