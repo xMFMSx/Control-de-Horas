@@ -10,16 +10,6 @@ import time as time_lib
 import urllib.parse
 from io import BytesIO
 
-# Importación segura de ReportLab para evitar caída del servidor
-try:
-    from reportlab.lib import colors
-    from reportlab.lib.pagesizes import letter
-    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-    REPORTLAB_DISPONIBLE = True
-except ImportError:
-    REPORTLAB_DISPONIBLE = False
-
 st.set_page_config(
     page_title="Control de Horas",
     page_icon="⏱️",
@@ -50,6 +40,7 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {
     min-height: 100% !important;
 }
 
+/* Margen derecho amplio para que la barra/flecha nativa no tape nada */
 .block-container { 
     max-width: 96% !important; 
     padding: 1.2rem !important; 
@@ -123,45 +114,14 @@ div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) [data-testid
     justify-content: center !important;
 }
 
+/* ==========================================================
+   ALINEAR EL MENÚ DESPLEGABLE DEBAJO DE LA TUERCA (SIN TAPARLA)
+   ========================================================== */
 div[data-testid="stPopoverBody"] {
     right: 0px !important;
     left: auto !important;
-    transform: translateY(50px) !important;
+    transform: translateY(50px) !important; /* Desplaza el cuadro completamente debajo de la tuerca */
     box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.7) !important;
-}
-
-/* ==========================================================
-   PANEL ADMINISTRADOR: FILAS HORIZONTALES COMPACTAS (LADO A LADO)
-   ========================================================== */
-div[data-testid="stHorizontalBlock"]:has(.fila-admin-flex) {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    align-items: flex-end !important;
-    gap: 8px !important;
-    width: 100% !important;
-    margin-bottom: 0.4rem !important;
-}
-
-@media (max-width: 9999px) {
-    div[data-testid="stHorizontalBlock"]:has(.fila-admin-flex) {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-    }
-    div[data-testid="stHorizontalBlock"]:has(.fila-admin-flex) > div[data-testid="column"] {
-        min-width: 0 !important;
-    }
-}
-
-/* Botones pequeños del simulador de fecha */
-div[data-testid="stHorizontalBlock"]:has(.fila-admin-flex) button {
-    min-height: 38px !important;
-    height: 38px !important;
-    padding: 0.2rem 0.4rem !important;
-    font-size: 0.78rem !important;
-    font-weight: 600 !important;
-    white-space: nowrap !important;
 }
 
 /* ==========================================================
@@ -290,6 +250,7 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) > div:last-child {
     justify-content: center !important;
 }
 
+/* Botón lápiz lateral transparente */
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) > div:last-child button {
     background: transparent !important;
     background-color: transparent !important;
@@ -315,26 +276,6 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) > div:last-child b
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) > div:last-child button:hover {
     background: transparent !important;
     opacity: 0.6 !important;
-}
-
-/* ==========================================================
-   BOTÓN DE DESCARGA PDF ESTILIZADO
-   ========================================================== */
-div[data-testid="stDownloadButton"] > button {
-    width: 100% !important;
-    background-color: #1a1e29 !important;
-    border: 1px solid #2e3547 !important;
-    color: #ffffff !important;
-    font-weight: 700 !important;
-    font-size: 0.82rem !important;
-    padding: 0.65rem !important;
-    border-radius: 0.5rem !important;
-}
-
-div[data-testid="stDownloadButton"] > button:hover {
-    background-color: #242938 !important;
-    border-color: #ff4b4b !important;
-    color: #ffffff !important;
 }
 
 /* ==========================================================
@@ -520,88 +461,6 @@ def validar_usuario(correo_ingresado, password_ingresada):
         st.error(f"Error al conectar con la base de datos: {e}")
         return False, None, None
 
-def generar_pdf_horas(nombre_t, reg_tabla, tot_hn_str, tot_hr_str):
-    if not REPORTLAB_DISPONIBLE:
-        return None
-    buffer = BytesIO()
-    doc = SimpleDocTemplate(
-        buffer,
-        pagesize=letter,
-        rightMargin=36,
-        leftMargin=36,
-        topMargin=36,
-        bottomMargin=36
-    )
-    elementos = []
-    estilos = getSampleStyleSheet()
-
-    estilo_titulo = ParagraphStyle(
-        'TituloPDF',
-        parent=estilos['Normal'],
-        fontName='Helvetica-Bold',
-        fontSize=16,
-        leading=20,
-        textColor=colors.HexColor("#1a1e29")
-    )
-    estilo_sub = ParagraphStyle(
-        'SubtituloPDF',
-        parent=estilos['Normal'],
-        fontName='Helvetica',
-        fontSize=10,
-        leading=14,
-        textColor=colors.HexColor("#4a5568")
-    )
-    estilo_totales = ParagraphStyle(
-        'TotalesPDF',
-        parent=estilos['Normal'],
-        fontName='Helvetica-Bold',
-        fontSize=10,
-        leading=14,
-        textColor=colors.HexColor("#ff4b4b")
-    )
-
-    elementos.append(Paragraph("REPORTE MENSUAL DE HORAS TRABAJADAS", estilo_titulo))
-    elementos.append(Spacer(1, 4))
-    elementos.append(Paragraph(f"<b>Trabajador:</b> {nombre_t} &nbsp;&nbsp;|&nbsp;&nbsp; <b>Período:</b> SEPTIEMBRE 2026", estilo_sub))
-    elementos.append(Spacer(1, 4))
-    elementos.append(Paragraph(f"<b>Total Horas Extras:</b> {tot_hn_str} &nbsp;&nbsp;|&nbsp;&nbsp; <b>Total Horas Recargo:</b> {tot_hr_str}", estilo_totales))
-    elementos.append(Spacer(1, 14))
-
-    data_tabla = [["DÍA", "ENTRADA", "SALIDA", "H.NORMAL", "H.RECARGO", "OBRA"]]
-    
-    for r in reg_tabla:
-        data_tabla.append([
-            str(r["DÍA"]),
-            str(r["ENTRADA"]),
-            str(r["SALIDA"]),
-            str(r["HORA EXTRA"]),
-            str(r["HORA RECARGO"]),
-            str(r["OBRA"])
-        ])
-
-    t = Table(data_tabla, colWidths=[40, 65, 65, 80, 80, 210])
-    t.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#1a1e29")),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 9),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('ALIGN', (5, 1), (5, -1), 'LEFT'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 6),
-        ('TOPPADDING', (0, 0), (-1, 0), 6),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor("#cbd5e0")),
-        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 1), (-1, -1), 8.5),
-        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor("#f7fafc")]),
-        ('BOTTOMPADDING', (0, 1), (-1, -1), 4),
-        ('TOPPADDING', (0, 1), (-1, -1), 4),
-    ]))
-
-    elementos.append(t)
-    doc.build(elementos)
-    buffer.seek(0)
-    return buffer.getvalue()
-
 # --- PERSISTENCIA AUTOMÁTICA (LOCALSTORAGE) ---
 if not st.session_state.get("autenticado") and "session" not in st.query_params:
     st.components.v1.html("""
@@ -723,53 +582,50 @@ else:
                         st.error(f"Error: {e}")
 
     elif st.session_state.get("modo_admin_activo", False) and es_admin:
-        # ==========================================================
-        # VISTA: MODO ADMINISTRADOR COMPACTO (LADO A LADO)
-        # ==========================================================
-        c_head1, c_head2 = st.columns([75, 25])
-        with c_head1:
-            st.markdown("### 🛠️ PANEL DE ADMINISTRADOR")
-        with c_head2:
-            if st.button("⬅️ Volver", use_container_width=True):
-                st.session_state["modo_admin_activo"] = False
+        # --- VISTA: MODO ADMINISTRADOR ---
+        st.subheader("🛠️ PANEL DE ADMINISTRADOR")
+        st.write("Control global de personal, selector de ciclos y simulación de fechas.")
+        
+        if st.button("⬅️ Volver a mi vista normal"):
+            st.session_state["modo_admin_activo"] = False
+            st.rerun()
+
+        st.markdown("---")
+        
+        # --- SIMULADOR DE FECHAS EXCLUSIVO ADMINISTRADOR ---
+        st.markdown("### 🕒 Simulación de Fecha del Sistema")
+        c_sim1, c_sim2, c_sim3 = st.columns([3, 2, 2])
+        with c_sim1:
+            fecha_input_admin = st.date_input(
+                "Establecer fecha para pruebas:",
+                value=st.session_state["fecha_admin_simulada"] or date.today()
+            )
+        with c_sim2:
+            st.write("")
+            st.write("")
+            if st.button("⚡ Aplicar Fecha Simulada", use_container_width=True):
+                st.session_state["fecha_admin_simulada"] = fecha_input_admin
+                st.success(f"Fecha fijada en: {fecha_input_admin}")
+                st.rerun()
+        with c_sim3:
+            st.write("")
+            st.write("")
+            if st.button("🔄 Restablecer a Fecha Real", use_container_width=True):
+                st.session_state["fecha_admin_simulada"] = None
+                st.info("Sistema restablecido a la fecha real de hoy.")
                 st.rerun()
 
-        st.caption("Control global de personal, ciclo activo y simulación de fechas.")
+        if st.session_state["fecha_admin_simulada"] is not None:
+            st.warning(f"⚠️ MODO SIMULACIÓN ACTIVO: Todo el sistema se comporta como si hoy fuera **{st.session_state['fecha_admin_simulada'].strftime('%d/%m/%Y')}**.")
 
-        # --- SECCIÓN 1: SIMULACIÓN DE FECHA (FECHA + BOTONES AL LADO) ---
-        with st.container(border=True):
-            st.markdown('<span class="fila-admin-flex"></span>**🕒 Simulación de Fecha del Sistema**', unsafe_allow_html=True)
-            
-            c_sim_date, c_sim_btn1, c_sim_btn2 = st.columns([52, 24, 24])
-            with c_sim_date:
-                fecha_input_admin = st.date_input(
-                    "Fecha a simular:",
-                    value=st.session_state["fecha_admin_simulada"] or date.today(),
-                    label_visibility="collapsed"
-                )
-            with c_sim_btn1:
-                if st.button("⚡ Activar", use_container_width=True):
-                    st.session_state["fecha_admin_simulada"] = fecha_input_admin
-                    st.rerun()
-            with c_sim_btn2:
-                if st.button("🔄 Reset", use_container_width=True):
-                    st.session_state["fecha_admin_simulada"] = None
-                    st.rerun()
+        st.markdown("---")
+        c_f1, c_f2 = st.columns(2)
+        with c_f1:
+            nuevo_inicio = st.date_input("Fecha Inicio de Ciclo", value=date(2026, 8, 31))
+        with c_f2:
+            nuevo_fin = st.date_input("Fecha Término de Ciclo", value=date(2026, 9, 30))
 
-            if st.session_state["fecha_admin_simulada"] is not None:
-                st.warning(f"⚠️ Simulando: **{st.session_state['fecha_admin_simulada'].strftime('%d/%m/%Y')}**")
-
-        # --- SECCIÓN 2: FECHA DE CICLO (INICIO Y TÉRMINO LADO A LADO) ---
-        with st.container(border=True):
-            st.markdown('<span class="fila-admin-flex"></span>**📅 Rango de Fechas del Ciclo**', unsafe_allow_html=True)
-            c_f1, c_f2 = st.columns(2)
-            with c_f1:
-                nuevo_inicio = st.date_input("Inicio del Ciclo", value=date(2026, 8, 31))
-            with c_f2:
-                nuevo_fin = st.date_input("Término del Ciclo", value=date(2026, 9, 30))
-
-        # --- SECCIÓN 3: LISTADO GENERAL DE TRABAJADORES ---
-        st.markdown("**👥 Resumen General del Personal**")
+        st.markdown("### 👥 Listado General de Trabajadores")
         try:
             libro_admin = conectar_libro()
             resumen_global = []
@@ -784,7 +640,7 @@ else:
                     resumen_global.append({"Trabajador": nom, "Correo": correo_w, "Días Registrados": 0})
             
             df_global = pd.DataFrame(resumen_global)
-            st.dataframe(df_global, use_container_width=True, hide_index=True)
+            st.dataframe(df_global, use_container_width=True)
         except Exception as e:
             st.error(f"No se pudo cargar el resumen global: {e}")
 
@@ -896,6 +752,7 @@ else:
             try: total_hr += a_minutos(hr_val)
             except Exception: pass
 
+            # Fecha correspondiente de la fila para validar si ya pasó
             try:
                 f_fila = date(2026, 8, 31) if num_dia == 31 else date(2026, 9, num_dia)
             except Exception:
@@ -905,17 +762,20 @@ else:
             if f_fila:
                 es_domingo_o_feriado = (f_fila.weekday() == 6) or (f_fila.strftime("%Y-%m-%d") in FERIADOS)
 
+            # Si ya tiene datos registrados, se muestra lo guardado
             if entrada or salida or obra_val:
                 registros_tabla.append({
                     "DÍA": num_dia, "ENTRADA": entrada, "SALIDA": salida,
                     "HORA EXTRA": hn_val, "HORA RECARGO": hr_val, "OBRA": obra_val
                 })
+            # Si es domingo o feriado que ya pasó, se muestra la fila totalmente en blanco (sin guiones ni NT)
             elif es_domingo_o_feriado and f_fila and f_fila < hoy:
                 registros_tabla.append({
                     "DÍA": num_dia, "ENTRADA": "", "SALIDA": "",
                     "HORA EXTRA": "", "HORA RECARGO": "", "OBRA": ""
                 })
 
+        # Ordenar registros cronológicamente
         registros_tabla = sorted(registros_tabla, key=lambda x: (0 if x["DÍA"] == 31 else x["DÍA"]))
 
         # --- VISTA 1: SEPTIEMBRE (REGISTRO DIARIO) ---
@@ -945,6 +805,7 @@ else:
                 fecha_iso = f.strftime("%Y-%m-%d")
                 es_domingo_o_feriado = (f.weekday() == 6) or (fecha_iso in FERIADOS)
 
+                # Si es domingo o feriado que ya quedó en el pasado, se omite de pendientes
                 if es_domingo_o_feriado and f < hoy:
                     continue
 
@@ -1042,6 +903,7 @@ else:
                 st.session_state["dia_en_edicion"] = None
 
             if registros_tabla:
+                # Encabezado: 93% ancho para la tabla + 7% libre para alinear con el botón
                 col_encabezado, _ = st.columns([93, 7])
                 with col_encabezado:
                     st.markdown('''
@@ -1055,6 +917,7 @@ else:
                     </div>
                     ''', unsafe_allow_html=True)
 
+                # --- FILAS DE DATOS + BOTÓN LÁPIZ LATERAL NATIVO Y TRANSPARENTE ---
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     
@@ -1106,6 +969,7 @@ else:
                                 st.session_state["dia_en_edicion"] = d
                             st.rerun()
 
+                    # Formulario desplegable directo (ocupa el ancho de la tabla, sin títulos ni recuadros vacíos)
                     if st.session_state.get("dia_en_edicion") == d:
                         datos_d = dict_por_dia.get(d, {})
                         val_e = str_a_time(datos_d.get("entrada", ""))
@@ -1168,22 +1032,6 @@ else:
                 st.info("Aún no tienes jornadas registradas en este mes.")
 
             st.markdown("---")
-
-            if REPORTLAB_DISPONIBLE:
-                pdf_bytes = generar_pdf_horas(
-                    nombre_trabajador,
-                    registros_tabla,
-                    val_hn_str,
-                    val_hr_str
-                )
-                nombre_archivo_pdf = f"Horas_{nombre_trabajador.replace(' ', '_')}_Septiembre_2026.pdf"
-
-                st.download_button(
-                    label="📄 DESCARGAR HORAS DEL MES EN PDF",
-                    data=pdf_bytes,
-                    file_name=nombre_archivo_pdf,
-                    mime="application/pdf",
-                    use_container_width=True
-                )
-            else:
-                st.warning("⚠️ Para habilitar la descarga en PDF en Streamlit Cloud, añade 'reportlab' en tu archivo requirements.txt en GitHub.")
+            # --- BOTÓN DE REPORTE PDF ABAJO ---
+            if st.button("📄 DESCARGAR HORAS DEL MES EN PDF", use_container_width=True):
+                st.info("ℹ️ Módulo de PDF listo para ser conectado.")
