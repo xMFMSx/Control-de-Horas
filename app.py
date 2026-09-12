@@ -739,15 +739,23 @@ else:
 
                     c_fila, c_lapiz = st.columns([93, 7])
 
-                    with c_fila:
+                    with c_lapiz:
+                        btn_clickeado = st.button("✏️", key=f"edit_btn_{d}")
+                        if btn_clickeado:
+                            if st.session_state.get("dia_en_edicion") == d:
+                                st.session_state["dia_en_edicion"] = None
+                            else:
+                                st.session_state["dia_en_edicion"] = d
+                            st.rerun()
+
                         st.markdown(f'''
-                        <div class="es-datos-6 contenedor-tabla-6">
-                            <div style="color: {color_dia}; font-weight: 700;">{dia_txt}</div>
-                            <div>{r["ENTRADA"]}</div>
-                            <div>{r["SALIDA"]}</div>
-                            <div>{hn_val}</div>
-                            <div>{hr_val}</div>
-                            <div>{r["OBRA"]}</div>
+                        <div style="display: flex; align-items: center; justify-content: center; height: 100%; margin-top: 8px;">
+                            <span onclick="document.querySelector('button[key=edit_btn_{d}]').click();" 
+                                  style="cursor: pointer; font-size: 0.65rem; user-select: none; transition: opacity 0.2s;"
+                                  onmouseover="this.style.opacity='0.6'" 
+                                  onmouseout="this.style.opacity='1'">
+                                ✏️
+                            </span>
                         </div>
                         ''', unsafe_allow_html=True)
 
