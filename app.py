@@ -516,10 +516,28 @@ else:
             st.error(f"No se pudo cargar el resumen global: {e}")
 
     else:
-        # Selector de prueba para simular el paso del tiempo
-        c_sim, _ = st.columns([3, 7])
+        # Selector de prueba con recarga forzada
+        c_sim, c_btn = st.columns([3, 2])
         with c_sim:
-            fecha_simulada = st.date_input("🕒 Fecha simulada (Prueba):", value=date.today())
+            opciones_fecha = [
+                date(2026, 9, 12),
+                date(2026, 9, 13),
+                date(2026, 9, 14),
+                date(2026, 9, 21),
+            ]
+            fecha_simulada = st.selectbox(
+                "🕒 Simular Fecha:",
+                options=opciones_fecha,
+                index=2, # Por defecto Lunes 14
+                key="fecha_test"
+            )
+        with c_btn:
+            st.write("")
+            st.write("")
+            if st.button("⚡ Aplicar Fecha"):
+                st.rerun()
+
+        hoy = fecha_simulada
 
         is_sep = st.session_state["vista_actual"] == "SEPTIEMBRE"
         bg_sep = "#ff4b4b" if is_sep else "#1a1e29"
