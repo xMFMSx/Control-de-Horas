@@ -623,9 +623,22 @@ else:
             ''', unsafe_allow_html=True)
             st.markdown("---")
 
+            # Interruptor para mantener la vista limpia por defecto
+            c_check, _ = st.columns([4, 6])
+            with c_check:
+                ver_festivos = st.toggle("Mostrar domingos y festivos", value=False)
+
             dias_pendientes = []
             for f in fechas_periodo:
                 num_dia = f.day
+                fecha_iso = f.strftime("%Y-%m-%d")
+                es_domingo = f.weekday() == 6
+                es_feriado = fecha_iso in FERIADOS
+
+                # Si es domingo o feriado y el toggle está apagado, se omite de la lista diaria
+                if (es_domingo or es_feriado) and not ver_festivos:
+                    continue
+
                 guardado = dict_por_dia.get(num_dia, {})
                 if not (guardado.get("entrada") or guardado.get("salida") or guardado.get("obra")):
                     dias_pendientes.append(f)
