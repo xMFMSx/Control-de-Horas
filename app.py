@@ -44,45 +44,42 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {
 }
 
 /* ==========================================================
-   BOTONES DE NAVEGACIÓN (AJUSTADOS AL 100% SIN DESBORDAMIENTO)
+   BOTONES DE NAVEGACIÓN SUPERIORES (FORZADOS SIEMPRE LADO A LADO)
    ========================================================== */
-div.nav-tabs-wrapper {
+div[data-testid="stHorizontalBlock"]:not(:has(.contenedor-tabla-6)):has(button[data-testid*="baseButton"]) {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+    gap: 8px !important;
     width: 100% !important;
     margin-bottom: 1rem !important;
 }
 
-div.nav-tabs-wrapper div[data-testid="stHorizontalBlock"] {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    gap: 10px !important;
-    width: 100% !important;
-    margin: 0 !important;
-}
-
-div.nav-tabs-wrapper div[data-testid="stHorizontalBlock"] > div {
-    flex: 1 1 0px !important;
+div[data-testid="stHorizontalBlock"]:not(:has(.contenedor-tabla-6)):has(button[data-testid*="baseButton"]) > div[data-testid="column"] {
+    flex: 1 1 50% !important;
     width: 50% !important;
+    max-width: 50% !important;
     min-width: 0 !important;
 }
 
-div.nav-tabs-wrapper button {
+div[data-testid="stHorizontalBlock"]:not(:has(.contenedor-tabla-6)):has(button[data-testid*="baseButton"]) button {
     width: 100% !important;
-    font-weight: 600 !important;
-    font-size: 0.82rem !important;
-    padding: 0.6rem 0.2rem !important;
-    border-radius: 0.5rem !important;
     white-space: nowrap !important;
-    box-sizing: border-box !important;
+    padding: 0.6rem 0.2rem !important;
+    font-size: 0.82rem !important;
+    font-weight: 600 !important;
+    border-radius: 0.5rem !important;
+    height: 100% !important;
 }
 
-div.nav-tabs-wrapper button[kind="primary"] {
+div[data-testid="stHorizontalBlock"]:not(:has(.contenedor-tabla-6)):has(button[data-testid*="baseButton"]) button[data-testid="baseButton-primary"] {
     background-color: #ff4b4b !important;
     border: 1px solid #ff4b4b !important;
     color: #ffffff !important;
 }
 
-div.nav-tabs-wrapper button[kind="secondary"] {
+div[data-testid="stHorizontalBlock"]:not(:has(.contenedor-tabla-6)):has(button[data-testid*="baseButton"]) button[data-testid="baseButton-secondary"] {
     background-color: #1a1e29 !important;
     border: 1px solid #2e3547 !important;
     color: #ffffff !important;
@@ -416,7 +413,7 @@ if "cambiando_password" not in st.session_state:
 if "modo_admin_activo" not in st.session_state:
     st.session_state.modo_admin_activo = False
 
-# Fecha simulada global para Administrador (None usa la fecha real)
+# Fecha simulada global para Administrador (None usa la fecha real del sistema)
 if "fecha_admin_simulada" not in st.session_state:
     st.session_state["fecha_admin_simulada"] = None
 
@@ -604,13 +601,12 @@ else:
         if es_admin and st.session_state.get("fecha_admin_simulada") is not None:
             st.info(f"🕒 Modo simulación activo: **{hoy.strftime('%d/%m/%Y')}** (Configurado desde Panel Administrador)")
 
-        # --- NAVEGACIÓN PRINCIPAL (ENCAPSULADA AL 100% DE LA VENTANA) ---
+        # --- NAVEGACIÓN PRINCIPAL (SIN PANTALLAZO NEGRO Y LADO A LADO) ---
         if "vista_actual" not in st.session_state:
             st.session_state["vista_actual"] = "SEPTIEMBRE"
 
         is_sep = st.session_state["vista_actual"] == "SEPTIEMBRE"
 
-        st.markdown('<div class="nav-tabs-wrapper">', unsafe_allow_html=True)
         col_nav1, col_nav2 = st.columns(2)
         with col_nav1:
             tipo_sep = "primary" if is_sep else "secondary"
@@ -626,7 +622,6 @@ else:
                 if st.session_state["vista_actual"] != "RESUMEN":
                     st.session_state["vista_actual"] = "RESUMEN"
                     st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
 
         st.markdown("---")
 
