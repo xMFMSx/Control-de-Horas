@@ -44,6 +44,48 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {
 }
 
 /* ==========================================================
+   BOTONES DE NAVEGACIÓN SUPERIORES (SIEMPRE UNO AL LADO DEL OTRO)
+   ========================================================== */
+div[data-testid="stHorizontalBlock"]:not(:has(.contenedor-tabla-6)):has(button[kind]) {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin-bottom: 1rem !important;
+}
+
+div[data-testid="stHorizontalBlock"]:not(:has(.contenedor-tabla-6)):has(button[kind]) > div[data-testid="column"] {
+    flex: 1 1 50% !important;
+    width: 50% !important;
+    min-width: 0 !important;
+}
+
+div[data-testid="stHorizontalBlock"] button[kind="primary"] {
+    background-color: #ff4b4b !important;
+    border: 1px solid #ff4b4b !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    font-size: 0.82rem !important;
+    padding: 0.6rem 0.2rem !important;
+    border-radius: 0.5rem !important;
+    width: 100% !important;
+    white-space: nowrap !important;
+}
+
+div[data-testid="stHorizontalBlock"] button[kind="secondary"] {
+    background-color: #1a1e29 !important;
+    border: 1px solid #2e3547 !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    font-size: 0.82rem !important;
+    padding: 0.6rem 0.2rem !important;
+    border-radius: 0.5rem !important;
+    width: 100% !important;
+    white-space: nowrap !important;
+}
+
+/* ==========================================================
    ESTRUCTURA CSS GRID DE 6 COLUMNAS (PROPORCIONES EXACTAS)
    ========================================================== */
 .contenedor-tabla-6 {
@@ -95,29 +137,6 @@ div[data-testid="stMarkdownContainer"] p {
     margin: 0 !important; 
     padding: 0 !important; 
     line-height: 1.1 !important; 
-}
-
-/* ==========================================================
-   BOTONES DE NAVEGACIÓN SUPERIORES (SIN RECARGA HTTP)
-   ========================================================== */
-div[data-testid="stHorizontalBlock"] button[kind="primary"] {
-    background-color: #ff4b4b !important;
-    border: 1px solid #ff4b4b !important;
-    color: #ffffff !important;
-    font-weight: 600 !important;
-    font-size: 0.82rem !important;
-    padding: 0.6rem 0.2rem !important;
-    border-radius: 0.5rem !important;
-}
-
-div[data-testid="stHorizontalBlock"] button[kind="secondary"] {
-    background-color: #1a1e29 !important;
-    border: 1px solid #2e3547 !important;
-    color: #ffffff !important;
-    font-weight: 600 !important;
-    font-size: 0.82rem !important;
-    padding: 0.6rem 0.2rem !important;
-    border-radius: 0.5rem !important;
 }
 
 /* ==========================================================
@@ -582,7 +601,7 @@ else:
         if es_admin and st.session_state.get("fecha_admin_simulada") is not None:
             st.info(f"🕒 Modo simulación activo: **{hoy.strftime('%d/%m/%Y')}** (Configurado desde Panel Administrador)")
 
-        # --- NAVEGACIÓN PRINCIPAL NATIVA (SIN PANTALLAZO NEGRO NI RECARGA HTTP) ---
+        # --- NAVEGACIÓN PRINCIPAL (FORZADA SIEMPRE LADO A LADO 50% / 50%) ---
         if "vista_actual" not in st.session_state:
             st.session_state["vista_actual"] = "SEPTIEMBRE"
 
