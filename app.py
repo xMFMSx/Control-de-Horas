@@ -74,9 +74,10 @@ div[data-testid="stPills"] button {
     border: 1px solid #2e3547 !important;
     color: #ffffff !important;
     font-weight: 700 !important;
-    font-size: clamp(0.72rem, 2.2vw, 0.82rem) !important;
-    padding: 0.65rem 0.2rem !important;
-    border-radius: 0.5rem !important;
+    font-size: 0.90rem !important;
+    padding: 0.85rem 0.5rem !important;
+    min-height: 48px !important;
+    border-radius: 0.6rem !important;
     text-align: center !important;
     box-sizing: border-box !important;
 }
