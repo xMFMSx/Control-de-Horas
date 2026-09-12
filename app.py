@@ -44,11 +44,11 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {
 }
 
 /* ==========================================================
-   ESTRUCTURA CSS GRID DE 6 COLUMNAS (TABLA SIN COLUMNA EDITAR)
+   ESTRUCTURA CSS GRID DE 6 COLUMNAS (PROPORCIONES ORIGINALES)
    ========================================================== */
 .contenedor-tabla-6 {
     display: grid !important;
-    grid-template-columns: 8% 18% 18% 18% 18% 20% !important;
+    grid-template-columns: 7% 12% 10% 13.5% 14.5% 43% !important;
     width: 100% !important;
     align-items: center !important;
     box-sizing: border-box !important;
@@ -203,9 +203,10 @@ def verificar_token(token: str):
         return None
     return None
 
-def conectar_libro(reintentos=3):
+@st.cache_resource(ttl=300)
+def conectar_libro():
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    for intento in range(reintentos):
+    for intento in range(4):
         try:
             if "gcp_service_account" in st.secrets:
                 cred_dict = dict(st.secrets["gcp_service_account"])
@@ -216,21 +217,21 @@ def conectar_libro(reintentos=3):
             client = gspread.authorize(creds)
             return client.open("APP DE HORAS")
         except Exception as e:
-            if intento == reintentos - 1:
+            if intento == 3:
                 raise e
-            time_lib.sleep(1)
+            time_lib.sleep(1.5)
 
 def obtener_hoja_trabajador(nombre_trabajador: str):
     clave = f"hoja_{nombre_trabajador}"
     if clave in st.session_state:
         return st.session_state[clave]
-    if "libro_sheets" not in st.session_state:
-        st.session_state["libro_sheets"] = conectar_libro()
     try:
-        hoja = st.session_state["libro_sheets"].worksheet(nombre_trabajador)
+        libro = conectar_libro()
+        hoja = libro.worksheet(nombre_trabajador)
     except Exception:
-        st.session_state["libro_sheets"] = conectar_libro()
-        hoja = st.session_state["libro_sheets"].worksheet(nombre_trabajador)
+        conectar_libro.clear()
+        libro = conectar_libro()
+        hoja = libro.worksheet(nombre_trabajador)
     st.session_state[clave] = hoja
     return hoja
 
@@ -654,11 +655,11 @@ else:
                     "DÍA": num_dia, "ENTRADA": entrada, "SALIDA": salida,
                     "HORA EXTRA": hn_val, "HORA RECARGO": hr_val, "OBRA": obra_val
                 })
-            # Si es domingo o feriado que YA PASÓ respecto a hoy, entra solo al resumen como NT
+            # Si es domingo o feriado que ya pasó, se muestra la fila totalmente en blanco
             elif es_domingo_o_feriado and f_fila and f_fila < hoy:
                 registros_tabla.append({
-                    "DÍA": num_dia, "ENTRADA": "-", "SALIDA": "-",
-                    "HORA EXTRA": "", "HORA RECARGO": "", "OBRA": "NT"
+                    "DÍA": num_dia, "ENTRADA": "", "SALIDA": "",
+                    "HORA EXTRA": "", "HORA RECARGO": "", "OBRA": ""
                 })
 
         # Ordenar registros cronológicamente
@@ -827,8 +828,11 @@ else:
                         color_dia = "#ffffff"
                         dia_txt = str(d)
 
+                    ent_val = r["ENTRADA"].strip() if r["ENTRADA"].strip() else "&nbsp;"
+                    sal_val = r["SALIDA"].strip() if r["SALIDA"].strip() else "&nbsp;"
                     hn_val = r["HORA EXTRA"].strip() if r["HORA EXTRA"].strip() else "&nbsp;"
                     hr_val = r["HORA RECARGO"].strip() if r["HORA RECARGO"].strip() else "&nbsp;"
+                    ob_val = r["OBRA"].strip() if r["OBRA"].strip() else "&nbsp;"
 
                     c_fila, c_lapiz = st.columns([93, 7])
 
@@ -836,11 +840,11 @@ else:
                         st.markdown(f'''
                         <div class="es-datos-6 contenedor-tabla-6">
                             <div style="color: {color_dia}; font-weight: 700;">{dia_txt}</div>
-                            <div>{r["ENTRADA"]}</div>
-                            <div>{r["SALIDA"]}</div>
+                            <div>{ent_val}</div>
+                            <div>{sal_val}</div>
                             <div>{hn_val}</div>
                             <div>{hr_val}</div>
-                            <div>{r["OBRA"]}</div>
+                            <div>{ob_val}</div>
                         </div>
                         ''', unsafe_allow_html=True)
 
