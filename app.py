@@ -114,7 +114,7 @@ div[data-testid="stHorizontalBlock"] {
     flex-wrap: nowrap !important;
     align-items: center !important;
     gap: 8px !important;
-    margin-top: -7px !important;
+    margin-top: -8px !important;
     margin-bottom: 0 !important;
 }
 
