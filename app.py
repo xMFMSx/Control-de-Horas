@@ -44,7 +44,7 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {
 }
 
 /* ==========================================================
-   ESTRUCTURA CSS GRID DE 6 COLUMNAS (PROPORCIONES ORIGINALES)
+   ESTRUCTURA CSS GRID DE 6 COLUMNAS (PROPORCIONES EXACTAS)
    ========================================================== */
 .contenedor-tabla-6 {
     display: grid !important;
@@ -95,6 +95,29 @@ div[data-testid="stMarkdownContainer"] p {
     margin: 0 !important; 
     padding: 0 !important; 
     line-height: 1.1 !important; 
+}
+
+/* ==========================================================
+   BOTONES DE NAVEGACIÓN SUPERIORES (SIN RECARGA HTTP)
+   ========================================================== */
+div[data-testid="stHorizontalBlock"] button[kind="primary"] {
+    background-color: #ff4b4b !important;
+    border: 1px solid #ff4b4b !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    font-size: 0.82rem !important;
+    padding: 0.6rem 0.2rem !important;
+    border-radius: 0.5rem !important;
+}
+
+div[data-testid="stHorizontalBlock"] button[kind="secondary"] {
+    background-color: #1a1e29 !important;
+    border: 1px solid #2e3547 !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    font-size: 0.82rem !important;
+    padding: 0.6rem 0.2rem !important;
+    border-radius: 0.5rem !important;
 }
 
 /* ==========================================================
@@ -371,7 +394,7 @@ if "cambiando_password" not in st.session_state:
 if "modo_admin_activo" not in st.session_state:
     st.session_state.modo_admin_activo = False
 
-# Fecha simulada global para Administrador (por defecto None usa la fecha real)
+# Fecha simulada global para Administrador (None usa la fecha real del sistema)
 if "fecha_admin_simulada" not in st.session_state:
     st.session_state["fecha_admin_simulada"] = None
 
@@ -555,44 +578,31 @@ else:
             st.error(f"No se pudo cargar el resumen global: {e}")
 
     else:
-        # Indicador para admin si está simulando fecha en su vista de trabajo
+        # Indicador informativo si el admin está simulando fecha en su vista de usuario
         if es_admin and st.session_state.get("fecha_admin_simulada") is not None:
-            st.info(f"🕒 Estás navegando con la fecha simulada: **{hoy.strftime('%d/%m/%Y')}** (Configurado desde Panel Administrador)")
+            st.info(f"🕒 Modo simulación activo: **{hoy.strftime('%d/%m/%Y')}** (Configurado desde Panel Administrador)")
 
-        # --- NAVEGACIÓN PRINCIPAL (SEPTIEMBRE / RESUMEN LADO A LADO) ---
+        # --- NAVEGACIÓN PRINCIPAL NATIVA (SIN PANTALLAZO NEGRO NI RECARGA HTTP) ---
         if "vista_actual" not in st.session_state:
             st.session_state["vista_actual"] = "SEPTIEMBRE"
 
         is_sep = st.session_state["vista_actual"] == "SEPTIEMBRE"
-        bg_sep = "#ff4b4b" if is_sep else "#1a1e29"
-        border_sep = "#ff4b4b" if is_sep else "#2e3547"
-        bg_res = "#ff4b4b" if not is_sep else "#1a1e29"
-        border_res = "#ff4b4b" if not is_sep else "#2e3547"
 
-        session_actual = st.query_params.get("session", "")
-
-        st.markdown(f'''
-            <div style="display: flex; gap: 8px; width: 100%; margin-bottom: 1rem;">
-                <form action="" method="get" style="flex: 1; margin: 0;">
-                    <input type="hidden" name="session" value="{session_actual}">
-                    <button type="submit" name="nav_vista" value="SEPTIEMBRE" style="width: 100%; background-color: {bg_sep}; border: 1px solid {border_sep}; color: white; padding: 0.6rem 0.2rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.82rem; white-space: nowrap; cursor: pointer;">📅 SEPTIEMBRE 2026</button>
-                </form>
-                <form action="" method="get" style="flex: 1; margin: 0;">
-                    <input type="hidden" name="session" value="{session_actual}">
-                    <button type="submit" name="nav_vista" value="RESUMEN" style="width: 100%; background-color: {bg_res}; border: 1px solid {border_res}; color: white; padding: 0.6rem 0.2rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.82rem; white-space: nowrap; cursor: pointer;">📊 RESUMEN DEL MES</button>
-                </form>
-            </div>
-        ''', unsafe_allow_html=True)
-
-        q_params = st.query_params
-        if "nav_vista" in q_params:
-            val_nav = q_params["nav_vista"]
-            if val_nav in ["SEPTIEMBRE", "RESUMEN"] and st.session_state["vista_actual"] != val_nav:
-                st.session_state["vista_actual"] = val_nav
-                if val_nav == "SEPTIEMBRE":
+        col_nav1, col_nav2 = st.columns(2)
+        with col_nav1:
+            tipo_sep = "primary" if is_sep else "secondary"
+            if st.button("📅 SEPTIEMBRE 2026", type=tipo_sep, use_container_width=True, key="btn_nav_sep"):
+                if st.session_state["vista_actual"] != "SEPTIEMBRE":
+                    st.session_state["vista_actual"] = "SEPTIEMBRE"
                     st.session_state["dia_en_edicion"] = None
-                del st.query_params["nav_vista"]
-                st.rerun()
+                    st.rerun()
+
+        with col_nav2:
+            tipo_res = "primary" if not is_sep else "secondary"
+            if st.button("📊 RESUMEN DEL MES", type=tipo_res, use_container_width=True, key="btn_nav_res"):
+                if st.session_state["vista_actual"] != "RESUMEN":
+                    st.session_state["vista_actual"] = "RESUMEN"
+                    st.rerun()
 
         st.markdown("---")
 
@@ -655,7 +665,7 @@ else:
                     "DÍA": num_dia, "ENTRADA": entrada, "SALIDA": salida,
                     "HORA EXTRA": hn_val, "HORA RECARGO": hr_val, "OBRA": obra_val
                 })
-            # Si es domingo o feriado que ya pasó, se muestra la fila totalmente en blanco
+            # Si es domingo o feriado que ya pasó, se muestra la fila totalmente en blanco (sin guiones ni NT)
             elif es_domingo_o_feriado and f_fila and f_fila < hoy:
                 registros_tabla.append({
                     "DÍA": num_dia, "ENTRADA": "", "SALIDA": "",
