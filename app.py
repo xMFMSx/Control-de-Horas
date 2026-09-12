@@ -785,7 +785,7 @@ else:
                         <style>
                         div[data-testid="stColumn"]:last-child div[data-testid="stButton"] button[key="edit_btn_{d}"],
                         div[data-testid="stHorizontalBlock"] button:has(div:contains("✏️")) {{
-                            transform: translateY(8px) scale(0.82) !important;
+                            transform: translateY(8px) scale(0.75) !important;
                             height: 24px !important;
                             min-height: 24px !important;
                             padding: 0 !important;
@@ -793,7 +793,7 @@ else:
                         </style>
                         ''', unsafe_allow_html=True)
                         
-                        st.markdown('<div class="lapiz-lateral-wrapper" style="padding-top: 10px;">', unsafe_allow_html=True)
+                        st.markdown('<div class="lapiz-lateral-wrapper" style="padding-top: 20px;">', unsafe_allow_html=True)
                         if st.button("✏️", key=f"edit_btn_{d}"):
                             if st.session_state.get("dia_en_edicion") == d:
                                 st.session_state["dia_en_edicion"] = None
