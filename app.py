@@ -111,38 +111,10 @@ div[data-testid="stMarkdownContainer"] p {
 /* ==========================================================
    BOTÓN LÁPIZ LATERAL FLOTANTE / EXTERNO A LA TABLA
    ========================================================== */
-/* Quita fondo, borde y sombra al botón del lápiz */
-div.lapiz-lateral-wrapper button,
-div[data-testid="column"]:last-child button {
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    outline: none !important;
-    padding: 0 !important;
-    min-height: 0 !important;
-    height: auto !important;
-    width: auto !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+/* Oculta el contenedor gris nativo del botón de Streamlit */
+div[data-testid="column"]:last-child div[data-testid="stButton"] {
+    display: none !important;
 }
-
-/* Controla el tamaño y la altura exacta del ícono */
-div.lapiz-lateral-wrapper button p,
-div[data-testid="column"]:last-child button p {
-    font-size: 0.62rem !important; /* Achica el lápiz */
-    line-height: 1 !important;
-    margin: 0 !important;
-    transform: translateY(2px) !important; /* Mueve el lápiz hacia abajo */
-}
-
-/* Efecto suave al pasar el mouse */
-div.lapiz-lateral-wrapper button:hover {
-    background: transparent !important;
-    opacity: 0.65 !important;
-}
-
 /* Forzar que las columnas nunca se rompan verticalmente */
 div[data-testid="stHorizontalBlock"] {
     display: flex !important;
