@@ -111,39 +111,11 @@ div[data-testid="stMarkdownContainer"] p {
 /* ==========================================================
    BOTÓN LÁPIZ LATERAL FLOTANTE / EXTERNO A LA TABLA
    ========================================================== */
-/* Quita fondo, borde y sombra al botón del lápiz */
-div.lapiz-lateral-wrapper button,
-div[data-testid="column"]:last-child button {
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    outline: none !important;
-    padding: 0 !important;
-    min-height: 0 !important;
-    height: auto !important;
-    width: auto !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+div[data-testid="column"]:last-child div[data-testid="stButton"] {
+    display: none !important;
 }
 
-/* Controla el tamaño y la altura exacta del ícono */
-div.lapiz-lateral-wrapper button p,
-div[data-testid="column"]:last-child button p {
-    font-size: 0.62rem !important; /* Achica el lápiz */
-    line-height: 1 !important;
-    margin: 0 !important;
-    transform: translateY(10px) !important; /* Mueve el lápiz hacia abajo */
-}
-
-/* Efecto suave al pasar el mouse */
-div.lapiz-lateral-wrapper button:hover {
-    background: transparent !important;
-    opacity: 0.65 !important;
-}
-
-/* Forzar que las columnas nunca se rompan verticalmente */
+/* Forzar que las columnas nunca se rompan verticalmente sin importar el zoom */
 div[data-testid="stHorizontalBlock"] {
     display: flex !important;
     flex-direction: row !important;
@@ -376,7 +348,7 @@ if "modo_admin_activo" not in st.session_state:
 
 if not st.session_state.autenticado:
     st.title("🔐 Acceso a APP DE HORAS")
-    st.write(f"Por favor, ingresa tu correo electrónico y contraseña para continuar[cite: 1].")
+    st.write("Por favor, ingresa tu correo electrónico y contraseña para continuar.")
     
     with st.form("form_login"):
         correo_input = st.text_input("Correo Electrónico")
@@ -723,6 +695,20 @@ else:
             if "dia_en_edicion" not in st.session_state:
                 st.session_state["dia_en_edicion"] = None
 
+            # Detectar y alternar apertura/cierre al presionar el lápiz
+            q_params = st.query_params
+            if "editar_dia" in q_params:
+                try:
+                    d_sel = int(q_params["editar_dia"])
+                    if st.session_state.get("dia_en_edicion") == d_sel:
+                        st.session_state["dia_en_edicion"] = None
+                    else:
+                        st.session_state["dia_en_edicion"] = d_sel
+                except Exception:
+                    pass
+                del st.query_params["editar_dia"]
+                st.rerun()
+
             if registros_tabla:
                 # Contenedor 93% tabla achicada + 7% para el lápiz exterior
                 col_encabezado, _ = st.columns([93, 7])
@@ -739,6 +725,8 @@ else:
                     ''', unsafe_allow_html=True)
 
                 # --- FILAS DE DATOS + BOTÓN LÁPIZ LATERAL EXTERIOR ---
+                session_token_url = st.query_params.get("session", "")
+
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     
@@ -780,14 +768,14 @@ else:
                         ''', unsafe_allow_html=True)
 
                     with c_lapiz:
-                        st.markdown('<div class="lapiz-lateral-wrapper">', unsafe_allow_html=True)
-                        if st.button("✏️", key=f"edit_btn_{d}"):
-                            if st.session_state.get("dia_en_edicion") == d:
-                                st.session_state["dia_en_edicion"] = None
-                            else:
-                                st.session_state["dia_en_edicion"] = d
-                            st.rerun()
-                        st.markdown('</div>', unsafe_allow_html=True)
+                        st.markdown(f'''
+                        <div style="display: flex; align-items: center; justify-content: center; height: 100%; padding-top: 14px;">
+                            <a href="?session={session_token_url}&editar_dia={d}" 
+                               style="text-decoration: none; font-size: 0.68rem; cursor: pointer; display: inline-block; user-select: none; line-height: 1;">
+                               ✏️
+                            </a>
+                        </div>
+                        ''', unsafe_allow_html=True)
 
                     # Formulario desplegable al presionar el lápiz (Toggle abrir/cerrar)
                     if st.session_state.get("dia_en_edicion") == d:
