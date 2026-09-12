@@ -20,6 +20,13 @@ try:
 except ImportError:
     REPORTLAB_DISPONIBLE = False
 
+# Importación segura de OpenPyXL
+try:
+    import openpyxl
+    OPENPYXL_DISPONIBLE = True
+except ImportError:
+    OPENPYXL_DISPONIBLE = False
+
 st.set_page_config(
     page_title="Control de Horas",
     page_icon="⏱️",
@@ -71,7 +78,6 @@ html {{
     zoom: 80% !important;
 }}
 
-/* Streamlit UI base */
 header[data-testid="stHeader"] {{ display: none !important; }}
 #MainMenu {{ visibility: hidden !important; }}
 div[data-testid="stToolbar"] {{ visibility: hidden !important; }}
@@ -96,7 +102,9 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {{
     box-sizing: border-box !important;
 }}
 
-/* Fila Superior */
+/* ==========================================================
+   FILA SUPERIOR: NAVEGADOR + TUERCA
+   ========================================================== */
 div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {{
     display: flex !important;
     flex-direction: row !important;
@@ -169,7 +177,9 @@ div[data-testid="stPopoverBody"] {{
     color: var(--texto-principal) !important;
 }}
 
-/* Formatos de Panel Admin */
+/* ==========================================================
+   FORZAR ELEMENTOS LADO A LADO EN PANEL ADMINISTRADOR
+   ========================================================== */
 div[data-testid="stHorizontalBlock"]:has(.admin-sim-marker) {{
     display: flex !important;
     flex-direction: row !important;
@@ -184,6 +194,9 @@ div[data-testid="stHorizontalBlock"]:has(.admin-sim-marker) {{
         display: flex !important;
         flex-direction: row !important;
         flex-wrap: nowrap !important;
+    }}
+    div[data-testid="stHorizontalBlock"]:has(.admin-sim-marker) > div[data-testid="column"] {{
+        min-width: 0 !important;
     }}
     div[data-testid="stHorizontalBlock"]:has(.admin-sim-marker) > div[data-testid="column"]:nth-child(1) {{
         flex: 1 1 54% !important;
@@ -226,7 +239,9 @@ div[data-testid="stHorizontalBlock"]:has(.admin-sim-marker) button {{
     white-space: nowrap !important;
 }}
 
-/* Pills Nav */
+/* ==========================================================
+   NAVEGADOR SEGMENTADO SUPERIOR
+   ========================================================== */
 div[data-testid="stSegmentedControl"],
 div[data-testid="stPills"] {{
     display: flex !important;
@@ -268,7 +283,9 @@ div[data-testid="stPills"] button[aria-selected="true"] {{
     color: #ffffff !important;
 }}
 
-/* Grilla de 6 Columnas */
+/* ==========================================================
+   ESTRUCTURA CSS GRID DE 6 COLUMNAS
+   ========================================================== */
 .contenedor-tabla-6 {{
     display: grid !important;
     grid-template-columns: 7% 12% 10% 13.5% 14.5% 43% !important;
@@ -367,12 +384,38 @@ div[data-testid="stDownloadButton"] > button {{
     border-radius: 0.5rem !important;
 }}
 
+div[data-testid="stDownloadButton"] > button:hover {{
+    background-color: var(--borde-tenue) !important;
+    border-color: var(--color-acento) !important;
+    color: var(--texto-principal) !important;
+}}
+
 div[data-testid="stForm"] {{
     background-color: var(--bg-tarjeta) !important;
     border: 1px solid var(--borde) !important;
     border-radius: 6px !important;
     padding: 14px 18px !important;
     margin: 6px 0 !important;
+}}
+
+div[data-testid="stForm"] div[data-testid="stHorizontalBlock"] {{
+    display: flex !important;
+    flex-direction: row !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    gap: 14px !important;
+}}
+
+div[data-testid="stForm"] div[data-testid="stHorizontalBlock"] > div {{
+    flex: 1 1 50% !important;
+    width: 50% !important;
+    min-width: 0 !important;
+}}
+
+div[data-testid="stForm"] label p {{
+    font-size: 0.78rem !important;
+    color: var(--texto-secundario) !important;
+    font-weight: 600 !important;
 }}
 </style>""", unsafe_allow_html=True)
 
@@ -511,6 +554,8 @@ def validar_usuario(correo_ingresado, password_ingresada):
 
 # --- GENERADOR DE EXCEL CONSOLIDADO (.XLSX) ---
 def generar_excel_mes(libro_actual, usuarios_dict, fechas_ciclo):
+    if not OPENPYXL_DISPONIBLE:
+        return None
     output = BytesIO()
     dias_validos_ciclo = {f.day for f in fechas_ciclo}
     with pd.ExcelWriter(output, engine='openpyxl') as writer:
@@ -522,7 +567,6 @@ def generar_excel_mes(libro_actual, usuarios_dict, fechas_ciclo):
                 vals = h_trab.get(f"A2:G{1 + len(fechas_ciclo)}")
                 thn, thr = 0, 0
                 for r in vals:
-                    # Omitir filas de totales
                     if any("TOTAL" in str(x).upper() for x in r):
                         continue
                     n_dia = int(r[1]) if len(r) > 1 and r[1].isdigit() else None
@@ -552,7 +596,6 @@ def generar_excel_mes(libro_actual, usuarios_dict, fechas_ciclo):
         df_resumen = pd.DataFrame(resumen_data)
         df_resumen.to_excel(writer, sheet_name="RESUMEN GENERAL", index=False)
 
-        # Hojas individuales filtradas sin totales de planilla
         for correo_u, datos_u in usuarios_dict.items():
             nom = datos_u["nombre"]
             try:
@@ -616,7 +659,7 @@ def generar_pdf_horas(nombre_t, reg_tabla, tot_hn_str, tot_hr_str):
 
     elementos.append(Paragraph("REPORTE MENSUAL DE HORAS TRABAJADAS", estilo_titulo))
     elementos.append(Spacer(1, 4))
-    elementos.append(Paragraph(f"<b>Trabajador:</b> {nombre_t} &nbsp;&nbsp;|&nbsp;&nbsp; <b>Período:</b> SEPTIEMBRE 2026", estilo_sub))
+    elementos.append(Paragraph(f"<b>Trabajador:</b> {nombre_t}", estilo_sub))
     elementos.append(Spacer(1, 4))
     elementos.append(Paragraph(f"<b>Total Horas Extras:</b> {tot_hn_str} &nbsp;&nbsp;|&nbsp;&nbsp; <b>Total Horas Recargo:</b> {tot_hr_str}", estilo_totales))
     elementos.append(Spacer(1, 14))
@@ -635,8 +678,8 @@ def generar_pdf_horas(nombre_t, reg_tabla, tot_hn_str, tot_hr_str):
         ('ALIGN', (5, 1), (5, -1), 'LEFT'),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor("#cbd5e0")),
         ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor("#f7fafc")]),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 4),
-        ('TOPPADDING', (0, 0), (-1, 0), 4),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+        ('TOPPADDING', (0, 0), (-1, -1), 4),
     ]))
     elementos.append(t)
     doc.build(elementos)
@@ -828,15 +871,19 @@ else:
             st.write("")
             col_b_ciclo1, col_b_ciclo2 = st.columns(2)
             with col_b_ciclo1:
-                libro_adm = conectar_libro()
-                datos_excel = generar_excel_mes(libro_adm, usuarios_autorizados, fechas_periodo)
-                st.download_button(
-                    label="📊 Descargar Excel Consolidado",
-                    data=datos_excel,
-                    file_name=f"Consolidado_Horas_{inicio_mes.strftime('%Y%m%d')}_{fin_mes.strftime('%Y%m%d')}.xlsx",
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    use_container_width=True
-                )
+                if OPENPYXL_DISPONIBLE:
+                    libro_adm = conectar_libro()
+                    datos_excel = generar_excel_mes(libro_adm, usuarios_autorizados, fechas_periodo)
+                    st.download_button(
+                        label="📊 Descargar Excel Consolidado",
+                        data=datos_excel,
+                        file_name=f"Consolidado_Horas_{inicio_mes.strftime('%Y%m%d')}_{fin_mes.strftime('%Y%m%d')}.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        use_container_width=True
+                    )
+                else:
+                    st.button("📊 Descargar Excel (Requiere openpyxl)", disabled=True, use_container_width=True)
+
             with col_b_ciclo2:
                 if st.button("🔄 Reiniciar Hojas para Nuevo Ciclo", use_container_width=True):
                     with st.spinner("Reorganizando hojas de todo el personal en Google Sheets..."):
@@ -845,66 +892,48 @@ else:
                         st.success("✔ ¡Hojas preparadas y limpias para el nuevo ciclo!")
                         st.rerun()
 
-        # --- SECCIÓN 3: LISTADO GENERAL ABIERTO AL 100% (CORREGIDO) ---
+        # --- SECCIÓN 3: LISTADO GENERAL ABIERTO AL 100% ---
         st.markdown("**👥 Resumen General del Personal**")
         try:
             libro_admin = conectar_libro()
-            
-            # Días hábiles que deben considerarse según la fecha activa
-            dias_exigibles = []
-            for f in fechas_periodo:
-                if f <= hoy:
-                    es_domingo = (f.weekday() == 6)
-                    es_feriado = (f.strftime("%Y-%m-%d") in FERIADOS)
-                    if es_domingo or es_feriado:
-                        continue
-                    # Sábado: solo se exige si ya transcurrió el domingo (es lunes o posterior)
-                    if f.weekday() == 5:
-                        lunes_despues = f + timedelta(days=2)
-                        if hoy < lunes_despues:
-                            continue
-                    dias_exigibles.append(f.day)
-
             filas_html = []
+            
             for correo_w, info_w in usuarios_autorizados.items():
                 nom = info_w["nombre"]
                 try:
                     h_w = libro_admin.worksheet(nom)
-                    vals = h_w.get_all_values()[1:] # Lee sin fallos de rango
-                    dias_con_datos = set()
+                    vals = h_w.get_all_values()[1:]
                     
+                    datos_trabajador = {}
                     for idx, r in enumerate(vals):
-                        if any("TOTAL" in str(celda).upper() for celda in r):
+                        if any("TOTAL" in str(x).upper() for x in r): continue
+                        txt_dia = str(r[1]).strip() if len(r) > 1 else ""
+                        n_dia = int(txt_dia) if txt_dia.isdigit() else None
+                        if n_dia is not None:
+                            c_ent = str(r[2]).strip() if len(r) > 2 else ""
+                            c_sal = str(r[3]).strip() if len(r) > 3 else ""
+                            c_obr = str(r[6]).strip() if len(r) > 6 else ""
+                            datos_trabajador[n_dia] = bool(c_ent or c_sal or c_obr)
+                    
+                    faltan = 0
+                    for f in fechas_periodo:
+                        if f > hoy: continue
+                        n_dia = f.day
+                        if (f.weekday() == 6) or (f.strftime("%Y-%m-%d") in FERIADOS):
                             continue
                         
-                        # Extraer número de día seguro
-                        txt_dia = str(r[1]).strip() if len(r) > 1 else ""
-                        n_dia = int(txt_dia) if txt_dia.isdigit() else (31 if idx == 0 else idx)
+                        tiene_datos = datos_trabajador.get(n_dia, False)
+                        if f.weekday() == 5 and f < hoy:
+                            lunes_despues = f + timedelta(days=2)
+                            if hoy >= lunes_despues and not tiene_datos:
+                                continue
                         
-                        c_ent = str(r[2]).strip() if len(r) > 2 else ""
-                        c_sal = str(r[3]).strip() if len(r) > 3 else ""
-                        c_obr = str(r[6]).strip() if len(r) > 6 else ""
-                        
-                        if c_ent or c_sal or c_obr:
-                            dias_con_datos.add(n_dia)
+                        if not tiene_datos:
+                            faltan += 1
                             
-                    faltan = sum(1 for d in dias_exigibles if d not in dias_con_datos)
-                except Exception as err_trabajador:
-                    faltan = len(dias_exigibles)
-
-                if faltan == 0:
-                    badge = '<span style="color: #4ade80; font-weight: 700;">Al día ✔</span>'
-                else:
-                    badge = f'<span style="color: #f87171; font-weight: 700;">{faltan} días pendientes</span>'
-
-                filas_html.append(f'<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--borde);background-color:var(--bg-contenedor);font-size:0.82rem;"><div style="color:var(--texto-principal);font-weight:600;">{nom}</div><div>{badge}</div></div>')
-
-            filas_str = "".join(filas_html)
-            tabla_html = f'<div style="width:100%;border:1px solid var(--borde);border-radius:8px;overflow:hidden;margin-top:6px;box-sizing:border-box;"><div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background-color:var(--bg-encabezado);border-bottom:1px solid var(--borde);font-size:0.72rem;font-weight:700;color:var(--texto-secundario);"><div>TRABAJADOR</div><div>ESTADO DE REGISTRO</div></div>{filas_str}</div>'
-
-            st.markdown(tabla_html, unsafe_allow_html=True)
-        except Exception as e:
-            st.error(f"No se pudo cargar el resumen global: {e}")
+                except Exception:
+                    # Cálculo aproximado si la hoja no se pudo leer
+                    faltan = sum(1 for f in fechas_periodo if f <= hoy and f.weekday() < 5 and f.strftime("%Y-%m-%d") not in FERIADOS)
 
                 if faltan == 0:
                     badge = '<span style="color: #4ade80; font-weight: 700;">Al día ✔</span>'
@@ -928,11 +957,11 @@ else:
         c_nav, c_gear = st.columns([88, 12])
 
         with c_nav:
-            opciones_nav = ["📅 SEPTIEMBRE 2026", "📊 RESUMEN DEL MES"]
+            opciones_nav = ["📅 CICLO ACTIVO", "📊 RESUMEN DEL MES"]
             if "vista_actual" not in st.session_state:
                 st.session_state["vista_actual"] = "SEPTIEMBRE"
 
-            val_default = "📅 SEPTIEMBRE 2026" if st.session_state["vista_actual"] == "SEPTIEMBRE" else "📊 RESUMEN DEL MES"
+            val_default = "📅 CICLO ACTIVO" if st.session_state["vista_actual"] == "SEPTIEMBRE" else "📊 RESUMEN DEL MES"
 
             seleccion = st.pills(
                 "",
@@ -942,7 +971,7 @@ else:
                 key="pills_navegacion"
             )
 
-            nueva_vista = "SEPTIEMBRE" if seleccion == "📅 SEPTIEMBRE 2026" else "RESUMEN"
+            nueva_vista = "SEPTIEMBRE" if seleccion == "📅 CICLO ACTIVO" else "RESUMEN"
             if nueva_vista != st.session_state["vista_actual"]:
                 st.session_state["vista_actual"] = nueva_vista
                 if nueva_vista == "SEPTIEMBRE":
@@ -956,7 +985,6 @@ else:
                     st.markdown("🔑 *Rol: Administrador*")
                 st.markdown("---")
                 
-                # Selector de tema
                 nuevo_t = st.selectbox(
                     "🎨 Tema de interfaz",
                     options=["Oscuro", "Claro"],
@@ -997,7 +1025,6 @@ else:
 
         st.markdown("---")
 
-        # Rango exacto de días: A2:G32 para 31 días (no pasa a la fila de totales)
         limite_fila = 1 + len(fechas_periodo)
         if "filas_planilla" not in st.session_state:
             try:
@@ -1012,12 +1039,10 @@ else:
         total_hr = 0
 
         for idx, r in enumerate(filas_planilla):
-            # Omitir cualquier fila que tenga la palabra TOTAL
             if any("TOTAL" in str(x).upper() for x in r):
                 continue
 
             num_dia = int(r[1]) if len(r) > 1 and r[1].isdigit() else None
-            # Si no es un día válido del ciclo configurado, se descarta
             if num_dia not in dias_validos_periodo:
                 continue
 
@@ -1075,7 +1100,7 @@ else:
 
         # --- VISTA 1: REGISTRO DIARIO ---
         if st.session_state["vista_actual"] == "SEPTIEMBRE":
-            st.subheader("SEPTIEMBRE 2026")
+            st.subheader(f"JORNADAS {inicio_mes.strftime('%d/%m')} AL {fin_mes.strftime('%d/%m/%Y')}")
             
             val_hn_str = minutos_a_hora_str(total_hn)
             val_hr_str = minutos_a_hora_str(total_hr)
@@ -1337,7 +1362,7 @@ else:
                     val_hn_str,
                     val_hr_str
                 )
-                nombre_archivo_pdf = f"Horas_{nombre_trabajador.replace(' ', '_')}_Septiembre_2026.pdf"
+                nombre_archivo_pdf = f"Horas_{nombre_trabajador.replace(' ', '_')}_{inicio_mes.strftime('%Y%m')}.pdf"
 
                 st.download_button(
                     label="📄 DESCARGAR HORAS DEL MES EN PDF",
