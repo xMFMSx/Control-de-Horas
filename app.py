@@ -107,20 +107,15 @@ div[data-testid="stMarkdownContainer"] p {
 /* ==========================================================
    ALINEACIÓN HORIZONTAL Y BOTÓN LÁPIZ SIN FONDO
    ========================================================== */
-/* Une las filas verticalmente eliminando la separación negra */
-div[data-testid="stVerticalBlock"] > div:has(> div[data-testid="stHorizontalBlock"]) {
-    margin-bottom: -1px !important;
-    gap: 0 !important;
-}
-
-/* Alineación horizontal compacta y fija sin saltos */
+/* Elimina el espacio y la línea negra entre filas */
 div[data-testid="stHorizontalBlock"] {
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     align-items: center !important;
     gap: 8px !important;
-    margin-bottom: -1px !important;
+    margin-top: -5px !important;
+    margin-bottom: 0 !important;
 }
 
 div[data-testid="stHorizontalBlock"] > div:first-child {
