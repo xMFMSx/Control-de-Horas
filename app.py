@@ -153,7 +153,7 @@ div[data-testid="column"]:last-child div[data-testid="stButton"] button p {
     line-height: 1 !important;
     margin: 0 !important;
     padding: 0 !important;
-    transform: translateY(6px) !important;
+    transform: translateY(12px) !important;
 }
 
 div[data-testid="column"]:last-child div[data-testid="stButton"] button:hover {
