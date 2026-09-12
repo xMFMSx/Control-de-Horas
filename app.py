@@ -191,9 +191,6 @@ div[data-testid="stHorizontalBlock"]:has(.admin-sim-marker) {{
         flex-direction: row !important;
         flex-wrap: nowrap !important;
     }}
-    div[data-testid="stHorizontalBlock"]:has(.admin-sim-marker) > div[data-testid="column"] {{
-        min-width: 0 !important;
-    }}
     div[data-testid="stHorizontalBlock"]:has(.admin-sim-marker) > div[data-testid="column"]:nth-child(1) {{
         flex: 1 1 54% !important;
         width: 54% !important;
@@ -556,12 +553,13 @@ def generar_excel_mes(libro_actual, usuarios_dict, fechas_ciclo):
             nom = datos_u["nombre"]
             try:
                 h_trab = libro_actual.worksheet(nom)
-                vals = h_trab.get(f"A2:G{1 + len(fechas_ciclo)}")
+                vals = h_trab.get_all_values()[1:]
                 thn, thr = 0, 0
-                for r in vals:
+                for idx, r in enumerate(vals):
                     if any("TOTAL" in str(x).upper() for x in r):
                         continue
-                    n_dia = int(r[1]) if len(r) > 1 and r[1].isdigit() else None
+                    txt_d = str(r[1]).strip() if len(r) > 1 else ""
+                    n_dia = int(txt_d) if txt_d.isdigit() else None
                     if n_dia not in dias_validos_ciclo:
                         continue
 
@@ -592,12 +590,13 @@ def generar_excel_mes(libro_actual, usuarios_dict, fechas_ciclo):
             nom = datos_u["nombre"]
             try:
                 h_trab = libro_actual.worksheet(nom)
-                filas = h_trab.get(f"A2:G{1 + len(fechas_ciclo)}")
+                filas = h_trab.get_all_values()[1:]
                 registros = []
-                for r in filas:
+                for idx, r in enumerate(filas):
                     if any("TOTAL" in str(x).upper() for x in r):
                         continue
-                    n_dia = int(r[1]) if len(r) > 1 and r[1].isdigit() else None
+                    txt_d = str(r[1]).strip() if len(r) > 1 else ""
+                    n_dia = int(txt_d) if txt_d.isdigit() else None
                     if n_dia not in dias_validos_ciclo:
                         continue
                     registros.append({
@@ -638,7 +637,7 @@ def reiniciar_hojas_nuevo_ciclo(f_inicio, f_fin, usuarios_dict):
             pass
 
 # --- REPORTE PDF INDIVIDUAL ---
-def generar_pdf_horas(nombre_t, reg_tabla, tot_hn_str, tot_hr_str):
+def generar_pdf_horas(nombre_t, reg_tabla, tot_hn_str, tot_hr_str, periodo_str):
     if not REPORTLAB_DISPONIBLE: return None
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36)
@@ -651,7 +650,7 @@ def generar_pdf_horas(nombre_t, reg_tabla, tot_hn_str, tot_hr_str):
 
     elementos.append(Paragraph("REPORTE MENSUAL DE HORAS TRABAJADAS", estilo_titulo))
     elementos.append(Spacer(1, 4))
-    elementos.append(Paragraph(f"<b>Trabajador:</b> {nombre_t}", estilo_sub))
+    elementos.append(Paragraph(f"<b>Trabajador:</b> {nombre_t} &nbsp;&nbsp;|&nbsp;&nbsp; <b>Período:</b> {periodo_str}", estilo_sub))
     elementos.append(Spacer(1, 4))
     elementos.append(Paragraph(f"<b>Total Horas Extras:</b> {tot_hn_str} &nbsp;&nbsp;|&nbsp;&nbsp; <b>Total Horas Recargo:</b> {tot_hr_str}", estilo_totales))
     elementos.append(Spacer(1, 14))
@@ -724,6 +723,14 @@ fin_mes = st.session_state["ciclo_fin"]
 delta_dias = (fin_mes - inicio_mes).days + 1
 fechas_periodo = [inicio_mes + timedelta(days=i) for i in range(delta_dias)]
 dias_validos_periodo = {f.day for f in fechas_periodo}
+
+# Nombre del mes activo en español
+MESES_ES = {
+    1: "ENERO", 2: "FEBRERO", 3: "MARZO", 4: "ABRIL",
+    5: "MAYO", 6: "JUNIO", 7: "JULIO", 8: "AGOSTO",
+    9: "SEPTIEMBRE", 10: "OCTUBRE", 11: "NOVIEMBRE", 12: "DICIEMBRE"
+}
+nombre_mes_dinamico = f"{MESES_ES[fin_mes.month]} {fin_mes.year}"
 
 if not st.session_state.autenticado:
     st.title("🔐 Acceso a APP DE HORAS")
@@ -903,7 +910,6 @@ else:
                         txt_dia = str(r[1]).strip() if len(r) > 1 else ""
                         n_dia = int(txt_dia) if txt_dia.isdigit() else None
                         if n_dia is not None:
-                            # Revisa de la columna C a la G
                             contenido_fila = " ".join([str(celda).strip() for celda in r[2:] if str(celda).strip()]).upper()
                             marcas_validas = ["VACACIONES", "PERMISO", "LICENCIA", "NO TRABAJA", "FERIADO", "-"]
                             es_especial = any(m in contenido_fila for m in marcas_validas)
@@ -919,7 +925,7 @@ else:
                             continue
                         
                         tiene_datos = datos_trabajador.get(n_dia, False)
-                        # Sábado que pasó: si hoy es lunes o después y no vino, no cuenta como falta
+                        # Sábado: si ya es lunes o posterior y no vino, no se cuenta como falta
                         if f.weekday() == 5 and f < hoy:
                             lunes_despues = f + timedelta(days=2)
                             if hoy >= lunes_despues and not tiene_datos:
@@ -949,15 +955,17 @@ else:
         if es_admin and st.session_state.get("fecha_admin_simulada") is not None:
             st.info(f"🕒 Modo simulación activo: **{hoy.strftime('%d/%m/%Y')}** (Configurado desde Panel Administrador)")
 
-        # --- FILA SUPERIOR: NAVEGADOR Y TUERCA ---
+        # --- FILA SUPERIOR: NAVEGADOR DINÁMICO POR MES Y TUERCA ---
         c_nav, c_gear = st.columns([88, 12])
 
         with c_nav:
-            opciones_nav = ["📅 CICLO ACTIVO", "📊 RESUMEN DEL MES"]
+            etiqueta_mes = f"📅 {nombre_mes_dinamico}"
+            opciones_nav = [etiqueta_mes, "📊 RESUMEN DEL MES"]
+            
             if "vista_actual" not in st.session_state:
-                st.session_state["vista_actual"] = "SEPTIEMBRE"
+                st.session_state["vista_actual"] = "REGISTRO"
 
-            val_default = "📅 CICLO ACTIVO" if st.session_state["vista_actual"] == "SEPTIEMBRE" else "📊 RESUMEN DEL MES"
+            val_default = etiqueta_mes if st.session_state["vista_actual"] in ["SEPTIEMBRE", "REGISTRO"] else "📊 RESUMEN DEL MES"
 
             seleccion = st.pills(
                 "",
@@ -967,10 +975,10 @@ else:
                 key="pills_navegacion"
             )
 
-            nueva_vista = "SEPTIEMBRE" if seleccion == "📅 CICLO ACTIVO" else "RESUMEN"
+            nueva_vista = "REGISTRO" if seleccion == etiqueta_mes else "RESUMEN"
             if nueva_vista != st.session_state["vista_actual"]:
                 st.session_state["vista_actual"] = nueva_vista
-                if nueva_vista == "SEPTIEMBRE":
+                if nueva_vista == "REGISTRO":
                     st.session_state["dia_en_edicion"] = None
                 st.rerun()
 
@@ -1024,7 +1032,7 @@ else:
         limite_fila = 1 + len(fechas_periodo)
         if "filas_planilla" not in st.session_state:
             try:
-                st.session_state["filas_planilla"] = hoja_usuario.get(f"A2:G{limite_fila}")
+                st.session_state["filas_planilla"] = hoja_usuario.get_all_values()[1:]
             except Exception:
                 st.session_state["filas_planilla"] = []
 
@@ -1038,7 +1046,8 @@ else:
             if any("TOTAL" in str(x).upper() for x in r):
                 continue
 
-            num_dia = int(r[1]) if len(r) > 1 and r[1].isdigit() else None
+            txt_d = str(r[1]).strip() if len(r) > 1 else ""
+            num_dia = int(txt_d) if txt_d.isdigit() else None
             if num_dia not in dias_validos_periodo:
                 continue
 
@@ -1067,7 +1076,7 @@ else:
             except Exception: pass
 
             try:
-                f_fila = date(2026, 8, 31) if num_dia == 31 else date(2026, 9, num_dia)
+                f_fila = date(2026, 8, 31) if num_dia == 31 else date(fin_mes.year, fin_mes.month, num_dia)
             except Exception:
                 f_fila = None
 
@@ -1095,8 +1104,8 @@ else:
         registros_tabla = sorted(registros_tabla, key=lambda x: (0 if x["DÍA"] == 31 else x["DÍA"]))
 
         # --- VISTA 1: REGISTRO DIARIO ---
-        if st.session_state["vista_actual"] == "SEPTIEMBRE":
-            st.subheader(f"JORNADAS {inicio_mes.strftime('%d/%m')} AL {fin_mes.strftime('%d/%m/%Y')}")
+        if st.session_state["vista_actual"] in ["SEPTIEMBRE", "REGISTRO"]:
+            st.subheader(f"{nombre_mes_dinamico}")
             
             val_hn_str = minutos_a_hora_str(total_hn)
             val_hr_str = minutos_a_hora_str(total_hr)
@@ -1241,7 +1250,7 @@ else:
                 for r in registros_tabla:
                     d = r["DÍA"] 
                     try:
-                        fecha_fila = date(2026, 8, 31) if d == 31 else date(2026, 9, d)
+                        fecha_fila = date(2026, 8, 31) if d == 31 else date(fin_mes.year, fin_mes.month, d)
                         w_day = fecha_fila.weekday()
                         iso_f = fecha_fila.strftime("%Y-%m-%d")
                     except:
@@ -1343,7 +1352,7 @@ else:
                                     if "filas_planilla" in st.session_state:
                                         del st.session_state["filas_planilla"]
                                     st.session_state["dia_en_edicion"] = None
-                                    st.session_state["vista_actual"] = "SEPTIEMBRE"
+                                    st.session_state["vista_actual"] = "REGISTRO"
                                     st.rerun()
 
             else:
@@ -1356,9 +1365,10 @@ else:
                     nombre_trabajador,
                     registros_tabla,
                     val_hn_str,
-                    val_hr_str
+                    val_hr_str,
+                    nombre_mes_dinamico
                 )
-                nombre_archivo_pdf = f"Horas_{nombre_trabajador.replace(' ', '_')}_{inicio_mes.strftime('%Y%m')}.pdf"
+                nombre_archivo_pdf = f"Horas_{nombre_trabajador.replace(' ', '_')}_{fin_mes.strftime('%Y%m')}.pdf"
 
                 st.download_button(
                     label="📄 DESCARGAR HORAS DEL MES EN PDF",
