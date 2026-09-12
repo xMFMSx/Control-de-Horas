@@ -111,10 +111,38 @@ div[data-testid="stMarkdownContainer"] p {
 /* ==========================================================
    BOTÓN LÁPIZ LATERAL FLOTANTE / EXTERNO A LA TABLA
    ========================================================== */
-/* Oculta el contenedor gris nativo del botón de Streamlit */
-div[data-testid="column"]:last-child div[data-testid="stButton"] {
-    display: none !important;
+/* Quita fondo, borde y sombra al botón del lápiz */
+div.lapiz-lateral-wrapper button,
+div[data-testid="column"]:last-child button {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    width: auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
+
+/* Controla el tamaño y la altura exacta del ícono */
+div.lapiz-lateral-wrapper button p,
+div[data-testid="column"]:last-child button p {
+    font-size: 0.62rem !important; /* Achica el lápiz */
+    line-height: 1 !important;
+    margin: 0 !important;
+    transform: translateY(10px) !important; /* Mueve el lápiz hacia abajo */
+}
+
+/* Efecto suave al pasar el mouse */
+div.lapiz-lateral-wrapper button:hover {
+    background: transparent !important;
+    opacity: 0.65 !important;
+}
+
 /* Forzar que las columnas nunca se rompan verticalmente */
 div[data-testid="stHorizontalBlock"] {
     display: flex !important;
@@ -739,23 +767,15 @@ else:
 
                     c_fila, c_lapiz = st.columns([93, 7])
 
-                    with c_lapiz:
-                        btn_clickeado = st.button("✏️", key=f"edit_btn_{d}")
-                        if btn_clickeado:
-                            if st.session_state.get("dia_en_edicion") == d:
-                                st.session_state["dia_en_edicion"] = None
-                            else:
-                                st.session_state["dia_en_edicion"] = d
-                            st.rerun()
-
+                    with c_fila:
                         st.markdown(f'''
-                        <div style="display: flex; align-items: center; justify-content: center; height: 100%; margin-top: 8px;">
-                            <span onclick="document.querySelector('button[key=edit_btn_{d}]').click();" 
-                                  style="cursor: pointer; font-size: 0.65rem; user-select: none; transition: opacity 0.2s;"
-                                  onmouseover="this.style.opacity='0.6'" 
-                                  onmouseout="this.style.opacity='1'">
-                                ✏️
-                            </span>
+                        <div class="es-datos-6 contenedor-tabla-6">
+                            <div style="color: {color_dia}; font-weight: 700;">{dia_txt}</div>
+                            <div>{r["ENTRADA"]}</div>
+                            <div>{r["SALIDA"]}</div>
+                            <div>{hn_val}</div>
+                            <div>{hr_val}</div>
+                            <div>{r["OBRA"]}</div>
                         </div>
                         ''', unsafe_allow_html=True)
 
