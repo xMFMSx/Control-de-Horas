@@ -166,25 +166,28 @@ div[data-testid="stHorizontalBlock"] > div:last-child button:hover {
    TARJETA DESPLEGABLE DE EDICIÓN AISLADA
    ========================================================== */
 div.contenedor-edicion-inline {
-    background-color: #1a1e29 !important;
-    border: 1px solid #353b4d !important;
+    background-color: #161922 !important;
+    border: 1px solid #2e3547 !important;
     border-radius: 6px !important;
-    padding: 16px 18px !important;
-    margin-top: 10px !important;
-    margin-bottom: 12px !important;
+    padding: 14px 16px !important;
+    margin: 8px 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
 }
 
-/* Evita que el margen -8px de la tabla altere las columnas del formulario */
-div.contenedor-edicion-inline div[data-testid="stHorizontalBlock"] {
+/* Forzar que las columnas dentro del formulario se repartan 50% y 50% */
+div.contenedor-edicion-inline [data-testid="stHorizontalBlock"] {
+    display: flex !important;
+    flex-direction: row !important;
     margin-top: 0 !important;
     margin-bottom: 0 !important;
     gap: 12px !important;
 }
 
-div.contenedor-edicion-inline div[data-testid="stHorizontalBlock"] > div {
-    flex: 1 1 50% !important;
-    width: 50% !important;
+div.contenedor-edicion-inline [data-testid="stHorizontalBlock"] > div {
+    flex: 1 1 0% !important;
     min-width: 0 !important;
+    width: 50% !important;
 }
 
 div.contenedor-edicion-inline label p {
@@ -792,7 +795,7 @@ else:
                                 st.session_state["dia_en_edicion"] = d
                             st.rerun()
 
-                    # Formulario desplegable alineado y contenido al 93% (Toggle abrir/cerrar)
+                    # Formulario desplegable sin títulos redundantes ni bloques vacíos
                     if st.session_state.get("dia_en_edicion") == d:
                         col_form, _ = st.columns([93, 7])
                         with col_form:
@@ -804,7 +807,6 @@ else:
                             idx_o = lista_obras.index(val_o) if val_o and val_o in lista_obras else 0
 
                             with st.form(key=f"form_inline_dia_{d}"):
-                                st.markdown(f"<div style='font-size: 0.9rem; font-weight: 700; color: #ffffff; margin-bottom: 8px;'>✏️ Editando Día {d}</div>", unsafe_allow_html=True)
                                 c1e, c2e = st.columns(2)
                                 with c1e:
                                     edit_ent = st.time_input("Entrada", value=val_e, key=f"re_{d}")
