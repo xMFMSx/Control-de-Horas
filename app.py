@@ -48,7 +48,7 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {
    ========================================================== */
 .contenedor-tabla-6 {
     display: grid !important;
-    grid-template-columns: 8% 12% 10% 13% 14% 34% !important;
+    grid-template-columns: 8% 12% 10% 13.5% 14.5% 34% !important;
     width: 100% !important;
     align-items: center !important;
     box-sizing: border-box !important;
