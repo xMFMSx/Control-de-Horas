@@ -134,7 +134,7 @@ div[data-testid="column"]:last-child button p {
     font-size: 0.62rem !important; /* Achica el lápiz */
     line-height: 1 !important;
     margin: 0 !important;
-    transform: translateY(6px) !important; /* Mueve el lápiz hacia abajo */
+    transform: translateY(10px) !important; /* Mueve el lápiz hacia abajo */
 }
 
 /* Efecto suave al pasar el mouse */
