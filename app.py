@@ -44,59 +44,91 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {
 }
 
 /* ==========================================================
-   NAVEGADOR SEGMENTADO SUPERIOR (50/50, GRANDE Y DESTACADO)
+   FILA SUPERIOR: NAVEGADOR SEGMENTADO + TUERCA ALINEADA
    ========================================================== */
-div[data-testid="stPills"] {
+div[data-testid="stHorizontalBlock"]:has([data-testid="stPills"]):has([data-testid="stPopover"]) {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 8px !important;
     width: 100% !important;
-    margin-bottom: 1.2rem !important;
+    margin-bottom: 1rem !important;
 }
 
+div[data-testid="stHorizontalBlock"]:has([data-testid="stPills"]):has([data-testid="stPopover"]) > div:first-child {
+    flex: 1 1 88% !important;
+    width: 88% !important;
+    min-width: 0 !important;
+}
+
+div[data-testid="stHorizontalBlock"]:has([data-testid="stPills"]):has([data-testid="stPopover"]) > div:last-child {
+    flex: 0 0 12% !important;
+    width: 12% !important;
+    min-width: 44px !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+}
+
+div[data-testid="stHorizontalBlock"]:has([data-testid="stPills"]):has([data-testid="stPopover"]) [data-testid="stPopover"] {
+    width: 100% !important;
+}
+
+div[data-testid="stHorizontalBlock"]:has([data-testid="stPills"]):has([data-testid="stPopover"]) [data-testid="stPopover"] > button {
+    width: 100% !important;
+    min-height: 38px !important;
+    height: 38px !important;
+    background-color: #1a1e29 !important;
+    border: 1px solid #2e3547 !important;
+    border-radius: 8px !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* ==========================================================
+   NAVEGADOR SEGMENTADO SUPERIOR (50/50, NATIVO Y SIN APILARSE)
+   ========================================================== */
+div[data-testid="stSegmentedControl"],
+div[data-testid="stPills"] {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    width: 100% !important;
+    gap: 8px !important;
+}
+
+div[data-testid="stSegmentedControl"] > div,
 div[data-testid="stPills"] > div {
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     width: 100% !important;
-    gap: 10px !important;
+    gap: 8px !important;
 }
 
-div[data-testid="stPills"] [data-testid="stPillsItem"],
+div[data-testid="stSegmentedControl"] button,
 div[data-testid="stPills"] button {
     flex: 1 1 50% !important;
     width: 50% !important;
     min-width: 0 !important;
-    min-height: 48px !important;
-    height: 48px !important;
-    padding: 0 10px !important;
     background-color: #1a1e29 !important;
     border: 1px solid #2e3547 !important;
-    border-radius: 8px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: clamp(0.72rem, 2.2vw, 0.82rem) !important;
+    padding: 0.65rem 0.2rem !important;
+    border-radius: 0.5rem !important;
+    text-align: center !important;
     box-sizing: border-box !important;
 }
 
-div[data-testid="stPills"] button p,
-div[data-testid="stPills"] [data-testid="stPillsItem"] p,
-div[data-testid="stPills"] [data-testid="stPillsItem"] span {
-    font-size: 0.95rem !important;
-    font-weight: 700 !important;
-    color: #ffffff !important;
-    white-space: nowrap !important;
-    margin: 0 !important;
-    line-height: 1 !important;
-}
-
-div[data-testid="stPills"] button[aria-selected="true"],
-div[data-testid="stPills"] [data-testid="stPillsItem"][aria-selected="true"] {
+div[data-testid="stSegmentedControl"] button[aria-selected="true"],
+div[data-testid="stPills"] button[aria-selected="true"] {
     background-color: #ff4b4b !important;
     border: 1px solid #ff4b4b !important;
-}
-
-div[data-testid="stPills"] button[aria-selected="true"] p,
-div[data-testid="stPills"] [data-testid="stPillsItem"][aria-selected="true"] p {
     color: #ffffff !important;
-    font-weight: 800 !important;
 }
 
 /* ==========================================================
@@ -475,41 +507,6 @@ else:
     else:
         hoy = date.today()
 
-    # --- MENÚ DESPLEGABLE DE CONFIGURACIÓN (⚙️) ---
-    c_gear, _ = st.columns([2.0, 8.0])
-    with c_gear:
-        with st.popover("⚙️"):
-            st.markdown(f"**👤 {nombre_trabajador}**")
-            if es_admin:
-                st.markdown("🔑 *Rol: Administrador*")
-            st.markdown("---")
-            
-            if es_admin:
-                if st.button("🛠️ Panel Administrador", use_container_width=True):
-                    st.session_state["modo_admin_activo"] = True
-                    st.session_state["cambiando_password"] = False
-                    st.rerun()
-
-            if st.button("🔑 Cambiar Contraseña", use_container_width=True):
-                st.session_state["cambiando_password"] = True
-                st.session_state["modo_admin_activo"] = False
-                st.rerun()
-
-            if st.button("🚪 Cerrar Sesión", use_container_width=True):
-                st.components.v1.html("""
-                    <script>
-                        localStorage.removeItem('control_horas_token');
-                    </script>
-                """, height=0)
-                st.query_params.clear()
-                st.session_state.autenticado = False
-                st.session_state.nombre_usuario = ""
-                st.session_state.user_email = ""
-                st.session_state.rol_usuario = "trabajador"
-                st.session_state.cambiando_password = False
-                st.session_state.modo_admin_activo = False
-                st.rerun()
-
     if st.session_state.get("cambiando_password", False):
         st.subheader("🔑 Cambiar Contraseña")
         with st.form("form_cambiar_pass"):
@@ -615,27 +612,63 @@ else:
         if es_admin and st.session_state.get("fecha_admin_simulada") is not None:
             st.info(f"🕒 Modo simulación activo: **{hoy.strftime('%d/%m/%Y')}** (Configurado desde Panel Administrador)")
 
-        # --- NAVEGADOR NATIVO INTEGRADO (CERO PANTALLAZO NEGRO Y SIEMPRE 50/50 LADO A LADO) ---
-        opciones_nav = ["📅 SEPTIEMBRE 2026", "📊 RESUMEN DEL MES"]
-        if "vista_actual" not in st.session_state:
-            st.session_state["vista_actual"] = "SEPTIEMBRE"
+        # --- FILA SUPERIOR COMPACTA: NAVEGADOR (88%) + TUERCA (12%) EN LA MISMA LÍNEA ---
+        c_nav, c_gear = st.columns([88, 12])
 
-        val_default = "📅 SEPTIEMBRE 2026" if st.session_state["vista_actual"] == "SEPTIEMBRE" else "📊 RESUMEN DEL MES"
+        with c_nav:
+            opciones_nav = ["📅 SEPTIEMBRE 2026", "📊 RESUMEN DEL MES"]
+            if "vista_actual" not in st.session_state:
+                st.session_state["vista_actual"] = "SEPTIEMBRE"
 
-        seleccion = st.pills(
-            "",
-            options=opciones_nav,
-            default=val_default,
-            label_visibility="collapsed",
-            key="pills_navegacion"
-        )
+            val_default = "📅 SEPTIEMBRE 2026" if st.session_state["vista_actual"] == "SEPTIEMBRE" else "📊 RESUMEN DEL MES"
 
-        nueva_vista = "SEPTIEMBRE" if seleccion == "📅 SEPTIEMBRE 2026" else "RESUMEN"
-        if nueva_vista != st.session_state["vista_actual"]:
-            st.session_state["vista_actual"] = nueva_vista
-            if nueva_vista == "SEPTIEMBRE":
-                st.session_state["dia_en_edicion"] = None
-            st.rerun()
+            seleccion = st.pills(
+                "",
+                options=opciones_nav,
+                default=val_default,
+                label_visibility="collapsed",
+                key="pills_navegacion"
+            )
+
+            nueva_vista = "SEPTIEMBRE" if seleccion == "📅 SEPTIEMBRE 2026" else "RESUMEN"
+            if nueva_vista != st.session_state["vista_actual"]:
+                st.session_state["vista_actual"] = nueva_vista
+                if nueva_vista == "SEPTIEMBRE":
+                    st.session_state["dia_en_edicion"] = None
+                st.rerun()
+
+        with c_gear:
+            with st.popover("⚙️"):
+                st.markdown(f"**👤 {nombre_trabajador}**")
+                if es_admin:
+                    st.markdown("🔑 *Rol: Administrador*")
+                st.markdown("---")
+                
+                if es_admin:
+                    if st.button("🛠️ Panel Administrador", use_container_width=True):
+                        st.session_state["modo_admin_activo"] = True
+                        st.session_state["cambiando_password"] = False
+                        st.rerun()
+
+                if st.button("🔑 Cambiar Contraseña", use_container_width=True):
+                    st.session_state["cambiando_password"] = True
+                    st.session_state["modo_admin_activo"] = False
+                    st.rerun()
+
+                if st.button("🚪 Cerrar Sesión", use_container_width=True):
+                    st.components.v1.html("""
+                        <script>
+                            localStorage.removeItem('control_horas_token');
+                        </script>
+                    """, height=0)
+                    st.query_params.clear()
+                    st.session_state.autenticado = False
+                    st.session_state.nombre_usuario = ""
+                    st.session_state.user_email = ""
+                    st.session_state.rol_usuario = "trabajador"
+                    st.session_state.cambiando_password = False
+                    st.session_state.modo_admin_activo = False
+                    st.rerun()
 
         st.markdown("---")
 
