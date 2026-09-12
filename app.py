@@ -123,7 +123,7 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child {
     width: 93% !important;
 }
 
-div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child {
+div[data-testid="stHorizontalBlock"] > div:last-child {
     min-width: 34px !important;
     flex: 0 0 7% !important;
     width: 7% !important;
@@ -132,31 +132,31 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child {
     justify-content: center !important;
 }
 
-/* Quita el recuadro gris, bordes y fuerza el tamaño exacto del botón */
-div[data-testid="column"]:last-child div[data-testid="stButton"],
-div[data-testid="column"]:last-child div[data-testid="stButton"] button {
+/* Quitar fondo, recuadro, bordes y mover el lápiz */
+div[data-testid="stHorizontalBlock"] > div:last-child button {
     background: transparent !important;
     background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
     outline: none !important;
     padding: 0 !important;
-    margin: 0 !important;
+    margin: 0 auto !important;
     min-height: 0 !important;
     height: auto !important;
     width: auto !important;
+    cursor: pointer !important;
+    transform: translateY(6px) !important; /* Desplaza el lápiz hacia abajo */
 }
 
-/* Control exacto del icono del lápiz: tamaño y desplazamiento vertical */
-div[data-testid="column"]:last-child div[data-testid="stButton"] button p {
+/* Achicar el ícono del lápiz */
+div[data-testid="stHorizontalBlock"] > div:last-child button p {
     font-size: 0.65rem !important;
     line-height: 1 !important;
     margin: 0 !important;
     padding: 0 !important;
-    transform: translateY(12px) !important;
 }
 
-div[data-testid="column"]:last-child div[data-testid="stButton"] button:hover {
+div[data-testid="stHorizontalBlock"] > div:last-child button:hover {
     background: transparent !important;
     opacity: 0.6 !important;
 }
