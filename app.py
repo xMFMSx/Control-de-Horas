@@ -31,56 +31,52 @@ footer { visibility: hidden !important; }
 div[data-testid="stDecoration"] { display: none !important; }
 
 /* ==========================================================
-   ELIMINAR SCROLLBAR NATIVO DE WINDOWS / CHROME PWA
-   (Ocultamiento universal manteniendo el scroll activo)
+   OCULTAR BARRAS DE SCROLLBAR (FLECHAS Y FONDO NEGRO)
+   Mantiene el desplazamiento vertical 100% operativo
    ========================================================== */
-html, body {
-    overflow-x: hidden !important;
+html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main, section.main {
     overflow-y: auto !important;
-    scrollbar-width: none !important;
-    -ms-overflow-style: none !important;
+    overflow-x: hidden !important;
+    scrollbar-width: none !important; /* Firefox */
+    -ms-overflow-style: none !important;  /* IE y Edge */
+    height: auto !important;
+    min-height: 100% !important;
 }
 
-* {
-    scrollbar-width: none !important;
-    -ms-overflow-style: none !important;
-}
-
-*::-webkit-scrollbar {
+/* Chrome, Safari, Edge, Opera */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+[data-testid="stAppViewContainer"]::-webkit-scrollbar,
+[data-testid="stMain"]::-webkit-scrollbar,
+.main::-webkit-scrollbar,
+section.main::-webkit-scrollbar {
     display: none !important;
     width: 0px !important;
     height: 0px !important;
     background: transparent !important;
 }
 
-[data-testid="stAppViewContainer"], [data-testid="stMain"], .main, section.main {
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    height: 100vh !important;
-    scrollbar-width: none !important;
-}
-
 .block-container { 
     max-width: 95% !important; 
     padding: 1.2rem !important; 
-    padding-right: 1.8rem !important; /* Margen de resguardo para alejar del borde */
     padding-bottom: 25rem !important; 
     overflow-x: hidden !important;
 }
 
 /* ==========================================================
-   FILA SUPERIOR: NAVEGADOR + TUERCA (ALINEADA Y SEPARADA)
+   FILA SUPERIOR: NAVEGADOR + TUERCA (CON MARGEN DE SEGURIDAD)
    ========================================================== */
 div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     align-items: center !important;
-    gap: 10px !important;
+    gap: 8px !important;
     width: 100% !important;
+    max-width: 100% !important;
     box-sizing: border-box !important;
     margin-bottom: 1rem !important;
-    padding-right: 12px !important; /* Espacio extra a la derecha para no rozar */
+    padding-right: 6px !important; /* Evita cualquier roce con el borde */
 }
 
 @media (max-width: 9999px) {
@@ -96,15 +92,15 @@ div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {
     }
     div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) > div[data-testid="column"]:first-child {
         flex: 1 1 auto !important;
-        width: calc(100% - 56px) !important;
-        max-width: calc(100% - 56px) !important;
+        width: calc(100% - 48px) !important;
+        max-width: calc(100% - 48px) !important;
         min-width: 0 !important;
     }
     div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) > div[data-testid="column"]:last-child {
-        flex: 0 0 46px !important;
-        width: 46px !important;
-        max-width: 46px !important;
-        min-width: 46px !important;
+        flex: 0 0 40px !important;
+        width: 40px !important;
+        max-width: 40px !important;
+        min-width: 40px !important;
         display: flex !important;
         justify-content: flex-end !important;
     }
@@ -654,8 +650,8 @@ else:
         if es_admin and st.session_state.get("fecha_admin_simulada") is not None:
             st.info(f"🕒 Modo simulación activo: **{hoy.strftime('%d/%m/%Y')}** (Configurado desde Panel Administrador)")
 
-        # --- FILA SUPERIOR: NAVEGADOR Y TUERCA CON MARGEN DE BORDE ---
-        c_nav, c_gear = st.columns([88, 12])
+        # --- FILA SUPERIOR: NAVEGADOR Y TUERCA INTEGRADA SIN SCROLLBARS PARÁSITOS ---
+        c_nav, c_gear = st.columns([90, 10])
 
         with c_nav:
             opciones_nav = ["📅 SEPTIEMBRE 2026", "📊 RESUMEN DEL MES"]
