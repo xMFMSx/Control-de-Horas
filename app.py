@@ -779,7 +779,7 @@ else:
                         </div>
                         ''', unsafe_allow_html=True)
 
-                   with c_lapiz:
+                    with c_lapiz:
                         st.markdown('<div class="lapiz-lateral-wrapper">', unsafe_allow_html=True)
                         if st.button("✏️", key=f"edit_btn_{d}"):
                             if st.session_state.get("dia_en_edicion") == d:
