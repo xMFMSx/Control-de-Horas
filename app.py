@@ -144,20 +144,13 @@ div.lapiz-lateral-wrapper {
     margin: 0 !important;
 }
 
-/* Eliminar completamente el espacio entre filas forzando solape vertical */
+/* Une las filas sin ocultar los días anteriores */
 div[data-testid="stVerticalBlock"]:has(div.es-datos-6) {
-    gap: 0 !important;
-    row-gap: 0 !important;
-}
-
-div[data-testid="stVerticalBlock"]:has(div.es-datos-6) > div {
-    margin-bottom: -10px !important;
-    padding-bottom: 0 !important;
-    padding-top: 0 !important;
+    gap: 0.1rem !important;
 }
 
 div[data-testid="stHorizontalBlock"] {
-    margin-bottom: 0 !important;
+    margin-bottom: -1px !important;
 }
 </style>""", unsafe_allow_html=True)
 
