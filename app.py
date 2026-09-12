@@ -40,7 +40,7 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {
     min-height: 100% !important;
 }
 
-/* Margen derecho amplio para que la barra/flecha nativa de Windows no tape nada */
+/* Margen derecho amplio para que la barra/flecha nativa no tape nada */
 .block-container { 
     max-width: 96% !important; 
     padding: 1.2rem !important; 
@@ -51,7 +51,7 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {
 }
 
 /* ==========================================================
-   FILA SUPERIOR: NAVEGADOR + TUERCA (RETIRADA DEL BORDE DERECHO)
+   FILA SUPERIOR: NAVEGADOR + TUERCA (ALINEADA Y SEPARADA)
    ========================================================== */
 div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {
     display: flex !important;
@@ -63,7 +63,7 @@ div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {
     max-width: 100% !important;
     box-sizing: border-box !important;
     margin-bottom: 1rem !important;
-    padding-right: 14px !important; /* Despeje garantizado ante la barra de Windows */
+    padding-right: 14px !important;
 }
 
 @media (max-width: 9999px) {
@@ -90,6 +90,7 @@ div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {
         min-width: 40px !important;
         display: flex !important;
         justify-content: flex-end !important;
+        position: relative !important;
     }
 }
 
@@ -97,6 +98,7 @@ div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) [data-testid
     width: 100% !important;
     display: flex !important;
     justify-content: flex-end !important;
+    position: relative !important;
 }
 
 div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) [data-testid="stPopover"] > button {
@@ -110,6 +112,17 @@ div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) [data-testid
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+}
+
+/* ==========================================================
+   ALINEAR EL MENÚ DESPLEGABLE EXACTAMENTE A LA DERECHA DEBAJO DE LA TUERCA
+   ========================================================== */
+div[data-testid="stPopoverBody"] {
+    right: 0px !important;
+    left: auto !important;
+    transform: none !important;
+    margin-top: 6px !important;
+    box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.6) !important;
 }
 
 /* ==========================================================
@@ -637,7 +650,7 @@ else:
         if es_admin and st.session_state.get("fecha_admin_simulada") is not None:
             st.info(f"🕒 Modo simulación activo: **{hoy.strftime('%d/%m/%Y')}** (Configurado desde Panel Administrador)")
 
-        # --- FILA SUPERIOR: NAVEGADOR Y TUERCA CON ESPACIO DESPEJADO ---
+        # --- FILA SUPERIOR: NAVEGADOR Y TUERCA CON MENÚ ALINEADO A LA DERECHA ---
         c_nav, c_gear = st.columns([88, 12])
 
         with c_nav:
