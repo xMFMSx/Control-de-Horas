@@ -243,9 +243,7 @@ div[data-testid="stPopoverBody"] {
     color: var(--texto-principal) !important;
 }
 
-/* ==========================================================
-   ESTILO NATIVO PILLS / SEGMENTED CONTROL (HORIZONTALES)
-   ========================================================== */
+/* ESTILO NATIVO PILLS / SEGMENTED CONTROL */
 div[data-testid="stSegmentedControl"],
 div[data-testid="stPills"] {
     display: flex !important;
@@ -1178,7 +1176,7 @@ else:
 
         st.markdown("---")
 
-        limite_fila = 1 + len(fechas_periodo)
+        # Lectura directa de las filas de la hoja
         if "filas_planilla" not in st.session_state:
             try:
                 st.session_state["filas_planilla"] = hoja_usuario.get_all_values()[1:]
@@ -1197,35 +1195,33 @@ else:
 
             txt_d = str(r[1]).strip() if len(r) > 1 else ""
             num_dia = int(txt_d) if txt_d.isdigit() else None
-            if num_dia not in dias_validos_periodo:
+            
+            # Respaldo de posición si la columna B no tiene número
+            if num_dia is None and idx < len(fechas_periodo):
+                num_dia = fechas_periodo[idx].day
+
+            if num_dia is None or num_dia not in dias_validos_periodo:
                 continue
 
-            entrada = r[2] if len(r) > 2 else ""
-            salida = r[3] if len(r) > 3 else ""
-            hn_val = r[4] if len(r) > 4 else ""
-            hr_val = r[5] if len(r) > 5 else ""
-            obra_val = r[6] if len(r) > 6 else ""
+            entrada = str(r[2]).strip() if len(r) > 2 and str(r[2]).strip() not in ["None"] else ""
+            salida = str(r[3]).strip() if len(r) > 3 and str(r[3]).strip() not in ["None"] else ""
+            hn_val = str(r[4]).strip() if len(r) > 4 and str(r[4]).strip() not in ["None", "0:00:00"] else ""
+            hr_val = str(r[5]).strip() if len(r) > 5 and str(r[5]).strip() not in ["None", "0:00:00"] else ""
+            obra_val = str(r[6]).strip() if len(r) > 6 and str(r[6]).strip() not in ["None"] else ""
 
-            dict_por_dia[num_dia] = {
+            clave_dia = "31_0" if (num_dia == 31 and idx == 0) else str(num_dia)
+
+            dict_por_dia[clave_dia] = {
+                "num_dia": num_dia,
                 "entrada": entrada, "salida": salida,
                 "hn": hn_val, "hr": hr_val, "obra": obra_val
             }
 
-            def a_minutos(txt):
-                if not txt: return 0
-                t = str(txt).strip()
-                if ":" in t:
-                    p = t.split(":")
-                    return int(float(p[0])) * 60 + int(float(p[1]))
-                return int(round(float(t.replace(",", ".")) * 60))
-
-            try: total_hn += a_minutos(hn_val)
-            except Exception: pass
-            try: total_hr += a_minutos(hr_val)
-            except Exception: pass
+            total_hn += extrae_minutos_texto(hn_val)
+            total_hr += extrae_minutos_texto(hr_val)
 
             try:
-                f_fila = date(2026, 8, 31) if num_dia == 31 else date(fin_mes.year, fin_mes.month, num_dia)
+                f_fila = date(2026, 8, 31) if (num_dia == 31 and idx == 0) else date(fin_mes.year, fin_mes.month, num_dia)
             except Exception:
                 f_fila = None
 
@@ -1241,16 +1237,18 @@ else:
 
             if entrada or salida or obra_val:
                 registros_tabla.append({
+                    "CLAVE": clave_dia,
                     "DÍA": num_dia, "ENTRADA": entrada, "SALIDA": salida,
                     "HORA EXTRA": hn_val, "HORA RECARGO": hr_val, "OBRA": obra_val
                 })
             elif (es_domingo_o_feriado and f_fila and f_fila < hoy) or es_sabado_pasado_sin_trabajar:
                 registros_tabla.append({
+                    "CLAVE": clave_dia,
                     "DÍA": num_dia, "ENTRADA": "", "SALIDA": "",
                     "HORA EXTRA": "", "HORA RECARGO": "", "OBRA": ""
                 })
 
-        registros_tabla = sorted(registros_tabla, key=lambda x: (0 if x["DÍA"] == 31 else x["DÍA"]))
+        registros_tabla = sorted(registros_tabla, key=lambda x: (0 if x["CLAVE"] == "31_0" else x["DÍA"]))
 
         # VISTA A: REGISTRO DIARIO
         if st.session_state["vista_actual"] in ["SEPTIEMBRE", "REGISTRO"]:
@@ -1274,8 +1272,9 @@ else:
             st.markdown("---")
 
             dias_pendientes = []
-            for f in fechas_periodo:
+            for idx_f, f in enumerate(fechas_periodo):
                 num_dia = f.day
+                clave_f = "31_0" if (num_dia == 31 and idx_f == 0) else str(num_dia)
                 fecha_iso = f.strftime("%Y-%m-%d")
                 es_domingo_o_feriado = (f.weekday() == 6) or (fecha_iso in FERIADOS)
 
@@ -1285,18 +1284,18 @@ else:
                 if f.weekday() == 5 and f < hoy:
                     lunes_despues = f + timedelta(days=2)
                     if hoy >= lunes_despues:
-                        guardado_sab = dict_por_dia.get(num_dia, {})
+                        guardado_sab = dict_por_dia.get(clave_f, {})
                         if not (guardado_sab.get("entrada") or guardado_sab.get("salida") or guardado_sab.get("obra")):
                             continue
 
-                guardado = dict_por_dia.get(num_dia, {})
+                guardado = dict_por_dia.get(clave_f, {})
                 if not (guardado.get("entrada") or guardado.get("salida") or guardado.get("obra")):
-                    dias_pendientes.append(f)
+                    dias_pendientes.append((idx_f, f))
 
             if not dias_pendientes:
                 st.write("Todos los días del mes han sido completados.")
             else:
-                for f in dias_pendientes:
+                for idx_f, f in dias_pendientes:
                     nom_dia = DIAS_MAP[f.weekday()]
                     num_dia = f.day
                     fecha_iso = f.strftime("%Y-%m-%d")
@@ -1316,14 +1315,14 @@ else:
                     label = f"⚪ {col_dia_num}{aviso}"
 
                     with st.expander(label):
-                        with st.form(key=f"form_dia_{num_dia}"):
+                        with st.form(key=f"form_dia_{idx_f}_{num_dia}"):
                             c_ent, c_sal = st.columns(2)
                             with c_ent:
-                                inp_ent = st.time_input("Entrada", value=None, key=f"e_{num_dia}")
+                                inp_ent = st.time_input("Entrada", value=None, key=f"e_{idx_f}_{num_dia}")
                             with c_sal:
-                                inp_sal = st.time_input("Salida", value=None, key=f"s_{num_dia}")
+                                inp_sal = st.time_input("Salida", value=None, key=f"s_{idx_f}_{num_dia}")
 
-                            inp_ob = st.selectbox("Obra", options=lista_obras, index=None, placeholder="Seleccionar...", key=f"o_{num_dia}")
+                            inp_ob = st.selectbox("Obra", options=lista_obras, index=None, placeholder="Seleccionar...", key=f"o_{idx_f}_{num_dia}")
 
                             st.write("")
                             col_btn, _ = st.columns([1, 3])
@@ -1338,7 +1337,7 @@ else:
                                     st.warning("⚠️ Debes ingresar Entrada y Salida para las obras normales.")
                                 else:
                                     try:
-                                        fila_n = fila_segun_dia(num_dia)
+                                        fila_n = 2 + idx_f
                                         if es_especial:
                                             hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["-", "-"]], value_input_option="RAW")
                                             hoja_usuario.update(f"G{fila_n}", [[inp_ob]], value_input_option="RAW")
@@ -1359,7 +1358,14 @@ else:
 
         # VISTA B: RESUMEN MENSUAL
         elif st.session_state["vista_actual"] == "RESUMEN":
-            st.subheader("RESUMEN MENSUAL")
+            c_res_tit, c_res_sync = st.columns([70, 30])
+            with c_res_tit:
+                st.subheader("RESUMEN MENSUAL")
+            with c_res_sync:
+                if st.button("🔄 Actualizar mis Horas", use_container_width=True):
+                    if "filas_planilla" in st.session_state:
+                        del st.session_state["filas_planilla"]
+                    st.rerun()
             
             val_hn_str = minutos_a_hora_str(total_hn)
             val_hr_str = minutos_a_hora_str(total_hr)
@@ -1398,8 +1404,9 @@ else:
 
                 for r in registros_tabla:
                     d = r["DÍA"] 
+                    clave_r = r["CLAVE"]
                     try:
-                        fecha_fila = date(2026, 8, 31) if d == 31 else date(fin_mes.year, fin_mes.month, d)
+                        fecha_fila = date(2026, 8, 31) if clave_r == "31_0" else date(fin_mes.year, fin_mes.month, d)
                         w_day = fecha_fila.weekday()
                         iso_f = fecha_fila.strftime("%Y-%m-%d")
                     except:
@@ -1439,28 +1446,28 @@ else:
                         ''', unsafe_allow_html=True)
 
                     with c_lapiz:
-                        if st.button("✏️", key=f"btn_lapiz_{d}"):
-                            if st.session_state.get("dia_en_edicion") == d:
+                        if st.button("✏️", key=f"btn_lapiz_{clave_r}"):
+                            if st.session_state.get("dia_en_edicion") == clave_r:
                                 st.session_state["dia_en_edicion"] = None
                             else:
-                                st.session_state["dia_en_edicion"] = d
+                                st.session_state["dia_en_edicion"] = clave_r
                             st.rerun()
 
-                    if st.session_state.get("dia_en_edicion") == d:
-                        datos_d = dict_por_dia.get(d, {})
+                    if st.session_state.get("dia_en_edicion") == clave_r:
+                        datos_d = dict_por_dia.get(clave_r, {})
                         val_e = str_a_time(datos_d.get("entrada", ""))
                         val_s = str_a_time(datos_d.get("salida", ""))
                         val_o = datos_d.get("obra", "")
                         idx_o = lista_obras.index(val_o) if val_o and val_o in lista_obras else 0
 
-                        with st.form(key=f"form_inline_dia_{d}"):
+                        with st.form(key=f"form_inline_dia_{clave_r}"):
                             c1e, c2e = st.columns(2)
                             with c1e:
-                                edit_ent = st.time_input("Entrada", value=val_e, key=f"re_{d}")
+                                edit_ent = st.time_input("Entrada", value=val_e, key=f"re_{clave_r}")
                             with c2e:
-                                edit_sal = st.time_input("Salida", value=val_s, key=f"rs_{d}")
+                                edit_sal = st.time_input("Salida", value=val_s, key=f"rs_{clave_r}")
                             
-                            edit_ob = st.selectbox("Obra", options=lista_obras, index=idx_o, key=f"ro_{d}")
+                            edit_ob = st.selectbox("Obra", options=lista_obras, index=idx_o, key=f"ro_{clave_r}")
 
                             st.write("")
                             b1, b2 = st.columns(2)
