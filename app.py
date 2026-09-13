@@ -526,8 +526,8 @@ def cargar_obras():
     except Exception:
         return ["LOTE 1", "LOTE 4", "LOTE 11", "MONTESSORI", "PERMISO", "NO TRABAJA", "VACACIONES", "LICENCIA"]
 
-# Lectura directa a prueba de fallos de cuota (con sleep controlado de 0.15s)
-@st.cache_data(ttl=180, show_spinner=False)
+# Lectura segura y agrupada para evitar errores de cuota de Google
+@st.cache_data(ttl=300, show_spinner=False)
 def obtener_resumen_individual_optimizado(nombres_tupla):
     libro = conectar_libro()
     mapa_datos = {}
@@ -535,18 +535,18 @@ def obtener_resumen_individual_optimizado(nombres_tupla):
     for nom in nombres_tupla:
         try:
             ws = libro.worksheet(nom)
-            filas = ws.get("B2:G35")
+            filas = ws.get("A2:G35")
             mapa_datos[nom] = filas
         except gspread.exceptions.APIError:
-            time_lib.sleep(1.0)
+            time_lib.sleep(1.2)
             try:
                 ws = libro.worksheet(nom)
-                mapa_datos[nom] = ws.get("B2:G35")
+                mapa_datos[nom] = ws.get("A2:G35")
             except Exception:
                 mapa_datos[nom] = []
         except Exception:
             mapa_datos[nom] = []
-        time_lib.sleep(0.12)
+        time_lib.sleep(0.08)
         
     return mapa_datos
 
@@ -605,7 +605,7 @@ def generar_excel_mes(libro_actual, usuarios_dict, fechas_ciclo):
         for correo_u, datos_u in usuarios_dict.items():
             nom = datos_u["nombre"]
             try:
-                h_trab = libro_actual.worksheet(nom)
+                h_trab = buscar_hoja_exacta_o_similar(libro_actual, nom)
                 vals = h_trab.get_all_values()[1:]
                 thn, thr = 0, 0
                 for idx, r in enumerate(vals):
@@ -642,7 +642,7 @@ def generar_excel_mes(libro_actual, usuarios_dict, fechas_ciclo):
         for correo_u, datos_u in usuarios_dict.items():
             nom = datos_u["nombre"]
             try:
-                h_trab = libro_actual.worksheet(nom)
+                h_trab = buscar_hoja_exacta_o_similar(libro_actual, nom)
                 filas = h_trab.get_all_values()[1:]
                 registros = []
                 for idx, r in enumerate(filas):
@@ -682,7 +682,7 @@ def reiniciar_hojas_nuevo_ciclo(f_inicio, f_fin, usuarios_dict):
     for correo_u, datos_u in usuarios_dict.items():
         nom = datos_u["nombre"]
         try:
-            h = libro.worksheet(nom)
+            h = buscar_hoja_exacta_o_similar(libro, nom)
             h.batch_clear(["A2:G40"])
             h.update(f"A2:G{1 + len(nuevas_filas)}", nuevas_filas, value_input_option="USER_ENTERED")
         except Exception:
@@ -753,7 +753,6 @@ if "ciclo_inicio" not in st.session_state:
 if "ciclo_fin" not in st.session_state:
     st.session_state["ciclo_fin"] = date(2026, 9, 30)
 
-# Recuperar sesión de URL si existe
 token_url = query_params.get("session")
 if token_url and not st.session_state.autenticado:
     correo_token = verificar_token(token_url)
@@ -765,7 +764,6 @@ if token_url and not st.session_state.autenticado:
             st.session_state.nombre_usuario = usuarios_map[correo_token.lower()]["nombre"]
             st.session_state.rol_usuario = usuarios_map[correo_token.lower()]["rol"]
 
-# Si ya está autenticado, fijar el parámetro de sesión en la URL en cada ciclo
 if st.session_state.autenticado and st.session_state.user_email:
     tok = firmar_correo(st.session_state.user_email)
     if query_params.get("session") != tok:
@@ -1031,16 +1029,26 @@ else:
             nom = info_w["nombre"]
             filas_rango = mapa_datos_personal.get(nom, [])
             
-            # Mapear cada día del rango B2:G35
-            registros_por_fecha = {}
-            for idx, r in enumerate(filas_rango):
-                if idx < len(fechas_periodo):
-                    f_idx = fechas_periodo[idx]
-                    celdas_datos = [str(c).strip() for c in r[1:] if str(c).strip() and str(c).strip() not in ["None", "0:00:00", "-"]]
-                    registros_por_fecha[f_idx] = len(celdas_datos) > 0
+            # Mapeo exacto por día numérico (Columna B / r[1])
+            dias_con_registro_set = set()
+            for idx_r, r in enumerate(filas_rango):
+                txt_d = str(r[1]).strip() if len(r) > 1 else ""
+                num_dia = int(txt_d) if txt_d.isdigit() else None
+                
+                # Respaldo de posición si el número de día no viene en la columna
+                if num_dia is None and idx_r < len(fechas_periodo):
+                    num_dia = fechas_periodo[idx_r].day
+
+                if num_dia is not None:
+                    # Columnas C a G: Entrada, Salida, Horas, Obra
+                    celdas_registro = [str(c).strip() for c in r[2:7] if str(c).strip() and str(c).strip() not in ["None", "0:00:00"]]
+                    # Si tiene cualquier dato (horas, "-", "PERMISO", "VACACIONES", obra) se marca como completo
+                    if len(celdas_registro) > 0:
+                        clave = "31_0" if (num_dia == 31 and idx_r == 0) else str(num_dia)
+                        dias_con_registro_set.add(clave)
 
             faltan = 0
-            for f in fechas_periodo:
+            for idx_f, f in enumerate(fechas_periodo):
                 if f > hoy: 
                     continue
                 
@@ -1048,7 +1056,8 @@ else:
                 if (f.weekday() == 6) or (f.strftime("%Y-%m-%d") in FERIADOS):
                     continue
                 
-                tiene_datos = registros_por_fecha.get(f, False)
+                clave_dia_esperado = "31_0" if (f.day == 31 and idx_f == 0) else str(f.day)
+                tiene_datos = clave_dia_esperado in dias_con_registro_set
                 
                 # Sábado sin trabajar: si no laboró, no cuenta como pendiente
                 if f.weekday() == 5 and f < hoy:
