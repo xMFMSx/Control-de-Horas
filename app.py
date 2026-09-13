@@ -1056,7 +1056,7 @@ else:
                                     hoja_nueva = libro_admin.add_worksheet(title=nombre_limpio, rows=45, cols=8, index=indice_obras - 1)
                                     time_lib.sleep(1.2)  # Pausa para evitar error 429
                                     
-                                    hoja_nueva.append_row(["DÍA_TEXTO", "DÍA", "ENTRADA", "SALIDA", "HORA EXTRA", "HORA RECARGO", "OBRA"])
+                                    hoja_nueva.append_row(["", "DÍA", "ENTRADA", "SALIDA", "HORA EXTRA", "HORA RECARGO", "OBRA"])
                                     time_lib.sleep(1.2)  # Pausa para evitar error 429
                                     
                                     nuevas_filas = []
@@ -1103,8 +1103,8 @@ else:
                                         libro_admin.batch_update({"requests": requests_pintar})
                                         time_lib.sleep(1.2)
 
-                                    # Proteger la hoja (candado abajo) permitiendo edición protegida
-                                    hoja_nueva.protect()
+                                    # Proteger la hoja correctamente para que aparezca el candado
+                                    hoja_nueva.protect(description="Protección de Planilla de Horas")
                                 except Exception:
                                     pass
 
