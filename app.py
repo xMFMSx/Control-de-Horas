@@ -9,6 +9,7 @@ from datetime import datetime, date, time, timedelta
 import time as time_lib
 import urllib.parse
 from io import BytesIO
+import os
 
 # Importación segura de ReportLab
 try:
@@ -35,6 +36,33 @@ st.set_page_config(
 )
 
 # ==========================================================
+# FONDO DE PANTALLA PERSONALIZADO (BASE64)
+# ==========================================================
+def aplicar_fondo(nombre_archivo):
+    if os.path.exists(nombre_archivo):
+        with open(nombre_archivo, "rb") as f:
+            datos_b64 = base64.b64encode(f.read()).decode()
+        st.markdown(f"""
+            <style>
+            .stApp {{
+                background-image: url("data:image/png;base64,{datos_b64}") !important;
+                background-attachment: fixed !important;
+                background-size: cover !important;
+                background-position: center !important;
+                background-repeat: no-repeat !important;
+            }}
+            /* Tarjeta de login semitransparente con desenfoque elegante */
+            div[data-testid="stForm"] {{
+                background-color: rgba(22, 25, 34, 0.88) !important;
+                backdrop-filter: blur(8px) !important;
+                -webkit-backdrop-filter: blur(8px) !important;
+            }}
+            </style>
+        """, unsafe_allow_html=True)
+
+aplicar_fondo("fondo_app.png")
+
+# ==========================================================
 # GESTIÓN DE TEMA (CLARO / OSCURO)
 # ==========================================================
 if "tema_actual" not in st.session_state:
@@ -44,7 +72,7 @@ tema = st.session_state["tema_actual"]
 
 if tema == "oscuro":
     css_vars = """
-        --bg-principal: #0e1117;
+        --bg-principal: transparent;
         --bg-contenedor: #1a1e29;
         --bg-tarjeta: #161922;
         --bg-encabezado: #222634;
@@ -57,7 +85,7 @@ if tema == "oscuro":
     """
 else:
     css_vars = """
-        --bg-principal: #f4f6f9;
+        --bg-principal: transparent;
         --bg-contenedor: #ffffff;
         --bg-tarjeta: #ffffff;
         --bg-encabezado: #e2e8f0;
@@ -398,7 +426,6 @@ div[data-testid="stDownloadButton"] > button:hover {{
 }}
 
 div[data-testid="stForm"] {{
-    background-color: var(--bg-tarjeta) !important;
     border: 1px solid var(--borde) !important;
     border-radius: 6px !important;
     padding: 14px 18px !important;
