@@ -602,12 +602,12 @@ def cargar_obras():
                 vistas.add(o.upper())
                 obras_unicas.append(o)
         lista_final = obras_unicas if obras_unicas else ["LOTE 1", "LOTE 4", "LOTE 11", "MONTESSORI"]
-        for opc in ["PERMISO", "NO TRABAJA"]:
+        for opc in ["PERMISO", "NO TRABAJA", "VACACIONES", "LICENCIA"]:
             if not any(o.upper() == opc for o in lista_final):
                 lista_final.append(opc)
         return lista_final
     except Exception:
-        return ["LOTE 1", "LOTE 4", "LOTE 11", "MONTESSORI", "PERMISO", "NO TRABAJA"]
+        return ["LOTE 1", "LOTE 4", "LOTE 11", "MONTESSORI", "PERMISO", "NO TRABAJA", "VACACIONES", "LICENCIA"]
 
 FERIADOS = ["2026-09-18", "2026-09-19", "2026-09-20"]
 DIAS_MAP = {
@@ -1100,52 +1100,46 @@ else:
                     h_w = libro_admin.worksheet(nom)
                     vals = h_w.get_all_values()[1:]
                     
-                    # Mapear cada día por su número exacto
+                    # Diccionario para registrar si un día del ciclo está cubierto
                     datos_trabajador = {}
+                    
                     for idx, r in enumerate(vals):
                         if any("TOTAL" in str(x).upper() for x in r): 
                             continue
                         
-                        # Extraer día de la columna B (r[1])
+                        # Extraer número del día de la columna B (r[1])
                         txt_dia = str(r[1]).strip() if len(r) > 1 else ""
                         n_dia = int(txt_dia) if txt_dia.isdigit() else None
                         
-                        # Si no tiene número explícito en B, inferirlo por la posición en el ciclo
+                        # Si no hay número explícito en B, asociar por orden de fila
                         if n_dia is None and idx < len(fechas_periodo):
                             n_dia = fechas_periodo[idx].day
 
                         if n_dia is not None:
-                            # Entrada (col C / r[2]), Salida (col D / r[3]), Obra (col G / r[6])
-                            ent = str(r[2]).strip() if len(r) > 2 else ""
-                            sal = str(r[3]).strip() if len(r) > 3 else ""
-                            ob = str(r[6]).strip() if len(r) > 6 else ""
+                            # Examinar todas las celdas de Entrada, Salida, Horas y Obra (columnas C a G)
+                            celdas_utiles = [str(c).strip() for c in r[2:7] if str(c).strip() and str(c).strip() != "None"]
                             
-                            fila_str = f"{ent} {sal} {ob}".upper()
-                            marcas_validas = ["VACACIONES", "PERMISO", "LICENCIA", "NO TRABAJA", "FERIADO", "-"]
-                            es_especial = any(m in fila_str for m in marcas_validas)
+                            # Si alguna celda tiene contenido (números, horas, '0:00', '-', palabras como 'VACACIONES', 'PERMISO', 'NO TRABAJA', obra, etc.)
+                            tiene_registro = len(celdas_utiles) > 0
                             
-                            # Se considera registrado si hay obra o alguna hora cargada (incluso 0:00 o 8:00)
-                            tiene_registro = bool(ent or sal or ob) or es_especial
-                            
-                            # Identificador único para el día (si es día 31 inicial)
-                            clave_dia = "31_previo" if (n_dia == 31 and idx == 0) else str(n_dia)
+                            clave_dia = f"{n_dia}_{idx}" if (n_dia == 31 and idx == 0) else str(n_dia)
                             datos_trabajador[clave_dia] = tiene_registro
 
                     faltan = 0
                     for idx_f, f in enumerate(fechas_periodo):
-                        # Solo evaluar hasta la fecha de hoy
+                        # Solo evaluar los días transcurridos hasta hoy
                         if f > hoy: 
                             continue
                         
-                        clave_f = "31_previo" if (f.day == 31 and idx_f == 0) else str(f.day)
+                        clave_f = f"{f.day}_0" if (f.day == 31 and idx_f == 0) else str(f.day)
                         
-                        # Domingos y feriados no son obligatorios si no se trabajaron
+                        # Domingos y feriados no son obligatorios si están sin trabajar
                         if (f.weekday() == 6) or (f.strftime("%Y-%m-%d") in FERIADOS):
                             continue
                         
                         tiene_datos = datos_trabajador.get(clave_f, False)
                         
-                        # Sábado sin trabajar: después del lunes se asume que no laboró
+                        # Sábado sin trabajar pasado el lunes no cuenta como pendiente
                         if f.weekday() == 5 and f < hoy:
                             lunes_despues = f + timedelta(days=2)
                             if hoy >= lunes_despues and not tiene_datos:
@@ -1155,7 +1149,6 @@ else:
                             faltan += 1
                             
                 except Exception:
-                    # En caso de error de lectura de la hoja
                     faltan = sum(1 for f in fechas_periodo if f <= hoy and f.weekday() < 5 and f.strftime("%Y-%m-%d") not in FERIADOS)
 
                 if faltan == 0:
@@ -1391,7 +1384,7 @@ else:
                                 guardar_btn = st.form_submit_button("💾 Guardar Registro", use_container_width=True)
 
                             if guardar_btn:
-                                es_especial = inp_ob and inp_ob.strip().upper() in ["PERMISO", "NO TRABAJA"]
+                                es_especial = inp_ob and inp_ob.strip().upper() in ["PERMISO", "NO TRABAJA", "VACACIONES", "LICENCIA"]
                                 if not inp_ob:
                                     st.warning("⚠️ Debes seleccionar una Obra.")
                                 elif not es_especial and (inp_ent is None or inp_sal is None):
@@ -1531,7 +1524,7 @@ else:
                                 btn_borrar_edit = st.form_submit_button("🧹 Limpiar Registro", use_container_width=True)
 
                             if btn_guardar_edit:
-                                es_especial_edit = edit_ob and edit_ob.strip().upper() in ["PERMISO", "NO TRABAJA"]
+                                es_especial_edit = edit_ob and edit_ob.strip().upper() in ["PERMISO", "NO TRABAJA", "VACACIONES", "LICENCIA"]
                                 if not edit_ob:
                                     st.warning("⚠️ Debes seleccionar Obra.")
                                 elif not es_especial_edit and (edit_ent is None or edit_sal is None):
