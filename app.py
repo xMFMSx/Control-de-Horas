@@ -148,19 +148,23 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {{
     box-sizing: border-box !important;
 }}
 
-/* ==========================================================
-   CONTROL MANUAL DEL LOGIN CON PX
-   ========================================================== */
+/* --- CENTRADO GEOMÉTRICO EXACTO DEL LOGIN --- */
 .stApp:has(.login-wrapper) .block-container {{
     padding-top: 0 !important;
     padding-bottom: 0 !important;
+    height: 100vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
 }}
 
 .login-wrapper {{
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    align-items: center;
     width: 100%;
-    margin-top: 240px !important; /* <<< AQUÍ EDITAS LA ALTURA EN PX >>> (sube el número para bajarlo, baja el número para subirlo) */
 }}
 
 .login-wrapper div[data-testid="stForm"] {{
@@ -674,7 +678,7 @@ def generar_excel_mes(libro_actual, usuarios_dict, fechas_ciclo):
                         "ENTRADA": r[2] if len(r)>2 else "",
                         "SALIDA": r[3] if len(r)>3 else "",
                         "H.NORMAL": r[4] if len(r)>4 else "",
-                        "H.RECARGO": r[5] if len(r)>5ns,
+                        "H.RECARGO": r[5] if len(r)>5 else "",
                         "OBRA": r[6] if len(r)>6 else ""
                     })
                 df_t = pd.DataFrame(registros)
