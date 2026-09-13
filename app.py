@@ -350,8 +350,8 @@ div[data-testid="stPills"] button[aria-selected="true"] {{
     align-items: center !important;
     box-sizing: border-box !important;
     margin: 0 !important;
-    background-color: var(--bg-contenedor) !important;
-    border: 1px solid var(--borde-tenue) !important;
+    background-color: var(--bg-contenedor);
+    border: 1px solid var(--borde-tenue);
     border-top: none !important;
 }}
 
@@ -367,14 +367,14 @@ div[data-testid="stPills"] button[aria-selected="true"] {{
 }}
 
 .es-datos-6 {{ 
-    color: var(--texto-principal) !important; 
+    color: var(--texto-principal); 
     font-size: 0.78rem !important; 
     padding: 6px 8px !important;
     margin-bottom: -1px !important;
 }}
 
 .contenedor-tabla-6 > div {{
-    border-right: 1px solid var(--borde-tenue) !important;
+    border-right: 1px solid inherit;
     padding: 0 6px !important;
     display: flex !important;
     align-items: center !important;
@@ -1314,14 +1314,21 @@ else:
                     
                     es_festivo = iso_f in FERIADOS
                     
+                    # Colores de texto y fondo según el día
                     if es_festivo or w_day == 6:
-                        color_dia = "#8b5cf6"
+                        color_fila = "#a78bfa"  # Violeta claro
+                        bg_fila = "rgba(139, 92, 246, 0.15)"  # Fondo violeta traslúcido
+                        borde_fila = "rgba(139, 92, 246, 0.35)"
                         dia_txt = f"{d} (F)" if es_festivo else str(d)
                     elif w_day == 5:
-                        color_dia = "#3b82f6"
+                        color_fila = "#60a5fa"  # Azul claro
+                        bg_fila = "rgba(59, 130, 246, 0.15)"  # Fondo azul traslúcido
+                        borde_fila = "rgba(59, 130, 246, 0.35)"
                         dia_txt = str(d)
                     else:
-                        color_dia = "var(--texto-principal)"
+                        color_fila = "var(--texto-principal)"
+                        bg_fila = "var(--bg-contenedor)"
+                        borde_fila = "var(--borde-tenue)"
                         dia_txt = str(d)
 
                     ent_val = r["ENTRADA"].strip() if r["ENTRADA"].strip() else "&nbsp;"
@@ -1334,13 +1341,13 @@ else:
 
                     with c_fila:
                         st.markdown(f'''
-                        <div class="es-datos-6 contenedor-tabla-6">
-                            <div style="color: {color_dia}; font-weight: 700;">{dia_txt}</div>
-                            <div>{ent_val}</div>
-                            <div>{sal_val}</div>
-                            <div>{hn_val}</div>
-                            <div>{hr_val}</div>
-                            <div>{ob_val}</div>
+                        <div class="es-datos-6 contenedor-tabla-6" style="background-color: {bg_fila} !important; border-color: {borde_fila} !important; color: {color_fila} !important;">
+                            <div style="color: {color_fila} !important; font-weight: 700;">{dia_txt}</div>
+                            <div style="color: {color_fila} !important;">{ent_val}</div>
+                            <div style="color: {color_fila} !important;">{sal_val}</div>
+                            <div style="color: {color_fila} !important;">{hn_val}</div>
+                            <div style="color: {color_fila} !important;">{hr_val}</div>
+                            <div style="color: {color_fila} !important;">{ob_val}</div>
                         </div>
                         ''', unsafe_allow_html=True)
 
