@@ -759,6 +759,8 @@ if "modo_admin_activo" not in st.session_state:
     st.session_state.modo_admin_activo = False
 if "fecha_admin_simulada" not in st.session_state: 
     st.session_state["fecha_admin_simulada"] = None
+if "mostrar_horas_admin" not in st.session_state:
+    st.session_state["mostrar_horas_admin"] = True
 
 if "ciclo_inicio" not in st.session_state:
     st.session_state["ciclo_inicio"] = date(2026, 8, 31)
@@ -1023,14 +1025,19 @@ else:
                         obtener_resumen_individual_optimizado.clear()
                         st.rerun()
 
-        # 4. TABLA GENERAL DE PERSONAL CON HORAS ABREVIADAS
+        # 4. TABLA GENERAL DE PERSONAL CON OPCIÓN DE OCULTAR HORAS
         st.write("")
-        c_title_tab, c_btn_tab = st.columns([72, 28])
-        with c_title_tab:
-            st.markdown("**👥 Resumen General del Personal**")
-        with c_btn_tab:
+        st.markdown("**👥 Resumen General del Personal**")
+
+        c_btn_tab1, c_btn_tab2 = st.columns([50, 50])
+        with c_btn_tab1:
             if st.button("🔄 Actualizar Lista", use_container_width=True):
                 obtener_resumen_individual_optimizado.clear()
+                st.rerun()
+        with c_btn_tab2:
+            txt_toggle = "🙈 Ocultar Horas" if st.session_state["mostrar_horas_admin"] else "👁️ Ver Horas"
+            if st.button(txt_toggle, use_container_width=True):
+                st.session_state["mostrar_horas_admin"] = not st.session_state["mostrar_horas_admin"]
                 st.rerun()
 
         nombres_todos = tuple(info["nombre"] for info in usuarios_autorizados.values())
@@ -1056,13 +1063,11 @@ else:
                     num_dia = fechas_periodo[idx_r].day
 
                 if num_dia is not None:
-                    # Columnas C a G: Entrada, Salida, H.Extra, H.Recargo, Obra
                     celdas_registro = [str(c).strip() for c in r[2:7] if str(c).strip() and str(c).strip() not in ["None", "0:00:00"]]
                     if len(celdas_registro) > 0:
                         clave = "31_0" if (num_dia == 31 and idx_r == 0) else str(num_dia)
                         dias_con_registro_set.add(clave)
 
-                    # Suma de horas acumuladas en el ciclo
                     if len(r) > 4:
                         minutos_hn_total += extrae_minutos_texto(r[4])
                     if len(r) > 5:
@@ -1092,20 +1097,22 @@ else:
             else:
                 badge = f'<span style="color: #f87171; font-weight: 700;">{faltan} días pendientes</span>'
 
-            # Resumen de horas compacto
-            minutos_t_total = minutos_hn_total + minutos_hr_total
-            str_hn = minutos_a_hora_corta(minutos_hn_total)
-            str_hr = minutos_a_hora_corta(minutos_hr_total)
-            str_tot = minutos_a_hora_corta(minutos_t_total)
-            
-            badge_horas = f'<span style="font-size: 0.68rem; color: var(--texto-secundario); font-family: monospace; background-color: rgba(255,255,255,0.04); padding: 3px 6px; border-radius: 4px; border: 1px solid var(--borde); margin-right: 8px;">HN:{str_hn} | HR:{str_hr} | <b>T:{str_tot}</b></span>'
+            # Control de visualización de horas
+            if st.session_state["mostrar_horas_admin"]:
+                minutos_t_total = minutos_hn_total + minutos_hr_total
+                str_hn = minutos_a_hora_corta(minutos_hn_total)
+                str_hr = minutos_a_hora_corta(minutos_hr_total)
+                str_tot = minutos_a_hora_corta(minutos_t_total)
+                badge_horas = f'<span style="font-size: 0.68rem; color: var(--texto-secundario); font-family: monospace; background-color: rgba(255,255,255,0.04); padding: 3px 6px; border-radius: 4px; border: 1px solid var(--borde); margin-right: 8px;">HN:{str_hn} | HR:{str_hr} | <b>T:{str_tot}</b></span>'
+            else:
+                badge_horas = ""
 
-            # Cadena HTML limpia en una sola línea continua (evita el bloque de texto gris)
             fila_item = f'<div style="display:flex; justify-content:space-between; align-items:center; padding:9px 12px; border-bottom:1px solid var(--borde); background-color:var(--bg-contenedor); font-size:0.80rem;"><div style="color:var(--texto-principal); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:45%;">{nom}</div><div style="display:flex; align-items:center; justify-content:flex-end; gap:6px;">{badge_horas}{badge}</div></div>'
             filas_html_personal.append(fila_item)
 
         filas_unidas = "".join(filas_html_personal)
-        tabla_html = f'<div style="width:100%; border:1px solid var(--borde); border-radius:8px; overflow:hidden; margin-top:6px; box-sizing:border-box;"><div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background-color:var(--bg-encabezado); border-bottom:1px solid var(--borde); font-size:0.72rem; font-weight:700; color:var(--texto-secundario);"><div>TRABAJADOR</div><div>ESTADO DE REGISTRO & HORAS</div></div>{filas_unidas}</div>'
+        encabezado_derecho = "ESTADO DE REGISTRO & HORAS" if st.session_state["mostrar_horas_admin"] else "ESTADO DE REGISTRO"
+        tabla_html = f'<div style="width:100%; border:1px solid var(--borde); border-radius:8px; overflow:hidden; margin-top:6px; box-sizing:border-box;"><div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background-color:var(--bg-encabezado); border-bottom:1px solid var(--borde); font-size:0.72rem; font-weight:700; color:var(--texto-secundario);"><div>TRABAJADOR</div><div>{encabezado_derecho}</div></div>{filas_unidas}</div>'
         st.markdown(tabla_html, unsafe_allow_html=True)
 
         st.stop()
