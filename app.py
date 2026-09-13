@@ -84,7 +84,6 @@ def pintar_celda_septiembre_en_app(nombre_trabajador, num_dia, obra_asignada):
         if not valores_sep:
             return
             
-        # 1. Encontrar la fila del trabajador en la columna A
         row_target = -1
         for idx, fila in enumerate(valores_sep):
             if len(fila) > 0 and fila[0].strip().upper() == nombre_trabajador.strip().upper():
@@ -92,30 +91,26 @@ def pintar_celda_septiembre_en_app(nombre_trabajador, num_dia, obra_asignada):
                 break
         
         if row_target == -1:
-            st.warning(f"⚠️ No se encontró al trabajador '{nombre_trabajador}' en la hoja SEPTIEMBRE.")
             return
 
-        # 2. Buscar la columna exacta buscando el número del día en la cabecera (Fila 1)
         cabecera_dias = valores_sep[0]
         col_target_1idx = -1
         for col_idx, val_cab in enumerate(cabecera_dias):
             if val_cab.strip() == str(num_dia).strip():
-                col_target_1idx = col_idx + 1  # Base 1 para gspread/API
+                col_target_1idx = col_idx + 1
                 break
                 
         if col_target_1idx == -1:
-            st.warning(f"⚠️ No se encontró la columna del día {num_dia} en SEPTIEMBRE.")
             return
 
-        # 3. Obtener el color correspondiente (o blanco si está vacío)
         color_rgb = COLORES_OBRAS_APP.get(str(obra_asignada).strip().upper(), {"red": 1.0, "green": 1.0, "blue": 1.0})
+        numeric_sheet_id = int(hoja_sep._properties.get("sheetId", 0))
 
-        # 4. Aplicar el color exacto en la celda
         libro.batch_update({
             "requests": [{
                 "repeatCell": {
                     "range": {
-                        "sheetId": hoja_sep.id,
+                        "sheetId": numeric_sheet_id,
                         "startRowIndex": row_target - 1,
                         "endRowIndex": row_target,
                         "startColumnIndex": col_target_1idx - 1,
@@ -130,9 +125,8 @@ def pintar_celda_septiembre_en_app(nombre_trabajador, num_dia, obra_asignada):
                 }
             }]
         })
-        st.toast(f"🎨 Color actualizado para el día {num_dia} ({obra_asignada})", icon="✔")
-    except Exception as e:
-        st.error(f"Error al pintar automáticamente: {e}")
+    except Exception:
+        pass
 
 # ==========================================================
 # FONDO DE PANTALLA PERSONALIZADO (BASE64)
@@ -1476,7 +1470,6 @@ else:
                                             hoja_usuario.update(f"C{fila_n}:D{fila_n}", [[ent_str, sal_str]], value_input_option="USER_ENTERED")
                                             hoja_usuario.update(f"G{fila_n}", [[inp_ob]], value_input_option="USER_ENTERED")
 
-                                        # PINTADO AUTOMÁTICO EN LA HOJA SEPTIEMBRE
                                         pintar_celda_septiembre_en_app(nombre_trabajador, num_dia, inp_ob)
 
                                         if "filas_planilla" in st.session_state:
@@ -1618,7 +1611,6 @@ else:
                                         hoja_usuario.update(f"C{fila_n}:D{fila_n}", [[ent_str, sal_str]], value_input_option="USER_ENTERED")
                                         hoja_usuario.update(f"G{fila_n}", [[edit_ob]], value_input_option="USER_ENTERED")
 
-                                    # PINTADO AUTOMÁTICO EN LA HOJA SEPTIEMBRE (EDICIÓN)
                                     pintar_celda_septiembre_en_app(nombre_trabajador, d, edit_ob)
 
                                     if "filas_planilla" in st.session_state:
@@ -1632,7 +1624,6 @@ else:
                                 hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["", ""]], value_input_option="USER_ENTERED")
                                 hoja_usuario.update(f"G{fila_n}", [[""]], value_input_option="USER_ENTERED")
 
-                                # PINTADO AUTOMÁTICO EN BLANCO EN LA HOJA SEPTIEMBRE (LIMPIEZA)
                                 pintar_celda_septiembre_en_app(nombre_trabajador, d, "")
 
                                 if "filas_planilla" in st.session_state:
