@@ -247,66 +247,29 @@ div[data-testid="stPopoverBody"] {{
     color: var(--texto-principal) !important;
 }}
 
-/* BOTONES EN FILA FIJA (ESTILO PESTAÑAS) */
-div[data-testid="stHorizontalBlock"]:has(.admin-btn-row-marker) {{
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    gap: 8px !important;
-    width: 100% !important;
-    margin-bottom: 4px !important;
-}}
-
-@media (max-width: 9999px) {{
-    div[data-testid="stHorizontalBlock"]:has(.admin-btn-row-marker) {{
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-    }}
-    div[data-testid="stHorizontalBlock"]:has(.admin-btn-row-marker) > div[data-testid="column"] {{
-        flex: 1 1 50% !important;
-        width: 50% !important;
-        min-width: 0 !important;
-    }}
-}}
-
-div[data-testid="stHorizontalBlock"]:has(.admin-btn-row-marker) button {{
-    width: 100% !important;
-    background-color: var(--bg-contenedor) !important;
-    border: 1px solid var(--borde) !important;
-    color: var(--texto-principal) !important;
-    font-weight: 700 !important;
-    font-size: clamp(0.70rem, 2vw, 0.82rem) !important;
-    padding: 0.55rem 0.2rem !important;
-    border-radius: 0.5rem !important;
-    text-align: center !important;
-    box-sizing: border-box !important;
-    white-space: nowrap !important;
-}}
-
-div[data-testid="stHorizontalBlock"]:has(.admin-btn-row-marker) button:hover {{
-    border-color: var(--color-acento) !important;
-}}
-
-/* Navegador Superior */
+/* ==========================================================
+   ESTILO NATIVO PILLS / SEGMENTED CONTROL (HORIZONTALES)
+   ========================================================== */
 div[data-testid="stSegmentedControl"],
-div[data-testid="stPills"] {{
+div[data-testid="stPills"] {
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     width: 100% !important;
-    gap: 6px !important;
-}}
+    gap: 8px !important;
+}
+
 div[data-testid="stSegmentedControl"] > div,
-div[data-testid="stPills"] > div {{
+div[data-testid="stPills"] > div {
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     width: 100% !important;
-    gap: 6px !important;
-}}
+    gap: 8px !important;
+}
+
 div[data-testid="stSegmentedControl"] button,
-div[data-testid="stPills"] button {{
+div[data-testid="stPills"] button {
     flex: 1 1 50% !important;
     width: 50% !important;
     min-width: 0 !important;
@@ -314,18 +277,20 @@ div[data-testid="stPills"] button {{
     border: 1px solid var(--borde) !important;
     color: var(--texto-principal) !important;
     font-weight: 700 !important;
-    font-size: clamp(0.68rem, 1.9vw, 0.80rem) !important;
+    font-size: clamp(0.70rem, 2vw, 0.82rem) !important;
     padding: 0.55rem 0.2rem !important;
-    border-radius: 0.5rem !important;
+    border-radius: 9999px !important;
     text-align: center !important;
     box-sizing: border-box !important;
-}}
+    white-space: nowrap !important;
+}
+
 div[data-testid="stSegmentedControl"] button[aria-selected="true"],
-div[data-testid="stPills"] button[aria-selected="true"] {{
-    background-color: var(--color-acento) !important;
-    border: 1px solid var(--color-acento) !important;
-    color: #ffffff !important;
-}}
+div[data-testid="stPills"] button[aria-selected="true"] {
+    background-color: var(--bg-contenedor) !important;
+    border: 1.5px solid var(--color-acento) !important;
+    color: var(--color-acento) !important;
+}
 
 .contenedor-tabla-6 {{
     display: grid !important;
@@ -568,7 +533,6 @@ def cargar_obras():
     except Exception:
         return ["LOTE 1", "LOTE 4", "LOTE 11", "MONTESSORI", "PERMISO", "NO TRABAJA", "VACACIONES", "LICENCIA"]
 
-# Lectura directa protegida
 @st.cache_data(ttl=300, show_spinner=False)
 def obtener_resumen_individual_optimizado(nombres_tupla):
     libro = conectar_libro()
@@ -802,7 +766,7 @@ if "modo_admin_activo" not in st.session_state:
 if "fecha_admin_simulada" not in st.session_state: 
     st.session_state["fecha_admin_simulada"] = None
 if "mostrar_horas_admin" not in st.session_state:
-    st.session_state["mostrar_horas_admin"] = True
+    st.session_state["mostrar_horas_admin"] = False
 
 if "ciclo_inicio" not in st.session_state:
     st.session_state["ciclo_inicio"] = date(2026, 8, 31)
@@ -1067,21 +1031,26 @@ else:
                         obtener_resumen_individual_optimizado.clear()
                         st.rerun()
 
-        # 4. TABLA GENERAL DE PERSONAL (BOTONES HORIZONTALES)
+        # 4. TABLA GENERAL DE PERSONAL (BOTONES CON PILLS IDÉNTICO AL NAVEGADOR SUPERIOR)
         st.write("")
         st.markdown("**👥 Resumen General del Personal**")
 
-        st.markdown('<span class="admin-btn-row-marker"></span>', unsafe_allow_html=True)
-        c_btn_tab1, c_btn_tab2 = st.columns(2)
-        with c_btn_tab1:
-            if st.button("🔄 Actualizar Lista", use_container_width=True):
-                obtener_resumen_individual_optimizado.clear()
-                st.rerun()
-        with c_btn_tab2:
-            txt_toggle = "🙈 Ocultar Horas" if st.session_state["mostrar_horas_admin"] else "👁️ Ver Horas"
-            if st.button(txt_toggle, use_container_width=True):
-                st.session_state["mostrar_horas_admin"] = not st.session_state["mostrar_horas_admin"]
-                st.rerun()
+        opc_horas_label = "🙈 Ocultar Horas" if st.session_state["mostrar_horas_admin"] else "👁️ Ver Horas"
+        
+        accion_elegida = st.pills(
+            "",
+            options=["🔄 Actualizar Lista", opc_horas_label],
+            default=None,
+            label_visibility="collapsed",
+            key="pills_controles_admin"
+        )
+
+        if accion_elegida == "🔄 Actualizar Lista":
+            obtener_resumen_individual_optimizado.clear()
+            st.rerun()
+        elif accion_elegida == opc_horas_label:
+            st.session_state["mostrar_horas_admin"] = not st.session_state["mostrar_horas_admin"]
+            st.rerun()
 
         nombres_todos = tuple(info["nombre"] for info in usuarios_autorizados.values())
         mapa_datos_personal = obtener_resumen_individual_optimizado(nombres_todos)
