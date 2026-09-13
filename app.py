@@ -10,7 +10,6 @@ import time as time_lib
 import urllib.parse
 from io import BytesIO
 import os
-import requests
 
 try:
     from reportlab.lib import colors
@@ -761,8 +760,8 @@ if "fecha_admin_simulada" not in st.session_state:
     st.session_state["fecha_admin_simulada"] = None
 if "mostrar_horas_admin" not in st.session_state:
     st.session_state["mostrar_horas_admin"] = False
-if "url_descarga_directa" not in st.session_state:
-    st.session_state["url_descarga_directa"] = None
+if "ver_pdf_embebido" not in st.session_state:
+    st.session_state["ver_pdf_embebido"] = False
 
 if "ciclo_inicio" not in st.session_state:
     st.session_state["ciclo_inicio"] = date(2026, 8, 31)
@@ -1514,7 +1513,7 @@ else:
             st.markdown("---")
 
             # ==========================================================
-            # DESCARGA DIRECTA AUTOMÁTICA CON ENLACE REAL DE INTERNET
+            # BOTÓN OFICIAL DE DESCARGA DE STREAMLIT (NATIVO EN APK)
             # ==========================================================
             if REPORTLAB_DISPONIBLE:
                 pdf_bytes = generar_pdf_horas(
@@ -1527,46 +1526,10 @@ else:
                 if pdf_bytes:
                     nombre_archivo_pdf = f"Horas_{nombre_trabajador.replace(' ', '_')}_{fin_mes.strftime('%Y%m')}.pdf"
 
-                    col_btn_dl, col_btn_res = st.columns([75, 25])
-                    with col_btn_dl:
-                        if not st.session_state["url_descarga_directa"]:
-                            if st.button("📄 PREPARAR DESCARGA PDF", use_container_width=True):
-                                with st.spinner("Generando archivo..."):
-                                    try:
-                                        files = {'file': (nombre_archivo_pdf, pdf_bytes, 'application/pdf')}
-                                        res = requests.post('https://tmpfiles.org/api/v1/upload', files=files, timeout=10)
-                                        if res.status_code == 200:
-                                            datos = res.json()
-                                            url_raw = datos.get("data", {}).get("url", "")
-                                            if "tmpfiles.org/" in url_raw:
-                                                st.session_state["url_descarga_directa"] = url_raw.replace("tmpfiles.org/", "tmpfiles.org/dl/")
-                                                st.rerun()
-                                    except Exception:
-                                        st.error("Error al preparar la descarga.")
-                        else:
-                            url_real = st.session_state["url_descarga_directa"]
-                            st.markdown(f"""
-                                <a href="{url_real}" target="_blank" style="
-                                    display: flex;
-                                    align-items: center;
-                                    justify-content: center;
-                                    width: 100%;
-                                    height: 46px;
-                                    background-color: #1a1e29;
-                                    border: 2px solid #ff4b4b;
-                                    color: #ffffff;
-                                    font-weight: 700;
-                                    font-size: 0.85rem;
-                                    border-radius: 8px;
-                                    text-decoration: none;
-                                    box-sizing: border-box;
-                                ">
-                                    📥 DESCARGAR REPORTE PDF
-                                </a>
-                            """, unsafe_allow_html=True)
-
-                    with col_btn_res:
-                        if st.session_state["url_descarga_directa"]:
-                            if st.button("🔄", help="Actualizar archivo"):
-                                st.session_state["url_descarga_directa"] = None
-                                st.rerun()
+                    st.download_button(
+                        label="📄 DESCARGAR HORAS DEL MES EN PDF",
+                        data=pdf_bytes,
+                        file_name=nombre_archivo_pdf,
+                        mime="application/pdf",
+                        use_container_width=True
+                    )
