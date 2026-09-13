@@ -556,17 +556,31 @@ def conectar_libro():
                 raise e
             time_lib.sleep(1.5)
 
+def buscar_hoja_tolerante(libro, nombre_buscado):
+    """Busca una hoja coincidiendo sin importar espacios extra o mayúsculas."""
+    nom_limpio = " ".join(nombre_buscado.strip().upper().split())
+    for ws in libro.worksheets():
+        ws_limpio = " ".join(ws.title.strip().upper().split())
+        if nom_limpio == ws_limpio:
+            return ws
+    # Búsqueda parcial si coincide el inicio
+    for ws in libro.worksheets():
+        ws_limpio = " ".join(ws.title.strip().upper().split())
+        if nom_limpio in ws_limpio or ws_limpio in nom_limpio:
+            return ws
+    raise gspread.exceptions.WorksheetNotFound(nombre_buscado)
+
 def obtener_hoja_trabajador(nombre_trabajador: str):
     clave = f"hoja_{nombre_trabajador}"
     if clave in st.session_state:
         return st.session_state[clave]
     try:
         libro = conectar_libro()
-        hoja = libro.worksheet(nombre_trabajador)
+        hoja = buscar_hoja_tolerante(libro, nombre_trabajador)
     except Exception:
         conectar_libro.clear()
         libro = conectar_libro()
-        hoja = libro.worksheet(nombre_trabajador)
+        hoja = buscar_hoja_tolerante(libro, nombre_trabajador)
     st.session_state[clave] = hoja
     return hoja
 
@@ -665,7 +679,7 @@ def generar_excel_mes(libro_actual, usuarios_dict, fechas_ciclo):
         for correo_u, datos_u in usuarios_dict.items():
             nom = datos_u["nombre"]
             try:
-                h_trab = libro_actual.worksheet(nom)
+                h_trab = buscar_hoja_tolerante(libro_actual, nom)
                 vals = h_trab.get_all_values()[1:]
                 thn, thr = 0, 0
                 for idx, r in enumerate(vals):
@@ -702,7 +716,7 @@ def generar_excel_mes(libro_actual, usuarios_dict, fechas_ciclo):
         for correo_u, datos_u in usuarios_dict.items():
             nom = datos_u["nombre"]
             try:
-                h_trab = libro_actual.worksheet(nom)
+                h_trab = buscar_hoja_tolerante(libro_actual, nom)
                 filas = h_trab.get_all_values()[1:]
                 registros = []
                 for idx, r in enumerate(filas):
@@ -743,7 +757,7 @@ def reiniciar_hojas_nuevo_ciclo(f_inicio, f_fin, usuarios_dict):
     for correo_u, datos_u in usuarios_dict.items():
         nom = datos_u["nombre"]
         try:
-            h = libro.worksheet(nom)
+            h = buscar_hoja_tolerante(libro, nom)
             h.batch_clear(["A2:G40"])
             h.update(f"A2:G{1 + len(nuevas_filas)}", nuevas_filas, value_input_option="USER_ENTERED")
         except Exception:
@@ -940,17 +954,16 @@ else:
 
         st.caption("Control global, obras, personal, cierre de ciclos y consolidado.")
 
-        # --- SECCIÓN 1: GESTIÓN DE OBRAS Y PERSONAL (NUEVO) ---
+        # --- SECCIÓN 1: GESTIÓN DE OBRAS Y PERSONAL ---
         with st.container(border=True):
             st.markdown("**🏗️ Gestión de Personal y Obras**")
             pestana_trab, pestana_obr = st.tabs(["👤 Agregar Trabajador", "🏗️ Agregar Obra"])
 
-            # SUBPESTAÑA: AGREGAR TRABAJADOR
             with pestana_trab:
                 with st.form("form_nuevo_trabajador"):
                     col_t1, col_t2 = st.columns(2)
                     with col_t1:
-                        nuevo_nombre = st.text_input("Nombre Completo (Ej: JUAN PÉREZ)")
+                        nuevo_nombre = st.text_input("Nombre Completo (Ej: JUAN PEREZ)")
                         nuevo_correo = st.text_input("Correo Electrónico (Gmail)")
                     with col_t2:
                         nuevo_pass = st.text_input("Contraseña Temporal", type="password")
@@ -974,7 +987,6 @@ else:
                                     hoja_t = libro_admin.worksheet("TRABAJADORES")
                                     hoja_t.append_row([nombre_limpio, correo_limpio, pass_limpio, nuevo_rol])
 
-                                    # Crear hoja individual con el ciclo activo
                                     try:
                                         hoja_nueva = libro_admin.add_worksheet(title=nombre_limpio, rows=45, cols=8)
                                         hoja_nueva.append_row(["DÍA_TEXTO", "DÍA", "ENTRADA", "SALIDA", "HORA EXTRA", "HORA RECARGO", "OBRA"])
@@ -996,7 +1008,6 @@ else:
                                 except Exception as err_trab:
                                     st.error(f"Error al registrar trabajador: {err_trab}")
 
-            # SUBPESTAÑA: AGREGAR OBRA
             with pestana_obr:
                 with st.form("form_nueva_obra"):
                     col_o1, col_o2 = st.columns([70, 30])
@@ -1100,7 +1111,7 @@ else:
             for correo_w, info_w in usuarios_autorizados.items():
                 nom = info_w["nombre"]
                 try:
-                    h_w = libro_admin.worksheet(nom)
+                    h_w = buscar_hoja_tolerante(libro_admin, nom)
                     vals = h_w.get_all_values()[1:]
                     
                     datos_trabajador = {}
@@ -1110,21 +1121,30 @@ else:
                         txt_dia = str(r[1]).strip() if len(r) > 1 else ""
                         n_dia = int(txt_dia) if txt_dia.isdigit() else None
                         if n_dia is not None:
+                            # Se evalúan columnas C (Entrada), D (Salida) y G (Obra)
                             contenido_fila = " ".join([str(celda).strip() for celda in r[2:] if str(celda).strip()]).upper()
                             marcas_validas = ["VACACIONES", "PERMISO", "LICENCIA", "NO TRABAJA", "FERIADO", "-"]
                             es_especial = any(m in contenido_fila for m in marcas_validas)
                             tiene_registro = bool(len(contenido_fila) > 0)
-                            datos_trabajador[n_dia] = tiene_registro or es_especial
+                            
+                            # Si es día 31 se mapea como '31_previo' para no confundir con meses de 31 días
+                            clave_dia = "31_previo" if n_dia == 31 and inicio_mes.day == 31 and idx == 0 else n_dia
+                            datos_trabajador[clave_dia] = tiene_registro or es_especial
                     
                     faltan = 0
                     for f in fechas_periodo:
                         if f > hoy: 
                             continue
-                        n_dia = f.day
+                        
+                        clave_f = "31_previo" if (f.day == 31 and f == inicio_mes) else f.day
+                        
+                        # Domingos y feriados no suman pendientes si están vacíos
                         if (f.weekday() == 6) or (f.strftime("%Y-%m-%d") in FERIADOS):
                             continue
                         
-                        tiene_datos = datos_trabajador.get(n_dia, False)
+                        tiene_datos = datos_trabajador.get(clave_f, False)
+                        
+                        # Sábado sin trabajar pasado el lunes no es pendiente obligatorio
                         if f.weekday() == 5 and f < hoy:
                             lunes_despues = f + timedelta(days=2)
                             if hoy >= lunes_despues and not tiene_datos:
