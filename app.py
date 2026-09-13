@@ -149,6 +149,20 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {{
 }}
 
 /* ==========================================================
+   TRADUCCIÓN DE INSTRUCCIÓN ENTER AL ESPAÑOL
+   ========================================================== */
+div[data-testid="InputInstructions"] {{
+    font-size: 0 !important;
+}}
+
+div[data-testid="InputInstructions"]::after {{
+    content: "Presiona Enter para enviar" !important;
+    font-size: 0.72rem !important;
+    color: var(--texto-secundario) !important;
+    opacity: 0.8 !important;
+}}
+
+/* ==========================================================
    CONTROL MANUAL DEL LOGIN CON PX
    ========================================================== */
 .stApp:has(.login-wrapper) .block-container {{
