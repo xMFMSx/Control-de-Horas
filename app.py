@@ -86,7 +86,7 @@ def pintar_celda_septiembre_en_app(nombre_trabajador, num_dia, obra_asignada):
             
         row_target = -1
         for idx, fila in enumerate(valores_sep):
-            if len(fila) > 0 and fila[0].strip().upper() == nombre_trabajador.strip().upper():
+            if len(fila) > 0 and str(fila[0]).strip().upper() == str(nombre_trabajador).strip().upper():
                 row_target = idx + 1
                 break
         
@@ -96,7 +96,7 @@ def pintar_celda_septiembre_en_app(nombre_trabajador, num_dia, obra_asignada):
         cabecera_dias = valores_sep[0]
         col_target_1idx = -1
         for col_idx, val_cab in enumerate(cabecera_dias):
-            if val_cab.strip() == str(num_dia).strip():
+            if str(val_cab).strip() == str(num_dia).strip():
                 col_target_1idx = col_idx + 1
                 break
                 
@@ -125,8 +125,8 @@ def pintar_celda_septiembre_en_app(nombre_trabajador, num_dia, obra_asignada):
                 }
             }]
         })
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"Error en pintado automático: {e}")
 
 # ==========================================================
 # FONDO DE PANTALLA PERSONALIZADO (BASE64)
