@@ -613,7 +613,6 @@ def validar_usuario(correo_ingresado, password_ingresada):
     except Exception:
         return False, None, None
 
-# Generador Excel
 def generar_excel_mes(libro_actual, usuarios_dict, fechas_ciclo):
     if not OPENPYXL_DISPONIBLE:
         return None
@@ -734,7 +733,7 @@ def generar_pdf_horas(nombre_t, reg_tabla, tot_hn_str, tot_hr_str, periodo_str):
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#1a1e29")),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 9),
+        ('FONTSIZE', (0, 0), enlargement=None),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('ALIGN', (5, 1), (5, -1), 'LEFT'),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor("#cbd5e0")),
@@ -1050,10 +1049,16 @@ else:
                         obtener_resumen_todos_trabajadores.clear()
                         st.rerun()
 
-        # 4. TABLA GENERAL DE PERSONAL (CÁLCULO EXACTO E INMEDIATO)
+        # 4. TABLA GENERAL DE PERSONAL CON BOTÓN DE ACTUALIZACIÓN RÁPIDA
         st.write("")
-        st.markdown("**👥 Resumen General del Personal**")
-        
+        c_title_tab, c_btn_tab = st.columns([72, 28])
+        with c_title_tab:
+            st.markdown("**👥 Resumen General del Personal**")
+        with c_btn_tab:
+            if st.button("🔄 Actualizar Lista", use_container_width=True):
+                obtener_resumen_todos_trabajadores.clear()
+                st.rerun()
+
         nombres_todos = [info["nombre"] for info in usuarios_autorizados.values()]
         datos_todas_hojas = obtener_resumen_todos_trabajadores(tuple(nombres_todos))
 
@@ -1109,7 +1114,6 @@ else:
         tabla_html = f'<div style="width:100%;border:1px solid var(--borde);border-radius:8px;overflow:hidden;margin-top:6px;box-sizing:border-box;"><div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background-color:var(--bg-encabezado);border-bottom:1px solid var(--borde);font-size:0.72rem;font-weight:700;color:var(--texto-secundario);"><div>TRABAJADOR</div><div>ESTADO DE REGISTRO</div></div>{filas_unidas}</div>'
         st.markdown(tabla_html, unsafe_allow_html=True)
 
-        # Cierra completamente la vista de administrador para no renderizar la pantalla del trabajador
         st.stop()
 
     # RUTA 3: VISTA DEL TRABAJADOR / PLANILLA DE REGISTRO
