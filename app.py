@@ -148,23 +148,19 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {{
     box-sizing: border-box !important;
 }}
 
-/* --- CENTRADO GEOMÉTRICO EXACTO DEL LOGIN --- */
+/* ==========================================================
+   CONTROL MANUAL DEL LOGIN CON PX
+   ========================================================== */
 .stApp:has(.login-wrapper) .block-container {{
     padding-top: 0 !important;
     padding-bottom: 0 !important;
-    height: 100vh !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    align-items: center !important;
 }}
 
 .login-wrapper {{
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
     width: 100%;
+    margin-top: 240px !important; /* <<< AQUÍ EDITAS LA ALTURA EN PX >>> (sube el número para bajarlo, baja el número para subirlo) */
 }}
 
 .login-wrapper div[data-testid="stForm"] {{
