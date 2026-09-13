@@ -75,10 +75,12 @@ COLORES_OBRAS_APP = {
     "LICENCIA": {"red": 0.95, "green": 0.50, "blue": 0.50},
 }
 
+FERIADOS = ["2026-09-18", "2026-09-19", "2026-09-20"]
+
 def pintar_celda_especifica_septiembre(nombre_trabajador, num_dia, obra_asignada):
     try:
         libro = conectar_libro()
-        hoja_sep = libro.worksheet("SEPTIEMBRE")
+        hoja_sep = libro.worksheet(nombre_trabajador)
         valores_sep = hoja_sep.get_all_values()
         
         if not valores_sep:
@@ -86,22 +88,14 @@ def pintar_celda_especifica_septiembre(nombre_trabajador, num_dia, obra_asignada
             
         row_target = -1
         for idx, fila in enumerate(valores_sep):
-            if len(fila) > 0 and str(fila[0]).strip().upper() == str(nombre_trabajador).strip().upper():
+            if len(fila) > 1 and str(fila[1]).strip() == str(num_dia).strip():
                 row_target = idx + 1
                 break
         
         if row_target == -1:
             return
 
-        cabecera_dias = valores_sep[0]
-        col_target_1idx = -1
-        for col_idx, val_cab in enumerate(cabecera_dias):
-            if str(val_cab).strip() == str(num_dia).strip():
-                col_target_1idx = col_idx + 1
-                break
-                
-        if col_target_1idx == -1:
-            return
+        col_target_1idx = 7 # Columna G (Obra)
 
         obra_limpia = str(obra_asignada).strip().upper()
         color_rgb = None
@@ -665,7 +659,6 @@ def obtener_resumen_individual_optimizado(nombres_tupla):
         
     return mapa_datos
 
-FERIADOS = ["2026-09-18", "2026-09-19", "2026-09-20"]
 DIAS_MAP = {
     0: "LUNES", 1: "MARTES", 2: "MIÉRCOLES", 3: "JUEVES",
     4: "VIERNES", 5: "SÁBADO", 6: "DOMINGO"
@@ -1067,13 +1060,51 @@ else:
                                     time_lib.sleep(1.2)  # Pausa para evitar error 429
                                     
                                     nuevas_filas = []
+                                    requests_pintar = []
+                                    numeric_sheet_id = int(hoja_nueva._properties.get("sheetId", 0))
+
                                     for i in range(delta_dias):
                                         f = inicio_mes + timedelta(days=i)
                                         nom_d = DIAS_MAP[f.weekday()]
                                         num_d = str(f.day)
                                         nuevas_filas.append([nom_d, num_d, "", "", "", "", ""])
+
+                                        # Determinar color según día (Sábado, Domingo o Feriado)
+                                        f_iso = f.strftime("%Y-%m-%d")
+                                        color_rgb = None
+                                        if f.weekday() == 6 or f_iso in FERIADOS:  # Domingo o Feriado (Violeta)
+                                            color_rgb = {"red": 0.88, "green": 0.80, "blue": 0.98}
+                                        elif f.weekday() == 5:  # Sábado (Azul)
+                                            color_rgb = {"red": 0.82, "green": 0.90, "blue": 0.98}
+
+                                        if color_rgb:
+                                            requests_pintar.append({
+                                                "repeatCell": {
+                                                    "range": {
+                                                        "sheetId": numeric_sheet_id,
+                                                        "startRowIndex": 1 + i,
+                                                        "endRowIndex": 2 + i,
+                                                        "startColumnIndex": 0,
+                                                        "endColumnIndex": 7
+                                                    },
+                                                    "cell": {
+                                                        "userEnteredFormat": {
+                                                            "backgroundColor": color_rgb
+                                                        }
+                                                    },
+                                                    "fields": "userEnteredFormat.backgroundColor"
+                                                }
+                                            })
                                     
                                     hoja_nueva.update(f"A2:G{1 + len(nuevas_filas)}", nuevas_filas, value_input_option="USER_ENTERED")
+                                    time_lib.sleep(1.2)
+
+                                    if requests_pintar:
+                                        libro_admin.batch_update({"requests": requests_pintar})
+                                        time_lib.sleep(1.2)
+
+                                    # Proteger la hoja (candado abajo) permitiendo edición protegida
+                                    hoja_nueva.protect()
                                 except Exception:
                                     pass
 
