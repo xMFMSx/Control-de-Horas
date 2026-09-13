@@ -82,8 +82,10 @@ def pintar_celda_septiembre_en_app(nombre_trabajador, num_dia, obra_asignada):
         valores_sep = hoja_sep.get_all_values()
         
         if not valores_sep:
+            st.warning("⚠️ La hoja SEPTIEMBRE está vacía.")
             return
             
+        # 1. Encontrar la fila del trabajador
         row_target = -1
         for idx, fila in enumerate(valores_sep):
             if len(fila) > 0 and str(fila[0]).strip().upper() == str(nombre_trabajador).strip().upper():
@@ -91,8 +93,10 @@ def pintar_celda_septiembre_en_app(nombre_trabajador, num_dia, obra_asignada):
                 break
         
         if row_target == -1:
+            st.warning(f"⚠️ No se encontró al trabajador '{nombre_trabajador}' en la hoja SEPTIEMBRE.")
             return
 
+        # 2. Buscar la columna del día en la cabecera
         cabecera_dias = valores_sep[0]
         col_target_1idx = -1
         for col_idx, val_cab in enumerate(cabecera_dias):
@@ -101,11 +105,14 @@ def pintar_celda_septiembre_en_app(nombre_trabajador, num_dia, obra_asignada):
                 break
                 
         if col_target_1idx == -1:
+            st.warning(f"⚠️ No se encontró la columna del día {num_dia} en la cabecera.")
             return
 
+        # 3. Obtener el color
         color_rgb = COLORES_OBRAS_APP.get(str(obra_asignada).strip().upper(), {"red": 1.0, "green": 1.0, "blue": 1.0})
         numeric_sheet_id = int(hoja_sep._properties.get("sheetId", 0))
 
+        # 4. Enviar solicitud
         libro.batch_update({
             "requests": [{
                 "repeatCell": {
@@ -126,7 +133,7 @@ def pintar_celda_septiembre_en_app(nombre_trabajador, num_dia, obra_asignada):
             }]
         })
     except Exception as e:
-        print(f"Error en pintado automático: {e}")
+        st.error(f"❌ Error al pintar automáticamente: {e}")
 
 # ==========================================================
 # FONDO DE PANTALLA PERSONALIZADO (BASE64)
