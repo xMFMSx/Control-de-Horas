@@ -105,11 +105,32 @@ def pintar_celda_especifica_septiembre(nombre_trabajador, num_dia, obra_asignada
         if col_target_1idx == -1:
             return
 
-        # 3. Obtener el color de la obra (si está vacía o limpia, se pone blanco)
+        # 3. Buscar el color exacto consultando la hoja OBRAS o el diccionario de colores
         obra_limpia = str(obra_asignada).strip().upper()
-        if obra_limpia and obra_limpia in COLORES_OBRAS_APP:
-            color_rgb = COLORES_OBRAS_APP[obra_limpia]
-        else:
+        color_rgb = None
+
+        if obra_limpia:
+            # Primero buscamos en el diccionario directo
+            color_rgb = COLORES_OBRAS_APP.get(obra_limpia)
+            
+            # Si no está directo, consultamos la hoja OBRAS para ver su color de fila
+            if not color_rgb:
+                try:
+                    hoja_obras = libro.worksheet("OBRAS")
+                    filas_obras = hoja_obras.get_all_values()[1:]
+                    for f_obra in filas_obras:
+                        if len(f_obra) >= 2:
+                            sigla_o = f_obra[0].strip().upper()
+                            nombre_o = f_obra[1].strip().upper()
+                            if obra_limpia == sigla_o or obra_limpia == nombre_o:
+                                # Buscar color por su sigla o nombre asociado
+                                color_rgb = COLORES_OBRAS_APP.get(sigla_o, COLORES_OBRAS_APP.get(nombre_o))
+                                break
+                except Exception:
+                    pass
+
+        # Si aún no tiene color asignado (ej: celda vacía o limpiada), se deja blanco
+        if not color_rgb:
             color_rgb = {"red": 1.0, "green": 1.0, "blue": 1.0}
 
         numeric_sheet_id = int(hoja_sep._properties.get("sheetId", 0))
