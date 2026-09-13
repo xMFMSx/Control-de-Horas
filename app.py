@@ -154,13 +154,10 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {{
     box-sizing: border-box !important;
 }}
 
-/* ==========================================================
-   TRADUCCIÓN DE INSTRUCCIÓN ENTER AL ESPAÑOL
-   ========================================================== */
+/* Traducción Enter */
 div[data-testid="InputInstructions"] {{
     font-size: 0 !important;
 }}
-
 div[data-testid="InputInstructions"]::after {{
     content: "Presiona Enter para enviar" !important;
     font-size: 0.72rem !important;
@@ -168,27 +165,22 @@ div[data-testid="InputInstructions"]::after {{
     opacity: 0.8 !important;
 }}
 
-/* ==========================================================
-   CONTROL MANUAL DEL LOGIN CON PX
-   ========================================================== */
+/* Login Wrapper */
 .stApp:has(.login-wrapper) .block-container {{
     padding-top: 0 !important;
     padding-bottom: 0 !important;
 }}
-
 .login-wrapper {{
     display: flex;
     flex-direction: column;
     width: 100%;
     margin-top: 307px !important;
 }}
-
 .login-wrapper div[data-testid="stForm"] {{
     width: 100% !important;
     max-width: 440px !important;
     margin: 0 auto !important;
 }}
-
 .login-wrapper div[data-testid="stFormSubmitButton"] > button {{
     width: 100% !important;
 }}
@@ -264,63 +256,6 @@ div[data-testid="stPopoverBody"] {{
     background-color: var(--bg-tarjeta) !important;
     border: 1px solid var(--borde) !important;
     color: var(--texto-principal) !important;
-}}
-
-/* Formatos de Panel Admin */
-div[data-testid="stHorizontalBlock"]:has(.admin-sim-marker) {{
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    align-items: flex-end !important;
-    gap: 8px !important;
-    width: 100% !important;
-}}
-
-@media (max-width: 9999px) {{
-    div[data-testid="stHorizontalBlock"]:has(.admin-sim-marker) {{
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-    }}
-    div[data-testid="stHorizontalBlock"]:has(.admin-sim-marker) > div[data-testid="column"]:nth-child(1) {{
-        flex: 1 1 54% !important;
-        width: 54% !important;
-    }}
-    div[data-testid="stHorizontalBlock"]:has(.admin-sim-marker) > div[data-testid="column"]:nth-child(2),
-    div[data-testid="stHorizontalBlock"]:has(.admin-sim-marker) > div[data-testid="column"]:nth-child(3) {{
-        flex: 1 1 23% !important;
-        width: 23% !important;
-    }}
-}}
-
-div[data-testid="stHorizontalBlock"]:has(.admin-ciclo-marker) {{
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    gap: 10px !important;
-    width: 100% !important;
-}}
-
-@media (max-width: 9999px) {{
-    div[data-testid="stHorizontalBlock"]:has(.admin-ciclo-marker) {{
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-    }}
-    div[data-testid="stHorizontalBlock"]:has(.admin-ciclo-marker) > div[data-testid="column"] {{
-        flex: 1 1 50% !important;
-        width: 50% !important;
-        min-width: 0 !important;
-    }}
-}}
-
-div[data-testid="stHorizontalBlock"]:has(.admin-sim-marker) button {{
-    height: 40px !important;
-    min-height: 40px !important;
-    padding: 0 4px !important;
-    font-size: 0.76rem !important;
-    font-weight: 700 !important;
-    white-space: nowrap !important;
 }}
 
 /* Navegador Superior */
@@ -409,14 +344,12 @@ div[data-testid="stPills"] button[aria-selected="true"] {{
 }}
 .contenedor-tabla-6 > div:last-child {{ border-right: none !important; }}
 
-/* --- ESTILOS DE FILA: SÁBADO, DOMINGO Y FERIADOS --- */
+/* Filas Sábado y Festivo */
 .fila-sabado {{
     background-color: rgba(30, 58, 138, 0.45) !important;
     border-color: rgba(96, 165, 250, 0.4) !important;
 }}
-.fila-sabado, 
-.fila-sabado div, 
-.fila-sabado p {{
+.fila-sabado, .fila-sabado div, .fila-sabado p {{
     color: #93c5fd !important;
     font-weight: 600 !important;
 }}
@@ -425,9 +358,7 @@ div[data-testid="stPills"] button[aria-selected="true"] {{
     background-color: rgba(88, 28, 135, 0.45) !important;
     border-color: rgba(167, 139, 250, 0.4) !important;
 }}
-.fila-festivo, 
-.fila-festivo div, 
-.fila-festivo p {{
+.fila-festivo, .fila-festivo div, .fila-festivo p {{
     color: #c4b5fd !important;
     font-weight: 600 !important;
 }}
@@ -447,13 +378,11 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) {{
     margin-top: -8px !important;
     margin-bottom: 0 !important;
 }}
-
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) > div:first-child {{
     min-width: 0 !important;
     flex: 1 1 93% !important;
     width: 93% !important;
 }}
-
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) > div:last-child {{
     min-width: 34px !important;
     flex: 0 0 7% !important;
@@ -462,7 +391,6 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) > div:last-child {
     align-items: center !important;
     justify-content: center !important;
 }}
-
 div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) > div:last-child button {{
     background: transparent !important;
     border: none !important;
@@ -486,7 +414,6 @@ div[data-testid="stDownloadButton"] > button {{
     padding: 0.65rem !important;
     border-radius: 0.5rem !important;
 }}
-
 div[data-testid="stDownloadButton"] > button:hover {{
     background-color: var(--borde-tenue) !important;
     border-color: var(--color-acento) !important;
@@ -499,7 +426,6 @@ div[data-testid="stForm"] {{
     padding: 14px 18px !important;
     margin: 6px 0 !important;
 }}
-
 div[data-testid="stForm"] div[data-testid="stHorizontalBlock"] {{
     display: flex !important;
     flex-direction: row !important;
@@ -507,13 +433,11 @@ div[data-testid="stForm"] div[data-testid="stHorizontalBlock"] {{
     margin-bottom: 0 !important;
     gap: 14px !important;
 }}
-
 div[data-testid="stForm"] div[data-testid="stHorizontalBlock"] > div {{
     flex: 1 1 50% !important;
     width: 50% !important;
     min-width: 0 !important;
 }}
-
 div[data-testid="stForm"] label p {{
     font-size: 0.78rem !important;
     color: var(--texto-secundario) !important;
@@ -816,7 +740,6 @@ if "ciclo_inicio" not in st.session_state:
 if "ciclo_fin" not in st.session_state:
     st.session_state["ciclo_fin"] = date(2026, 9, 30)
 
-# Restaurar sesión desde URL params
 token_url = query_params.get("session")
 if token_url and not st.session_state.autenticado:
     correo_token = verificar_token(token_url)
@@ -828,19 +751,19 @@ if token_url and not st.session_state.autenticado:
             st.session_state["nombre_usuario"] = usuarios_map[correo_token.lower()]["nombre"]
             st.session_state["rol_usuario"] = usuarios_map[correo_token.lower()]["rol"]
 
-# Sincronización secundaria con LocalStorage
 if not st.session_state.autenticado and not token_url:
     st.components.v1.html("""
         <script>
             try {
-                const token = window.localStorage.getItem('control_horas_token') || 
-                              (window.top && window.top.localStorage.getItem('control_horas_token'));
+                let token = localStorage.getItem('control_horas_token');
+                if (!token && window.top) {
+                    token = window.top.localStorage.getItem('control_horas_token');
+                }
                 if (token) {
-                    const topLoc = window.top ? window.top.location : window.location;
-                    const url = new URL(topLoc.href);
-                    if (!url.searchParams.has('session')) {
-                        url.searchParams.set('session', token);
-                        topLoc.replace(url.toString());
+                    const topUrl = new URL(window.top.location.href);
+                    if (!topUrl.searchParams.has('session')) {
+                        topUrl.searchParams.set('session', token);
+                        window.top.location.replace(topUrl.toString());
                     }
                 }
             } catch(e) {}
@@ -853,7 +776,6 @@ delta_dias = (fin_mes - inicio_mes).days + 1
 fechas_periodo = [inicio_mes + timedelta(days=i) for i in range(delta_dias)]
 dias_validos_periodo = {f.day for f in fechas_periodo}
 
-# Nombre del mes activo en español
 MESES_ES = {
     1: "ENERO", 2: "FEBRERO", 3: "MARZO", 4: "ABRIL",
     5: "MAYO", 6: "JUNIO", 7: "JULIO", 8: "AGOSTO",
@@ -882,9 +804,12 @@ if not st.session_state.autenticado:
                 st.components.v1.html(f"""
                     <script>
                         try {{
-                            window.localStorage.setItem('control_horas_token', '{token_firmado}');
+                            localStorage.setItem('control_horas_token', '{token_firmado}');
                             if (window.top) {{
                                 window.top.localStorage.setItem('control_horas_token', '{token_firmado}');
+                                const topUrl = new URL(window.top.location.href);
+                                topUrl.searchParams.set('session', '{token_firmado}');
+                                window.top.history.replaceState(null, '', topUrl.toString());
                             }}
                         }} catch(e) {{}}
                     </script>
@@ -949,7 +874,7 @@ else:
 
     elif st.session_state.get("modo_admin_activo", False) and es_admin:
         # ==========================================================
-        # VISTA: PANEL ADMINISTRADOR
+        # VISTA: PANEL ADMINISTRADOR COMPACTO CON DESPLEGABLES
         # ==========================================================
         c_head1, c_head2 = st.columns([75, 25])
         with c_head1:
@@ -959,11 +884,10 @@ else:
                 st.session_state["modo_admin_activo"] = False
                 st.rerun()
 
-        st.caption("Control global, obras, personal, cierre de ciclos y consolidado.")
+        st.caption("Ajustes del sistema y control global de personal.")
 
-        # --- SECCIÓN 1: GESTIÓN DE OBRAS Y PERSONAL ---
-        with st.container(border=True):
-            st.markdown("**🏗️ Gestión de Personal y Obras**")
+        # 1. DESPLEGABLE: GESTIÓN DE PERSONAL Y OBRAS
+        with st.expander("🏗️ Gestión de Personal y Obras"):
             pestana_trab, pestana_obr = st.tabs(["👤 Agregar Trabajador", "🏗️ Agregar Obra"])
 
             with pestana_trab:
@@ -1044,11 +968,8 @@ else:
                                 except Exception as err_obr:
                                     st.error(f"Error al guardar obra: {err_obr}")
 
-        # --- SECCIÓN 2: SIMULACIÓN DE FECHA ---
-        with st.container(border=True):
-            st.markdown("**🕒 Simulación de Fecha del Sistema**")
-            st.markdown('<span class="admin-sim-marker"></span>', unsafe_allow_html=True)
-            
+        # 2. DESPLEGABLE: SIMULACIÓN DE FECHA
+        with st.expander("🕒 Simulación de Fecha del Sistema"):
             c_s1, c_s2, c_s3 = st.columns([54, 23, 23])
             with c_s1:
                 fecha_input_admin = st.date_input(
@@ -1068,10 +989,8 @@ else:
             if st.session_state["fecha_admin_simulada"] is not None:
                 st.warning(f"⚠️ Simulando: **{st.session_state['fecha_admin_simulada'].strftime('%d/%m/%Y')}**")
 
-        # --- SECCIÓN 3: FECHA DE CICLO Y CIERRE AUTOMÁTICO ---
-        with st.container(border=True):
-            st.markdown("**📅 Ciclo de Cierre y Apertura Automática**")
-            st.markdown('<span class="admin-ciclo-marker"></span>', unsafe_allow_html=True)
+        # 3. DESPLEGABLE: CICLO DE CIERRE Y APERTURA
+        with st.expander("📅 Ciclo de Cierre y Apertura Automática"):
             c_f1, c_f2 = st.columns(2)
             with c_f1:
                 nuevo_inicio = st.date_input("Inicio de Ciclo", value=st.session_state["ciclo_inicio"])
@@ -1109,18 +1028,14 @@ else:
                         st.success("✔ ¡Hojas preparadas y limpias para el nuevo ciclo!")
                         st.rerun()
 
-        # --- SECCIÓN 4: LISTADO GENERAL CON CONTEO EXACTO ---
+        # 4. TABLA GENERAL DE PERSONAL (SIEMPRE VISIBLE DIRECTAMENTE)
+        st.write("")
         st.markdown("**👥 Resumen General del Personal**")
+        
+        filas_html_personal = []
         try:
             libro_admin = conectar_libro()
             
-            # Encabezado nativo visible
-            col_th1, col_th2 = st.columns([65, 35])
-            with col_th1:
-                st.markdown("<div style='font-size: 0.72rem; font-weight: 700; color: var(--texto-secundario); padding: 8px 12px; background-color: var(--bg-encabezado); border: 1px solid var(--borde); border-radius: 6px 0 0 0;'>TRABAJADOR</div>", unsafe_allow_html=True)
-            with col_th2:
-                st.markdown("<div style='font-size: 0.72rem; font-weight: 700; color: var(--texto-secundario); padding: 8px 12px; background-color: var(--bg-encabezado); border: 1px solid var(--borde); border-left: none; border-radius: 0 6px 0 0; text-align: right;'>ESTADO DE REGISTRO</div>", unsafe_allow_html=True)
-
             for correo_w, info_w in usuarios_autorizados.items():
                 nom = info_w["nombre"]
                 try:
@@ -1139,7 +1054,7 @@ else:
                             n_dia = fechas_periodo[idx].day
 
                         if n_dia is not None:
-                            # Se evalúan todas las celdas de C a G
+                            # Buscar cualquier dato en columnas C a G (horarios, guiones, permisos, vacaciones)
                             celdas_datos = [str(c).strip() for c in r[2:7] if str(c).strip() and str(c).strip() not in ["None", "0:00:00"]]
                             tiene_registro = len(celdas_datos) > 0
                             
@@ -1174,14 +1089,27 @@ else:
                 else:
                     badge = f'<span style="color: #f87171; font-weight: 700;">{faltan} días pendientes</span>'
 
-                col_r1, col_r2 = st.columns([65, 35])
-                with col_r1:
-                    st.markdown(f"<div style='padding: 10px 12px; background-color: var(--bg-contenedor); border: 1px solid var(--borde); border-top: none; color: var(--texto-principal); font-weight: 600; font-size: 0.82rem;'>{nom}</div>", unsafe_allow_html=True)
-                with col_r2:
-                    st.markdown(f"<div style='padding: 10px 12px; background-color: var(--bg-contenedor); border: 1px solid var(--borde); border-top: none; border-left: none; text-align: right; font-size: 0.82rem;'>{badge}</div>", unsafe_allow_html=True)
+                filas_html_personal.append(f"""
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 11px 16px; border-bottom: 1px solid var(--borde); background-color: var(--bg-contenedor); font-size: 0.82rem;">
+                    <div style="color: var(--texto-principal); font-weight: 600;">{nom}</div>
+                    <div>{badge}</div>
+                </div>
+                """)
+
+            filas_unidas = "".join(filas_html_personal)
+            tabla_completa_html = f"""
+            <div style="width: 100%; border: 1px solid var(--borde); border-radius: 8px; overflow: hidden; margin-top: 6px; box-sizing: border-box;">
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background-color: var(--bg-encabezado); border-bottom: 1px solid var(--borde); font-size: 0.72rem; font-weight: 700; color: var(--texto-secundario);">
+                    <div>TRABAJADOR</div>
+                    <div>ESTADO DE REGISTRO</div>
+                </div>
+                {filas_unidas}
+            </div>
+            """
+            st.markdown(tabla_completa_html, unsafe_allow_html=True)
 
         except Exception as e:
-            st.error(f"Error al cargar lista: {e}")
+            st.error(f"Error al cargar lista de personal: {e}")
 
     else:
         if es_admin and st.session_state.get("fecha_admin_simulada") is not None:
@@ -1236,9 +1164,12 @@ else:
                     st.components.v1.html("""
                         <script>
                             try {
-                                window.localStorage.removeItem('control_horas_token');
+                                localStorage.removeItem('control_horas_token');
                                 if (window.top) {
                                     window.top.localStorage.removeItem('control_horas_token');
+                                    const topUrl = new URL(window.top.location.href);
+                                    topUrl.searchParams.delete('session');
+                                    window.top.history.replaceState(null, '', topUrl.toString());
                                 }
                             } catch(e) {}
                         </script>
