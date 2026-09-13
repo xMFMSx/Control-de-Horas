@@ -526,7 +526,7 @@ def cargar_obras():
     except Exception:
         return ["LOTE 1", "LOTE 4", "LOTE 11", "MONTESSORI", "PERMISO", "NO TRABAJA", "VACACIONES", "LICENCIA"]
 
-# Lectura segura y agrupada para evitar errores de cuota de Google
+# Lectura directa a prueba de fallos de cuota
 @st.cache_data(ttl=300, show_spinner=False)
 def obtener_resumen_individual_optimizado(nombres_tupla):
     libro = conectar_libro()
@@ -560,6 +560,26 @@ def minutos_a_hora_str(total_minutos: int) -> str:
     h = int(total_minutos // 60)
     m = int(total_minutos % 60)
     return f"{h:02d}:{m:02d} hrs"
+
+def minutos_a_hora_corta(total_minutos: int) -> str:
+    h = int(total_minutos // 60)
+    m = int(total_minutos % 60)
+    return f"{h:02d}:{m:02d}"
+
+def extrae_minutos_texto(t):
+    if not t: return 0
+    t = str(t).strip()
+    if not t or t in ["-", "None"]: return 0
+    if ":" in t:
+        p = t.split(":")
+        try:
+            return int(float(p[0])) * 60 + int(float(p[1]))
+        except:
+            return 0
+    try:
+        return int(round(float(t.replace(",", ".")) * 60))
+    except:
+        return 0
 
 def fila_segun_dia(dia: int) -> int:
     return 2 if dia == 31 else (2 + dia)
@@ -615,17 +635,9 @@ def generar_excel_mes(libro_actual, usuarios_dict, fechas_ciclo):
                     n_dia = int(txt_d) if txt_d.isdigit() else None
                     if n_dia not in dias_validos_ciclo:
                         continue
-
-                    def extrae_m(t):
-                        if not t: return 0
-                        t = str(t).strip()
-                        if ":" in t:
-                            p = t.split(":")
-                            return int(float(p[0])) * 60 + int(float(p[1]))
-                        return int(round(float(t.replace(",", ".")) * 60))
-                    try: thn += extrae_m(r[4] if len(r)>4 else "")
+                    try: thn += extrae_minutos_texto(r[4] if len(r)>4 else "")
                     except: pass
-                    try: thr += extrae_m(r[5] if len(r)>5 else "")
+                    try: thr += extrae_minutos_texto(r[5] if len(r)>5 else "")
                     except: pass
                 
                 resumen_data.append({
@@ -1011,7 +1023,7 @@ else:
                         obtener_resumen_individual_optimizado.clear()
                         st.rerun()
 
-        # 4. TABLA GENERAL DE PERSONAL (SIEMPRE VISIBLE)
+        # 4. TABLA GENERAL DE PERSONAL CON HORAS ABREVIADAS
         st.write("")
         c_title_tab, c_btn_tab = st.columns([72, 28])
         with c_title_tab:
@@ -1029,37 +1041,44 @@ else:
             nom = info_w["nombre"]
             filas_rango = mapa_datos_personal.get(nom, [])
             
-            # Mapeo exacto por día numérico (Columna B / r[1])
             dias_con_registro_set = set()
+            minutos_hn_total = 0
+            minutos_hr_total = 0
+
             for idx_r, r in enumerate(filas_rango):
+                if any("TOTAL" in str(x).upper() for x in r): 
+                    continue
+
                 txt_d = str(r[1]).strip() if len(r) > 1 else ""
                 num_dia = int(txt_d) if txt_d.isdigit() else None
                 
-                # Respaldo de posición si el número de día no viene en la columna
                 if num_dia is None and idx_r < len(fechas_periodo):
                     num_dia = fechas_periodo[idx_r].day
 
                 if num_dia is not None:
-                    # Columnas C a G: Entrada, Salida, Horas, Obra
+                    # Columnas C a G: Entrada, Salida, H.Extra, H.Recargo, Obra
                     celdas_registro = [str(c).strip() for c in r[2:7] if str(c).strip() and str(c).strip() not in ["None", "0:00:00"]]
-                    # Si tiene cualquier dato (horas, "-", "PERMISO", "VACACIONES", obra) se marca como completo
                     if len(celdas_registro) > 0:
                         clave = "31_0" if (num_dia == 31 and idx_r == 0) else str(num_dia)
                         dias_con_registro_set.add(clave)
+
+                    # Suma de horas acumuladas en el ciclo
+                    if len(r) > 4:
+                        minutos_hn_total += extrae_minutos_texto(r[4])
+                    if len(r) > 5:
+                        minutos_hr_total += extrae_minutos_texto(r[5])
 
             faltan = 0
             for idx_f, f in enumerate(fechas_periodo):
                 if f > hoy: 
                     continue
                 
-                # Domingos y feriados no suman pendientes
                 if (f.weekday() == 6) or (f.strftime("%Y-%m-%d") in FERIADOS):
                     continue
                 
                 clave_dia_esperado = "31_0" if (f.day == 31 and idx_f == 0) else str(f.day)
                 tiene_datos = clave_dia_esperado in dias_con_registro_set
                 
-                # Sábado sin trabajar: si no laboró, no cuenta como pendiente
                 if f.weekday() == 5 and f < hoy:
                     lunes_despues = f + timedelta(days=2)
                     if hoy >= lunes_despues and not tiene_datos:
@@ -1073,10 +1092,35 @@ else:
             else:
                 badge = f'<span style="color: #f87171; font-weight: 700;">{faltan} días pendientes</span>'
 
-            filas_html_personal.append(f'<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--borde);background-color:var(--bg-contenedor);font-size:0.82rem;"><div style="color:var(--texto-principal);font-weight:600;">{nom}</div><div>{badge}</div></div>')
+            # Resumen de horas compacto
+            minutos_t_total = minutos_hn_total + minutos_hr_total
+            str_hn = minutos_a_hora_corta(minutos_hn_total)
+            str_hr = minutos_a_hora_corta(minutos_hr_total)
+            str_tot = minutos_a_hora_corta(minutos_t_total)
+            
+            badge_horas = f'<span style="font-size: 0.68rem; color: var(--texto-secundario); font-family: monospace; background-color: rgba(255,255,255,0.04); padding: 3px 6px; border-radius: 4px; border: 1px solid var(--borde); margin-right: 8px;">HN:{str_hn} | HR:{str_hr} | <b>T:{str_tot}</b></span>'
+
+            fila_item = f'''
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:9px 12px; border-bottom:1px solid var(--borde); background-color:var(--bg-contenedor); font-size:0.80rem;">
+                <div style="color:var(--texto-principal); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:45%;">{nom}</div>
+                <div style="display:flex; align-items:center; justify-content:flex-end; gap:6px;">
+                    {badge_horas}
+                    {badge}
+                </div>
+            </div>
+            '''
+            filas_html_personal.append(fila_item)
 
         filas_unidas = "".join(filas_html_personal)
-        tabla_html = f'<div style="width:100%;border:1px solid var(--borde);border-radius:8px;overflow:hidden;margin-top:6px;box-sizing:border-box;"><div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background-color:var(--bg-encabezado);border-bottom:1px solid var(--borde);font-size:0.72rem;font-weight:700;color:var(--texto-secundario);"><div>TRABAJADOR</div><div>ESTADO DE REGISTRO</div></div>{filas_unidas}</div>'
+        tabla_html = f'''
+        <div style="width:100%; border:1px solid var(--borde); border-radius:8px; overflow:hidden; margin-top:6px; box-sizing:border-box;">
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background-color:var(--bg-encabezado); border-bottom:1px solid var(--borde); font-size:0.72rem; font-weight:700; color:var(--texto-secundario);">
+                <div>TRABAJADOR</div>
+                <div>ESTADO DE REGISTRO & HORAS</div>
+            </div>
+            {filas_unidas}
+        </div>
+        '''
         st.markdown(tabla_html, unsafe_allow_html=True)
 
         st.stop()
