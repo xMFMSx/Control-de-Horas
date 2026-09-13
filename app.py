@@ -34,6 +34,92 @@ st.set_page_config(
 )
 
 # ==========================================================
+# PALETA DE COLORES VIVOS Y PINTADO AUTOMÁTICO EN GOOGLE SHEETS
+# ==========================================================
+COLORES_OBRAS_APP = {
+    "L1": {"red": 0.60, "green": 0.85, "blue": 0.60},
+    "L2": {"red": 0.40, "green": 0.80, "blue": 0.50},
+    "L3": {"red": 0.20, "green": 0.70, "blue": 0.60},
+    "L4": {"red": 0.30, "green": 0.60, "blue": 0.95},
+    "L5": {"red": 0.60, "green": 0.50, "blue": 0.95},
+    "L6": {"red": 0.40, "green": 0.50, "blue": 0.90},
+    "L7": {"red": 0.98, "green": 0.60, "blue": 0.30},
+    "L8": {"red": 0.95, "green": 0.40, "blue": 0.40},
+    "L9": {"red": 0.95, "green": 0.40, "blue": 0.70},
+    "L10": {"red": 0.80, "green": 0.30, "blue": 0.80},
+    "L11": {"red": 1.00, "green": 0.75, "blue": 0.20},
+    "M": {"red": 0.80, "green": 0.40, "blue": 0.80},
+    "MONTESSORI": {"red": 0.80, "green": 0.40, "blue": 0.80},
+    "MN": {"red": 0.20, "green": 0.80, "blue": 0.70},
+    "MAULE NORTE": {"red": 0.20, "green": 0.80, "blue": 0.70},
+    "SC": {"red": 0.30, "green": 0.85, "blue": 0.85},
+    "SAN CARLOS": {"red": 0.30, "green": 0.85, "blue": 0.85},
+    "C": {"red": 0.95, "green": 0.30, "blue": 0.30},
+    "CURANIPE": {"red": 0.95, "green": 0.30, "blue": 0.30},
+    "VI": {"red": 0.90, "green": 0.80, "blue": 0.20},
+    "VICHUQUEN": {"red": 0.90, "green": 0.80, "blue": 0.20},
+    "O": {"red": 0.65, "green": 0.65, "blue": 0.65},
+    "OSORNO": {"red": 0.65, "green": 0.65, "blue": 0.65},
+    "OC": {"red": 0.20, "green": 0.85, "blue": 0.95},
+    "OFICINA CENTRAL": {"red": 0.20, "green": 0.85, "blue": 0.95},
+    "EL1": {"red": 0.95, "green": 0.90, "blue": 0.30},
+    "EDIFICIO LOS LEONES 1": {"red": 0.95, "green": 0.90, "blue": 0.30},
+    "EL2": {"red": 0.75, "green": 0.55, "blue": 0.40},
+    "EDIFICIO LOS LEONES 2": {"red": 0.75, "green": 0.55, "blue": 0.40},
+    "Y": {"red": 0.55, "green": 0.40, "blue": 0.85},
+    "YUNGAY": {"red": 0.55, "green": 0.40, "blue": 0.85},
+    "PERMISO": {"red": 0.80, "green": 0.80, "blue": 0.80},
+    "P": {"red": 0.80, "green": 0.80, "blue": 0.80},
+    "VACACIONES": {"red": 1.00, "green": 0.95, "blue": 0.40},
+    "V": {"red": 1.00, "green": 0.95, "blue": 0.40},
+    "LICENCIA": {"red": 0.95, "green": 0.50, "blue": 0.50},
+}
+
+def pintar_celda_septiembre_en_app(nombre_trabajador, num_dia, obra_asignada):
+    try:
+        libro = conectar_libro()
+        hoja_sep = libro.worksheet("SEPTIEMBRE")
+        valores_sep = hoja_sep.get_all_values()
+        
+        row_target = -1
+        for idx, fila in enumerate(valores_sep):
+            if len(fila) > 0 and fila[0].strip().upper() == nombre_trabajador.strip().upper():
+                row_target = idx + 1
+                break
+        
+        if row_target == -1:
+            return
+
+        if int(num_dia) == 31:
+            col_target = 2
+        else:
+            col_target = int(num_dia) + 2
+
+        color_rgb = COLORES_OBRAS_APP.get(str(obra_asignada).strip().upper(), {"red": 1.0, "green": 1.0, "blue": 1.0})
+
+        libro.batch_update({
+            "requests": [{
+                "repeatCell": {
+                    "range": {
+                        "sheetId": hoja_sep.id,
+                        "startRowIndex": row_target - 1,
+                        "endRowIndex": row_target,
+                        "startColumnIndex": col_target - 1,
+                        "endColumnIndex": col_target
+                    },
+                    "cell": {
+                        "userEnteredFormat": {
+                            "backgroundColor": color_rgb
+                        }
+                    },
+                    "fields": "userEnteredFormat.backgroundColor"
+                }
+            }]
+        })
+    except Exception as e:
+        print(f"Error pintando automático: {e}")
+
+# ==========================================================
 # FONDO DE PANTALLA PERSONALIZADO (BASE64)
 # ==========================================================
 def aplicar_fondo(nombre_archivo):
@@ -624,7 +710,7 @@ def generar_excel_mes(libro_actual, usuarios_dict, fechas_ciclo):
         for correo_u, datos_u in usuarios_dict.items():
             nom = datos_u["nombre"]
             try:
-                h_trab = buscar_hoja_exacta_o_similar(libro_actual, nom)
+                h_trab = obtener_hoja_trabajador_directa(libro_actual, nom)
                 vals = h_trab.get_all_values()[1:]
                 thn, thr = 0, 0
                 for idx, r in enumerate(vals):
@@ -653,7 +739,7 @@ def generar_excel_mes(libro_actual, usuarios_dict, fechas_ciclo):
         for correo_u, datos_u in usuarios_dict.items():
             nom = datos_u["nombre"]
             try:
-                h_trab = buscar_hoja_exacta_o_similar(libro_actual, nom)
+                h_trab = obtener_hoja_trabajador_directa(libro_actual, nom)
                 filas = h_trab.get_all_values()[1:]
                 registros = []
                 for idx, r in enumerate(filas):
@@ -693,7 +779,7 @@ def reiniciar_hojas_nuevo_ciclo(f_inicio, f_fin, usuarios_dict):
     for correo_u, datos_u in usuarios_dict.items():
         nom = datos_u["nombre"]
         try:
-            h = buscar_hoja_exacta_o_similar(libro, nom)
+            h = obtener_hoja_trabajador_directa(libro, nom)
             h.batch_clear(["A2:G40"])
             h.update(f"A2:G{1 + len(nuevas_filas)}", nuevas_filas, value_input_option="USER_ENTERED")
         except Exception:
@@ -768,11 +854,9 @@ if "ciclo_inicio" not in st.session_state:
 if "ciclo_fin" not in st.session_state:
     st.session_state["ciclo_fin"] = date(2026, 9, 30)
 
-# 1. Recuperar token de la URL o inyectar desde LocalStorage si la sesión se recarga
 token_url = query_params.get("session")
 
 if not token_url and not st.session_state.autenticado:
-    # Script para leer localStorage y recargar con el token guardado
     st.components.v1.html("""
         <script>
             const savedToken = localStorage.getItem("control_horas_session");
@@ -797,7 +881,6 @@ if st.session_state.autenticado and st.session_state.user_email:
     if query_params.get("session") != tok:
         st.query_params["session"] = tok
     
-    # 2. Guardar permanentemente el token en el almacenamiento local del APK
     st.components.v1.html(f"""
         <script>
             localStorage.setItem("control_horas_session", "{tok}");
@@ -838,7 +921,6 @@ if not st.session_state.autenticado:
                 token_firmado = firmar_correo(correo_input.lower())
                 st.query_params["session"] = token_firmado
                 
-                # Guardar en localStorage de forma inmediata al iniciar sesión exitosamente
                 st.components.v1.html(f"""
                     <script>
                         localStorage.setItem("control_horas_session", "{token_firmado}");
@@ -913,7 +995,6 @@ else:
 
         st.caption("Ajustes del sistema y control global de personal.")
 
-        # 1. GESTIÓN DE PERSONAL Y OBRAS
         with st.expander("🏗️ Gestión de Personal y Obras"):
             pestana_trab, pestana_obr = st.tabs(["👤 Agregar Trabajador", "🏗️ Agregar Obra"])
 
@@ -992,7 +1073,6 @@ else:
                             except Exception as err_obr:
                                 st.error(f"Error al guardar obra: {err_obr}")
 
-        # 2. SIMULACIÓN DE FECHA
         with st.expander("🕒 Simulación de Fecha del Sistema"):
             c_s1, c_s2, c_s3 = st.columns([54, 23, 23])
             with c_s1:
@@ -1015,7 +1095,6 @@ else:
             if st.session_state["fecha_admin_simulada"] is not None:
                 st.info(f"Modo simulación: **{st.session_state['fecha_admin_simulada'].strftime('%d/%m/%Y')}**")
 
-        # 3. CICLO DE CIERRE Y APERTURA
         with st.expander("📅 Ciclo de Cierre y Apertura Automática"):
             c_f1, c_f2 = st.columns(2)
             with c_f1:
@@ -1054,7 +1133,6 @@ else:
                         obtener_resumen_individual_optimizado.clear()
                         st.rerun()
 
-        # 4. RESUMEN GENERAL DEL PERSONAL (DESPLEGABLE EXPANDER)
         with st.expander("👥 Resumen General del Personal"):
             txt_toggle_opc = "🙈 Ocultar Horas" if st.session_state["mostrar_horas_admin"] else "👁️ Ver Horas"
             
@@ -1203,7 +1281,6 @@ else:
                     st.rerun()
 
                 if st.button("🚪 Cerrar Sesión", use_container_width=True):
-                    # Limpiar localStorage al cerrar sesión voluntariamente
                     st.components.v1.html("""
                         <script>
                             localStorage.removeItem("control_horas_session");
@@ -1384,6 +1461,9 @@ else:
                                             hoja_usuario.update(f"C{fila_n}:D{fila_n}", [[ent_str, sal_str]], value_input_option="USER_ENTERED")
                                             hoja_usuario.update(f"G{fila_n}", [[inp_ob]], value_input_option="USER_ENTERED")
 
+                                        # PINTADO AUTOMÁTICO EN LA HOJA SEPTIEMBRE
+                                        pintar_celda_septiembre_en_app(nombre_trabajador, num_dia, inp_ob)
+
                                         if "filas_planilla" in st.session_state:
                                             del st.session_state["filas_planilla"]
 
@@ -1523,6 +1603,9 @@ else:
                                         hoja_usuario.update(f"C{fila_n}:D{fila_n}", [[ent_str, sal_str]], value_input_option="USER_ENTERED")
                                         hoja_usuario.update(f"G{fila_n}", [[edit_ob]], value_input_option="USER_ENTERED")
 
+                                    # PINTADO AUTOMÁTICO EN LA HOJA SEPTIEMBRE (EDICIÓN)
+                                    pintar_celda_septiembre_en_app(nombre_trabajador, d, edit_ob)
+
                                     if "filas_planilla" in st.session_state:
                                         del st.session_state["filas_planilla"]
                                     obtener_resumen_individual_optimizado.clear()
@@ -1533,6 +1616,9 @@ else:
                                 fila_n = fila_segun_dia(d)
                                 hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["", ""]], value_input_option="USER_ENTERED")
                                 hoja_usuario.update(f"G{fila_n}", [[""]], value_input_option="USER_ENTERED")
+
+                                # PINTADO AUTOMÁTICO EN BLANCO EN LA HOJA SEPTIEMBRE (LIMPIEZA)
+                                pintar_celda_septiembre_en_app(nombre_trabajador, d, "")
 
                                 if "filas_planilla" in st.session_state:
                                     del st.session_state["filas_planilla"]
@@ -1546,9 +1632,6 @@ else:
 
             st.markdown("---")
 
-            # ==========================================================
-            # BOTÓN OFICIAL DE DESCARGA DE STREAMLIT (NATIVO EN APK)
-            # ==========================================================
             if REPORTLAB_DISPONIBLE:
                 pdf_bytes = generar_pdf_horas(
                     nombre_trabajador,
