@@ -10,6 +10,7 @@ import time as time_lib
 import urllib.parse
 from io import BytesIO
 import os
+import requests
 
 try:
     from reportlab.lib import colors
@@ -387,22 +388,6 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) > div:last-child b
     transform: translateY(6px) !important;
 }
 
-div[data-testid="stDownloadButton"] > button {
-    width: 100% !important;
-    background-color: var(--bg-contenedor) !important;
-    border: 1px solid var(--borde) !important;
-    color: var(--texto-principal) !important;
-    font-weight: 700 !important;
-    font-size: 0.82rem !important;
-    padding: 0.65rem !important;
-    border-radius: 0.5rem !important;
-}
-div[data-testid="stDownloadButton"] > button:hover {
-    background-color: var(--borde-tenue) !important;
-    border-color: var(--color-acento) !important;
-    color: var(--texto-principal) !important;
-}
-
 div[data-testid="stForm"] {
     border: 1px solid var(--borde) !important;
     border-radius: 6px !important;
@@ -446,16 +431,18 @@ def verificar_token(token: str):
         return None
     return None
 
+def obtener_credenciales():
+    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+    if "gcp_service_account" in st.secrets:
+        cred_dict = dict(st.secrets["gcp_service_account"])
+        return ServiceAccountCredentials.from_json_keyfile_dict(cred_dict, scope)
+    return ServiceAccountCredentials.from_json_keyfile_name("credenciales.json", scope)
+
 @st.cache_resource(ttl=300)
 def conectar_libro():
-    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+    creds = obtener_credenciales()
     for intento in range(4):
         try:
-            if "gcp_service_account" in st.secrets:
-                cred_dict = dict(st.secrets["gcp_service_account"])
-                creds = ServiceAccountCredentials.from_json_keyfile_dict(cred_dict, scope)
-            else:
-                creds = ServiceAccountCredentials.from_json_keyfile_name("credenciales.json", scope)
             client = gspread.authorize(creds)
             return client.open("APP DE HORAS")
         except Exception as e:
@@ -702,7 +689,7 @@ def reiniciar_hojas_nuevo_ciclo(f_inicio, f_fin, usuarios_dict):
 def generar_pdf_horas(nombre_t, reg_tabla, tot_hn_str, tot_hr_str, periodo_str):
     if not REPORTLAB_DISPONIBLE: return None
     buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36)
+    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36)
     elementos = []
     estilos = getSampleStyleSheet()
 
@@ -760,6 +747,8 @@ if "fecha_admin_simulada" not in st.session_state:
     st.session_state["fecha_admin_simulada"] = None
 if "mostrar_horas_admin" not in st.session_state:
     st.session_state["mostrar_horas_admin"] = False
+if "url_descarga_activa" not in st.session_state:
+    st.session_state["url_descarga_activa"] = None
 
 if "ciclo_inicio" not in st.session_state:
     st.session_state["ciclo_inicio"] = date(2026, 8, 31)
@@ -1511,7 +1500,7 @@ else:
             st.markdown("---")
 
             # ==========================================================
-            # DESCARGA NATIVA CON DISPARADOR AUTOMÁTICO EN EL MÓVIL
+            # DESCARGA REAL AL NAVEGADOR SIN LIBRERÍAS EXTERNAS
             # ==========================================================
             if REPORTLAB_DISPONIBLE:
                 pdf_bytes = generar_pdf_horas(
@@ -1522,70 +1511,56 @@ else:
                     nombre_mes_dinamico
                 )
                 if pdf_bytes:
-                    b64_pdf = base64.b64encode(pdf_bytes).decode('utf-8')
                     nombre_archivo_pdf = f"Horas_{nombre_trabajador.replace(' ', '_')}_{fin_mes.strftime('%Y%m')}.pdf"
 
-                    # Botón con script embebido que fuerza la descarga en Android
-                    st.components.v1.html(f"""
-                        <div style="width: 100%;">
-                            <button id="btnDescargarReporte" style="
-                                width: 100%;
-                                height: 46px;
-                                background-color: #1a1e29;
-                                border: 1.5px solid #ff4b4b;
-                                color: #ffffff;
-                                font-weight: 700;
-                                font-size: 0.85rem;
-                                border-radius: 8px;
-                                cursor: pointer;
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                gap: 8px;
-                                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                            ">
-                                📄 DESCARGAR REPORTE PDF
-                            </button>
-                        </div>
+                    col_gen, col_reset = st.columns([80, 20])
+                    with col_gen:
+                        if not st.session_state["url_descarga_activa"]:
+                            if st.button("📄 GENERAR ENLACE DE DESCARGA PDF", use_container_width=True):
+                                with st.spinner("Preparando archivo para descarga en móvil..."):
+                                    try:
+                                        files = {'file': (nombre_archivo_pdf, pdf_bytes, 'application/pdf')}
+                                        res = requests.post('https://tmpfiles.org/api/v1/upload', files=files, timeout=10)
+                                        if res.status_code == 200:
+                                            datos = res.json()
+                                            url_raw = datos.get("data", {}).get("url", "")
+                                            if "tmpfiles.org/" in url_raw:
+                                                url_directa = url_raw.replace("tmpfiles.org/", "tmpfiles.org/dl/")
+                                                st.session_state["url_descarga_activa"] = url_directa
+                                                st.rerun()
+                                        else:
+                                            st.error("Error al procesar el archivo. Reintenta.")
+                                    except Exception as e:
+                                        st.error(f"Error de conexión: {e}")
+                    with col_reset:
+                        if st.session_state["url_descarga_activa"]:
+                            if st.button("🔄", help="Crear nuevo enlace"):
+                                st.session_state["url_descarga_activa"] = None
+                                st.rerun()
 
-                        <script>
-                            const b64Data = "{b64_pdf}";
-                            const fileName = "{nombre_archivo_pdf}";
+                    if st.session_state["url_descarga_activa"]:
+                        url_final = st.session_state["url_descarga_activa"]
+                        url_sin_proto = url_final.replace("https://", "")
+                        intent_chrome = f"intent://{url_sin_proto}#Intent;scheme=https;package=com.android.chrome;end"
 
-                            document.getElementById('btnDescargarReporte').addEventListener('click', function() {{
-                                const byteCharacters = atob(b64Data);
-                                const byteNumbers = new Array(byteCharacters.length);
-                                for (let i = 0; i < byteCharacters.length; i++) {{
-                                    byteNumbers[i] = byteCharacters.charCodeAt(i);
-                                }}
-                                const byteArray = new Uint8Array(byteNumbers);
-                                const blob = new Blob([byteArray], {{ type: 'application/pdf' }});
-                                
-                                // Método 1: Descarga directa por URL de objeto
-                                const blobUrl = URL.createObjectURL(blob);
-                                const a = document.createElement('a');
-                                a.style.display = 'none';
-                                a.href = blobUrl;
-                                a.download = fileName;
-                                document.body.appendChild(a);
-                                a.click();
-                                
-                                // Método 2 (Respaldo en caso de que WebView bloquee blob de descarga): Salto al visor/impresor nativo
-                                setTimeout(() => {{
-                                    document.body.removeChild(a);
-                                    const iframe = document.createElement('iframe');
-                                    iframe.style.position = 'fixed';
-                                    iframe.style.width = '0';
-                                    iframe.style.height = '0';
-                                    iframe.style.border = 'none';
-                                    iframe.src = blobUrl;
-                                    document.body.appendChild(iframe);
-                                    iframe.onload = () => {{
-                                        try {{
-                                            iframe.contentWindow.print();
-                                        }} catch(e) {{}}
-                                    }};
-                                }}, 500);
-                            }});
-                        </script>
-                    """, height=56)
+                        st.markdown(f"""
+                            <div style="margin-top: 8px; width: 100%;">
+                                <a href="{intent_chrome}" target="_blank" style="
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    width: 100%;
+                                    height: 46px;
+                                    background-color: #1a1e29;
+                                    border: 2px solid #ff4b4b;
+                                    color: #ffffff;
+                                    font-weight: 700;
+                                    font-size: 0.86rem;
+                                    border-radius: 8px;
+                                    text-decoration: none;
+                                    box-sizing: border-box;
+                                ">
+                                    📥 DESCARGAR PDF EN CHROME
+                                </a>
+                            </div>
+                        """, unsafe_allow_html=True)
