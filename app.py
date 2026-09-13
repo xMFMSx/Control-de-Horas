@@ -148,13 +148,22 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {{
     box-sizing: border-box !important;
 }}
 
-/* --- CENTRADO DINÁMICO DEL LOGIN --- */
+/* --- CENTRADO GEOMÉTRICO EXACTO DEL LOGIN --- */
+.stApp:has(.login-wrapper) .block-container {{
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    height: 100vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+}}
+
 .login-wrapper {{
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    min-height: 75vh;
     width: 100%;
 }}
 
@@ -802,7 +811,7 @@ if not st.session_state.autenticado:
     
     with st.form("form_login"):
         correo_input = st.text_input("Correo Electrónico")
-        password_input = st.text_input("Contraseña (Número de Teléfono)", type="password")
+        password_input = st.text_input("Contraseña", type="password")
         submit_button = st.form_submit_button("Iniciar Sesión", use_container_width=True)
         
         if submit_button:
