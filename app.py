@@ -81,6 +81,10 @@ def pintar_celda_septiembre_en_app(nombre_trabajador, num_dia, obra_asignada):
         hoja_sep = libro.worksheet("SEPTIEMBRE")
         valores_sep = hoja_sep.get_all_values()
         
+        if not valores_sep:
+            return
+            
+        # 1. Encontrar la fila del trabajador en la columna A
         row_target = -1
         for idx, fila in enumerate(valores_sep):
             if len(fila) > 0 and fila[0].strip().upper() == nombre_trabajador.strip().upper():
@@ -90,13 +94,21 @@ def pintar_celda_septiembre_en_app(nombre_trabajador, num_dia, obra_asignada):
         if row_target == -1:
             return
 
-        if int(num_dia) == 31:
-            col_target = 2
-        else:
-            col_target = int(num_dia) + 2
+        # 2. Buscar la columna exacta buscando el número del día en la cabecera (Fila 1)
+        cabecera_dias = valores_sep[0]
+        col_target_1idx = -1
+        for col_idx, val_cab in enumerate(cabecera_dias):
+            if val_cab.strip() == str(num_dia).strip():
+                col_target_1idx = col_idx + 1  # Base 1 para gspread/API
+                break
+                
+        if col_target_1idx == -1:
+            return
 
+        # 3. Obtener el color correspondiente (o blanco si está vacío)
         color_rgb = COLORES_OBRAS_APP.get(str(obra_asignada).strip().upper(), {"red": 1.0, "green": 1.0, "blue": 1.0})
 
+        # 4. Aplicar el color exacto en la celda
         libro.batch_update({
             "requests": [{
                 "repeatCell": {
@@ -104,8 +116,8 @@ def pintar_celda_septiembre_en_app(nombre_trabajador, num_dia, obra_asignada):
                         "sheetId": hoja_sep.id,
                         "startRowIndex": row_target - 1,
                         "endRowIndex": row_target,
-                        "startColumnIndex": col_target - 1,
-                        "endColumnIndex": col_target
+                        "startColumnIndex": col_target_1idx - 1,
+                        "endColumnIndex": col_target_1idx
                     },
                     "cell": {
                         "userEnteredFormat": {
