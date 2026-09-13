@@ -1513,7 +1513,7 @@ else:
             st.markdown("---")
 
             # ==========================================================
-            # DESCARGA DIRECTA DE PDF COMPATIBLE CON DOWNLOADLISTENER
+            # DESCARGA DIRECTA CAPACITOR / ANDROID WEBVIEW
             # ==========================================================
             if REPORTLAB_DISPONIBLE:
                 pdf_bytes = generar_pdf_horas(
@@ -1527,27 +1527,48 @@ else:
                     b64_pdf = base64.b64encode(pdf_bytes).decode('utf-8')
                     nombre_archivo_pdf = f"Horas_{nombre_trabajador.replace(' ', '_')}_{fin_mes.strftime('%Y%m')}.pdf"
 
-                    # Enlace directo Base64 con atributo download que activará el DownloadListener de Android Studio
-                    html_btn_descarga = f"""
-                    <a href="data:application/pdf;base64,{b64_pdf}" 
-                       download="{nombre_archivo_pdf}" 
-                       style="
-                           display: flex;
-                           align-items: center;
-                           justify-content: center;
-                           width: 100%;
-                           height: 46px;
-                           background-color: #1a1e29;
-                           border: 1.5px solid #ff4b4b;
-                           color: #ffffff;
-                           font-weight: 700;
-                           font-size: 0.85rem;
-                           border-radius: 8px;
-                           text-decoration: none;
-                           box-sizing: border-box;
-                           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                       ">
-                        📄 DESCARGAR HORAS DEL MES EN PDF
-                    </a>
-                    """
-                    st.markdown(html_btn_descarga, unsafe_allow_html=True)
+                    st.components.v1.html(f"""
+                        <div style="width: 100%; margin-top: 4px;">
+                            <button id="btnDescargarAPK" style="
+                                width: 100%;
+                                height: 46px;
+                                background-color: #1a1e29;
+                                border: 1.5px solid #ff4b4b;
+                                color: #ffffff;
+                                font-weight: 700;
+                                font-size: 0.85rem;
+                                border-radius: 8px;
+                                cursor: pointer;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                gap: 8px;
+                                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                            ">
+                                📄 DESCARGAR HORAS DEL MES EN PDF
+                            </button>
+                        </div>
+
+                        <script>
+                            const b64Data = "{b64_pdf}";
+                            const fileName = "{nombre_archivo_pdf}";
+
+                            document.getElementById('btnDescargarAPK').addEventListener('click', function() {{
+                                const binStr = atob(b64Data);
+                                const len = binStr.length;
+                                const arr = new Uint8Array(len);
+                                for (let i = 0; i < len; i++) {{
+                                    arr[i] = binStr.charCodeAt(i);
+                                }}
+                                const blob = new Blob([arr], {{ type: 'application/pdf' }});
+                                const blobUrl = URL.createObjectURL(blob);
+
+                                const a = document.createElement('a');
+                                a.href = blobUrl;
+                                a.download = fileName;
+                                document.body.appendChild(a);
+                                a.click();
+                                document.body.removeChild(a);
+                            }});
+                        </script>
+                    """, height=56)
