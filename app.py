@@ -117,8 +117,8 @@ iframe[title="streamlit_share_badge"] {{
    BARRA DE DESPLAZAMIENTO (SCROLLBAR) 100% TRANSPARENTE
    ========================================================== */
 html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main, div, section {{
-    scrollbar-width: none !important; /* Firefox */
-    -ms-overflow-style: none !important;  /* IE y Edge clásico */
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
 }}
 
 ::-webkit-scrollbar {{
@@ -180,7 +180,7 @@ div[data-testid="InputInstructions"]::after {{
     display: flex;
     flex-direction: column;
     width: 100%;
-    margin-top: 307px !important; /* <<< AQUÍ EDITAS LA ALTURA EN PX >>> */
+    margin-top: 307px !important;
 }}
 
 .login-wrapper div[data-testid="stForm"] {{
@@ -938,9 +938,95 @@ else:
                 st.session_state["modo_admin_activo"] = False
                 st.rerun()
 
-        st.caption("Control global, cierre de ciclos, exportación Excel y simulación.")
+        st.caption("Control global, obras, personal, cierre de ciclos y consolidado.")
 
-        # --- SECCIÓN 1: SIMULACIÓN DE FECHA ---
+        # --- SECCIÓN 1: GESTIÓN DE OBRAS Y PERSONAL (NUEVO) ---
+        with st.container(border=True):
+            st.markdown("**🏗️ Gestión de Personal y Obras**")
+            pestana_trab, pestana_obr = st.tabs(["👤 Agregar Trabajador", "🏗️ Agregar Obra"])
+
+            # SUBPESTAÑA: AGREGAR TRABAJADOR
+            with pestana_trab:
+                with st.form("form_nuevo_trabajador"):
+                    col_t1, col_t2 = st.columns(2)
+                    with col_t1:
+                        nuevo_nombre = st.text_input("Nombre Completo (Ej: JUAN PÉREZ)")
+                        nuevo_correo = st.text_input("Correo Electrónico (Gmail)")
+                    with col_t2:
+                        nuevo_pass = st.text_input("Contraseña Temporal", type="password")
+                        nuevo_rol = st.selectbox("Rol", ["trabajador", "admin"])
+
+                    btn_crear_trabajador = st.form_submit_button("➕ Registrar Trabajador y Crear Planilla", use_container_width=True)
+
+                    if btn_crear_trabajador:
+                        nombre_limpio = nuevo_nombre.strip().upper()
+                        correo_limpio = nuevo_correo.strip().lower()
+                        pass_limpio = nuevo_pass.strip()
+
+                        if not nombre_limpio or not correo_limpio or not pass_limpio:
+                            st.warning("⚠️ Debes completar todos los campos del trabajador.")
+                        elif correo_limpio in usuarios_autorizados:
+                            st.error("❌ Este correo ya está registrado en el sistema.")
+                        else:
+                            with st.spinner(f"Creando trabajador y hoja para {nombre_limpio}..."):
+                                try:
+                                    libro_admin = conectar_libro()
+                                    hoja_t = libro_admin.worksheet("TRABAJADORES")
+                                    hoja_t.append_row([nombre_limpio, correo_limpio, pass_limpio, nuevo_rol])
+
+                                    # Crear hoja individual con el ciclo activo
+                                    try:
+                                        hoja_nueva = libro_admin.add_worksheet(title=nombre_limpio, rows=45, cols=8)
+                                        hoja_nueva.append_row(["DÍA_TEXTO", "DÍA", "ENTRADA", "SALIDA", "HORA EXTRA", "HORA RECARGO", "OBRA"])
+                                        
+                                        nuevas_filas = []
+                                        for i in range(delta_dias):
+                                            f = inicio_mes + timedelta(days=i)
+                                            nom_d = DIAS_MAP[f.weekday()]
+                                            num_d = str(f.day)
+                                            nuevas_filas.append([nom_d, num_d, "", "", "", "", ""])
+                                        
+                                        hoja_nueva.update(f"A2:G{1 + len(nuevas_filas)}", nuevas_filas, value_input_option="USER_ENTERED")
+                                    except Exception:
+                                        pass
+
+                                    cargar_trabajadores.clear()
+                                    st.success(f"✔ Trabajador {nombre_limpio} creado exitosamente con su hoja de registro.")
+                                    st.rerun()
+                                except Exception as err_trab:
+                                    st.error(f"Error al registrar trabajador: {err_trab}")
+
+            # SUBPESTAÑA: AGREGAR OBRA
+            with pestana_obr:
+                with st.form("form_nueva_obra"):
+                    col_o1, col_o2 = st.columns([70, 30])
+                    with col_o1:
+                        nombre_nueva_obra = st.text_input("Nombre del Proyecto / Obra (Ej: LOTE 15)")
+                    with col_o2:
+                        st.write("")
+                        st.write("")
+                        btn_crear_obra = st.form_submit_button("➕ Registrar Obra", use_container_width=True)
+
+                    if btn_crear_obra:
+                        obra_limpia = nombre_nueva_obra.strip().upper()
+                        if not obra_limpia:
+                            st.warning("⚠️ Debes escribir el nombre de la obra.")
+                        elif any(obra_limpia == o.upper() for o in lista_obras):
+                            st.error("❌ Esta obra ya existe en la lista.")
+                        else:
+                            with st.spinner("Guardando nueva obra..."):
+                                try:
+                                    libro_admin = conectar_libro()
+                                    hoja_o = libro_admin.worksheet("OBRAS")
+                                    filas_actuales = len(hoja_o.get_all_values())
+                                    hoja_o.append_row([str(filas_actuales), obra_limpia])
+                                    cargar_obras.clear()
+                                    st.success(f"✔ Obra '{obra_limpia}' añadida con éxito.")
+                                    st.rerun()
+                                except Exception as err_obr:
+                                    st.error(f"Error al guardar obra: {err_obr}")
+
+        # --- SECCIÓN 2: SIMULACIÓN DE FECHA ---
         with st.container(border=True):
             st.markdown("**🕒 Simulación de Fecha del Sistema**")
             st.markdown('<span class="admin-sim-marker"></span>', unsafe_allow_html=True)
@@ -964,7 +1050,7 @@ else:
             if st.session_state["fecha_admin_simulada"] is not None:
                 st.warning(f"⚠️ Simulando: **{st.session_state['fecha_admin_simulada'].strftime('%d/%m/%Y')}**")
 
-        # --- SECCIÓN 2: FECHA DE CICLO Y CIERRE AUTOMÁTICO ---
+        # --- SECCIÓN 3: FECHA DE CICLO Y CIERRE AUTOMÁTICO ---
         with st.container(border=True):
             st.markdown("**📅 Ciclo de Cierre y Apertura Automática**")
             st.markdown('<span class="admin-ciclo-marker"></span>', unsafe_allow_html=True)
@@ -1005,7 +1091,7 @@ else:
                         st.success("✔ ¡Hojas preparadas y limpias para el nuevo ciclo!")
                         st.rerun()
 
-        # --- SECCIÓN 3: LISTADO GENERAL ABIERTO AL 100% ---
+        # --- SECCIÓN 4: LISTADO GENERAL ABIERTO AL 100% ---
         st.markdown("**👥 Resumen General del Personal**")
         try:
             libro_admin = conectar_libro()
