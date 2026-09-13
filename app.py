@@ -463,16 +463,15 @@ def conectar_libro():
                 raise e
             time_lib.sleep(1.5)
 
-def buscar_hoja_exacta_o_similar(libro, nombre_buscado):
-    nom_buscado = " ".join(nombre_buscado.strip().upper().split())
-    for s in libro.worksheets():
-        if " ".join(s.title.strip().upper().split()) == nom_buscado:
-            return s
-    for s in libro.worksheets():
-        tit = " ".join(s.title.strip().upper().split())
-        if nom_buscado in tit or tit in nom_buscado:
-            return s
-    raise gspread.exceptions.WorksheetNotFound(nombre_buscado)
+def obtener_hoja_trabajador_directa(libro, nombre_trabajador):
+    nom = nombre_trabajador.strip()
+    try:
+        return libro.worksheet(nom)
+    except Exception:
+        for ws in libro.worksheets():
+            if ws.title.strip().upper() == nom.upper():
+                return ws
+        raise gspread.exceptions.WorksheetNotFound(nom)
 
 def obtener_hoja_trabajador(nombre_trabajador: str):
     clave = f"hoja_{nombre_trabajador}"
@@ -480,11 +479,11 @@ def obtener_hoja_trabajador(nombre_trabajador: str):
         return st.session_state[clave]
     try:
         libro = conectar_libro()
-        hoja = buscar_hoja_exacta_o_similar(libro, nombre_trabajador)
+        hoja = obtener_hoja_trabajador_directa(libro, nombre_trabajador)
     except Exception:
         conectar_libro.clear()
         libro = conectar_libro()
-        hoja = buscar_hoja_exacta_o_similar(libro, nombre_trabajador)
+        hoja = obtener_hoja_trabajador_directa(libro, nombre_trabajador)
     st.session_state[clave] = hoja
     return hoja
 
@@ -527,28 +526,28 @@ def cargar_obras():
     except Exception:
         return ["LOTE 1", "LOTE 4", "LOTE 11", "MONTESSORI", "PERMISO", "NO TRABAJA", "VACACIONES", "LICENCIA"]
 
-# Lectura directa garantizada por hoja
-@st.cache_data(ttl=120, show_spinner=False)
+# Lectura directa a prueba de fallos de cuota (con sleep controlado de 0.15s)
+@st.cache_data(ttl=180, show_spinner=False)
 def obtener_resumen_individual_optimizado(nombres_tupla):
     libro = conectar_libro()
     mapa_datos = {}
-    hojas_dict = { " ".join(s.title.strip().upper().split()): s for s in libro.worksheets() }
     
     for nom in nombres_tupla:
-        nom_l = " ".join(nom.strip().upper().split())
-        ws = hojas_dict.get(nom_l)
-        if not ws:
-            for k_h, v_h in hojas_dict.items():
-                if nom_l in k_h or k_h in nom_l:
-                    ws = v_h
-                    break
-        if ws:
+        try:
+            ws = libro.worksheet(nom)
+            filas = ws.get("B2:G35")
+            mapa_datos[nom] = filas
+        except gspread.exceptions.APIError:
+            time_lib.sleep(1.0)
             try:
+                ws = libro.worksheet(nom)
                 mapa_datos[nom] = ws.get("B2:G35")
             except Exception:
                 mapa_datos[nom] = []
-        else:
+        except Exception:
             mapa_datos[nom] = []
+        time_lib.sleep(0.12)
+        
     return mapa_datos
 
 FERIADOS = ["2026-09-18", "2026-09-19", "2026-09-20"]
@@ -606,7 +605,7 @@ def generar_excel_mes(libro_actual, usuarios_dict, fechas_ciclo):
         for correo_u, datos_u in usuarios_dict.items():
             nom = datos_u["nombre"]
             try:
-                h_trab = buscar_hoja_exacta_o_similar(libro_actual, nom)
+                h_trab = libro_actual.worksheet(nom)
                 vals = h_trab.get_all_values()[1:]
                 thn, thr = 0, 0
                 for idx, r in enumerate(vals):
@@ -643,7 +642,7 @@ def generar_excel_mes(libro_actual, usuarios_dict, fechas_ciclo):
         for correo_u, datos_u in usuarios_dict.items():
             nom = datos_u["nombre"]
             try:
-                h_trab = buscar_hoja_exacta_o_similar(libro_actual, nom)
+                h_trab = libro_actual.worksheet(nom)
                 filas = h_trab.get_all_values()[1:]
                 registros = []
                 for idx, r in enumerate(filas):
@@ -683,7 +682,7 @@ def reiniciar_hojas_nuevo_ciclo(f_inicio, f_fin, usuarios_dict):
     for correo_u, datos_u in usuarios_dict.items():
         nom = datos_u["nombre"]
         try:
-            h = buscar_hoja_exacta_o_similar(libro, nom)
+            h = libro.worksheet(nom)
             h.batch_clear(["A2:G40"])
             h.update(f"A2:G{1 + len(nuevas_filas)}", nuevas_filas, value_input_option="USER_ENTERED")
         except Exception:
@@ -730,7 +729,7 @@ def generar_pdf_horas(nombre_t, reg_tabla, tot_hn_str, tot_hr_str, periodo_str):
     return buffer.getvalue()
 
 # ==========================================================
-# PERSISTENCIA ROBUSTA ANTICAÍDAS
+# PERSISTENCIA ROBUSTA ESPECIAL APK / WEBVIEW
 # ==========================================================
 query_params = st.query_params
 
@@ -754,46 +753,23 @@ if "ciclo_inicio" not in st.session_state:
 if "ciclo_fin" not in st.session_state:
     st.session_state["ciclo_fin"] = date(2026, 9, 30)
 
-# Paso 1: Recuperar desde URL si existe token
-token_en_url = query_params.get("session")
-if token_en_url and not st.session_state.autenticado:
-    correo_recuperado = verificar_token(token_en_url)
-    if correo_recuperado:
+# Recuperar sesión de URL si existe
+token_url = query_params.get("session")
+if token_url and not st.session_state.autenticado:
+    correo_token = verificar_token(token_url)
+    if correo_token:
         usuarios_map = cargar_trabajadores()
-        if correo_recuperado.lower() in usuarios_map:
+        if correo_token.lower() in usuarios_map:
             st.session_state.autenticado = True
-            st.session_state.user_email = correo_recuperado.lower()
-            st.session_state.nombre_usuario = usuarios_map[correo_recuperado.lower()]["nombre"]
-            st.session_state.rol_usuario = usuarios_map[correo_recuperado.lower()]["rol"]
+            st.session_state.user_email = correo_token.lower()
+            st.session_state.nombre_usuario = usuarios_map[correo_token.lower()]["nombre"]
+            st.session_state.rol_usuario = usuarios_map[correo_token.lower()]["rol"]
 
-# Paso 2: Fijación forzada. Si el usuario está autenticado, asegurar que el token NUNCA desaparezca de la URL
+# Si ya está autenticado, fijar el parámetro de sesión en la URL en cada ciclo
 if st.session_state.autenticado and st.session_state.user_email:
-    token_actual = firmar_correo(st.session_state.user_email)
-    if query_params.get("session") != token_actual:
-        st.query_params["session"] = token_actual
-
-# Paso 3: Rescate vía JS en caso de desconexión por inactividad o reinicio del contenedor
-if not st.session_state.autenticado and not token_en_url:
-    st.components.v1.html("""
-        <script>
-            (function() {
-                try {
-                    var token = localStorage.getItem('control_horas_token');
-                    if (!token && window.top) {
-                        token = window.top.localStorage.getItem('control_horas_token');
-                    }
-                    if (token) {
-                        var target = window.top ? window.top.location : window.location;
-                        var u = new URL(target.href);
-                        if (!u.searchParams.has('session')) {
-                            u.searchParams.set('session', token);
-                            target.replace(u.toString());
-                        }
-                    }
-                } catch(e) {}
-            })();
-        </script>
-    """, height=0)
+    tok = firmar_correo(st.session_state.user_email)
+    if query_params.get("session") != tok:
+        st.query_params["session"] = tok
 
 inicio_mes = st.session_state["ciclo_inicio"]
 fin_mes = st.session_state["ciclo_fin"]
@@ -828,18 +804,6 @@ if not st.session_state.autenticado:
                 st.session_state.rol_usuario = rol
                 token_firmado = firmar_correo(correo_input.lower())
                 st.query_params["session"] = token_firmado
-                
-                st.components.v1.html(f"""
-                    <script>
-                        try {{
-                            localStorage.setItem('control_horas_token', '{token_firmado}');
-                            if (window.top) {{
-                                window.top.localStorage.setItem('control_horas_token', '{token_firmado}');
-                            }}
-                        }} catch(e) {{}}
-                    </script>
-                """, height=0)
-
                 st.rerun()
             else:
                 st.error("Correo o contraseña incorrectos. Verifica tus datos.")
@@ -1067,6 +1031,7 @@ else:
             nom = info_w["nombre"]
             filas_rango = mapa_datos_personal.get(nom, [])
             
+            # Mapear cada día del rango B2:G35
             registros_por_fecha = {}
             for idx, r in enumerate(filas_rango):
                 if idx < len(fechas_periodo):
@@ -1079,11 +1044,13 @@ else:
                 if f > hoy: 
                     continue
                 
+                # Domingos y feriados no suman pendientes
                 if (f.weekday() == 6) or (f.strftime("%Y-%m-%d") in FERIADOS):
                     continue
                 
                 tiene_datos = registros_por_fecha.get(f, False)
                 
+                # Sábado sin trabajar: si no laboró, no cuenta como pendiente
                 if f.weekday() == 5 and f < hoy:
                     lunes_despues = f + timedelta(days=2)
                     if hoy >= lunes_despues and not tiene_datos:
@@ -1152,19 +1119,6 @@ else:
                     st.rerun()
 
                 if st.button("🚪 Cerrar Sesión", use_container_width=True):
-                    st.components.v1.html("""
-                        <script>
-                            try {
-                                localStorage.removeItem('control_horas_token');
-                                if (window.top) {
-                                    window.top.localStorage.removeItem('control_horas_token');
-                                    var u = new URL(window.top.location.href);
-                                    u.searchParams.delete('session');
-                                    window.top.location.replace(u.toString());
-                                }
-                            } catch(e) {}
-                        </script>
-                    """, height=0)
                     st.query_params.clear()
                     st.session_state.clear()
                     st.rerun()
