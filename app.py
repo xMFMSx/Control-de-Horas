@@ -156,7 +156,7 @@ div[data-testid="InputInstructions"] {{
 }}
 
 div[data-testid="InputInstructions"]::after {{
-    content: "Presiona Enter para enviar" !important;
+    content: "Presiona Enter" !important;
     font-size: 0.72rem !important;
     color: var(--texto-secundario) !important;
     opacity: 0.8 !important;
