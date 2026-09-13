@@ -795,20 +795,31 @@ def generar_pdf_horas(nombre_t, reg_tabla, tot_hn_str, tot_hr_str, periodo_str):
 # ==========================================================
 query_params = st.query_params
 
-if not st.session_state.get("autenticado"):
-    st.components.v1.html("""
-        <script>
-            const tokenGuardado = localStorage.getItem('control_horas_token');
-            const urlParams = new URLSearchParams(window.location.search);
-            if (tokenGuardado && !urlParams.has('session')) {
-                urlParams.set('session', tokenGuardado);
-                window.location.search = urlParams.toString();
-            }
-        </script>
-    """, height=0)
+if "autenticado" not in st.session_state: 
+    st.session_state.autenticado = False
+if "nombre_usuario" not in st.session_state: 
+    st.session_state.nombre_usuario = ""
+if "user_email" not in st.session_state: 
+    st.session_state.user_email = ""
+if "rol_usuario" not in st.session_state: 
+    st.session_state.rol_usuario = "trabajador"
+if "cambiando_password" not in st.session_state: 
+    st.session_state.cambiando_password = False
+if "modo_admin_activo" not in st.session_state: 
+    st.session_state.modo_admin_activo = False
+if "fecha_admin_simulada" not in st.session_state: 
+    st.session_state["fecha_admin_simulada"] = None
 
-if "session" in query_params and not st.session_state.get("autenticado"):
-    correo_token = verificar_token(query_params["session"])
+# Fechas del ciclo activo (Por defecto 31/08 al 30/09)
+if "ciclo_inicio" not in st.session_state:
+    st.session_state["ciclo_inicio"] = date(2026, 8, 31)
+if "ciclo_fin" not in st.session_state:
+    st.session_state["ciclo_fin"] = date(2026, 9, 30)
+
+# Restaurar sesión desde URL params
+token_url = query_params.get("session")
+if token_url and not st.session_state.autenticado:
+    correo_token = verificar_token(token_url)
     if correo_token:
         usuarios_map = cargar_trabajadores()
         if correo_token.lower() in usuarios_map:
@@ -817,19 +828,24 @@ if "session" in query_params and not st.session_state.get("autenticado"):
             st.session_state["nombre_usuario"] = usuarios_map[correo_token.lower()]["nombre"]
             st.session_state["rol_usuario"] = usuarios_map[correo_token.lower()]["rol"]
 
-if "autenticado" not in st.session_state: st.session_state.autenticado = False
-if "nombre_usuario" not in st.session_state: st.session_state.nombre_usuario = ""
-if "user_email" not in st.session_state: st.session_state.user_email = ""
-if "rol_usuario" not in st.session_state: st.session_state.rol_usuario = "trabajador"
-if "cambiando_password" not in st.session_state: st.session_state.cambiando_password = False
-if "modo_admin_activo" not in st.session_state: st.session_state.modo_admin_activo = False
-if "fecha_admin_simulada" not in st.session_state: st.session_state["fecha_admin_simulada"] = None
-
-# Fechas del ciclo activo (Por defecto 31/08 al 30/09)
-if "ciclo_inicio" not in st.session_state:
-    st.session_state["ciclo_inicio"] = date(2026, 8, 31)
-if "ciclo_fin" not in st.session_state:
-    st.session_state["ciclo_fin"] = date(2026, 9, 30)
+# Sincronización secundaria con LocalStorage
+if not st.session_state.autenticado and not token_url:
+    st.components.v1.html("""
+        <script>
+            try {
+                const token = window.localStorage.getItem('control_horas_token') || 
+                              (window.top && window.top.localStorage.getItem('control_horas_token'));
+                if (token) {
+                    const topLoc = window.top ? window.top.location : window.location;
+                    const url = new URL(topLoc.href);
+                    if (!url.searchParams.has('session')) {
+                        url.searchParams.set('session', token);
+                        topLoc.replace(url.toString());
+                    }
+                }
+            } catch(e) {}
+        </script>
+    """, height=0)
 
 inicio_mes = st.session_state["ciclo_inicio"]
 fin_mes = st.session_state["ciclo_fin"]
@@ -865,7 +881,12 @@ if not st.session_state.autenticado:
                 
                 st.components.v1.html(f"""
                     <script>
-                        localStorage.setItem('control_horas_token', '{token_firmado}');
+                        try {{
+                            window.localStorage.setItem('control_horas_token', '{token_firmado}');
+                            if (window.top) {{
+                                window.top.localStorage.setItem('control_horas_token', '{token_firmado}');
+                            }}
+                        }} catch(e) {{}}
                     </script>
                 """, height=0)
 
@@ -1092,54 +1113,51 @@ else:
         st.markdown("**👥 Resumen General del Personal**")
         try:
             libro_admin = conectar_libro()
-            filas_html = []
             
+            # Encabezado nativo visible
+            col_th1, col_th2 = st.columns([65, 35])
+            with col_th1:
+                st.markdown("<div style='font-size: 0.72rem; font-weight: 700; color: var(--texto-secundario); padding: 8px 12px; background-color: var(--bg-encabezado); border: 1px solid var(--borde); border-radius: 6px 0 0 0;'>TRABAJADOR</div>", unsafe_allow_html=True)
+            with col_th2:
+                st.markdown("<div style='font-size: 0.72rem; font-weight: 700; color: var(--texto-secundario); padding: 8px 12px; background-color: var(--bg-encabezado); border: 1px solid var(--borde); border-left: none; border-radius: 0 6px 0 0; text-align: right;'>ESTADO DE REGISTRO</div>", unsafe_allow_html=True)
+
             for correo_w, info_w in usuarios_autorizados.items():
                 nom = info_w["nombre"]
                 try:
                     h_w = libro_admin.worksheet(nom)
                     vals = h_w.get_all_values()[1:]
                     
-                    # Diccionario para registrar si un día del ciclo está cubierto
                     datos_trabajador = {}
-                    
                     for idx, r in enumerate(vals):
                         if any("TOTAL" in str(x).upper() for x in r): 
                             continue
                         
-                        # Extraer número del día de la columna B (r[1])
                         txt_dia = str(r[1]).strip() if len(r) > 1 else ""
                         n_dia = int(txt_dia) if txt_dia.isdigit() else None
                         
-                        # Si no hay número explícito en B, asociar por orden de fila
                         if n_dia is None and idx < len(fechas_periodo):
                             n_dia = fechas_periodo[idx].day
 
                         if n_dia is not None:
-                            # Examinar todas las celdas de Entrada, Salida, Horas y Obra (columnas C a G)
-                            celdas_utiles = [str(c).strip() for c in r[2:7] if str(c).strip() and str(c).strip() != "None"]
+                            # Se evalúan todas las celdas de C a G
+                            celdas_datos = [str(c).strip() for c in r[2:7] if str(c).strip() and str(c).strip() not in ["None", "0:00:00"]]
+                            tiene_registro = len(celdas_datos) > 0
                             
-                            # Si alguna celda tiene contenido (números, horas, '0:00', '-', palabras como 'VACACIONES', 'PERMISO', 'NO TRABAJA', obra, etc.)
-                            tiene_registro = len(celdas_utiles) > 0
-                            
-                            clave_dia = f"{n_dia}_{idx}" if (n_dia == 31 and idx == 0) else str(n_dia)
+                            clave_dia = f"{n_dia}_0" if (n_dia == 31 and idx == 0) else str(n_dia)
                             datos_trabajador[clave_dia] = tiene_registro
 
                     faltan = 0
                     for idx_f, f in enumerate(fechas_periodo):
-                        # Solo evaluar los días transcurridos hasta hoy
                         if f > hoy: 
                             continue
                         
                         clave_f = f"{f.day}_0" if (f.day == 31 and idx_f == 0) else str(f.day)
                         
-                        # Domingos y feriados no son obligatorios si están sin trabajar
                         if (f.weekday() == 6) or (f.strftime("%Y-%m-%d") in FERIADOS):
                             continue
                         
                         tiene_datos = datos_trabajador.get(clave_f, False)
                         
-                        # Sábado sin trabajar pasado el lunes no cuenta como pendiente
                         if f.weekday() == 5 and f < hoy:
                             lunes_despues = f + timedelta(days=2)
                             if hoy >= lunes_despues and not tiene_datos:
@@ -1156,12 +1174,12 @@ else:
                 else:
                     badge = f'<span style="color: #f87171; font-weight: 700;">{faltan} días pendientes</span>'
 
-                filas_html.append(f'<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--borde);background-color:var(--bg-contenedor);font-size:0.82rem;"><div style="color:var(--texto-principal);font-weight:600;">{nom}</div><div>{badge}</div></div>')
+                col_r1, col_r2 = st.columns([65, 35])
+                with col_r1:
+                    st.markdown(f"<div style='padding: 10px 12px; background-color: var(--bg-contenedor); border: 1px solid var(--borde); border-top: none; color: var(--texto-principal); font-weight: 600; font-size: 0.82rem;'>{nom}</div>", unsafe_allow_html=True)
+                with col_r2:
+                    st.markdown(f"<div style='padding: 10px 12px; background-color: var(--bg-contenedor); border: 1px solid var(--borde); border-top: none; border-left: none; text-align: right; font-size: 0.82rem;'>{badge}</div>", unsafe_allow_html=True)
 
-            filas_str = "".join(filas_html)
-            tabla_html = f'<div style="width:100%;border:1px solid var(--borde);border-radius:8px;overflow:hidden;margin-top:6px;box-sizing:border-box;"><div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background-color:var(--bg-encabezado);border-bottom:1px solid var(--borde);font-size:0.72rem;font-weight:700;color:var(--texto-secundario);"><div>TRABAJADOR</div><div>ESTADO DE REGISTRO</div></div>{filas_str}</div>'
-
-            st.markdown(tabla_html, unsafe_allow_html=True)
         except Exception as e:
             st.error(f"Error al cargar lista: {e}")
 
@@ -1217,16 +1235,16 @@ else:
                 if st.button("🚪 Cerrar Sesión", use_container_width=True):
                     st.components.v1.html("""
                         <script>
-                            localStorage.removeItem('control_horas_token');
+                            try {
+                                window.localStorage.removeItem('control_horas_token');
+                                if (window.top) {
+                                    window.top.localStorage.removeItem('control_horas_token');
+                                }
+                            } catch(e) {}
                         </script>
                     """, height=0)
                     st.query_params.clear()
-                    st.session_state.autenticado = False
-                    st.session_state.nombre_usuario = ""
-                    st.session_state.user_email = ""
-                    st.session_state.rol_usuario = "trabajador"
-                    st.session_state.cambiando_password = False
-                    st.session_state.modo_admin_activo = False
+                    st.session_state.clear()
                     st.rerun()
 
         st.markdown("---")
@@ -1461,7 +1479,6 @@ else:
                     
                     es_festivo = iso_f in FERIADOS
                     
-                    # Determinación de clase de color
                     if es_festivo or w_day == 6:
                         clase_extra = "fila-festivo"
                         dia_txt = f"{d} (F)" if es_festivo else str(d)
