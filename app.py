@@ -10,6 +10,7 @@ import time as time_lib
 import urllib.parse
 from io import BytesIO
 import os
+import requests
 
 try:
     from reportlab.lib import colors
@@ -760,8 +761,8 @@ if "fecha_admin_simulada" not in st.session_state:
     st.session_state["fecha_admin_simulada"] = None
 if "mostrar_horas_admin" not in st.session_state:
     st.session_state["mostrar_horas_admin"] = False
-if "ver_pdf_embebido" not in st.session_state:
-    st.session_state["ver_pdf_embebido"] = False
+if "url_descarga_directa" not in st.session_state:
+    st.session_state["url_descarga_directa"] = None
 
 if "ciclo_inicio" not in st.session_state:
     st.session_state["ciclo_inicio"] = date(2026, 8, 31)
@@ -1513,7 +1514,7 @@ else:
             st.markdown("---")
 
             # ==========================================================
-            # DESCARGA DIRECTA CAPACITOR / ANDROID WEBVIEW
+            # DESCARGA DIRECTA AUTOMÁTICA CON ENLACE REAL DE INTERNET
             # ==========================================================
             if REPORTLAB_DISPONIBLE:
                 pdf_bytes = generar_pdf_horas(
@@ -1524,51 +1525,48 @@ else:
                     nombre_mes_dinamico
                 )
                 if pdf_bytes:
-                    b64_pdf = base64.b64encode(pdf_bytes).decode('utf-8')
                     nombre_archivo_pdf = f"Horas_{nombre_trabajador.replace(' ', '_')}_{fin_mes.strftime('%Y%m')}.pdf"
 
-                    st.components.v1.html(f"""
-                        <div style="width: 100%; margin-top: 4px;">
-                            <button id="btnDescargarAPK" style="
-                                width: 100%;
-                                height: 46px;
-                                background-color: #1a1e29;
-                                border: 1.5px solid #ff4b4b;
-                                color: #ffffff;
-                                font-weight: 700;
-                                font-size: 0.85rem;
-                                border-radius: 8px;
-                                cursor: pointer;
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                gap: 8px;
-                                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                            ">
-                                📄 DESCARGAR HORAS DEL MES EN PDF
-                            </button>
-                        </div>
+                    col_btn_dl, col_btn_res = st.columns([75, 25])
+                    with col_btn_dl:
+                        if not st.session_state["url_descarga_directa"]:
+                            if st.button("📄 PREPARAR DESCARGA PDF", use_container_width=True):
+                                with st.spinner("Generando archivo..."):
+                                    try:
+                                        files = {'file': (nombre_archivo_pdf, pdf_bytes, 'application/pdf')}
+                                        res = requests.post('https://tmpfiles.org/api/v1/upload', files=files, timeout=10)
+                                        if res.status_code == 200:
+                                            datos = res.json()
+                                            url_raw = datos.get("data", {}).get("url", "")
+                                            if "tmpfiles.org/" in url_raw:
+                                                st.session_state["url_descarga_directa"] = url_raw.replace("tmpfiles.org/", "tmpfiles.org/dl/")
+                                                st.rerun()
+                                    except Exception:
+                                        st.error("Error al preparar la descarga.")
+                        else:
+                            url_real = st.session_state["url_descarga_directa"]
+                            st.markdown(f"""
+                                <a href="{url_real}" target="_blank" style="
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    width: 100%;
+                                    height: 46px;
+                                    background-color: #1a1e29;
+                                    border: 2px solid #ff4b4b;
+                                    color: #ffffff;
+                                    font-weight: 700;
+                                    font-size: 0.85rem;
+                                    border-radius: 8px;
+                                    text-decoration: none;
+                                    box-sizing: border-box;
+                                ">
+                                    📥 DESCARGAR REPORTE PDF
+                                </a>
+                            """, unsafe_allow_html=True)
 
-                        <script>
-                            const b64Data = "{b64_pdf}";
-                            const fileName = "{nombre_archivo_pdf}";
-
-                            document.getElementById('btnDescargarAPK').addEventListener('click', function() {{
-                                const binStr = atob(b64Data);
-                                const len = binStr.length;
-                                const arr = new Uint8Array(len);
-                                for (let i = 0; i < len; i++) {{
-                                    arr[i] = binStr.charCodeAt(i);
-                                }}
-                                const blob = new Blob([arr], {{ type: 'application/pdf' }});
-                                const blobUrl = URL.createObjectURL(blob);
-
-                                const a = document.createElement('a');
-                                a.href = blobUrl;
-                                a.download = fileName;
-                                document.body.appendChild(a);
-                                a.click();
-                                document.body.removeChild(a);
-                            }});
-                        </script>
-                    """, height=56)
+                    with col_btn_res:
+                        if st.session_state["url_descarga_directa"]:
+                            if st.button("🔄", help="Actualizar archivo"):
+                                st.session_state["url_descarga_directa"] = None
+                                st.rerun()
