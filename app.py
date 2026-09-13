@@ -160,7 +160,7 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {{
     display: flex;
     flex-direction: column;
     width: 100%;
-    margin-top: 315px !important; /* <<< AQUÍ EDITAS LA ALTURA EN PX >>> (sube el número para bajarlo, baja el número para subirlo) */
+    margin-top: 307px !important; /* <<< AQUÍ EDITAS LA ALTURA EN PX >>> (sube el número para bajarlo, baja el número para subirlo) */
 }}
 
 .login-wrapper div[data-testid="stForm"] {{
