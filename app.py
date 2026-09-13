@@ -1100,27 +1100,12 @@ else:
             
             badge_horas = f'<span style="font-size: 0.68rem; color: var(--texto-secundario); font-family: monospace; background-color: rgba(255,255,255,0.04); padding: 3px 6px; border-radius: 4px; border: 1px solid var(--borde); margin-right: 8px;">HN:{str_hn} | HR:{str_hr} | <b>T:{str_tot}</b></span>'
 
-            fila_item = f'''
-            <div style="display:flex; justify-content:space-between; align-items:center; padding:9px 12px; border-bottom:1px solid var(--borde); background-color:var(--bg-contenedor); font-size:0.80rem;">
-                <div style="color:var(--texto-principal); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:45%;">{nom}</div>
-                <div style="display:flex; align-items:center; justify-content:flex-end; gap:6px;">
-                    {badge_horas}
-                    {badge}
-                </div>
-            </div>
-            '''
+            # Cadena HTML limpia en una sola línea continua (evita el bloque de texto gris)
+            fila_item = f'<div style="display:flex; justify-content:space-between; align-items:center; padding:9px 12px; border-bottom:1px solid var(--borde); background-color:var(--bg-contenedor); font-size:0.80rem;"><div style="color:var(--texto-principal); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:45%;">{nom}</div><div style="display:flex; align-items:center; justify-content:flex-end; gap:6px;">{badge_horas}{badge}</div></div>'
             filas_html_personal.append(fila_item)
 
         filas_unidas = "".join(filas_html_personal)
-        tabla_html = f'''
-        <div style="width:100%; border:1px solid var(--borde); border-radius:8px; overflow:hidden; margin-top:6px; box-sizing:border-box;">
-            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background-color:var(--bg-encabezado); border-bottom:1px solid var(--borde); font-size:0.72rem; font-weight:700; color:var(--texto-secundario);">
-                <div>TRABAJADOR</div>
-                <div>ESTADO DE REGISTRO & HORAS</div>
-            </div>
-            {filas_unidas}
-        </div>
-        '''
+        tabla_html = f'<div style="width:100%; border:1px solid var(--borde); border-radius:8px; overflow:hidden; margin-top:6px; box-sizing:border-box;"><div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background-color:var(--bg-encabezado); border-bottom:1px solid var(--borde); font-size:0.72rem; font-weight:700; color:var(--texto-secundario);"><div>TRABAJADOR</div><div>ESTADO DE REGISTRO & HORAS</div></div>{filas_unidas}</div>'
         st.markdown(tabla_html, unsafe_allow_html=True)
 
         st.stop()
