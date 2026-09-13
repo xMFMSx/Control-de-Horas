@@ -740,7 +740,7 @@ def generar_pdf_horas(nombre_t, reg_tabla, tot_hn_str, tot_hr_str, periodo_str):
     return buffer.getvalue()
 
 # ==========================================================
-# PERSISTENCIA ROBUSTA ESPECIAL APK / WEBVIEW
+# PERSISTENCIA ROBUSTA CON LOCALSTORAGE (EVITA DESCONEXIONES)
 # ==========================================================
 query_params = st.query_params
 
@@ -768,7 +768,20 @@ if "ciclo_inicio" not in st.session_state:
 if "ciclo_fin" not in st.session_state:
     st.session_state["ciclo_fin"] = date(2026, 9, 30)
 
+# 1. Recuperar token de la URL o inyectar desde LocalStorage si la sesión se recarga
 token_url = query_params.get("session")
+
+if not token_url and not st.session_state.autenticado:
+    # Script para leer localStorage y recargar con el token guardado
+    st.components.v1.html("""
+        <script>
+            const savedToken = localStorage.getItem("control_horas_session");
+            if (savedToken && !window.location.search.includes("session=")) {
+                window.location.search = "?session=" + savedToken;
+            }
+        </script>
+    """, height=0)
+
 if token_url and not st.session_state.autenticado:
     correo_token = verificar_token(token_url)
     if correo_token:
@@ -783,6 +796,13 @@ if st.session_state.autenticado and st.session_state.user_email:
     tok = firmar_correo(st.session_state.user_email)
     if query_params.get("session") != tok:
         st.query_params["session"] = tok
+    
+    # 2. Guardar permanentemente el token en el almacenamiento local del APK
+    st.components.v1.html(f"""
+        <script>
+            localStorage.setItem("control_horas_session", "{tok}");
+        </script>
+    """, height=0)
 
 inicio_mes = st.session_state["ciclo_inicio"]
 fin_mes = st.session_state["ciclo_fin"]
@@ -817,6 +837,14 @@ if not st.session_state.autenticado:
                 st.session_state.rol_usuario = rol
                 token_firmado = firmar_correo(correo_input.lower())
                 st.query_params["session"] = token_firmado
+                
+                # Guardar en localStorage de forma inmediata al iniciar sesión exitosamente
+                st.components.v1.html(f"""
+                    <script>
+                        localStorage.setItem("control_horas_session", "{token_firmado}");
+                        window.location.reload();
+                    </script>
+                """, height=0)
                 st.rerun()
             else:
                 st.error("Correo o contraseña incorrectos. Verifica tus datos.")
@@ -1175,6 +1203,12 @@ else:
                     st.rerun()
 
                 if st.button("🚪 Cerrar Sesión", use_container_width=True):
+                    # Limpiar localStorage al cerrar sesión voluntariamente
+                    st.components.v1.html("""
+                        <script>
+                            localStorage.removeItem("control_horas_session");
+                        </script>
+                    """, height=0)
                     st.query_params.clear()
                     st.session_state.clear()
                     st.rerun()
