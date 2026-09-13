@@ -480,17 +480,30 @@ def conectar_libro():
                 raise e
             time_lib.sleep(1.5)
 
+def buscar_hoja_exacta_o_similar(libro, nombre_buscado):
+    nom_buscado = " ".join(nombre_buscado.strip().upper().split())
+    # 1. Búsqueda exacta
+    for s in libro.worksheets():
+        if " ".join(s.title.strip().upper().split()) == nom_buscado:
+            return s
+    # 2. Búsqueda por subcadena
+    for s in libro.worksheets():
+        tit = " ".join(s.title.strip().upper().split())
+        if nom_buscado in tit or tit in nom_buscado:
+            return s
+    raise gspread.exceptions.WorksheetNotFound(nombre_buscado)
+
 def obtener_hoja_trabajador(nombre_trabajador: str):
     clave = f"hoja_{nombre_trabajador}"
     if clave in st.session_state:
         return st.session_state[clave]
     try:
         libro = conectar_libro()
-        hoja = libro.worksheet(nombre_trabajador)
+        hoja = buscar_hoja_exacta_o_similar(libro, nombre_trabajador)
     except Exception:
         conectar_libro.clear()
         libro = conectar_libro()
-        hoja = libro.worksheet(nombre_trabajador)
+        hoja = buscar_hoja_exacta_o_similar(libro, nombre_trabajador)
     st.session_state[clave] = hoja
     return hoja
 
@@ -589,7 +602,7 @@ def generar_excel_mes(libro_actual, usuarios_dict, fechas_ciclo):
         for correo_u, datos_u in usuarios_dict.items():
             nom = datos_u["nombre"]
             try:
-                h_trab = libro_actual.worksheet(nom)
+                h_trab = buscar_hoja_exacta_o_similar(libro_actual, nom)
                 vals = h_trab.get_all_values()[1:]
                 thn, thr = 0, 0
                 for idx, r in enumerate(vals):
@@ -626,7 +639,7 @@ def generar_excel_mes(libro_actual, usuarios_dict, fechas_ciclo):
         for correo_u, datos_u in usuarios_dict.items():
             nom = datos_u["nombre"]
             try:
-                h_trab = libro_actual.worksheet(nom)
+                h_trab = buscar_hoja_exacta_o_similar(libro_actual, nom)
                 filas = h_trab.get_all_values()[1:]
                 registros = []
                 for idx, r in enumerate(filas):
@@ -667,7 +680,7 @@ def reiniciar_hojas_nuevo_ciclo(f_inicio, f_fin, usuarios_dict):
     for correo_u, datos_u in usuarios_dict.items():
         nom = datos_u["nombre"]
         try:
-            h = libro.worksheet(nom)
+            h = buscar_hoja_exacta_o_similar(libro, nom)
             h.batch_clear(["A2:G40"])
             h.update(f"A2:G{1 + len(nuevas_filas)}", nuevas_filas, value_input_option="USER_ENTERED")
         except Exception:
@@ -734,39 +747,44 @@ if "modo_admin_activo" not in st.session_state:
 if "fecha_admin_simulada" not in st.session_state: 
     st.session_state["fecha_admin_simulada"] = None
 
-# Fechas del ciclo activo (Por defecto 31/08 al 30/09)
 if "ciclo_inicio" not in st.session_state:
     st.session_state["ciclo_inicio"] = date(2026, 8, 31)
 if "ciclo_fin" not in st.session_state:
     st.session_state["ciclo_fin"] = date(2026, 9, 30)
 
+# Recuperación inmediata desde URL
 token_url = query_params.get("session")
 if token_url and not st.session_state.autenticado:
     correo_token = verificar_token(token_url)
     if correo_token:
         usuarios_map = cargar_trabajadores()
         if correo_token.lower() in usuarios_map:
-            st.session_state["autenticado"] = True
-            st.session_state["user_email"] = correo_token.lower()
-            st.session_state["nombre_usuario"] = usuarios_map[correo_token.lower()]["nombre"]
-            st.session_state["rol_usuario"] = usuarios_map[correo_token.lower()]["rol"]
+            st.session_state.autenticado = True
+            st.session_state.user_email = correo_token.lower()
+            st.session_state.nombre_usuario = usuarios_map[correo_token.lower()]["nombre"]
+            st.session_state.rol_usuario = usuarios_map[correo_token.lower()]["rol"]
 
+# Recuperación desde localStorage / Cookies si la URL fue limpiada por el navegador
 if not st.session_state.autenticado and not token_url:
     st.components.v1.html("""
         <script>
-            try {
-                let token = localStorage.getItem('control_horas_token');
-                if (!token && window.top) {
-                    token = window.top.localStorage.getItem('control_horas_token');
-                }
-                if (token) {
-                    const topUrl = new URL(window.top.location.href);
-                    if (!topUrl.searchParams.has('session')) {
-                        topUrl.searchParams.set('session', token);
-                        window.top.location.replace(topUrl.toString());
+            function recuperarSesion() {
+                try {
+                    let token = localStorage.getItem('control_horas_token');
+                    if (!token && window.top) {
+                        token = window.top.localStorage.getItem('control_horas_token');
                     }
-                }
-            } catch(e) {}
+                    if (token) {
+                        const topLoc = window.top ? window.top.location : window.location;
+                        const url = new URL(topLoc.href);
+                        if (!url.searchParams.has('session')) {
+                            url.searchParams.set('session', token);
+                            topLoc.href = url.toString();
+                        }
+                    }
+                } catch(e) {}
+            }
+            recuperarSesion();
         </script>
     """, height=0)
 
@@ -801,6 +819,7 @@ if not st.session_state.autenticado:
                 token_firmado = firmar_correo(correo_input.lower())
                 st.query_params["session"] = token_firmado
                 
+                # Inyección JS en dos niveles para garantizar que el navegador recuerde la sesión
                 st.components.v1.html(f"""
                     <script>
                         try {{
@@ -1028,7 +1047,7 @@ else:
                         st.success("✔ ¡Hojas preparadas y limpias para el nuevo ciclo!")
                         st.rerun()
 
-        # 4. TABLA GENERAL DE PERSONAL (SIEMPRE VISIBLE DIRECTAMENTE)
+        # 4. TABLA GENERAL DE PERSONAL (RENDERIZADO DIRECTO COMPACTO)
         st.write("")
         st.markdown("**👥 Resumen General del Personal**")
         
@@ -1039,7 +1058,7 @@ else:
             for correo_w, info_w in usuarios_autorizados.items():
                 nom = info_w["nombre"]
                 try:
-                    h_w = libro_admin.worksheet(nom)
+                    h_w = buscar_hoja_exacta_o_similar(libro_admin, nom)
                     vals = h_w.get_all_values()[1:]
                     
                     datos_trabajador = {}
@@ -1054,7 +1073,7 @@ else:
                             n_dia = fechas_periodo[idx].day
 
                         if n_dia is not None:
-                            # Buscar cualquier dato en columnas C a G (horarios, guiones, permisos, vacaciones)
+                            # Se evalúan todas las celdas de C a G
                             celdas_datos = [str(c).strip() for c in r[2:7] if str(c).strip() and str(c).strip() not in ["None", "0:00:00"]]
                             tiene_registro = len(celdas_datos) > 0
                             
@@ -1089,23 +1108,12 @@ else:
                 else:
                     badge = f'<span style="color: #f87171; font-weight: 700;">{faltan} días pendientes</span>'
 
-                filas_html_personal.append(f"""
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 11px 16px; border-bottom: 1px solid var(--borde); background-color: var(--bg-contenedor); font-size: 0.82rem;">
-                    <div style="color: var(--texto-principal); font-weight: 600;">{nom}</div>
-                    <div>{badge}</div>
-                </div>
-                """)
+                fila_str_linea = f'<div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--borde); background-color: var(--bg-contenedor); font-size: 0.82rem;"><div style="color: var(--texto-principal); font-weight: 600;">{nom}</div><div>{badge}</div></div>'
+                filas_html_personal.append(fila_str_linea)
 
             filas_unidas = "".join(filas_html_personal)
-            tabla_completa_html = f"""
-            <div style="width: 100%; border: 1px solid var(--borde); border-radius: 8px; overflow: hidden; margin-top: 6px; box-sizing: border-box;">
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background-color: var(--bg-encabezado); border-bottom: 1px solid var(--borde); font-size: 0.72rem; font-weight: 700; color: var(--texto-secundario);">
-                    <div>TRABAJADOR</div>
-                    <div>ESTADO DE REGISTRO</div>
-                </div>
-                {filas_unidas}
-            </div>
-            """
+            tabla_completa_html = f'<div style="width: 100%; border: 1px solid var(--borde); border-radius: 8px; overflow: hidden; margin-top: 6px; box-sizing: border-box;"><div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background-color: var(--bg-encabezado); border-bottom: 1px solid var(--borde); font-size: 0.72rem; font-weight: 700; color: var(--texto-secundario);"><div>TRABAJADOR</div><div>ESTADO DE REGISTRO</div></div>{filas_unidas}</div>'
+            
             st.markdown(tabla_completa_html, unsafe_allow_html=True)
 
         except Exception as e:
