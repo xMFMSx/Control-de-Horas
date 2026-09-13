@@ -51,7 +51,7 @@ def aplicar_fondo(nombre_archivo):
                 background-position: center !important;
                 background-repeat: no-repeat !important;
             }}
-            /* Tarjeta de login semitransparente con desenfoque elegante */
+            /* Tarjeta de login semitransparente con desenfoque */
             div[data-testid="stForm"] {{
                 background-color: rgba(22, 25, 34, 0.88) !important;
                 backdrop-filter: blur(8px) !important;
@@ -146,6 +146,26 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {{
     padding-bottom: 25rem !important; 
     overflow-x: hidden !important;
     box-sizing: border-box !important;
+}}
+
+/* --- CENTRADO DINÁMICO DEL LOGIN --- */
+.login-wrapper {{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 75vh;
+    width: 100%;
+}}
+
+.login-wrapper div[data-testid="stForm"] {{
+    width: 100% !important;
+    max-width: 440px !important;
+    margin: 0 auto !important;
+}}
+
+.login-wrapper div[data-testid="stFormSubmitButton"] > button {{
+    width: 100% !important;
 }}
 
 /* Fila Superior */
@@ -778,13 +798,12 @@ MESES_ES = {
 nombre_mes_dinamico = f"{MESES_ES[fin_mes.month]} {fin_mes.year}"
 
 if not st.session_state.autenticado:
-    st.title("🔐 Acceso a APP DE HORAS")
-    st.write("Por favor, ingresa tu correo electrónico y contraseña para continuar.")
+    st.markdown('<div class="login-wrapper">', unsafe_allow_html=True)
     
     with st.form("form_login"):
         correo_input = st.text_input("Correo Electrónico")
         password_input = st.text_input("Contraseña (Número de Teléfono)", type="password")
-        submit_button = st.form_submit_button("Iniciar Sesión")
+        submit_button = st.form_submit_button("Iniciar Sesión", use_container_width=True)
         
         if submit_button:
             valido, nombre, rol = validar_usuario(correo_input, password_input)
@@ -806,6 +825,8 @@ if not st.session_state.autenticado:
                 st.rerun()
             else:
                 st.error("Correo o contraseña incorrectos. Verifica tus datos.")
+
+    st.markdown('</div>', unsafe_allow_html=True)
 
 else:
     correo_google = st.session_state["user_email"]
