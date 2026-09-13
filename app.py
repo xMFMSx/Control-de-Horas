@@ -84,7 +84,6 @@ def pintar_celda_especifica_septiembre(nombre_trabajador, num_dia, obra_asignada
         if not valores_sep:
             return
             
-        # 1. Encontrar la fila del trabajador en SEPTIEMBRE
         row_target = -1
         for idx, fila in enumerate(valores_sep):
             if len(fila) > 0 and str(fila[0]).strip().upper() == str(nombre_trabajador).strip().upper():
@@ -94,7 +93,6 @@ def pintar_celda_especifica_septiembre(nombre_trabajador, num_dia, obra_asignada
         if row_target == -1:
             return
 
-        # 2. Encontrar la columna del día en la cabecera (Fila 1)
         cabecera_dias = valores_sep[0]
         col_target_1idx = -1
         for col_idx, val_cab in enumerate(cabecera_dias):
@@ -105,15 +103,11 @@ def pintar_celda_especifica_septiembre(nombre_trabajador, num_dia, obra_asignada
         if col_target_1idx == -1:
             return
 
-        # 3. Buscar el color exacto consultando la hoja OBRAS o el diccionario de colores
         obra_limpia = str(obra_asignada).strip().upper()
         color_rgb = None
 
         if obra_limpia:
-            # Primero buscamos en el diccionario directo
             color_rgb = COLORES_OBRAS_APP.get(obra_limpia)
-            
-            # Si no está directo, consultamos la hoja OBRAS para ver su color de fila
             if not color_rgb:
                 try:
                     hoja_obras = libro.worksheet("OBRAS")
@@ -123,19 +117,16 @@ def pintar_celda_especifica_septiembre(nombre_trabajador, num_dia, obra_asignada
                             sigla_o = f_obra[0].strip().upper()
                             nombre_o = f_obra[1].strip().upper()
                             if obra_limpia == sigla_o or obra_limpia == nombre_o:
-                                # Buscar color por su sigla o nombre asociado
                                 color_rgb = COLORES_OBRAS_APP.get(sigla_o, COLORES_OBRAS_APP.get(nombre_o))
                                 break
                 except Exception:
                     pass
 
-        # Si aún no tiene color asignado (ej: celda vacía o limpiada), se deja blanco
         if not color_rgb:
             color_rgb = {"red": 1.0, "green": 1.0, "blue": 1.0}
 
         numeric_sheet_id = int(hoja_sep._properties.get("sheetId", 0))
 
-        # 4. Actualizar únicamente la celda exacta de ese día
         libro.batch_update({
             "requests": [{
                 "repeatCell": {
@@ -1063,10 +1054,13 @@ else:
                                 libro_admin = conectar_libro()
                                 hoja_t = libro_admin.worksheet("TRABAJADORES")
                                 hoja_t.append_row([nombre_limpio, correo_limpio, pass_limpio, nuevo_rol])
+                                time_lib.sleep(1.2)  # Pausa para evitar error 429 de Google Sheets
 
                                 try:
                                     hoja_nueva = libro_admin.add_worksheet(title=nombre_limpio, rows=45, cols=8)
+                                    time_lib.sleep(1.2)  # Pausa para evitar error 429
                                     hoja_nueva.append_row(["DÍA_TEXTO", "DÍA", "ENTRADA", "SALIDA", "HORA EXTRA", "HORA RECARGO", "OBRA"])
+                                    time_lib.sleep(1.2)  # Pausa para evitar error 429
                                     
                                     nuevas_filas = []
                                     for i in range(delta_dias):
