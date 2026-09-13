@@ -247,6 +247,50 @@ div[data-testid="stPopoverBody"] {{
     color: var(--texto-principal) !important;
 }}
 
+/* ==========================================================
+   BOTONES EN FILA FIJA (ESTILO PESTAÑAS PRINCIPALES)
+   ========================================================== */
+div[data-testid="stHorizontalBlock"]:has(.admin-btn-row-marker) {{
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin-bottom: 4px !important;
+}}
+
+@media (max-width: 9999px) {{
+    div[data-testid="stHorizontalBlock"]:has(.admin-btn-row-marker) {{
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+    }}
+    div[data-testid="stHorizontalBlock"]:has(.admin-btn-row-marker) > div[data-testid="column"] {{
+        flex: 1 1 50% !important;
+        width: 50% !important;
+        min-width: 0 !important;
+    }}
+}}
+
+div[data-testid="stHorizontalBlock"]:has(.admin-btn-row-marker) button {{
+    width: 100% !important;
+    background-color: var(--bg-contenedor) !important;
+    border: 1px solid var(--borde) !important;
+    color: var(--texto-principal) !important;
+    font-weight: 700 !important;
+    font-size: clamp(0.70rem, 2vw, 0.82rem) !important;
+    padding: 0.55rem 0.2rem !important;
+    border-radius: 0.5rem !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+    white-space: nowrap !important;
+}}
+
+div[data-testid="stHorizontalBlock"]:has(.admin-btn-row-marker) button:hover {{
+    border-color: var(--color-acento) !important;
+}}
+
+/* Navegador Superior */
 div[data-testid="stSegmentedControl"],
 div[data-testid="stPills"] {{
     display: flex !important;
@@ -1025,11 +1069,12 @@ else:
                         obtener_resumen_individual_optimizado.clear()
                         st.rerun()
 
-        # 4. TABLA GENERAL DE PERSONAL CON OPCIÓN DE OCULTAR HORAS
+        # 4. TABLA GENERAL DE PERSONAL CON BOTONES HORIZONTALES ESTILO PESTAÑAS
         st.write("")
         st.markdown("**👥 Resumen General del Personal**")
 
-        c_btn_tab1, c_btn_tab2 = st.columns([50, 50])
+        st.markdown('<span class="admin-btn-row-marker"></span>', unsafe_allow_html=True)
+        c_btn_tab1, c_btn_tab2 = st.columns(2)
         with c_btn_tab1:
             if st.button("🔄 Actualizar Lista", use_container_width=True):
                 obtener_resumen_individual_optimizado.clear()
@@ -1095,7 +1140,8 @@ else:
             if faltan == 0:
                 badge = '<span style="color: #4ade80; font-weight: 700;">Al día ✔</span>'
             else:
-                badge = f'<span style="color: #f87171; font-weight: 700;">{faltan} días pendientes</span>'
+                palabra_dias = "Día" if faltan == 1 else "Días"
+                badge = f'<span style="color: #f87171; font-weight: 700;">{faltan} {palabra_dias}</span>'
 
             # Control de visualización de horas
             if st.session_state["mostrar_horas_admin"]:
