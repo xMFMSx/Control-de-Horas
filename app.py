@@ -34,7 +34,7 @@ st.set_page_config(
 )
 
 # ==========================================================
-# PALETA DE COLORES VIVOS Y PINTADO GLOBAL AUTOMÁTICO
+# PALETA DE COLORES VIVOS Y PINTADO QUIRÚRGICO (SOLO LA CELDA MODIFICADA)
 # ==========================================================
 COLORES_OBRAS_APP = {
     "L1": {"red": 0.60, "green": 0.85, "blue": 0.60},
@@ -75,7 +75,7 @@ COLORES_OBRAS_APP = {
     "LICENCIA": {"red": 0.95, "green": 0.50, "blue": 0.50},
 }
 
-def pintar_hoja_septiembre_completa():
+def pintar_celda_especifica_septiembre(nombre_trabajador, num_dia, obra_asignada):
     try:
         libro = conectar_libro()
         hoja_sep = libro.worksheet("SEPTIEMBRE")
@@ -83,55 +83,59 @@ def pintar_hoja_septiembre_completa():
         
         if not valores_sep:
             return
+            
+        # 1. Encontrar la fila del trabajador en SEPTIEMBRE
+        row_target = -1
+        for idx, fila in enumerate(valores_sep):
+            if len(fila) > 0 and str(fila[0]).strip().upper() == str(nombre_trabajador).strip().upper():
+                row_target = idx + 1
+                break
+        
+        if row_target == -1:
+            return
 
-        reqs_estilo_sep = []
+        # 2. Encontrar la columna del día en la cabecera (Fila 1)
+        cabecera_dias = valores_sep[0]
+        col_target_1idx = -1
+        for col_idx, val_cab in enumerate(cabecera_dias):
+            if str(val_cab).strip() == str(num_dia).strip():
+                col_target_1idx = col_idx + 1
+                break
+                
+        if col_target_1idx == -1:
+            return
+
+        # 3. Obtener el color de la obra (si está vacía o limpia, se pone blanco)
+        obra_limpia = str(obra_asignada).strip().upper()
+        if obra_limpia and obra_limpia in COLORES_OBRAS_APP:
+            color_rgb = COLORES_OBRAS_APP[obra_limpia]
+        else:
+            color_rgb = {"red": 1.0, "green": 1.0, "blue": 1.0}
+
         numeric_sheet_id = int(hoja_sep._properties.get("sheetId", 0))
-        COLOR_DEFAULT = {"red": 1.0, "green": 1.0, "blue": 1.0}
 
-        for row_idx, fila in enumerate(valores_sep):
-            if row_idx > 0 and len(fila) > 0 and str(fila[0]).strip():
-                nombre_trabajador = str(fila[0]).strip()
-                if "HORA" not in nombre_trabajador.upper():
-                    try:
-                        hoja_t = libro.worksheet(nombre_trabajador)
-                        vals_t = hoja_t.get_all_values()[1:]
-
-                        for d_idx in range(31):
-                            col_sep_idx = d_idx + 1
-                            if col_sep_idx >= len(fila):
-                                break
-
-                            if d_idx < len(vals_t):
-                                row_t = vals_t[d_idx]
-                                obra_registrada = str(row_t[6]).strip().upper() if len(row_t) > 6 else ""
-                                color_celda = COLORES_OBRAS_APP.get(obra_registrada, COLOR_DEFAULT)
-
-                                reqs_estilo_sep.append({
-                                    "repeatCell": {
-                                        "range": {
-                                            "sheetId": numeric_sheet_id,
-                                            "startRowIndex": row_idx,
-                                            "endRowIndex": row_idx + 1,
-                                            "startColumnIndex": col_sep_idx,
-                                            "endColumnIndex": col_sep_idx + 1
-                                        },
-                                        "cell": {
-                                            "userEnteredFormat": {
-                                                "backgroundColor": color_celda
-                                            }
-                                        },
-                                        "fields": "userEnteredFormat.backgroundColor"
-                                    }
-                                })
-                    except Exception:
-                        pass
-
-        if reqs_estilo_sep:
-            chunk_size = 500
-            for i in range(0, len(reqs_estilo_sep), chunk_size):
-                libro.batch_update({"requests": reqs_estilo_sep[i:i + chunk_size]})
+        # 4. Actualizar únicamente la celda exacta de ese día
+        libro.batch_update({
+            "requests": [{
+                "repeatCell": {
+                    "range": {
+                        "sheetId": numeric_sheet_id,
+                        "startRowIndex": row_target - 1,
+                        "endRowIndex": row_target,
+                        "startColumnIndex": col_target_1idx - 1,
+                        "endColumnIndex": col_target_1idx
+                    },
+                    "cell": {
+                        "userEnteredFormat": {
+                            "backgroundColor": color_rgb
+                        }
+                    },
+                    "fields": "userEnteredFormat.backgroundColor"
+                }
+            }]
+        })
     except Exception as e:
-        print(f"Error en pintado global: {e}")
+        print(f"Error pintando celda: {e}")
 
 # ==========================================================
 # FONDO DE PANTALLA PERSONALIZADO (BASE64)
@@ -1475,8 +1479,8 @@ else:
                                             hoja_usuario.update(f"C{fila_n}:D{fila_n}", [[ent_str, sal_str]], value_input_option="USER_ENTERED")
                                             hoja_usuario.update(f"G{fila_n}", [[inp_ob]], value_input_option="USER_ENTERED")
 
-                                        # PINTADO GLOBAL AUTOMÁTICO
-                                        pintar_hoja_septiembre_completa()
+                                        # PINTAR QUIRÚRGICAMENTE ESTE DÍA
+                                        pintar_celda_especifica_septiembre(nombre_trabajador, num_dia, inp_ob)
 
                                         if "filas_planilla" in st.session_state:
                                             del st.session_state["filas_planilla"]
@@ -1617,8 +1621,8 @@ else:
                                         hoja_usuario.update(f"C{fila_n}:D{fila_n}", [[ent_str, sal_str]], value_input_option="USER_ENTERED")
                                         hoja_usuario.update(f"G{fila_n}", [[edit_ob]], value_input_option="USER_ENTERED")
 
-                                    # PINTADO GLOBAL AUTOMÁTICO (EDICIÓN)
-                                    pintar_hoja_septiembre_completa()
+                                    # PINTAR QUIRÚRGICAMENTE ESTE DÍA (EDICIÓN)
+                                    pintar_celda_especifica_septiembre(nombre_trabajador, d, edit_ob)
 
                                     if "filas_planilla" in st.session_state:
                                         del st.session_state["filas_planilla"]
@@ -1631,8 +1635,8 @@ else:
                                 hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["", ""]], value_input_option="USER_ENTERED")
                                 hoja_usuario.update(f"G{fila_n}", [[""]], value_input_option="USER_ENTERED")
 
-                                # PINTADO GLOBAL AUTOMÁTICO (LIMPIEZA)
-                                pintar_hoja_septiembre_completa()
+                                # PINTAR QUIRÚRGICAMENTE ESTE DÍA EN BLANCO (LIMPIEZA)
+                                pintar_celda_especifica_septiembre(nombre_trabajador, d, "")
 
                                 if "filas_planilla" in st.session_state:
                                     del st.session_state["filas_planilla"]
