@@ -94,7 +94,7 @@ div[data-testid="stToolbar"] {{ visibility: hidden !important; }}
 footer {{ visibility: hidden !important; }}
 div[data-testid="stDecoration"] {{ display: none !important; }}
 
-/* Eliminar distintivos y estados flotantes */
+/* Eliminar distintivos flotantes */
 footer,
 [data-testid="stStatusWidget"],
 [data-testid="manage-app-button"],
@@ -542,31 +542,34 @@ def cargar_obras():
     except Exception:
         return ["LOTE 1", "LOTE 4", "LOTE 11", "MONTESSORI", "PERMISO", "NO TRABAJA", "VACACIONES", "LICENCIA"]
 
-# Lectura global sin mostrar barra verde ni saturar cuotas
+# Descarga ultrarrápida por lote en una sola petición HTTP (sin bloqueos de Google API)
 @st.cache_data(ttl=60, show_spinner=False)
-def obtener_resumen_todos_trabajadores(nombres_lista):
+def obtener_datos_resumen_batch():
     try:
         libro = conectar_libro()
-        resultados = {}
-        todas_hojas = { " ".join(s.title.strip().upper().split()): s for s in libro.worksheets() }
-        for nom in nombres_lista:
-            nom_l = " ".join(nom.strip().upper().split())
-            ws = todas_hojas.get(nom_l)
-            if not ws:
-                for t, s in todas_hojas.items():
-                    if nom_l in t or t in nom_l:
-                        ws = s
-                        break
-            if ws:
-                try:
-                    resultados[nom] = ws.get_all_values()[1:]
-                except Exception:
-                    resultados[nom] = []
-            else:
-                resultados[nom] = []
-        return resultados
+        todas = libro.worksheets()
+        hojas_validas = [s for s in todas if s.title.strip().upper() not in ["TRABAJADORES", "OBRAS", "CONFIG"]]
+        ranges = [f"'{s.title.replace('\'', '\'\'')}'!A2:G35" for s in hojas_validas]
+        
+        resp = libro.values_batch_get(ranges)
+        data_map = {}
+        for s, v_range in zip(hojas_validas, resp.get('valueRanges', [])):
+            norm_title = " ".join(s.title.strip().upper().split())
+            data_map[norm_title] = v_range.get('values', [])
+        return data_map
     except Exception:
-        return {}
+        # En caso de fallo en batch, fallback individual seguro
+        try:
+            libro = conectar_libro()
+            todas = libro.worksheets()
+            data_map = {}
+            for s in todas:
+                if s.title.strip().upper() not in ["TRABAJADORES", "OBRAS", "CONFIG"]:
+                    norm_title = " ".join(s.title.strip().upper().split())
+                    data_map[norm_title] = s.get_all_values()[1:]
+            return data_map
+        except Exception:
+            return {}
 
 FERIADOS = ["2026-09-18", "2026-09-19", "2026-09-20"]
 DIAS_MAP = {
@@ -955,7 +958,7 @@ else:
                                     pass
 
                                 cargar_trabajadores.clear()
-                                obtener_resumen_todos_trabajadores.clear()
+                                obtener_datos_resumen_batch.clear()
                                 st.rerun()
                             except Exception as err_trab:
                                 st.error(f"Error al registrar trabajador: {err_trab}")
@@ -999,12 +1002,12 @@ else:
             with c_s2:
                 if st.button("⚡ Activar", use_container_width=True):
                     st.session_state["fecha_admin_simulada"] = fecha_input_admin
-                    obtener_resumen_todos_trabajadores.clear()
+                    obtener_datos_resumen_batch.clear()
                     st.rerun()
             with c_s3:
                 if st.button("🔄 Reset", use_container_width=True):
                     st.session_state["fecha_admin_simulada"] = None
-                    obtener_resumen_todos_trabajadores.clear()
+                    obtener_datos_resumen_batch.clear()
                     st.rerun()
 
             if st.session_state["fecha_admin_simulada"] is not None:
@@ -1022,7 +1025,7 @@ else:
                 if st.button("💾 Guardar Nuevo Rango de Fechas", use_container_width=True):
                     st.session_state["ciclo_inicio"] = nuevo_inicio
                     st.session_state["ciclo_fin"] = nuevo_fin
-                    obtener_resumen_todos_trabajadores.clear()
+                    obtener_datos_resumen_batch.clear()
                     st.rerun()
 
             st.write("")
@@ -1046,55 +1049,57 @@ else:
                     with st.spinner("Reorganizando hojas de todo el personal en Google Sheets..."):
                         reiniciar_hojas_nuevo_ciclo(nuevo_inicio, nuevo_fin, usuarios_autorizados)
                         if "filas_planilla" in st.session_state: del st.session_state["filas_planilla"]
-                        obtener_resumen_todos_trabajadores.clear()
+                        obtener_datos_resumen_batch.clear()
                         st.rerun()
 
-        # 4. TABLA GENERAL DE PERSONAL CON BOTÓN DE ACTUALIZACIÓN RÁPIDA
+        # 4. TABLA GENERAL DE PERSONAL CON ACTUALIZACIÓN INSTANTÁNEA
         st.write("")
         c_title_tab, c_btn_tab = st.columns([72, 28])
         with c_title_tab:
             st.markdown("**👥 Resumen General del Personal**")
         with c_btn_tab:
             if st.button("🔄 Actualizar Lista", use_container_width=True):
-                obtener_resumen_todos_trabajadores.clear()
+                obtener_datos_resumen_batch.clear()
                 st.rerun()
 
-        nombres_todos = [info["nombre"] for info in usuarios_autorizados.values()]
-        datos_todas_hojas = obtener_resumen_todos_trabajadores(tuple(nombres_todos))
+        # Descarga por lote en una sola petición a Google
+        datos_por_hoja_map = obtener_datos_resumen_batch()
 
         filas_html_personal = []
         for correo_w, info_w in usuarios_autorizados.items():
             nom = info_w["nombre"]
-            vals = datos_todas_hojas.get(nom, [])
+            norm_nom = " ".join(nom.strip().upper().split())
             
-            dias_registrados_set = set()
-            for idx, r in enumerate(vals):
-                if any("TOTAL" in str(x).upper() for x in r): 
-                    continue
-                
-                txt_dia = str(r[1]).strip() if len(r) > 1 else ""
-                n_dia = int(txt_dia) if txt_dia.isdigit() else None
-                if n_dia is None and idx < len(fechas_periodo):
-                    n_dia = fechas_periodo[idx].day
+            # Buscar en el mapa por coincidencia de nombre
+            filas_trabajador = datos_por_hoja_map.get(norm_nom)
+            if filas_trabajador is None:
+                for k_map, v_map in datos_por_hoja_map.items():
+                    if norm_nom in k_map or k_map in norm_nom:
+                        filas_trabajador = v_map
+                        break
+            if filas_trabajador is None:
+                filas_trabajador = []
 
-                if n_dia is not None:
-                    celdas_datos = [str(c).strip() for c in r[2:7] if str(c).strip() and str(c).strip() not in ["None", "0:00:00"]]
-                    if len(celdas_datos) > 0:
-                        clave_dia = "31_0" if (n_dia == 31 and idx == 0) else str(n_dia)
-                        dias_registrados_set.add(clave_dia)
+            # Mapeo exacto por fila <-> fecha del ciclo
+            registros_por_fecha = {}
+            for idx, r in enumerate(filas_trabajador):
+                if idx < len(fechas_periodo):
+                    f_idx = fechas_periodo[idx]
+                    celdas_datos = [str(c).strip() for c in r[2:] if str(c).strip() and str(c).strip() not in ["None", "0:00:00"]]
+                    registros_por_fecha[f_idx] = len(celdas_datos) > 0
 
             faltan = 0
-            for idx_f, f in enumerate(fechas_periodo):
+            for f in fechas_periodo:
                 if f > hoy: 
                     continue
                 
-                clave_f = "31_0" if (f.day == 31 and idx_f == 0) else str(f.day)
-                
+                # Domingos y feriados no son obligatorios si no se trabajaron
                 if (f.weekday() == 6) or (f.strftime("%Y-%m-%d") in FERIADOS):
                     continue
                 
-                tiene_datos = clave_f in dias_registrados_set
+                tiene_datos = registros_por_fecha.get(f, False)
                 
+                # Sábado sin trabajar: si no laboró, no cuenta como pendiente
                 if f.weekday() == 5 and f < hoy:
                     lunes_despues = f + timedelta(days=2)
                     if hoy >= lunes_despues and not tiene_datos:
@@ -1349,7 +1354,7 @@ else:
                                         if "filas_planilla" in st.session_state:
                                             del st.session_state["filas_planilla"]
 
-                                        obtener_resumen_todos_trabajadores.clear()
+                                        obtener_datos_resumen_batch.clear()
                                         st.session_state["vista_actual"] = "RESUMEN"
                                         st.rerun()
                                     except Exception as err:
@@ -1486,7 +1491,7 @@ else:
 
                                     if "filas_planilla" in st.session_state:
                                         del st.session_state["filas_planilla"]
-                                    obtener_resumen_todos_trabajadores.clear()
+                                    obtener_datos_resumen_batch.clear()
                                     st.session_state["dia_en_edicion"] = None
                                     st.rerun()
 
@@ -1497,7 +1502,7 @@ else:
 
                                 if "filas_planilla" in st.session_state:
                                     del st.session_state["filas_planilla"]
-                                obtener_resumen_todos_trabajadores.clear()
+                                obtener_datos_resumen_batch.clear()
                                 st.session_state["dia_en_edicion"] = None
                                 st.session_state["vista_actual"] = "REGISTRO"
                                 st.rerun()
