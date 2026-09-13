@@ -706,7 +706,7 @@ def reiniciar_hojas_nuevo_ciclo(f_inicio, f_fin, usuarios_dict):
 def generar_pdf_horas(nombre_t, reg_tabla, tot_hn_str, tot_hr_str, periodo_str):
     if not REPORTLAB_DISPONIBLE: return None
     buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36)
+    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36)
     elementos = []
     estilos = getSampleStyleSheet()
 
@@ -1028,102 +1028,100 @@ else:
                         obtener_resumen_individual_optimizado.clear()
                         st.rerun()
 
-        # 4. TABLA GENERAL DE PERSONAL (BOTONES CON ESTILO IDÉNTICO AL NAVEGADOR SUPERIOR)
-        st.write("")
-        st.markdown("**👥 Resumen General del Personal**")
-
-        txt_toggle_opc = "🙈 Ocultar Horas" if st.session_state["mostrar_horas_admin"] else "👁️ Ver Horas"
-        
-        accion_control = st.pills(
-            "",
-            options=["🔄 Actualizar Lista", txt_toggle_opc],
-            default=None,
-            label_visibility="collapsed",
-            key="pills_admin_controles"
-        )
-
-        if accion_control == "🔄 Actualizar Lista":
-            obtener_resumen_individual_optimizado.clear()
-            st.rerun()
-        elif accion_control == txt_toggle_opc:
-            st.session_state["mostrar_horas_admin"] = not st.session_state["mostrar_horas_admin"]
-            st.rerun()
-
-        nombres_todos = tuple(info["nombre"] for info in usuarios_autorizados.values())
-        mapa_datos_personal = obtener_resumen_individual_optimizado(nombres_todos)
-
-        filas_html_personal = []
-        for correo_w, info_w in usuarios_autorizados.items():
-            nom = info_w["nombre"]
-            filas_rango = mapa_datos_personal.get(nom, [])
+        # 4. RESUMEN GENERAL DEL PERSONAL (DESPLEGABLE EXPANDER)
+        with st.expander("👥 Resumen General del Personal", expanded=True):
+            txt_toggle_opc = "🙈 Ocultar Horas" if st.session_state["mostrar_horas_admin"] else "👁️ Ver Horas"
             
-            dias_con_registro_set = set()
-            minutos_hn_total = 0
-            minutos_hr_total = 0
+            accion_control = st.pills(
+                "",
+                options=["🔄 Actualizar Lista", txt_toggle_opc],
+                default=None,
+                label_visibility="collapsed",
+                key="pills_admin_controles"
+            )
 
-            for idx_r, r in enumerate(filas_rango):
-                if any("TOTAL" in str(x).upper() for x in r): 
-                    continue
+            if accion_control == "🔄 Actualizar Lista":
+                obtener_resumen_individual_optimizado.clear()
+                st.rerun()
+            elif accion_control == txt_toggle_opc:
+                st.session_state["mostrar_horas_admin"] = not st.session_state["mostrar_horas_admin"]
+                st.rerun()
 
-                txt_d = str(r[1]).strip() if len(r) > 1 else ""
-                num_dia = int(txt_d) if txt_d.isdigit() else None
+            nombres_todos = tuple(info["nombre"] for info in usuarios_autorizados.values())
+            mapa_datos_personal = obtener_resumen_individual_optimizado(nombres_todos)
+
+            filas_html_personal = []
+            for correo_w, info_w in usuarios_autorizados.items():
+                nom = info_w["nombre"]
+                filas_rango = mapa_datos_personal.get(nom, [])
                 
-                if num_dia is None and idx_r < len(fechas_periodo):
-                    num_dia = fechas_periodo[idx_r].day
+                dias_con_registro_set = set()
+                minutos_hn_total = 0
+                minutos_hr_total = 0
 
-                if num_dia is not None:
-                    celdas_registro = [str(c).strip() for c in r[2:7] if str(c).strip() and str(c).strip() not in ["None", "0:00:00"]]
-                    if len(celdas_registro) > 0:
-                        clave = "31_0" if (num_dia == 31 and idx_r == 0) else str(num_dia)
-                        dias_con_registro_set.add(clave)
-
-                    if len(r) > 4:
-                        minutos_hn_total += extrae_minutos_texto(r[4])
-                    if len(r) > 5:
-                        minutos_hr_total += extrae_minutos_texto(r[5])
-
-            faltan = 0
-            for idx_f, f in enumerate(fechas_periodo):
-                if f > hoy: 
-                    continue
-                
-                if (f.weekday() == 6) or (f.strftime("%Y-%m-%d") in FERIADOS):
-                    continue
-                
-                clave_dia_esperado = "31_0" if (f.day == 31 and idx_f == 0) else str(f.day)
-                tiene_datos = clave_dia_esperado in dias_con_registro_set
-                
-                if f.weekday() == 5 and f < hoy:
-                    lunes_despues = f + timedelta(days=2)
-                    if hoy >= lunes_despues and not tiene_datos:
+                for idx_r, r in enumerate(filas_rango):
+                    if any("TOTAL" in str(x).upper() for x in r): 
                         continue
-                
-                if not tiene_datos:
-                    faltan += 1
 
-            if faltan == 0:
-                badge = '<span style="color: #4ade80; font-weight: 700;">Al día ✔</span>'
-            else:
-                palabra_dias = "Día" if faltan == 1 else "Días"
-                badge = f'<span style="color: #f87171; font-weight: 700;">{faltan} {palabra_dias}</span>'
+                    txt_d = str(r[1]).strip() if len(r) > 1 else ""
+                    num_dia = int(txt_d) if txt_d.isdigit() else None
+                    
+                    if num_dia is None and idx_r < len(fechas_periodo):
+                        num_dia = fechas_periodo[idx_r].day
 
-            # Control de visualización de horas
-            if st.session_state["mostrar_horas_admin"]:
-                minutos_t_total = minutos_hn_total + minutos_hr_total
-                str_hn = minutos_a_hora_corta(minutos_hn_total)
-                str_hr = minutos_a_hora_corta(minutos_hr_total)
-                str_tot = minutos_a_hora_corta(minutos_t_total)
-                badge_horas = f'<span style="font-size: 0.68rem; color: var(--texto-secundario); font-family: monospace; background-color: rgba(255,255,255,0.04); padding: 3px 6px; border-radius: 4px; border: 1px solid var(--borde); margin-right: 8px;">HN:{str_hn} | HR:{str_hr} | <b>T:{str_tot}</b></span>'
-            else:
-                badge_horas = ""
+                    if num_dia is not None:
+                        celdas_registro = [str(c).strip() for c in r[2:7] if str(c).strip() and str(c).strip() not in ["None", "0:00:00"]]
+                        if len(celdas_registro) > 0:
+                            clave = "31_0" if (num_dia == 31 and idx_r == 0) else str(num_dia)
+                            dias_con_registro_set.add(clave)
 
-            fila_item = f'<div style="display:flex; justify-content:space-between; align-items:center; padding:9px 12px; border-bottom:1px solid var(--borde); background-color:var(--bg-contenedor); font-size:0.80rem;"><div style="color:var(--texto-principal); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:45%;">{nom}</div><div style="display:flex; align-items:center; justify-content:flex-end; gap:6px;">{badge_horas}{badge}</div></div>'
-            filas_html_personal.append(fila_item)
+                        if len(r) > 4:
+                            minutos_hn_total += extrae_minutos_texto(r[4])
+                        if len(r) > 5:
+                            minutos_hr_total += extrae_minutos_texto(r[5])
 
-        filas_unidas = "".join(filas_html_personal)
-        encabezado_derecho = "ESTADO DE REGISTRO & HORAS" if st.session_state["mostrar_horas_admin"] else "ESTADO DE REGISTRO"
-        tabla_html = f'<div style="width:100%; border:1px solid var(--borde); border-radius:8px; overflow:hidden; margin-top:6px; box-sizing:border-box;"><div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background-color:var(--bg-encabezado); border-bottom:1px solid var(--borde); font-size:0.72rem; font-weight:700; color:var(--texto-secundario);"><div>TRABAJADOR</div><div>{encabezado_derecho}</div></div>{filas_unidas}</div>'
-        st.markdown(tabla_html, unsafe_allow_html=True)
+                faltan = 0
+                for idx_f, f in enumerate(fechas_periodo):
+                    if f > hoy: 
+                        continue
+                    
+                    if (f.weekday() == 6) or (f.strftime("%Y-%m-%d") in FERIADOS):
+                        continue
+                    
+                    clave_dia_esperado = "31_0" if (f.day == 31 and idx_f == 0) else str(f.day)
+                    tiene_datos = clave_dia_esperado in dias_con_registro_set
+                    
+                    if f.weekday() == 5 and f < hoy:
+                        lunes_despues = f + timedelta(days=2)
+                        if hoy >= lunes_despues and not tiene_datos:
+                            continue
+                    
+                    if not tiene_datos:
+                        faltan += 1
+
+                if faltan == 0:
+                    badge = '<span style="color: #4ade80; font-weight: 700;">Al día ✔</span>'
+                else:
+                    palabra_dias = "Día" if faltan == 1 else "Días"
+                    badge = f'<span style="color: #f87171; font-weight: 700;">{faltan} {palabra_dias}</span>'
+
+                # Control de visualización de horas
+                if st.session_state["mostrar_horas_admin"]:
+                    minutos_t_total = minutos_hn_total + minutos_hr_total
+                    str_hn = minutos_a_hora_corta(minutos_hn_total)
+                    str_hr = minutos_a_hora_corta(minutos_hr_total)
+                    str_tot = minutos_a_hora_corta(minutos_t_total)
+                    badge_horas = f'<span style="font-size: 0.68rem; color: var(--texto-secundario); font-family: monospace; background-color: rgba(255,255,255,0.04); padding: 3px 6px; border-radius: 4px; border: 1px solid var(--borde); margin-right: 8px;">HN:{str_hn} | HR:{str_hr} | <b>T:{str_tot}</b></span>'
+                else:
+                    badge_horas = ""
+
+                fila_item = f'<div style="display:flex; justify-content:space-between; align-items:center; padding:9px 12px; border-bottom:1px solid var(--borde); background-color:var(--bg-contenedor); font-size:0.80rem;"><div style="color:var(--texto-principal); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:45%;">{nom}</div><div style="display:flex; align-items:center; justify-content:flex-end; gap:6px;">{badge_horas}{badge}</div></div>'
+                filas_html_personal.append(fila_item)
+
+            filas_unidas = "".join(filas_html_personal)
+            encabezado_derecho = "ESTADO DE REGISTRO & HORAS" if st.session_state["mostrar_horas_admin"] else "ESTADO DE REGISTRO"
+            tabla_html = f'<div style="width:100%; border:1px solid var(--borde); border-radius:8px; overflow:hidden; margin-top:6px; box-sizing:border-box;"><div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background-color:var(--bg-encabezado); border-bottom:1px solid var(--borde); font-size:0.72rem; font-weight:700; color:var(--texto-secundario);"><div>TRABAJADOR</div><div>{encabezado_derecho}</div></div>{filas_unidas}</div>'
+            st.markdown(tabla_html, unsafe_allow_html=True)
 
         st.stop()
 
