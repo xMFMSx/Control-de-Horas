@@ -702,7 +702,7 @@ def reiniciar_hojas_nuevo_ciclo(f_inicio, f_fin, usuarios_dict):
 def generar_pdf_horas(nombre_t, reg_tabla, tot_hn_str, tot_hr_str, periodo_str):
     if not REPORTLAB_DISPONIBLE: return None
     buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36)
+    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36)
     elementos = []
     estilos = getSampleStyleSheet()
 
@@ -1155,7 +1155,7 @@ else:
                     st.markdown("🔑 *Rol: Administrador*")
                 st.markdown("---")
 
-                # Botón para forzar actualización de los datos desde Google Sheets
+                # Botón para actualizar horas dentro de la tuerca
                 if st.button("🔄 Actualizar Mis Horas", use_container_width=True):
                     if "filas_planilla" in st.session_state:
                         del st.session_state["filas_planilla"]
@@ -1512,6 +1512,7 @@ else:
 
             st.markdown("---")
 
+            # SOLUCIÓN 1: Visualización y descarga directa en Base64 para WebView / APK
             if REPORTLAB_DISPONIBLE:
                 pdf_bytes = generar_pdf_horas(
                     nombre_trabajador,
@@ -1520,12 +1521,19 @@ else:
                     val_hr_str,
                     nombre_mes_dinamico
                 )
-                nombre_archivo_pdf = f"Horas_{nombre_trabajador.replace(' ', '_')}_{fin_mes.strftime('%Y%m')}.pdf"
-
-                st.download_button(
-                    label="📄 DESCARGAR HORAS DEL MES EN PDF",
-                    data=pdf_bytes,
-                    file_name=nombre_archivo_pdf,
-                    mime="application/pdf",
-                    use_container_width=True
-                )
+                if pdf_bytes:
+                    b64_pdf = base64.b64encode(pdf_bytes).decode('utf-8')
+                    nombre_descarga = f"Horas_{nombre_trabajador.replace(' ', '_')}_{fin_mes.strftime('%Y%m')}.pdf"
+                    
+                    html_descarga_apk = f"""
+                    <a href="data:application/pdf;base64,{b64_pdf}" 
+                       download="{nombre_descarga}" 
+                       target="_blank"
+                       style="display: block; width: 100%; text-align: center; background-color: var(--bg-contenedor); 
+                              border: 1px solid var(--borde); color: var(--texto-principal); font-weight: 700; 
+                              font-size: 0.82rem; padding: 0.65rem; border-radius: 0.5rem; text-decoration: none; 
+                              box-sizing: border-box; cursor: pointer;">
+                        📄 DESCARGAR / VER HORAS DEL MES EN PDF
+                    </a>
+                    """
+                    st.markdown(html_descarga_apk, unsafe_allow_html=True)
