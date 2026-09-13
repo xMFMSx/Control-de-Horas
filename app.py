@@ -113,6 +113,29 @@ iframe[title="streamlit_share_badge"] {{
     visibility: hidden !important;
 }}
 
+/* ==========================================================
+   BARRA DE DESPLAZAMIENTO (SCROLLBAR) 100% TRANSPARENTE
+   ========================================================== */
+html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main, div, section {{
+    scrollbar-width: none !important; /* Firefox */
+    -ms-overflow-style: none !important;  /* IE y Edge clásico */
+}}
+
+::-webkit-scrollbar {{
+    width: 0px !important;
+    height: 0px !important;
+    background: transparent !important;
+}}
+
+::-webkit-scrollbar-thumb {{
+    background: transparent !important;
+    border: none !important;
+}}
+
+::-webkit-scrollbar-track {{
+    background: transparent !important;
+}}
+
 html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {{
     overflow-y: auto !important;
     overflow-x: hidden !important;
