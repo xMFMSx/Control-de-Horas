@@ -63,39 +63,22 @@ def aplicar_fondo(nombre_archivo):
 aplicar_fondo("fondo_app.png")
 
 # ==========================================================
-# GESTIÓN DE TEMA (CLARO / OSCURO)
+# GESTIÓN DE TEMA (MODO OSCURO FIJO PERMANENTE)
 # ==========================================================
-if "tema_actual" not in st.session_state:
-    st.session_state["tema_actual"] = "oscuro"
+st.session_state["tema_actual"] = "oscuro"
 
-tema = st.session_state["tema_actual"]
-
-if tema == "oscuro":
-    css_vars = """
-        --bg-principal: transparent;
-        --bg-contenedor: #1a1e29;
-        --bg-tarjeta: #161922;
-        --bg-encabezado: #222634;
-        --borde: #2e3547;
-        --borde-tenue: #353b4d;
-        --texto-principal: #ffffff;
-        --texto-secundario: #a3adc2;
-        --color-acento: #ff4b4b;
-        --fila-alt: #1f2430;
-    """
-else:
-    css_vars = """
-        --bg-principal: transparent;
-        --bg-contenedor: #ffffff;
-        --bg-tarjeta: #ffffff;
-        --bg-encabezado: #e2e8f0;
-        --borde: #cbd5e1;
-        --borde-tenue: #cbd5e1;
-        --texto-principal: #0f172a;
-        --texto-secundario: #475569;
-        --color-acento: #e11d48;
-        --fila-alt: #f8fafc;
-    """
+css_vars = """
+    --bg-principal: transparent;
+    --bg-contenedor: #1a1e29;
+    --bg-tarjeta: #161922;
+    --bg-encabezado: #222634;
+    --borde: #2e3547;
+    --borde-tenue: #353b4d;
+    --texto-principal: #ffffff;
+    --texto-secundario: #a3adc2;
+    --color-acento: #ff4b4b;
+    --fila-alt: #1f2430;
+"""
 
 st.markdown(f"""<style>
 :root {{
@@ -156,7 +139,7 @@ div[data-testid="InputInstructions"] {{
 }}
 
 div[data-testid="InputInstructions"]::after {{
-    content: "Presiona Enter" !important;
+    content: "Presiona Enter para enviar" !important;
     font-size: 0.72rem !important;
     color: var(--texto-secundario) !important;
     opacity: 0.8 !important;
@@ -174,7 +157,7 @@ div[data-testid="InputInstructions"]::after {{
     display: flex;
     flex-direction: column;
     width: 100%;
-    margin-top: 307px !important; /* <<< AQUÍ EDITAS LA ALTURA EN PX >>> (sube el número para bajarlo, baja el número para subirlo) */
+    margin-top: 307px !important; /* <<< AQUÍ EDITAS LA ALTURA EN PX >>> */
 }}
 
 .login-wrapper div[data-testid="stForm"] {{
@@ -1071,18 +1054,6 @@ else:
                 st.markdown(f"**👤 {nombre_trabajador}**")
                 if es_admin:
                     st.markdown("🔑 *Rol: Administrador*")
-                st.markdown("---")
-                
-                nuevo_t = st.selectbox(
-                    "🎨 Tema de interfaz",
-                    options=["Oscuro", "Claro"],
-                    index=0 if st.session_state["tema_actual"] == "oscuro" else 1
-                )
-                t_str = nuevo_t.lower()
-                if t_str != st.session_state["tema_actual"]:
-                    st.session_state["tema_actual"] = t_str
-                    st.rerun()
-
                 st.markdown("---")
 
                 if es_admin:
