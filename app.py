@@ -243,7 +243,6 @@ div[data-testid="stPopoverBody"] {
     color: var(--texto-principal) !important;
 }
 
-/* ESTILO NATIVO PILLS / SEGMENTED CONTROL */
 div[data-testid="stSegmentedControl"],
 div[data-testid="stPills"] {
     display: flex !important;
@@ -527,7 +526,6 @@ def cargar_obras():
     except Exception:
         return ["LOTE 1", "LOTE 4", "LOTE 11", "MONTESSORI", "PERMISO", "NO TRABAJA", "VACACIONES", "LICENCIA"]
 
-# Lectura directa protegida
 @st.cache_data(ttl=300, show_spinner=False)
 def obtener_resumen_individual_optimizado(nombres_tupla):
     libro = conectar_libro()
@@ -1027,7 +1025,7 @@ else:
                         st.rerun()
 
         # 4. RESUMEN GENERAL DEL PERSONAL (DESPLEGABLE EXPANDER)
-        with st.expander("👥 Resumen General del Personal", expanded=True):
+        with st.expander("👥 Resumen General del Personal"):
             txt_toggle_opc = "🙈 Ocultar Horas" if st.session_state["mostrar_horas_admin"] else "👁️ Ver Horas"
             
             accion_control = st.pills(
@@ -1103,7 +1101,6 @@ else:
                     palabra_dias = "Día" if faltan == 1 else "Días"
                     badge = f'<span style="color: #f87171; font-weight: 700;">{faltan} {palabra_dias}</span>'
 
-                # Control de visualización de horas
                 if st.session_state["mostrar_horas_admin"]:
                     minutos_t_total = minutos_hn_total + minutos_hr_total
                     str_hn = minutos_a_hora_corta(minutos_hn_total)
@@ -1158,6 +1155,13 @@ else:
                     st.markdown("🔑 *Rol: Administrador*")
                 st.markdown("---")
 
+                # Botón para forzar actualización de los datos desde Google Sheets
+                if st.button("🔄 Actualizar Mis Horas", use_container_width=True):
+                    if "filas_planilla" in st.session_state:
+                        del st.session_state["filas_planilla"]
+                    obtener_resumen_individual_optimizado.clear()
+                    st.rerun()
+
                 if es_admin:
                     if st.button("🛠️ Panel Administrador", use_container_width=True):
                         st.session_state.modo_admin_activo = True
@@ -1196,7 +1200,6 @@ else:
             txt_d = str(r[1]).strip() if len(r) > 1 else ""
             num_dia = int(txt_d) if txt_d.isdigit() else None
             
-            # Respaldo de posición si la columna B no tiene número
             if num_dia is None and idx < len(fechas_periodo):
                 num_dia = fechas_periodo[idx].day
 
@@ -1358,14 +1361,7 @@ else:
 
         # VISTA B: RESUMEN MENSUAL
         elif st.session_state["vista_actual"] == "RESUMEN":
-            c_res_tit, c_res_sync = st.columns([70, 30])
-            with c_res_tit:
-                st.subheader("RESUMEN MENSUAL")
-            with c_res_sync:
-                if st.button("🔄 Actualizar mis Horas", use_container_width=True):
-                    if "filas_planilla" in st.session_state:
-                        del st.session_state["filas_planilla"]
-                    st.rerun()
+            st.subheader("RESUMEN MENSUAL")
             
             val_hn_str = minutos_a_hora_str(total_hn)
             val_hr_str = minutos_a_hora_str(total_hr)
