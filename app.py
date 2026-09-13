@@ -1,6 +1,8 @@
 import streamlit as st
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaIoBaseUpload
 import pandas as pd
 import base64
 import hmac
@@ -387,6 +389,22 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) > div:last-child b
     transform: translateY(6px) !important;
 }
 
+div[data-testid="stDownloadButton"] > button {
+    width: 100% !important;
+    background-color: var(--bg-contenedor) !important;
+    border: 1px solid var(--borde) !important;
+    color: var(--texto-principal) !important;
+    font-weight: 700 !important;
+    font-size: 0.82rem !important;
+    padding: 0.65rem !important;
+    border-radius: 0.5rem !important;
+}
+div[data-testid="stDownloadButton"] > button:hover {
+    background-color: var(--borde-tenue) !important;
+    border-color: var(--color-acento) !important;
+    color: var(--texto-principal) !important;
+}
+
 div[data-testid="stForm"] {
     border: 1px solid var(--borde) !important;
     border-radius: 6px !important;
@@ -430,22 +448,48 @@ def verificar_token(token: str):
         return None
     return None
 
+def obtener_credenciales():
+    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+    if "gcp_service_account" in st.secrets:
+        cred_dict = dict(st.secrets["gcp_service_account"])
+        return ServiceAccountCredentials.from_json_keyfile_dict(cred_dict, scope)
+    return ServiceAccountCredentials.from_json_keyfile_name("credenciales.json", scope)
+
 @st.cache_resource(ttl=300)
 def conectar_libro():
-    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+    creds = obtener_credenciales()
     for intento in range(4):
         try:
-            if "gcp_service_account" in st.secrets:
-                cred_dict = dict(st.secrets["gcp_service_account"])
-                creds = ServiceAccountCredentials.from_json_keyfile_dict(cred_dict, scope)
-            else:
-                creds = ServiceAccountCredentials.from_json_keyfile_name("credenciales.json", scope)
             client = gspread.authorize(creds)
             return client.open("APP DE HORAS")
         except Exception as e:
             if intento == 3:
                 raise e
             time_lib.sleep(1.5)
+
+def subir_pdf_drive_y_obtener_link(pdf_bytes: bytes, nombre_archivo: str) -> str:
+    try:
+        creds = obtener_credenciales()
+        service = build('drive', 'v3', credentials=creds)
+        
+        file_metadata = {
+            'name': nombre_archivo,
+            'mimeType': 'application/pdf'
+        }
+        media = MediaIoBaseUpload(BytesIO(pdf_bytes), mimetype='application/pdf', resumable=True)
+        
+        archivo = service.files().create(body=file_metadata, media_body=media, fields='id').execute()
+        file_id = archivo.get('id')
+        
+        # Dar permiso de lectura pública al archivo temporal
+        service.permissions().create(
+            fileId=file_id,
+            body={'type': 'anyone', 'role': 'reader'}
+        ).execute()
+        
+        return f"https://drive.google.com/uc?export=download&id={file_id}"
+    except Exception:
+        return ""
 
 def obtener_hoja_trabajador_directa(libro, nombre_trabajador):
     nom = nombre_trabajador.strip()
@@ -510,7 +554,6 @@ def cargar_obras():
     except Exception:
         return ["LOTE 1", "LOTE 4", "LOTE 11", "MONTESSORI", "PERMISO", "NO TRABAJA", "VACACIONES", "LICENCIA"]
 
-# Lectura directa protegida
 @st.cache_data(ttl=300, show_spinner=False)
 def obtener_resumen_individual_optimizado(nombres_tupla):
     libro = conectar_libro()
@@ -687,7 +730,7 @@ def reiniciar_hojas_nuevo_ciclo(f_inicio, f_fin, usuarios_dict):
 def generar_pdf_horas(nombre_t, reg_tabla, tot_hn_str, tot_hr_str, periodo_str):
     if not REPORTLAB_DISPONIBLE: return None
     buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36)
+    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36)
     elementos = []
     estilos = getSampleStyleSheet()
 
@@ -745,8 +788,8 @@ if "fecha_admin_simulada" not in st.session_state:
     st.session_state["fecha_admin_simulada"] = None
 if "mostrar_horas_admin" not in st.session_state:
     st.session_state["mostrar_horas_admin"] = False
-if "ver_pdf_embebido" not in st.session_state:
-    st.session_state["ver_pdf_embebido"] = False
+if "link_descarga_pdf" not in st.session_state:
+    st.session_state["link_descarga_pdf"] = ""
 
 if "ciclo_inicio" not in st.session_state:
     st.session_state["ciclo_inicio"] = date(2026, 8, 31)
@@ -1166,7 +1209,6 @@ else:
 
         st.markdown("---")
 
-        # Lectura directa de las filas de la hoja
         if "filas_planilla" not in st.session_state:
             try:
                 st.session_state["filas_planilla"] = hoja_usuario.get_all_values()[1:]
@@ -1499,7 +1541,7 @@ else:
             st.markdown("---")
 
             # ==========================================================
-            # VISOR DE PDF EMBEBIDO DIRECTAMENTE EN PANTALLA (CANVAS HTML5)
+            # DESCARGA CON SALTO AUTOMÁTICO AL NAVEGADOR (INTENT CHROME)
             # ==========================================================
             if REPORTLAB_DISPONIBLE:
                 pdf_bytes = generar_pdf_horas(
@@ -1510,92 +1552,39 @@ else:
                     nombre_mes_dinamico
                 )
                 if pdf_bytes:
-                    b64_pdf = base64.b64encode(pdf_bytes).decode('utf-8')
+                    nombre_archivo_pdf = f"Horas_{nombre_trabajador.replace(' ', '_')}_{fin_mes.strftime('%Y%m')}.pdf"
                     
-                    texto_boton_pdf = "🙈 Ocultar Reporte PDF" if st.session_state["ver_pdf_embebido"] else "📄 Ver Reporte PDF del Mes"
-                    if st.button(texto_boton_pdf, use_container_width=True):
-                        st.session_state["ver_pdf_embebido"] = not st.session_state["ver_pdf_embebido"]
-                        st.rerun()
-
-                    if st.session_state["ver_pdf_embebido"]:
-                        html_visor_pdf = f"""
-                        <!DOCTYPE html>
-                        <html>
-                        <head>
-                            <meta charset="utf-8">
-                            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0">
-                            <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
-                            <style>
-                                body {{
-                                    margin: 0;
-                                    padding: 8px;
-                                    background-color: #161922;
-                                    display: flex;
-                                    flex-direction: column;
-                                    align-items: center;
-                                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-                                    color: #ffffff;
-                                }}
-                                #contenedor-pdf {{
-                                    width: 100%;
-                                    display: flex;
-                                    flex-direction: column;
-                                    align-items: center;
-                                    gap: 12px;
-                                }}
-                                canvas {{
-                                    width: 100% !important;
-                                    max-width: 800px !important;
-                                    height: auto !important;
-                                    border: 1px solid #2e3547;
-                                    border-radius: 8px;
-                                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
-                                    background-color: #ffffff;
-                                }}
-                                #estado {{
-                                    padding: 16px;
-                                    font-size: 0.85rem;
-                                    color: #a3adc2;
-                                }}
-                            </style>
-                        </head>
-                        <body>
-                            <div id="estado">Cargando reporte...</div>
-                            <div id="contenedor-pdf"></div>
-
-                            <script>
-                                const pdfData = atob("{b64_pdf}");
-                                pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
-
-                                const loadingTask = pdfjsLib.getDocument({{ data: pdfData }});
-                                loadingTask.promise.then(function(pdf) {{
-                                    document.getElementById('estado').style.display = 'none';
-                                    const contenedor = document.getElementById('contenedor-pdf');
-
-                                    for (let numPag = 1; numPag <= pdf.numPages; numPag++) {{
-                                        pdf.getPage(numPag).then(function(page) {{
-                                            const scale = 2.0;
-                                            const viewport = page.getViewport({{ scale: scale }});
-
-                                            const canvas = document.createElement('canvas');
-                                            const context = canvas.getContext('2d');
-                                            canvas.height = viewport.height;
-                                            canvas.width = viewport.width;
-
-                                            contenedor.appendChild(canvas);
-
-                                            const renderContext = {{
-                                                canvasContext: context,
-                                                viewport: viewport
-                                            }};
-                                            page.render(renderContext);
-                                        }});
-                                    }}
-                                }}).catch(function(error) {{
-                                    document.getElementById('estado').innerText = "No se pudo cargar el reporte en este dispositivo.";
-                                }});
-                            </script>
-                        </body>
-                        </html>
-                        """
-                        st.components.v1.html(html_visor_pdf, height=650, scrolling=True)
+                    if not st.session_state["link_descarga_pdf"]:
+                        if st.button("📄 GENERAR ENLACE DE DESCARGA PDF", use_container_width=True):
+                            with st.spinner("Preparando archivo descargable..."):
+                                url_drive = subir_pdf_drive_y_obtener_link(pdf_bytes, nombre_archivo_pdf)
+                                if url_drive:
+                                    st.session_state["link_descarga_pdf"] = url_drive
+                                    st.rerun()
+                                else:
+                                    st.error("No se pudo generar el enlace. Intenta de nuevo.")
+                    else:
+                        url_directa = st.session_state["link_descarga_pdf"]
+                        # URL nativa de Android para despertar Chrome
+                        url_limpia_sin_proto = url_directa.replace("https://", "")
+                        intent_url = f"intent://{url_limpia_sin_proto}#Intent;scheme=https;package=com.android.chrome;end"
+                        
+                        st.markdown(f"""
+                            <a href="{intent_url}" target="_blank" style="
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                width: 100%;
+                                height: 46px;
+                                background-color: #1a1e29;
+                                border: 1.5px solid #ff4b4b;
+                                color: #ffffff;
+                                font-weight: 700;
+                                font-size: 0.85rem;
+                                border-radius: 8px;
+                                text-decoration: none;
+                                box-sizing: border-box;
+                            ">
+                                📥 ABRIR CHROME Y DESCARGAR PDF
+                            </a>
+                        """, unsafe_allow_html=True)
