@@ -387,22 +387,6 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) > div:last-child b
     transform: translateY(6px) !important;
 }
 
-div[data-testid="stDownloadButton"] > button {
-    width: 100% !important;
-    background-color: var(--bg-contenedor) !important;
-    border: 1px solid var(--borde) !important;
-    color: var(--texto-principal) !important;
-    font-weight: 700 !important;
-    font-size: 0.82rem !important;
-    padding: 0.65rem !important;
-    border-radius: 0.5rem !important;
-}
-div[data-testid="stDownloadButton"] > button:hover {
-    background-color: var(--borde-tenue) !important;
-    border-color: var(--color-acento) !important;
-    color: var(--texto-principal) !important;
-}
-
 div[data-testid="stForm"] {
     border: 1px solid var(--borde) !important;
     border-radius: 6px !important;
@@ -526,6 +510,7 @@ def cargar_obras():
     except Exception:
         return ["LOTE 1", "LOTE 4", "LOTE 11", "MONTESSORI", "PERMISO", "NO TRABAJA", "VACACIONES", "LICENCIA"]
 
+# Lectura directa protegida
 @st.cache_data(ttl=300, show_spinner=False)
 def obtener_resumen_individual_optimizado(nombres_tupla):
     libro = conectar_libro()
@@ -760,6 +745,8 @@ if "fecha_admin_simulada" not in st.session_state:
     st.session_state["fecha_admin_simulada"] = None
 if "mostrar_horas_admin" not in st.session_state:
     st.session_state["mostrar_horas_admin"] = False
+if "ver_pdf_embebido" not in st.session_state:
+    st.session_state["ver_pdf_embebido"] = False
 
 if "ciclo_inicio" not in st.session_state:
     st.session_state["ciclo_inicio"] = date(2026, 8, 31)
@@ -1155,7 +1142,6 @@ else:
                     st.markdown("🔑 *Rol: Administrador*")
                 st.markdown("---")
 
-                # Botón para actualizar horas dentro de la tuerca
                 if st.button("🔄 Actualizar Mis Horas", use_container_width=True):
                     if "filas_planilla" in st.session_state:
                         del st.session_state["filas_planilla"]
@@ -1512,7 +1498,9 @@ else:
 
             st.markdown("---")
 
-            # SOLUCIÓN 1: Visualización y descarga directa en Base64 para WebView / APK
+            # ==========================================================
+            # VISOR DE PDF EMBEBIDO DIRECTAMENTE EN PANTALLA (CANVAS HTML5)
+            # ==========================================================
             if REPORTLAB_DISPONIBLE:
                 pdf_bytes = generar_pdf_horas(
                     nombre_trabajador,
@@ -1523,17 +1511,91 @@ else:
                 )
                 if pdf_bytes:
                     b64_pdf = base64.b64encode(pdf_bytes).decode('utf-8')
-                    nombre_descarga = f"Horas_{nombre_trabajador.replace(' ', '_')}_{fin_mes.strftime('%Y%m')}.pdf"
                     
-                    html_descarga_apk = f"""
-                    <a href="data:application/pdf;base64,{b64_pdf}" 
-                       download="{nombre_descarga}" 
-                       target="_blank"
-                       style="display: block; width: 100%; text-align: center; background-color: var(--bg-contenedor); 
-                              border: 1px solid var(--borde); color: var(--texto-principal); font-weight: 700; 
-                              font-size: 0.82rem; padding: 0.65rem; border-radius: 0.5rem; text-decoration: none; 
-                              box-sizing: border-box; cursor: pointer;">
-                        📄 DESCARGAR / VER HORAS DEL MES EN PDF
-                    </a>
-                    """
-                    st.markdown(html_descarga_apk, unsafe_allow_html=True)
+                    texto_boton_pdf = "🙈 Ocultar Reporte PDF" if st.session_state["ver_pdf_embebido"] else "📄 Ver Reporte PDF del Mes"
+                    if st.button(texto_boton_pdf, use_container_width=True):
+                        st.session_state["ver_pdf_embebido"] = not st.session_state["ver_pdf_embebido"]
+                        st.rerun()
+
+                    if st.session_state["ver_pdf_embebido"]:
+                        html_visor_pdf = f"""
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <meta charset="utf-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0">
+                            <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+                            <style>
+                                body {{
+                                    margin: 0;
+                                    padding: 8px;
+                                    background-color: #161922;
+                                    display: flex;
+                                    flex-direction: column;
+                                    align-items: center;
+                                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                                    color: #ffffff;
+                                }}
+                                #contenedor-pdf {{
+                                    width: 100%;
+                                    display: flex;
+                                    flex-direction: column;
+                                    align-items: center;
+                                    gap: 12px;
+                                }}
+                                canvas {{
+                                    width: 100% !important;
+                                    max-width: 800px !important;
+                                    height: auto !important;
+                                    border: 1px solid #2e3547;
+                                    border-radius: 8px;
+                                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+                                    background-color: #ffffff;
+                                }}
+                                #estado {{
+                                    padding: 16px;
+                                    font-size: 0.85rem;
+                                    color: #a3adc2;
+                                }}
+                            </style>
+                        </head>
+                        <body>
+                            <div id="estado">Cargando reporte...</div>
+                            <div id="contenedor-pdf"></div>
+
+                            <script>
+                                const pdfData = atob("{b64_pdf}");
+                                pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
+
+                                const loadingTask = pdfjsLib.getDocument({{ data: pdfData }});
+                                loadingTask.promise.then(function(pdf) {{
+                                    document.getElementById('estado').style.display = 'none';
+                                    const contenedor = document.getElementById('contenedor-pdf');
+
+                                    for (let numPag = 1; numPag <= pdf.numPages; numPag++) {{
+                                        pdf.getPage(numPag).then(function(page) {{
+                                            const scale = 2.0;
+                                            const viewport = page.getViewport({{ scale: scale }});
+
+                                            const canvas = document.createElement('canvas');
+                                            const context = canvas.getContext('2d');
+                                            canvas.height = viewport.height;
+                                            canvas.width = viewport.width;
+
+                                            contenedor.appendChild(canvas);
+
+                                            const renderContext = {{
+                                                canvasContext: context,
+                                                viewport: viewport
+                                            }};
+                                            page.render(renderContext);
+                                        }});
+                                    }}
+                                }}).catch(function(error) {{
+                                    document.getElementById('estado').innerText = "No se pudo cargar el reporte en este dispositivo.";
+                                }});
+                            </script>
+                        </body>
+                        </html>
+                        """
+                        st.components.v1.html(html_visor_pdf, height=650, scrolling=True)
