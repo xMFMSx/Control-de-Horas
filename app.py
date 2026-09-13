@@ -64,7 +64,8 @@ aplicar_fondo("fondo_app.png")
 # ==========================================================
 st.session_state["tema_actual"] = "oscuro"
 
-css_vars = """
+st.markdown("""<style>
+:root {
     --bg-principal: transparent;
     --bg-contenedor: #1a1e29;
     --bg-tarjeta: #161922;
@@ -75,22 +76,17 @@ css_vars = """
     --texto-secundario: #a3adc2;
     --color-acento: #ff4b4b;
     --fila-alt: #1f2430;
-"""
+}
 
-st.markdown(f"""<style>
-:root {{
-    {css_vars}
-}}
-
-html {{
+html {
     zoom: 80% !important;
-}}
+}
 
-header[data-testid="stHeader"] {{ display: none !important; }}
-#MainMenu {{ visibility: hidden !important; }}
-div[data-testid="stToolbar"] {{ visibility: hidden !important; }}
-footer {{ visibility: hidden !important; }}
-div[data-testid="stDecoration"] {{ display: none !important; }}
+header[data-testid="stHeader"] { display: none !important; }
+#MainMenu { visibility: hidden !important; }
+div[data-testid="stToolbar"] { visibility: hidden !important; }
+footer { visibility: hidden !important; }
+div[data-testid="stDecoration"] { display: none !important; }
 
 footer,
 [data-testid="stStatusWidget"],
@@ -100,82 +96,82 @@ footer,
 div[class*="viewerBadge_"],
 div[class*="ProfileBadge_"],
 iframe[title="streamlit_share_badge"],
-div[data-testid="stToast"] {{
+div[data-testid="stToast"] {
     display: none !important;
     visibility: hidden !important;
-}}
+}
 
-#root > div:nth-child(1) > div > div > div > div > section ~ div {{
+#root > div:nth-child(1) > div > div > div > div > section ~ div {
     display: none !important;
     visibility: hidden !important;
-}}
+}
 
-html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main, div, section {{
+html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main, div, section {
     scrollbar-width: none !important;
     -ms-overflow-style: none !important;
-}}
+}
 
-::-webkit-scrollbar {{
+::-webkit-scrollbar {
     width: 0px !important;
     height: 0px !important;
     background: transparent !important;
-}}
-::-webkit-scrollbar-thumb {{
+}
+::-webkit-scrollbar-thumb {
     background: transparent !important;
     border: none !important;
-}}
-::-webkit-scrollbar-track {{
+}
+::-webkit-scrollbar-track {
     background: transparent !important;
-}}
+}
 
-html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {{
+html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {
     overflow-y: auto !important;
     overflow-x: hidden !important;
     height: auto !important;
     min-height: 100% !important;
     background-color: var(--bg-principal) !important;
     color: var(--texto-principal) !important;
-}}
+}
 
-.block-container {{ 
+.block-container { 
     max-width: 96% !important; 
     padding: 1.2rem !important; 
     padding-right: 28px !important; 
     padding-bottom: 25rem !important; 
     overflow-x: hidden !important;
     box-sizing: border-box !important;
-}}
+}
 
-div[data-testid="InputInstructions"] {{
+div[data-testid="InputInstructions"] {
     font-size: 0 !important;
-}}
-div[data-testid="InputInstructions"]::after {{
+}
+div[data-testid="InputInstructions"]::after {
     content: "Presiona Enter para enviar" !important;
     font-size: 0.72rem !important;
     color: var(--texto-secundario) !important;
     opacity: 0.8 !important;
-}}
+}
 
-.stApp:has(.login-wrapper) .block-container {{
+.stApp:has(.login-wrapper) .block-container {
     padding-top: 0 !important;
     padding-bottom: 0 !important;
-}}
-.login-wrapper {{
+}
+.login-wrapper {
     display: flex;
     flex-direction: column;
     width: 100%;
     margin-top: 307px !important;
-}}
-.login-wrapper div[data-testid="stForm"] {{
+}
+.login-wrapper div[data-testid="stForm"] {
     width: 100% !important;
     max-width: 440px !important;
     margin: 0 auto !important;
-}}
-.login-wrapper div[data-testid="stFormSubmitButton"] > button {{
+}
+.login-wrapper div[data-testid="stFormSubmitButton"] > button {
     width: 100% !important;
-}}
+}
 
-div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {{
+div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
@@ -186,26 +182,26 @@ div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {{
     box-sizing: border-box !important;
     margin-bottom: 1rem !important;
     padding-right: 14px !important;
-}}
+}
 
-@media (max-width: 9999px) {{
-    div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {{
+@media (max-width: 9999px) {
+    div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {
         display: flex !important;
         flex-direction: row !important;
         flex-wrap: nowrap !important;
         align-items: center !important;
-    }}
-    div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) > div[data-testid="column"] {{
+    }
+    div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) > div[data-testid="column"] {
         min-width: 0 !important;
         box-sizing: border-box !important;
-    }}
-    div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) > div[data-testid="column"]:first-child {{
+    }
+    div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) > div[data-testid="column"]:first-child {
         flex: 1 1 auto !important;
         width: calc(100% - 48px) !important;
         max-width: calc(100% - 48px) !important;
         min-width: 0 !important;
-    }}
-    div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) > div[data-testid="column"]:last-child {{
+    }
+    div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) > div[data-testid="column"]:last-child {
         flex: 0 0 40px !important;
         width: 40px !important;
         max-width: 40px !important;
@@ -213,17 +209,17 @@ div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {{
         display: flex !important;
         justify-content: flex-end !important;
         position: relative !important;
-    }}
-}}
+    }
+}
 
-div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) [data-testid="stPopover"] {{
+div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) [data-testid="stPopover"] {
     width: 100% !important;
     display: flex !important;
     justify-content: flex-end !important;
     position: relative !important;
-}}
+}
 
-div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) [data-testid="stPopover"] > button {{
+div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) [data-testid="stPopover"] > button {
     width: 100% !important;
     min-height: 36px !important;
     height: 36px !important;
@@ -235,9 +231,9 @@ div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) [data-testid
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-}}
+}
 
-div[data-testid="stPopoverBody"] {{
+div[data-testid="stPopoverBody"] {
     right: 0px !important;
     left: auto !important;
     transform: translateY(50px) !important;
@@ -245,7 +241,7 @@ div[data-testid="stPopoverBody"] {{
     background-color: var(--bg-tarjeta) !important;
     border: 1px solid var(--borde) !important;
     color: var(--texto-principal) !important;
-}}
+}
 
 /* ==========================================================
    ESTILO NATIVO PILLS / SEGMENTED CONTROL (HORIZONTALES)
@@ -292,7 +288,7 @@ div[data-testid="stPills"] button[aria-selected="true"] {
     color: var(--color-acento) !important;
 }
 
-.contenedor-tabla-6 {{
+.contenedor-tabla-6 {
     display: grid !important;
     grid-template-columns: 7% 12% 10% 13.5% 14.5% 43% !important;
     width: 100% !important;
@@ -302,9 +298,9 @@ div[data-testid="stPills"] button[aria-selected="true"] {
     background-color: var(--bg-contenedor);
     border: 1px solid var(--borde-tenue);
     border-top: none !important;
-}}
+}
 
-.es-encabezado-6 {{ 
+.es-encabezado-6 { 
     font-weight: 700 !important; 
     color: var(--texto-secundario) !important; 
     font-size: 0.65rem !important; 
@@ -313,16 +309,16 @@ div[data-testid="stPills"] button[aria-selected="true"] {
     border-radius: 4px 4px 0 0;
     padding: 10px 8px !important;
     margin-bottom: -1px !important;
-}}
+}
 
-.es-datos-6 {{ 
+.es-datos-6 { 
     color: var(--texto-principal); 
     font-size: 0.78rem !important; 
     padding: 6px 8px !important;
     margin-bottom: -1px !important;
-}}
+}
 
-.contenedor-tabla-6 > div {{
+.contenedor-tabla-6 > div {
     border-right: 1px solid var(--borde-tenue) !important;
     padding: 0 6px !important;
     display: flex !important;
@@ -332,34 +328,34 @@ div[data-testid="stPills"] button[aria-selected="true"] {
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     height: 100% !important;
-}}
-.contenedor-tabla-6 > div:last-child {{ border-right: none !important; }}
+}
+.contenedor-tabla-6 > div:last-child { border-right: none !important; }
 
-.fila-sabado {{
+.fila-sabado {
     background-color: rgba(30, 58, 138, 0.45) !important;
     border-color: rgba(96, 165, 250, 0.4) !important;
-}}
-.fila-sabado, .fila-sabado div, .fila-sabado p {{
+}
+.fila-sabado, .fila-sabado div, .fila-sabado p {
     color: #93c5fd !important;
     font-weight: 600 !important;
-}}
+}
 
-.fila-festivo {{
+.fila-festivo {
     background-color: rgba(88, 28, 135, 0.45) !important;
     border-color: rgba(167, 139, 250, 0.4) !important;
-}}
-.fila-festivo, .fila-festivo div, .fila-festivo p {{
+}
+.fila-festivo, .fila-festivo div, .fila-festivo p {
     color: #c4b5fd !important;
     font-weight: 600 !important;
-}}
+}
 
-div[data-testid="stMarkdownContainer"] p {{ 
+div[data-testid="stMarkdownContainer"] p { 
     margin: 0 !important; 
     padding: 0 !important; 
     line-height: 1.1 !important; 
-}}
+}
 
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) {{
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) {
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
@@ -367,21 +363,21 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) {{
     gap: 8px !important;
     margin-top: -8px !important;
     margin-bottom: 0 !important;
-}}
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) > div:first-child {{
+}
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) > div:first-child {
     min-width: 0 !important;
     flex: 1 1 93% !important;
     width: 93% !important;
-}}
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) > div:last-child {{
+}
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) > div:last-child {
     min-width: 34px !important;
     flex: 0 0 7% !important;
     width: 7% !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-}}
-div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) > div:last-child button {{
+}
+div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) > div:last-child button {
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
@@ -392,9 +388,9 @@ div[data-testid="stHorizontalBlock"]:has(.contenedor-tabla-6) > div:last-child b
     width: auto !important;
     cursor: pointer !important;
     transform: translateY(6px) !important;
-}}
+}
 
-div[data-testid="stDownloadButton"] > button {{
+div[data-testid="stDownloadButton"] > button {
     width: 100% !important;
     background-color: var(--bg-contenedor) !important;
     border: 1px solid var(--borde) !important;
@@ -403,36 +399,36 @@ div[data-testid="stDownloadButton"] > button {{
     font-size: 0.82rem !important;
     padding: 0.65rem !important;
     border-radius: 0.5rem !important;
-}}
-div[data-testid="stDownloadButton"] > button:hover {{
+}
+div[data-testid="stDownloadButton"] > button:hover {
     background-color: var(--borde-tenue) !important;
     border-color: var(--color-acento) !important;
     color: var(--texto-principal) !important;
-}}
+}
 
-div[data-testid="stForm"] {{
+div[data-testid="stForm"] {
     border: 1px solid var(--borde) !important;
     border-radius: 6px !important;
     padding: 14px 18px !important;
     margin: 6px 0 !important;
-}}
-div[data-testid="stForm"] div[data-testid="stHorizontalBlock"] {{
+}
+div[data-testid="stForm"] div[data-testid="stHorizontalBlock"] {
     display: flex !important;
     flex-direction: row !important;
     margin-top: 0 !important;
     margin-bottom: 0 !important;
     gap: 14px !important;
-}}
-div[data-testid="stForm"] div[data-testid="stHorizontalBlock"] > div {{
+}
+div[data-testid="stForm"] div[data-testid="stHorizontalBlock"] > div {
     flex: 1 1 50% !important;
     width: 50% !important;
     min-width: 0 !important;
-}}
-div[data-testid="stForm"] label p {{
+}
+div[data-testid="stForm"] label p {
     font-size: 0.78rem !important;
     color: var(--texto-secundario) !important;
     font-weight: 600 !important;
-}}
+}
 </style>""", unsafe_allow_html=True)
 
 SECRET_KEY = "control_de_horas_firmado_token_2026"
@@ -533,6 +529,7 @@ def cargar_obras():
     except Exception:
         return ["LOTE 1", "LOTE 4", "LOTE 11", "MONTESSORI", "PERMISO", "NO TRABAJA", "VACACIONES", "LICENCIA"]
 
+# Lectura directa protegida
 @st.cache_data(ttl=300, show_spinner=False)
 def obtener_resumen_individual_optimizado(nombres_tupla):
     libro = conectar_libro()
@@ -1031,24 +1028,24 @@ else:
                         obtener_resumen_individual_optimizado.clear()
                         st.rerun()
 
-        # 4. TABLA GENERAL DE PERSONAL (BOTONES CON PILLS IDÉNTICO AL NAVEGADOR SUPERIOR)
+        # 4. TABLA GENERAL DE PERSONAL (BOTONES CON ESTILO IDÉNTICO AL NAVEGADOR SUPERIOR)
         st.write("")
         st.markdown("**👥 Resumen General del Personal**")
 
-        opc_horas_label = "🙈 Ocultar Horas" if st.session_state["mostrar_horas_admin"] else "👁️ Ver Horas"
+        txt_toggle_opc = "🙈 Ocultar Horas" if st.session_state["mostrar_horas_admin"] else "👁️ Ver Horas"
         
-        accion_elegida = st.pills(
+        accion_control = st.pills(
             "",
-            options=["🔄 Actualizar Lista", opc_horas_label],
+            options=["🔄 Actualizar Lista", txt_toggle_opc],
             default=None,
             label_visibility="collapsed",
-            key="pills_controles_admin"
+            key="pills_admin_controles"
         )
 
-        if accion_elegida == "🔄 Actualizar Lista":
+        if accion_control == "🔄 Actualizar Lista":
             obtener_resumen_individual_optimizado.clear()
             st.rerun()
-        elif accion_elegida == opc_horas_label:
+        elif accion_control == txt_toggle_opc:
             st.session_state["mostrar_horas_admin"] = not st.session_state["mostrar_horas_admin"]
             st.rerun()
 
@@ -1110,7 +1107,7 @@ else:
                 palabra_dias = "Día" if faltan == 1 else "Días"
                 badge = f'<span style="color: #f87171; font-weight: 700;">{faltan} {palabra_dias}</span>'
 
-            # Control de horas
+            # Control de visualización de horas
             if st.session_state["mostrar_horas_admin"]:
                 minutos_t_total = minutos_hn_total + minutos_hr_total
                 str_hn = minutos_a_hora_corta(minutos_hn_total)
