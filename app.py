@@ -94,7 +94,7 @@ div[data-testid="stToolbar"] {{ visibility: hidden !important; }}
 footer {{ visibility: hidden !important; }}
 div[data-testid="stDecoration"] {{ display: none !important; }}
 
-/* Eliminar distintivos flotantes */
+/* Eliminar distintivos y estados flotantes */
 footer,
 [data-testid="stStatusWidget"],
 [data-testid="manage-app-button"],
@@ -102,7 +102,8 @@ footer,
 .viewerBadge_link__qRIco,
 div[class*="viewerBadge_"],
 div[class*="ProfileBadge_"],
-iframe[title="streamlit_share_badge"] {{
+iframe[title="streamlit_share_badge"],
+div[data-testid="stToast"] {{
     display: none !important;
     visibility: hidden !important;
 }}
@@ -541,19 +542,31 @@ def cargar_obras():
     except Exception:
         return ["LOTE 1", "LOTE 4", "LOTE 11", "MONTESSORI", "PERMISO", "NO TRABAJA", "VACACIONES", "LICENCIA"]
 
-# Lectura en lote de datos de personal con caché rápida para evitar bloqueo de Google
-@st.cache_data(ttl=60)
+# Lectura global sin mostrar barra verde ni saturar cuotas
+@st.cache_data(ttl=60, show_spinner=False)
 def obtener_resumen_todos_trabajadores(nombres_lista):
-    libro = conectar_libro()
-    resultados = {}
-    for nom in nombres_lista:
-        try:
-            h = buscar_hoja_exacta_o_similar(libro, nom)
-            filas = h.get_all_values()[1:]
-            resultados[nom] = filas
-        except Exception:
-            resultados[nom] = []
-    return resultados
+    try:
+        libro = conectar_libro()
+        resultados = {}
+        todas_hojas = { " ".join(s.title.strip().upper().split()): s for s in libro.worksheets() }
+        for nom in nombres_lista:
+            nom_l = " ".join(nom.strip().upper().split())
+            ws = todas_hojas.get(nom_l)
+            if not ws:
+                for t, s in todas_hojas.items():
+                    if nom_l in t or t in nom_l:
+                        ws = s
+                        break
+            if ws:
+                try:
+                    resultados[nom] = ws.get_all_values()[1:]
+                except Exception:
+                    resultados[nom] = []
+            else:
+                resultados[nom] = []
+        return resultados
+    except Exception:
+        return {}
 
 FERIADOS = ["2026-09-18", "2026-09-19", "2026-09-20"]
 DIAS_MAP = {
@@ -600,7 +613,7 @@ def validar_usuario(correo_ingresado, password_ingresada):
     except Exception:
         return False, None, None
 
-# --- GENERADOR DE EXCEL CONSOLIDADO (.XLSX) ---
+# Generador Excel
 def generar_excel_mes(libro_actual, usuarios_dict, fechas_ciclo):
     if not OPENPYXL_DISPONIBLE:
         return None
@@ -675,7 +688,6 @@ def generar_excel_mes(libro_actual, usuarios_dict, fechas_ciclo):
     output.seek(0)
     return output.getvalue()
 
-# --- REORGANIZACIÓN DINÁMICA DE HOJAS EN GOOGLE SHEETS ---
 def reiniciar_hojas_nuevo_ciclo(f_inicio, f_fin, usuarios_dict):
     libro = conectar_libro()
     delta = (f_fin - f_inicio).days + 1
@@ -695,7 +707,6 @@ def reiniciar_hojas_nuevo_ciclo(f_inicio, f_fin, usuarios_dict):
         except Exception:
             pass
 
-# --- REPORTE PDF INDIVIDUAL ---
 def generar_pdf_horas(nombre_t, reg_tabla, tot_hn_str, tot_hr_str, periodo_str):
     if not REPORTLAB_DISPONIBLE: return None
     buffer = BytesIO()
@@ -737,7 +748,7 @@ def generar_pdf_horas(nombre_t, reg_tabla, tot_hn_str, tot_hr_str, periodo_str):
     return buffer.getvalue()
 
 # ==========================================================
-# PERSISTENCIA ROBUSTA (ANTI-DESCONEXIÓN)
+# PERSISTENCIA ROBUSTA
 # ==========================================================
 query_params = st.query_params
 
@@ -761,7 +772,6 @@ if "ciclo_inicio" not in st.session_state:
 if "ciclo_fin" not in st.session_state:
     st.session_state["ciclo_fin"] = date(2026, 9, 30)
 
-# Recuperación inmediata desde URL
 token_url = query_params.get("session")
 if token_url and not st.session_state.autenticado:
     correo_token = verificar_token(token_url)
@@ -773,21 +783,16 @@ if token_url and not st.session_state.autenticado:
             st.session_state.nombre_usuario = usuarios_map[correo_token.lower()]["nombre"]
             st.session_state.rol_usuario = usuarios_map[correo_token.lower()]["rol"]
 
-# Recuperación secundaria si la URL perdió el parámetro
 if not st.session_state.autenticado and not token_url:
     st.components.v1.html("""
         <script>
             try {
                 let token = localStorage.getItem('control_horas_token');
-                if (!token && window.top) {
-                    token = window.top.localStorage.getItem('control_horas_token');
-                }
                 if (token) {
-                    const topLoc = window.top ? window.top.location : window.location;
-                    const url = new URL(topLoc.href);
+                    const url = new URL(window.location.href);
                     if (!url.searchParams.has('session')) {
                         url.searchParams.set('session', token);
-                        topLoc.href = url.toString();
+                        window.location.replace(url.toString());
                     }
                 }
             } catch(e) {}
@@ -808,7 +813,7 @@ MESES_ES = {
 nombre_mes_dinamico = f"{MESES_ES[fin_mes.month]} {fin_mes.year}"
 
 # ==========================================================
-# RUTAS PRINCIPALES: LOGIN vs ADMIN vs TRABAJADOR
+# RUTAS CONDICIONALES ESTRICTAS
 # ==========================================================
 if not st.session_state.autenticado:
     st.markdown('<div class="login-wrapper">', unsafe_allow_html=True)
@@ -832,17 +837,10 @@ if not st.session_state.autenticado:
                     <script>
                         try {{
                             localStorage.setItem('control_horas_token', '{token_firmado}');
-                            if (window.top) {{
-                                window.top.localStorage.setItem('control_horas_token', '{token_firmado}');
-                                const topUrl = new URL(window.top.location.href);
-                                topUrl.searchParams.set('session', '{token_firmado}');
-                                window.top.history.replaceState(null, '', topUrl.toString());
-                            }}
                         }} catch(e) {{}}
                     </script>
                 """, height=0)
 
-                st.success(f"¡Bienvenido, {nombre}!")
                 st.rerun()
             else:
                 st.error("Correo o contraseña incorrectos. Verifica tus datos.")
@@ -862,7 +860,7 @@ else:
     else:
         hoy = date.today()
 
-    # SUB-RUTA A: CAMBIAR CONTRASEÑA
+    # RUTA 1: CAMBIO DE CONTRASEÑA
     if st.session_state.get("cambiando_password", False):
         st.subheader("🔑 Cambiar Contraseña")
         with st.form("form_cambiar_pass"):
@@ -892,7 +890,6 @@ else:
                                     encontrado = True
                                     break
                         if encontrado:
-                            st.success("✔ ¡Contraseña actualizada con éxito!")
                             st.session_state.cambiando_password = False
                             st.rerun()
                         else:
@@ -900,7 +897,7 @@ else:
                     except Exception as e:
                         st.error(f"Error: {e}")
 
-    # SUB-RUTA B: PANEL ADMINISTRADOR COMPACTO
+    # RUTA 2: PANEL DE ADMINISTRADOR AISLADO
     elif st.session_state.get("modo_admin_activo", False) and es_admin:
         c_head1, c_head2 = st.columns([75, 25])
         with c_head1:
@@ -938,32 +935,31 @@ else:
                         elif correo_limpio in usuarios_autorizados:
                             st.error("❌ Este correo ya está registrado en el sistema.")
                         else:
-                            with st.spinner(f"Creando trabajador y hoja para {nombre_limpio}..."):
+                            try:
+                                libro_admin = conectar_libro()
+                                hoja_t = libro_admin.worksheet("TRABAJADORES")
+                                hoja_t.append_row([nombre_limpio, correo_limpio, pass_limpio, nuevo_rol])
+
                                 try:
-                                    libro_admin = conectar_libro()
-                                    hoja_t = libro_admin.worksheet("TRABAJADORES")
-                                    hoja_t.append_row([nombre_limpio, correo_limpio, pass_limpio, nuevo_rol])
+                                    hoja_nueva = libro_admin.add_worksheet(title=nombre_limpio, rows=45, cols=8)
+                                    hoja_nueva.append_row(["DÍA_TEXTO", "DÍA", "ENTRADA", "SALIDA", "HORA EXTRA", "HORA RECARGO", "OBRA"])
+                                    
+                                    nuevas_filas = []
+                                    for i in range(delta_dias):
+                                        f = inicio_mes + timedelta(days=i)
+                                        nom_d = DIAS_MAP[f.weekday()]
+                                        num_d = str(f.day)
+                                        nuevas_filas.append([nom_d, num_d, "", "", "", "", ""])
+                                    
+                                    hoja_nueva.update(f"A2:G{1 + len(nuevas_filas)}", nuevas_filas, value_input_option="USER_ENTERED")
+                                except Exception:
+                                    pass
 
-                                    try:
-                                        hoja_nueva = libro_admin.add_worksheet(title=nombre_limpio, rows=45, cols=8)
-                                        hoja_nueva.append_row(["DÍA_TEXTO", "DÍA", "ENTRADA", "SALIDA", "HORA EXTRA", "HORA RECARGO", "OBRA"])
-                                        
-                                        nuevas_filas = []
-                                        for i in range(delta_dias):
-                                            f = inicio_mes + timedelta(days=i)
-                                            nom_d = DIAS_MAP[f.weekday()]
-                                            num_d = str(f.day)
-                                            nuevas_filas.append([nom_d, num_d, "", "", "", "", ""])
-                                        
-                                        hoja_nueva.update(f"A2:G{1 + len(nuevas_filas)}", nuevas_filas, value_input_option="USER_ENTERED")
-                                    except Exception:
-                                        pass
-
-                                    cargar_trabajadores.clear()
-                                    st.success(f"✔ Trabajador {nombre_limpio} creado exitosamente con su hoja de registro.")
-                                    st.rerun()
-                                except Exception as err_trab:
-                                    st.error(f"Error al registrar trabajador: {err_trab}")
+                                cargar_trabajadores.clear()
+                                obtener_resumen_todos_trabajadores.clear()
+                                st.rerun()
+                            except Exception as err_trab:
+                                st.error(f"Error al registrar trabajador: {err_trab}")
 
             with pestana_obr:
                 with st.form("form_nueva_obra"):
@@ -982,17 +978,15 @@ else:
                         elif any(obra_limpia == o.upper() for o in lista_obras):
                             st.error("❌ Esta obra ya existe en la lista.")
                         else:
-                            with st.spinner("Guardando nueva obra..."):
-                                try:
-                                    libro_admin = conectar_libro()
-                                    hoja_o = libro_admin.worksheet("OBRAS")
-                                    filas_actuales = len(hoja_o.get_all_values())
-                                    hoja_o.append_row([str(filas_actuales), obra_limpia])
-                                    cargar_obras.clear()
-                                    st.success(f"✔ Obra '{obra_limpia}' añadida con éxito.")
-                                    st.rerun()
-                                except Exception as err_obr:
-                                    st.error(f"Error al guardar obra: {err_obr}")
+                            try:
+                                libro_admin = conectar_libro()
+                                hoja_o = libro_admin.worksheet("OBRAS")
+                                filas_actuales = len(hoja_o.get_all_values())
+                                hoja_o.append_row([str(filas_actuales), obra_limpia])
+                                cargar_obras.clear()
+                                st.rerun()
+                            except Exception as err_obr:
+                                st.error(f"Error al guardar obra: {err_obr}")
 
         # 2. DESPLEGABLE: SIMULACIÓN DE FECHA
         with st.expander("🕒 Simulación de Fecha del Sistema"):
@@ -1006,14 +1000,16 @@ else:
             with c_s2:
                 if st.button("⚡ Activar", use_container_width=True):
                     st.session_state["fecha_admin_simulada"] = fecha_input_admin
+                    obtener_resumen_todos_trabajadores.clear()
                     st.rerun()
             with c_s3:
                 if st.button("🔄 Reset", use_container_width=True):
                     st.session_state["fecha_admin_simulada"] = None
+                    obtener_resumen_todos_trabajadores.clear()
                     st.rerun()
 
             if st.session_state["fecha_admin_simulada"] is not None:
-                st.warning(f"⚠️ Simulando: **{st.session_state['fecha_admin_simulada'].strftime('%d/%m/%Y')}**")
+                st.info(f"Modo simulación: **{st.session_state['fecha_admin_simulada'].strftime('%d/%m/%Y')}**")
 
         # 3. DESPLEGABLE: CICLO DE CIERRE Y APERTURA
         with st.expander("📅 Ciclo de Cierre y Apertura Automática"):
@@ -1027,7 +1023,7 @@ else:
                 if st.button("💾 Guardar Nuevo Rango de Fechas", use_container_width=True):
                     st.session_state["ciclo_inicio"] = nuevo_inicio
                     st.session_state["ciclo_fin"] = nuevo_fin
-                    st.success("✔ Rango actualizado.")
+                    obtener_resumen_todos_trabajadores.clear()
                     st.rerun()
 
             st.write("")
@@ -1051,10 +1047,10 @@ else:
                     with st.spinner("Reorganizando hojas de todo el personal en Google Sheets..."):
                         reiniciar_hojas_nuevo_ciclo(nuevo_inicio, nuevo_fin, usuarios_autorizados)
                         if "filas_planilla" in st.session_state: del st.session_state["filas_planilla"]
-                        st.success("✔ ¡Hojas preparadas y limpias para el nuevo ciclo!")
+                        obtener_resumen_todos_trabajadores.clear()
                         st.rerun()
 
-        # 4. TABLA GENERAL DE PERSONAL (CÁLCULO EXACTO POR DÍA)
+        # 4. TABLA GENERAL DE PERSONAL (CÁLCULO EXACTO E INMEDIATO)
         st.write("")
         st.markdown("**👥 Resumen General del Personal**")
         
@@ -1066,7 +1062,6 @@ else:
             nom = info_w["nombre"]
             vals = datos_todas_hojas.get(nom, [])
             
-            # Mapear los días registrados
             dias_registrados_set = set()
             for idx, r in enumerate(vals):
                 if any("TOTAL" in str(x).upper() for x in r): 
@@ -1078,9 +1073,8 @@ else:
                     n_dia = fechas_periodo[idx].day
 
                 if n_dia is not None:
-                    # Se evalúan todas las columnas de la fila (Entrada, Salida, Horas, Obra)
-                    celdas_con_info = [str(c).strip() for c in r[2:7] if str(c).strip() and str(c).strip() not in ["None", "0:00:00"]]
-                    if len(celdas_con_info) > 0:
+                    celdas_datos = [str(c).strip() for c in r[2:7] if str(c).strip() and str(c).strip() not in ["None", "0:00:00"]]
+                    if len(celdas_datos) > 0:
                         clave_dia = "31_0" if (n_dia == 31 and idx == 0) else str(n_dia)
                         dias_registrados_set.add(clave_dia)
 
@@ -1091,13 +1085,11 @@ else:
                 
                 clave_f = "31_0" if (f.day == 31 and idx_f == 0) else str(f.day)
                 
-                # Domingos y feriados no son obligatorios si no se trabajaron
                 if (f.weekday() == 6) or (f.strftime("%Y-%m-%d") in FERIADOS):
                     continue
                 
                 tiene_datos = clave_f in dias_registrados_set
                 
-                # Sábado sin trabajar: tras el lunes no cuenta como pendiente
                 if f.weekday() == 5 and f < hoy:
                     lunes_despues = f + timedelta(days=2)
                     if hoy >= lunes_despues and not tiene_datos:
@@ -1117,12 +1109,11 @@ else:
         tabla_html = f'<div style="width:100%;border:1px solid var(--borde);border-radius:8px;overflow:hidden;margin-top:6px;box-sizing:border-box;"><div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background-color:var(--bg-encabezado);border-bottom:1px solid var(--borde);font-size:0.72rem;font-weight:700;color:var(--texto-secundario);"><div>TRABAJADOR</div><div>ESTADO DE REGISTRO</div></div>{filas_unidas}</div>'
         st.markdown(tabla_html, unsafe_allow_html=True)
 
-    # SUB-RUTA C: VISTA DEL TRABAJADOR / PLANILLA (SOLO SI NO ESTÁ EN MODO ADMIN)
-    else:
-        if es_admin and st.session_state.get("fecha_admin_simulada") is not None:
-            st.info(f"🕒 Modo simulación activo: **{hoy.strftime('%d/%m/%Y')}** (Configurado desde Panel Administrador)")
+        # Cierra completamente la vista de administrador para no renderizar la pantalla del trabajador
+        st.stop()
 
-        # FILA SUPERIOR: NAVEGADOR DINÁMICO POR MES Y TUERCA
+    # RUTA 3: VISTA DEL TRABAJADOR / PLANILLA DE REGISTRO
+    else:
         c_nav, c_gear = st.columns([88, 12])
 
         with c_nav:
@@ -1172,12 +1163,6 @@ else:
                         <script>
                             try {
                                 localStorage.removeItem('control_horas_token');
-                                if (window.top) {
-                                    window.top.localStorage.removeItem('control_horas_token');
-                                    const topUrl = new URL(window.top.location.href);
-                                    topUrl.searchParams.delete('session');
-                                    window.top.history.replaceState(null, '', topUrl.toString());
-                                }
                             } catch(e) {}
                         </script>
                     """, height=0)
@@ -1261,7 +1246,7 @@ else:
 
         registros_tabla = sorted(registros_tabla, key=lambda x: (0 if x["DÍA"] == 31 else x["DÍA"]))
 
-        # VISTA 1: REGISTRO DIARIO
+        # VISTA A: REGISTRO DIARIO
         if st.session_state["vista_actual"] in ["SEPTIEMBRE", "REGISTRO"]:
             st.subheader(f"{nombre_mes_dinamico}")
             
@@ -1303,7 +1288,7 @@ else:
                     dias_pendientes.append(f)
 
             if not dias_pendientes:
-                st.success("🎉 ¡Todos los días del mes ya han sido completados!")
+                st.write("Todos los días del mes han sido completados.")
             else:
                 for f in dias_pendientes:
                     nom_dia = DIAS_MAP[f.weekday()]
@@ -1346,27 +1331,27 @@ else:
                                 elif not es_especial and (inp_ent is None or inp_sal is None):
                                     st.warning("⚠️ Debes ingresar Entrada y Salida para las obras normales.")
                                 else:
-                                    with st.spinner("Guardando en la planilla..."):
-                                        try:
-                                            fila_n = fila_segun_dia(num_dia)
-                                            if es_especial:
-                                                hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["-", "-"]], value_input_option="RAW")
-                                                hoja_usuario.update(f"G{fila_n}", [[inp_ob]], value_input_option="RAW")
-                                            else:
-                                                ent_str = inp_ent.strftime("%H:%M")
-                                                sal_str = inp_sal.strftime("%H:%M")
-                                                hoja_usuario.update(f"C{fila_n}:D{fila_n}", [[ent_str, sal_str]], value_input_option="USER_ENTERED")
-                                                hoja_usuario.update(f"G{fila_n}", [[inp_ob]], value_input_option="USER_ENTERED")
+                                    try:
+                                        fila_n = fila_segun_dia(num_dia)
+                                        if es_especial:
+                                            hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["-", "-"]], value_input_option="RAW")
+                                            hoja_usuario.update(f"G{fila_n}", [[inp_ob]], value_input_option="RAW")
+                                        else:
+                                            ent_str = inp_ent.strftime("%H:%M")
+                                            sal_str = inp_sal.strftime("%H:%M")
+                                            hoja_usuario.update(f"C{fila_n}:D{fila_n}", [[ent_str, sal_str]], value_input_option="USER_ENTERED")
+                                            hoja_usuario.update(f"G{fila_n}", [[inp_ob]], value_input_option="USER_ENTERED")
 
-                                            if "filas_planilla" in st.session_state:
-                                                del st.session_state["filas_planilla"]
+                                        if "filas_planilla" in st.session_state:
+                                            del st.session_state["filas_planilla"]
 
-                                            st.session_state["vista_actual"] = "RESUMEN"
-                                            st.rerun()
-                                        except Exception as err:
-                                            st.error(f"Error al guardar: {err}")
+                                        obtener_resumen_todos_trabajadores.clear()
+                                        st.session_state["vista_actual"] = "RESUMEN"
+                                        st.rerun()
+                                    except Exception as err:
+                                        st.error(f"Error al guardar: {err}")
 
-        # VISTA 2: RESUMEN MENSUAL
+        # VISTA B: RESUMEN MENSUAL
         elif st.session_state["vista_actual"] == "RESUMEN":
             st.subheader("RESUMEN MENSUAL")
             
@@ -1485,33 +1470,33 @@ else:
                                 elif not es_especial_edit and (edit_ent is None or edit_sal is None):
                                     st.warning("⚠️ Debes completar Entrada y Salida.")
                                 else:
-                                    with st.spinner("Actualizando planilla..."):
-                                        fila_n = fila_segun_dia(d)
-                                        if es_especial_edit:
-                                            hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["-", "-"]], value_input_option="RAW")
-                                            hoja_usuario.update(f"G{fila_n}", [[edit_ob]], value_input_option="RAW")
-                                        else:
-                                            ent_str = edit_ent.strftime("%H:%M")
-                                            sal_str = edit_sal.strftime("%H:%M")
-                                            hoja_usuario.update(f"C{fila_n}:D{fila_n}", [[ent_str, sal_str]], value_input_option="USER_ENTERED")
-                                            hoja_usuario.update(f"G{fila_n}", [[edit_ob]], value_input_option="USER_ENTERED")
-
-                                        if "filas_planilla" in st.session_state:
-                                            del st.session_state["filas_planilla"]
-                                        st.session_state["dia_en_edicion"] = None
-                                        st.rerun()
-
-                            if btn_borrar_edit:
-                                with st.spinner("Limpiando registro..."):
                                     fila_n = fila_segun_dia(d)
-                                    hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["", ""]], value_input_option="USER_ENTERED")
-                                    hoja_usuario.update(f"G{fila_n}", [[""]], value_input_option="USER_ENTERED")
+                                    if es_especial_edit:
+                                        hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["-", "-"]], value_input_option="RAW")
+                                        hoja_usuario.update(f"G{fila_n}", [[edit_ob]], value_input_option="RAW")
+                                    else:
+                                        ent_str = edit_ent.strftime("%H:%M")
+                                        sal_str = edit_sal.strftime("%H:%M")
+                                        hoja_usuario.update(f"C{fila_n}:D{fila_n}", [[ent_str, sal_str]], value_input_option="USER_ENTERED")
+                                        hoja_usuario.update(f"G{fila_n}", [[edit_ob]], value_input_option="USER_ENTERED")
 
                                     if "filas_planilla" in st.session_state:
                                         del st.session_state["filas_planilla"]
+                                    obtener_resumen_todos_trabajadores.clear()
                                     st.session_state["dia_en_edicion"] = None
-                                    st.session_state["vista_actual"] = "REGISTRO"
                                     st.rerun()
+
+                            if btn_borrar_edit:
+                                fila_n = fila_segun_dia(d)
+                                hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["", ""]], value_input_option="USER_ENTERED")
+                                hoja_usuario.update(f"G{fila_n}", [[""]], value_input_option="USER_ENTERED")
+
+                                if "filas_planilla" in st.session_state:
+                                    del st.session_state["filas_planilla"]
+                                obtener_resumen_todos_trabajadores.clear()
+                                st.session_state["dia_en_edicion"] = None
+                                st.session_state["vista_actual"] = "REGISTRO"
+                                st.rerun()
 
             else:
                 st.info("Aún no tienes jornadas registradas en este mes.")
@@ -1535,5 +1520,3 @@ else:
                     mime="application/pdf",
                     use_container_width=True
                 )
-            else:
-                st.warning("⚠️ Para habilitar la descarga en PDF en Streamlit Cloud, añade 'reportlab' en tu archivo requirements.txt en GitHub.")
