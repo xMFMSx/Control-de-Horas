@@ -11,7 +11,6 @@ import urllib.parse
 from io import BytesIO
 import os
 
-# Importación segura de ReportLab
 try:
     from reportlab.lib import colors
     from reportlab.lib.pagesizes import letter
@@ -21,7 +20,6 @@ try:
 except ImportError:
     REPORTLAB_DISPONIBLE = False
 
-# Importación segura de OpenPyXL
 try:
     import openpyxl
     OPENPYXL_DISPONIBLE = True
@@ -94,7 +92,6 @@ div[data-testid="stToolbar"] {{ visibility: hidden !important; }}
 footer {{ visibility: hidden !important; }}
 div[data-testid="stDecoration"] {{ display: none !important; }}
 
-/* Eliminar distintivos flotantes */
 footer,
 [data-testid="stStatusWidget"],
 [data-testid="manage-app-button"],
@@ -113,7 +110,6 @@ div[data-testid="stToast"] {{
     visibility: hidden !important;
 }}
 
-/* Scrollbar transparente */
 html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main, div, section {{
     scrollbar-width: none !important;
     -ms-overflow-style: none !important;
@@ -124,12 +120,10 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main, d
     height: 0px !important;
     background: transparent !important;
 }}
-
 ::-webkit-scrollbar-thumb {{
     background: transparent !important;
     border: none !important;
 }}
-
 ::-webkit-scrollbar-track {{
     background: transparent !important;
 }}
@@ -152,7 +146,6 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main {{
     box-sizing: border-box !important;
 }}
 
-/* Traducción Enter */
 div[data-testid="InputInstructions"] {{
     font-size: 0 !important;
 }}
@@ -163,7 +156,6 @@ div[data-testid="InputInstructions"]::after {{
     opacity: 0.8 !important;
 }}
 
-/* Login Wrapper */
 .stApp:has(.login-wrapper) .block-container {{
     padding-top: 0 !important;
     padding-bottom: 0 !important;
@@ -183,7 +175,6 @@ div[data-testid="InputInstructions"]::after {{
     width: 100% !important;
 }}
 
-/* Fila Superior */
 div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {{
     display: flex !important;
     flex-direction: row !important;
@@ -256,7 +247,6 @@ div[data-testid="stPopoverBody"] {{
     color: var(--texto-principal) !important;
 }}
 
-/* Segmented Control / Pills */
 div[data-testid="stSegmentedControl"],
 div[data-testid="stPills"] {{
     display: flex !important;
@@ -265,7 +255,6 @@ div[data-testid="stPills"] {{
     width: 100% !important;
     gap: 6px !important;
 }}
-
 div[data-testid="stSegmentedControl"] > div,
 div[data-testid="stPills"] > div {{
     display: flex !important;
@@ -274,7 +263,6 @@ div[data-testid="stPills"] > div {{
     width: 100% !important;
     gap: 6px !important;
 }}
-
 div[data-testid="stSegmentedControl"] button,
 div[data-testid="stPills"] button {{
     flex: 1 1 50% !important;
@@ -290,7 +278,6 @@ div[data-testid="stPills"] button {{
     text-align: center !important;
     box-sizing: border-box !important;
 }}
-
 div[data-testid="stSegmentedControl"] button[aria-selected="true"],
 div[data-testid="stPills"] button[aria-selected="true"] {{
     background-color: var(--color-acento) !important;
@@ -298,7 +285,6 @@ div[data-testid="stPills"] button[aria-selected="true"] {{
     color: #ffffff !important;
 }}
 
-/* Grilla de 6 Columnas */
 .contenedor-tabla-6 {{
     display: grid !important;
     grid-template-columns: 7% 12% 10% 13.5% 14.5% 43% !important;
@@ -342,7 +328,6 @@ div[data-testid="stPills"] button[aria-selected="true"] {{
 }}
 .contenedor-tabla-6 > div:last-child {{ border-right: none !important; }}
 
-/* Filas Sábado y Festivo */
 .fila-sabado {{
     background-color: rgba(30, 58, 138, 0.45) !important;
     border-color: rgba(96, 165, 250, 0.4) !important;
@@ -542,34 +527,30 @@ def cargar_obras():
     except Exception:
         return ["LOTE 1", "LOTE 4", "LOTE 11", "MONTESSORI", "PERMISO", "NO TRABAJA", "VACACIONES", "LICENCIA"]
 
-# Descarga ultrarrápida por lote en una sola petición HTTP (sin bloqueos de Google API)
-@st.cache_data(ttl=60, show_spinner=False)
-def obtener_datos_resumen_batch():
-    try:
-        libro = conectar_libro()
-        todas = libro.worksheets()
-        hojas_validas = [s for s in todas if s.title.strip().upper() not in ["TRABAJADORES", "OBRAS", "CONFIG"]]
-        ranges = [f"'{s.title.replace('\'', '\'\'')}'!A2:G35" for s in hojas_validas]
-        
-        resp = libro.values_batch_get(ranges)
-        data_map = {}
-        for s, v_range in zip(hojas_validas, resp.get('valueRanges', [])):
-            norm_title = " ".join(s.title.strip().upper().split())
-            data_map[norm_title] = v_range.get('values', [])
-        return data_map
-    except Exception:
-        # En caso de fallo en batch, fallback individual seguro
-        try:
-            libro = conectar_libro()
-            todas = libro.worksheets()
-            data_map = {}
-            for s in todas:
-                if s.title.strip().upper() not in ["TRABAJADORES", "OBRAS", "CONFIG"]:
-                    norm_title = " ".join(s.title.strip().upper().split())
-                    data_map[norm_title] = s.get_all_values()[1:]
-            return data_map
-        except Exception:
-            return {}
+# Lectura directa garantizada por hoja
+@st.cache_data(ttl=120, show_spinner=False)
+def obtener_resumen_individual_optimizado(nombres_tupla):
+    libro = conectar_libro()
+    mapa_datos = {}
+    hojas_dict = { " ".join(s.title.strip().upper().split()): s for s in libro.worksheets() }
+    
+    for nom in nombres_tupla:
+        nom_l = " ".join(nom.strip().upper().split())
+        ws = hojas_dict.get(nom_l)
+        if not ws:
+            for k_h, v_h in hojas_dict.items():
+                if nom_l in k_h or k_h in nom_l:
+                    ws = v_h
+                    break
+        if ws:
+            try:
+                # Leer rango de días B2:G35
+                mapa_datos[nom] = ws.get("B2:G35")
+            except Exception:
+                mapa_datos[nom] = []
+        else:
+            mapa_datos[nom] = []
+    return mapa_datos
 
 FERIADOS = ["2026-09-18", "2026-09-19", "2026-09-20"]
 DIAS_MAP = {
@@ -911,7 +892,7 @@ else:
 
         st.caption("Ajustes del sistema y control global de personal.")
 
-        # 1. DESPLEGABLE: GESTIÓN DE PERSONAL Y OBRAS
+        # 1. GESTIÓN DE PERSONAL Y OBRAS
         with st.expander("🏗️ Gestión de Personal y Obras"):
             pestana_trab, pestana_obr = st.tabs(["👤 Agregar Trabajador", "🏗️ Agregar Obra"])
 
@@ -958,7 +939,7 @@ else:
                                     pass
 
                                 cargar_trabajadores.clear()
-                                obtener_datos_resumen_batch.clear()
+                                obtener_resumen_individual_optimizado.clear()
                                 st.rerun()
                             except Exception as err_trab:
                                 st.error(f"Error al registrar trabajador: {err_trab}")
@@ -990,7 +971,7 @@ else:
                             except Exception as err_obr:
                                 st.error(f"Error al guardar obra: {err_obr}")
 
-        # 2. DESPLEGABLE: SIMULACIÓN DE FECHA
+        # 2. SIMULACIÓN DE FECHA
         with st.expander("🕒 Simulación de Fecha del Sistema"):
             c_s1, c_s2, c_s3 = st.columns([54, 23, 23])
             with c_s1:
@@ -1002,18 +983,18 @@ else:
             with c_s2:
                 if st.button("⚡ Activar", use_container_width=True):
                     st.session_state["fecha_admin_simulada"] = fecha_input_admin
-                    obtener_datos_resumen_batch.clear()
+                    obtener_resumen_individual_optimizado.clear()
                     st.rerun()
             with c_s3:
                 if st.button("🔄 Reset", use_container_width=True):
                     st.session_state["fecha_admin_simulada"] = None
-                    obtener_datos_resumen_batch.clear()
+                    obtener_resumen_individual_optimizado.clear()
                     st.rerun()
 
             if st.session_state["fecha_admin_simulada"] is not None:
                 st.info(f"Modo simulación: **{st.session_state['fecha_admin_simulada'].strftime('%d/%m/%Y')}**")
 
-        # 3. DESPLEGABLE: CICLO DE CIERRE Y APERTURA
+        # 3. CICLO DE CIERRE Y APERTURA
         with st.expander("📅 Ciclo de Cierre y Apertura Automática"):
             c_f1, c_f2 = st.columns(2)
             with c_f1:
@@ -1025,7 +1006,7 @@ else:
                 if st.button("💾 Guardar Nuevo Rango de Fechas", use_container_width=True):
                     st.session_state["ciclo_inicio"] = nuevo_inicio
                     st.session_state["ciclo_fin"] = nuevo_fin
-                    obtener_datos_resumen_batch.clear()
+                    obtener_resumen_individual_optimizado.clear()
                     st.rerun()
 
             st.write("")
@@ -1049,43 +1030,34 @@ else:
                     with st.spinner("Reorganizando hojas de todo el personal en Google Sheets..."):
                         reiniciar_hojas_nuevo_ciclo(nuevo_inicio, nuevo_fin, usuarios_autorizados)
                         if "filas_planilla" in st.session_state: del st.session_state["filas_planilla"]
-                        obtener_datos_resumen_batch.clear()
+                        obtener_resumen_individual_optimizado.clear()
                         st.rerun()
 
-        # 4. TABLA GENERAL DE PERSONAL CON ACTUALIZACIÓN INSTANTÁNEA
+        # 4. TABLA GENERAL DE PERSONAL (SIEMPRE VISIBLE)
         st.write("")
         c_title_tab, c_btn_tab = st.columns([72, 28])
         with c_title_tab:
             st.markdown("**👥 Resumen General del Personal**")
         with c_btn_tab:
             if st.button("🔄 Actualizar Lista", use_container_width=True):
-                obtener_datos_resumen_batch.clear()
+                obtener_resumen_individual_optimizado.clear()
                 st.rerun()
 
-        # Descarga por lote en una sola petición a Google
-        datos_por_hoja_map = obtener_datos_resumen_batch()
+        nombres_todos = tuple(info["nombre"] for info in usuarios_autorizados.values())
+        mapa_datos_personal = obtener_resumen_individual_optimizado(nombres_todos)
 
         filas_html_personal = []
         for correo_w, info_w in usuarios_autorizados.items():
             nom = info_w["nombre"]
-            norm_nom = " ".join(nom.strip().upper().split())
+            filas_rango = mapa_datos_personal.get(nom, [])
             
-            # Buscar en el mapa por coincidencia de nombre
-            filas_trabajador = datos_por_hoja_map.get(norm_nom)
-            if filas_trabajador is None:
-                for k_map, v_map in datos_por_hoja_map.items():
-                    if norm_nom in k_map or k_map in norm_nom:
-                        filas_trabajador = v_map
-                        break
-            if filas_trabajador is None:
-                filas_trabajador = []
-
-            # Mapeo exacto por fila <-> fecha del ciclo
+            # Mapear cada día del rango B2:G35
             registros_por_fecha = {}
-            for idx, r in enumerate(filas_trabajador):
+            for idx, r in enumerate(filas_rango):
                 if idx < len(fechas_periodo):
                     f_idx = fechas_periodo[idx]
-                    celdas_datos = [str(c).strip() for c in r[2:] if str(c).strip() and str(c).strip() not in ["None", "0:00:00"]]
+                    # Celda 0 es B (Día), celdas 1 a 5 corresponden a C a G
+                    celdas_datos = [str(c).strip() for c in r[1:] if str(c).strip() and str(c).strip() not in ["None", "0:00:00", "-"]]
                     registros_por_fecha[f_idx] = len(celdas_datos) > 0
 
             faltan = 0
@@ -1093,7 +1065,7 @@ else:
                 if f > hoy: 
                     continue
                 
-                # Domingos y feriados no son obligatorios si no se trabajaron
+                # Domingos y feriados no suman pendientes
                 if (f.weekday() == 6) or (f.strftime("%Y-%m-%d") in FERIADOS):
                     continue
                 
@@ -1354,7 +1326,7 @@ else:
                                         if "filas_planilla" in st.session_state:
                                             del st.session_state["filas_planilla"]
 
-                                        obtener_datos_resumen_batch.clear()
+                                        obtener_resumen_individual_optimizado.clear()
                                         st.session_state["vista_actual"] = "RESUMEN"
                                         st.rerun()
                                     except Exception as err:
@@ -1491,7 +1463,7 @@ else:
 
                                     if "filas_planilla" in st.session_state:
                                         del st.session_state["filas_planilla"]
-                                    obtener_datos_resumen_batch.clear()
+                                    obtener_resumen_individual_optimizado.clear()
                                     st.session_state["dia_en_edicion"] = None
                                     st.rerun()
 
@@ -1502,7 +1474,7 @@ else:
 
                                 if "filas_planilla" in st.session_state:
                                     del st.session_state["filas_planilla"]
-                                obtener_datos_resumen_batch.clear()
+                                obtener_resumen_individual_optimizado.clear()
                                 st.session_state["dia_en_edicion"] = None
                                 st.session_state["vista_actual"] = "REGISTRO"
                                 st.rerun()
