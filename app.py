@@ -733,7 +733,7 @@ def generar_pdf_horas(nombre_t, reg_tabla, tot_hn_str, tot_hr_str, periodo_str):
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#1a1e29")),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), enlargement=None),
+        ('FONTSIZE', (0, 0), (-1, -1), 9),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('ALIGN', (5, 1), (5, -1), 'LEFT'),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor("#cbd5e0")),
