@@ -247,9 +247,7 @@ div[data-testid="stPopoverBody"] {{
     color: var(--texto-principal) !important;
 }}
 
-/* ==========================================================
-   BOTONES EN FILA FIJA (ESTILO PESTAÑAS PRINCIPALES)
-   ========================================================== */
+/* BOTONES EN FILA FIJA (ESTILO PESTAÑAS) */
 div[data-testid="stHorizontalBlock"]:has(.admin-btn-row-marker) {{
     display: flex !important;
     flex-direction: row !important;
@@ -570,7 +568,7 @@ def cargar_obras():
     except Exception:
         return ["LOTE 1", "LOTE 4", "LOTE 11", "MONTESSORI", "PERMISO", "NO TRABAJA", "VACACIONES", "LICENCIA"]
 
-# Lectura directa a prueba de fallos de cuota
+# Lectura directa protegida
 @st.cache_data(ttl=300, show_spinner=False)
 def obtener_resumen_individual_optimizado(nombres_tupla):
     libro = conectar_libro()
@@ -1069,7 +1067,7 @@ else:
                         obtener_resumen_individual_optimizado.clear()
                         st.rerun()
 
-        # 4. TABLA GENERAL DE PERSONAL CON BOTONES HORIZONTALES ESTILO PESTAÑAS
+        # 4. TABLA GENERAL DE PERSONAL (BOTONES HORIZONTALES)
         st.write("")
         st.markdown("**👥 Resumen General del Personal**")
 
@@ -1143,7 +1141,7 @@ else:
                 palabra_dias = "Día" if faltan == 1 else "Días"
                 badge = f'<span style="color: #f87171; font-weight: 700;">{faltan} {palabra_dias}</span>'
 
-            # Control de visualización de horas
+            # Control de horas
             if st.session_state["mostrar_horas_admin"]:
                 minutos_t_total = minutos_hn_total + minutos_hr_total
                 str_hn = minutos_a_hora_corta(minutos_hn_total)
