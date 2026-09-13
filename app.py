@@ -92,6 +92,7 @@ def pintar_celda_septiembre_en_app(nombre_trabajador, num_dia, obra_asignada):
                 break
         
         if row_target == -1:
+            st.warning(f"⚠️ No se encontró al trabajador '{nombre_trabajador}' en la hoja SEPTIEMBRE.")
             return
 
         # 2. Buscar la columna exacta buscando el número del día en la cabecera (Fila 1)
@@ -103,6 +104,7 @@ def pintar_celda_septiembre_en_app(nombre_trabajador, num_dia, obra_asignada):
                 break
                 
         if col_target_1idx == -1:
+            st.warning(f"⚠️ No se encontró la columna del día {num_dia} en SEPTIEMBRE.")
             return
 
         # 3. Obtener el color correspondiente (o blanco si está vacío)
@@ -128,8 +130,9 @@ def pintar_celda_septiembre_en_app(nombre_trabajador, num_dia, obra_asignada):
                 }
             }]
         })
+        st.toast(f"🎨 Color actualizado para el día {num_dia} ({obra_asignada})", icon="✔")
     except Exception as e:
-        print(f"Error pintando automático: {e}")
+        st.error(f"Error al pintar automáticamente: {e}")
 
 # ==========================================================
 # FONDO DE PANTALLA PERSONALIZADO (BASE64)
