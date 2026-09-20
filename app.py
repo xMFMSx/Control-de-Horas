@@ -1138,9 +1138,9 @@ else:
                                 st.error(f"Error al guardar obra: {err_obr}")
 
         with st.expander("🎨 Herramientas de Mantenimiento"):
-            st.caption("Sincroniza y colorea masivamente las hojas OBRAS y SEPTIEMBRE.")
-            if st.button("🖌️ Ejecutar Sincronización de Colores", use_container_width=True):
-                with st.spinner("Coloreando hojas OBRAS y SEPTIEMBRE..."):
+            st.caption("Sincroniza, colorea masivamente y coloca ceros en celdas vacías en SEPTIEMBRE y OBRAS.")
+            if st.button("🖌️ Ejecutar Sincronización y Rellenar Ceros", use_container_width=True):
+                with st.spinner("Procesando hojas OBRAS y SEPTIEMBRE..."):
                     try:
                         libro_m = conectar_libro()
                         
@@ -1170,10 +1170,12 @@ else:
                             libro_m.batch_update({"requests": reqs_o})
                             time_lib.sleep(1.0)
 
-                        # 2. Colorear SEPTIEMBRE
+                        # 2. Colorear SEPTIEMBRE y rellenar ceros en días vacíos
                         hoja_s = libro_m.worksheet("SEPTIEMBRE")
                         valores_s = hoja_s.get_all_values()
                         reqs_s = []
+                        celdas_a_actualizar = []
+
                         for row_idx, fila in enumerate(valores_s):
                             if row_idx > 0 and len(fila) > 0 and fila[0].strip():
                                 nombre_txt = fila[0].strip().upper()
@@ -1195,15 +1197,28 @@ else:
                                                     "fields": "userEnteredFormat.backgroundColor"
                                                 }
                                             })
+                                        else:
+                                            # Rellenar con 0 si la celda de la fecha está vacía
+                                            letra_col = gspread.utils.rowcol_to_a1(row_idx + 1, col_idx + 1)
+                                            # Extraer solo las letras de la celda (ej: B2 -> B)
+                                            letra_col_limpia = "".join([c for c in letra_col if c.isalpha()])
+                                            celdas_a_actualizar.append({
+                                                'range': f"{letra_col_limpia}{row_idx + 1}",
+                                                'values': [[0]]
+                                            })
+
                         if reqs_s:
                             chunk = 500
                             for i in range(0, len(reqs_s), chunk):
                                 libro_m.batch_update({"requests": reqs_s[i:i+chunk]})
                                 time_lib.sleep(0.5)
 
-                        st.success("¡Hojas OBRAS y SEPTIEMBRE coloreadas y sincronizadas con éxito!")
+                        if celdas_a_actualizar:
+                            hoja_s.batch_update(celdas_a_actualizar, value_input_option='USER_ENTERED')
+
+                        st.success("¡Sincronización completada! Hojas coloreadas y días vacíos rellenados con 0.")
                     except Exception as err_c:
-                        st.error(f"Error al colorear: {err_c}")
+                        st.error(f"Error en la sincronización: {err_c}")
 
         with st.expander("🕒 Simulación de Fecha del Sistema"):
             c_s1, c_s2, c_s3 = st.columns([54, 23, 23])
