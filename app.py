@@ -1148,7 +1148,7 @@ else:
         with st.expander("🎨 Herramientas de Mantenimiento"):
             st.caption("Sincroniza, colorea masivamente y coloca ceros solo en las Horas Extra vacías de SEPTIEMBRE.")
             if st.button("🖌️ Ejecutar Sincronización y Rellenar Ceros", use_container_width=True):
-                with st.spinner("Procesando hojas OBRAS y SEPTIEMBRE..."):
+                with st.spinner("Procesando hojas OBRAS y SEPTIEMBRE de forma segura..."):
                     try:
                         libro_m = conectar_libro()
                         
@@ -1176,9 +1176,9 @@ else:
                             })
                         if reqs_o:
                             libro_m.batch_update({"requests": reqs_o})
-                            time_lib.sleep(1.0)
+                            time_lib.sleep(1.5)
 
-                        # 2. Sincronizar y colorear SEPTIEMBRE respetando las filas de obras y rellenando ceros solo en Hora Extra
+                        # 2. Sincronizar y colorear SEPTIEMBRE respetando filas de obras y rellenando ceros solo en Hora Extra
                         hoja_s = libro_m.worksheet("SEPTIEMBRE")
                         valores_s = hoja_s.get_all_values()
                         reqs_s = []
@@ -1189,7 +1189,7 @@ else:
                                 nombre_txt = fila[0].strip().upper()
                                 if "HORA EXTRA" in nombre_txt:
                                     for col_idx in range(1, min(32, len(fila))):
-                                        txt_celda = fila[col_idx].strip().upper()
+                                        txt_celda = fila[col_idx].strip().upper() if col_idx < len(fila) else ""
                                         if not txt_celda:
                                             letra_col = gspread.utils.rowcol_to_a1(row_idx + 1, col_idx + 1)
                                             letra_col_limpia = "".join([c for c in letra_col if c.isalpha()])
@@ -1199,7 +1199,7 @@ else:
                                             })
                                 elif "HORA" not in nombre_txt:
                                     for col_idx in range(1, min(32, len(fila))):
-                                        txt_celda = fila[col_idx].strip().upper()
+                                        txt_celda = fila[col_idx].strip().upper() if col_idx < len(fila) else ""
                                         if txt_celda:
                                             col_c = COLORES_OBRAS_APP.get(txt_celda, {"red": 1.0, "green": 1.0, "blue": 1.0})
                                             reqs_s.append({
@@ -1217,15 +1217,18 @@ else:
                                             })
 
                         if reqs_s:
-                            chunk = 500
+                            chunk = 150
                             for i in range(0, len(reqs_s), chunk):
                                 libro_m.batch_update({"requests": reqs_s[i:i+chunk]})
-                                time_lib.sleep(0.5)
+                                time_lib.sleep(1.2)
 
                         if celdas_a_actualizar:
-                            hoja_s.batch_update(celdas_a_actualizar, value_input_option='USER_ENTERED')
+                            chunk_c = 100
+                            for i in range(0, len(celdas_a_actualizar), chunk_c):
+                                hoja_s.batch_update(celdas_a_actualizar[i:i+chunk_c], value_input_option='USER_ENTERED')
+                                time_lib.sleep(1.2)
 
-                        st.success("¡Sincronización completada! Hojas OBRAS y SEPTIEMBRE actualizadas correctamente.")
+                        st.success("¡Sincronización completada sin errores de cuota!")
                     except Exception as err_c:
                         st.error(f"Error en la sincronización: {err_c}")
 
