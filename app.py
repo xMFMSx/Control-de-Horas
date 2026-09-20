@@ -80,7 +80,7 @@ FERIADOS = ["2026-09-18", "2026-09-19", "2026-09-20"]
 def pintar_celda_especifica_septiembre(nombre_trabajador, num_dia, obra_asignada):
     try:
         libro = conectar_libro()
-        hoja_sep = libro.worksheet(nombre_trabajador)
+        hoja_sep = libro.worksheet("SEPTIEMBRE")
         valores_sep = hoja_sep.get_all_values()
         
         if not valores_sep:
@@ -88,14 +88,22 @@ def pintar_celda_especifica_septiembre(nombre_trabajador, num_dia, obra_asignada
             
         row_target = -1
         for idx, fila in enumerate(valores_sep):
-            if len(fila) > 1 and str(fila[1]).strip() == str(num_dia).strip():
+            if len(fila) > 0 and str(fila[0]).strip().upper() == str(nombre_trabajador).strip().upper():
                 row_target = idx + 1
                 break
         
         if row_target == -1:
             return
 
-        col_target_1idx = 7 # Columna G (Obra)
+        cabecera_dias = valores_sep[0]
+        col_target_1idx = -1
+        for col_idx, val_cab in enumerate(cabecera_dias):
+            if str(val_cab).strip() == str(num_dia).strip():
+                col_target_1idx = col_idx + 1
+                break
+                
+        if col_target_1idx == -1:
+            return
 
         obra_limpia = str(obra_asignada).strip().upper()
         color_rgb = None
@@ -1138,7 +1146,7 @@ else:
                                 st.error(f"Error al guardar obra: {err_obr}")
 
         with st.expander("🎨 Herramientas de Mantenimiento"):
-            st.caption("Sincroniza, colorea masivamente y coloca ceros en celdas vacías en SEPTIEMBRE y OBRAS.")
+            st.caption("Sincroniza, colorea masivamente y coloca ceros solo en las Horas Extra vacías de SEPTIEMBRE.")
             if st.button("🖌️ Ejecutar Sincronización y Rellenar Ceros", use_container_width=True):
                 with st.spinner("Procesando hojas OBRAS y SEPTIEMBRE..."):
                     try:
@@ -1170,7 +1178,7 @@ else:
                             libro_m.batch_update({"requests": reqs_o})
                             time_lib.sleep(1.0)
 
-                        # 2. Colorear SEPTIEMBRE y rellenar ceros en días vacíos
+                        # 2. Sincronizar y colorear SEPTIEMBRE respetando las filas de obras y rellenando ceros solo en Hora Extra
                         hoja_s = libro_m.worksheet("SEPTIEMBRE")
                         valores_s = hoja_s.get_all_values()
                         reqs_s = []
@@ -1179,7 +1187,17 @@ else:
                         for row_idx, fila in enumerate(valores_s):
                             if row_idx > 0 and len(fila) > 0 and fila[0].strip():
                                 nombre_txt = fila[0].strip().upper()
-                                if "HORA" not in nombre_txt:
+                                if "HORA EXTRA" in nombre_txt:
+                                    for col_idx in range(1, min(32, len(fila))):
+                                        txt_celda = fila[col_idx].strip().upper()
+                                        if not txt_celda:
+                                            letra_col = gspread.utils.rowcol_to_a1(row_idx + 1, col_idx + 1)
+                                            letra_col_limpia = "".join([c for c in letra_col if c.isalpha()])
+                                            celdas_a_actualizar.append({
+                                                'range': f"{letra_col_limpia}{row_idx + 1}",
+                                                'values': [[0]]
+                                            })
+                                elif "HORA" not in nombre_txt:
                                     for col_idx in range(1, min(32, len(fila))):
                                         txt_celda = fila[col_idx].strip().upper()
                                         if txt_celda:
@@ -1197,15 +1215,6 @@ else:
                                                     "fields": "userEnteredFormat.backgroundColor"
                                                 }
                                             })
-                                        else:
-                                            # Rellenar con 0 si la celda de la fecha está vacía
-                                            letra_col = gspread.utils.rowcol_to_a1(row_idx + 1, col_idx + 1)
-                                            # Extraer solo las letras de la celda (ej: B2 -> B)
-                                            letra_col_limpia = "".join([c for c in letra_col if c.isalpha()])
-                                            celdas_a_actualizar.append({
-                                                'range': f"{letra_col_limpia}{row_idx + 1}",
-                                                'values': [[0]]
-                                            })
 
                         if reqs_s:
                             chunk = 500
@@ -1216,7 +1225,7 @@ else:
                         if celdas_a_actualizar:
                             hoja_s.batch_update(celdas_a_actualizar, value_input_option='USER_ENTERED')
 
-                        st.success("¡Sincronización completada! Hojas coloreadas y días vacíos rellenados con 0.")
+                        st.success("¡Sincronización completada! Hojas OBRAS y SEPTIEMBRE actualizadas correctamente.")
                     except Exception as err_c:
                         st.error(f"Error en la sincronización: {err_c}")
 
