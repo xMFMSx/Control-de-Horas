@@ -1146,7 +1146,7 @@ else:
                                 st.error(f"Error al guardar obra: {err_obr}")
 
         with st.expander("🎨 Herramientas de Mantenimiento"):
-            st.caption("Sincroniza, colorea masivamente y coloca ceros solo en las filas de horas vacías de SEPTIEMBRE.")
+            st.caption("Sincroniza, colorea masivamente y coloca ceros en las filas de Hora Extra y Hora Recargo vacías.")
             if st.button("🖌️ Ejecutar Sincronización y Rellenar Ceros", use_container_width=True):
                 with st.spinner("Procesando hojas OBRAS y SEPTIEMBRE de forma segura..."):
                     try:
@@ -1178,7 +1178,7 @@ else:
                             libro_m.batch_update({"requests": reqs_o})
                             time_lib.sleep(1.5)
 
-                        # 2. Sincronizar SEPTIEMBRE: Ceros solo en filas "HORA", colores en filas de Obras
+                        # 2. Sincronizar SEPTIEMBRE: Ceros en filas HORA (Extra y Recargo), colores en Obras
                         hoja_s = libro_m.worksheet("SEPTIEMBRE")
                         valores_s = hoja_s.get_all_values()
                         reqs_s = []
@@ -1229,7 +1229,7 @@ else:
                                 hoja_s.batch_update(celdas_a_actualizar[i:i+chunk_c], value_input_option='USER_ENTERED')
                                 time_lib.sleep(1.2)
 
-                        st.success("¡Sincronización completada sin errores de cuota y con ceros aplicados correctamente!")
+                        st.success("¡Sincronización completada sin errores y con ceros aplicados en Hora Extra y Recargo!")
                     except Exception as err_c:
                         st.error(f"Error en la sincronización: {err_c}")
 
