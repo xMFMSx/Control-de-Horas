@@ -1047,17 +1047,17 @@ else:
                                 libro_admin = conectar_libro()
                                 hoja_t = libro_admin.worksheet("TRABAJADORES")
                                 hoja_t.append_row([nombre_limpio, correo_limpio, pass_limpio, nuevo_rol])
-                                time_lib.sleep(1.2)  # Pausa para evitar error 429 de Google Sheets
+                                time_lib.sleep(1.2)
 
                                 try:
                                     hoja_obras = libro_admin.worksheet("OBRAS")
                                     indice_obras = hoja_obras.index
                                     
                                     hoja_nueva = libro_admin.add_worksheet(title=nombre_limpio, rows=45, cols=8, index=indice_obras - 1)
-                                    time_lib.sleep(1.2)  # Pausa para evitar error 429
+                                    time_lib.sleep(1.2)
                                     
-                                    hoja_nueva.append_row(["", "DÍA", "ENTRADA", "SALIDA", "HORA EXTRA", "HORA RECARGO", "OBRA"])
-                                    time_lib.sleep(1.2)  # Pausa para evitar error 429
+                                    hoja_nueva.append_row(["DÍA_TEXTO", "DÍA", "ENTRADA", "SALIDA", "HORA EXTRA", "HORA RECARGO", "OBRA"])
+                                    time_lib.sleep(1.2)
                                     
                                     nuevas_filas = []
                                     requests_pintar = []
@@ -1069,12 +1069,11 @@ else:
                                         num_d = str(f.day)
                                         nuevas_filas.append([nom_d, num_d, "", "", "", "", ""])
 
-                                        # Determinar color según día (Sábado, Domingo o Feriado)
                                         f_iso = f.strftime("%Y-%m-%d")
                                         color_rgb = None
-                                        if f.weekday() == 6 or f_iso in FERIADOS:  # Domingo o Feriado (Violeta)
+                                        if f.weekday() == 6 or f_iso in FERIADOS:
                                             color_rgb = {"red": 0.88, "green": 0.80, "blue": 0.98}
-                                        elif f.weekday() == 5:  # Sábado (Azul)
+                                        elif f.weekday() == 5:
                                             color_rgb = {"red": 0.82, "green": 0.90, "blue": 0.98}
 
                                         if color_rgb:
@@ -1102,9 +1101,6 @@ else:
                                     if requests_pintar:
                                         libro_admin.batch_update({"requests": requests_pintar})
                                         time_lib.sleep(1.2)
-
-                                    # Proteger la hoja correctamente para que aparezca el candado
-                                    hoja_nueva.protect(description="Protección de Planilla de Horas")
                                 except Exception:
                                     pass
 
@@ -1140,6 +1136,74 @@ else:
                                 st.rerun()
                             except Exception as err_obr:
                                 st.error(f"Error al guardar obra: {err_obr}")
+
+        with st.expander("🎨 Herramientas de Mantenimiento"):
+            st.caption("Sincroniza y colorea masivamente las hojas OBRAS y SEPTIEMBRE.")
+            if st.button("🖌️ Ejecutar Sincronización de Colores", use_container_width=True):
+                with st.spinner("Coloreando hojas OBRAS y SEPTIEMBRE..."):
+                    try:
+                        libro_m = conectar_libro()
+                        
+                        # 1. Colorear OBRAS
+                        hoja_o = libro_m.worksheet("OBRAS")
+                        filas_o = hoja_o.get_all_values()[1:]
+                        reqs_o = []
+                        for idx, fila in enumerate(filas_o):
+                            if len(fila) < 2: continue
+                            sigla = fila[0].strip().upper()
+                            nombre_o = fila[1].strip().upper()
+                            col = COLORES_OBRAS_APP.get(sigla, COLORES_OBRAS_APP.get(nombre_o, {"red": 1.0, "green": 1.0, "blue": 1.0}))
+                            reqs_o.append({
+                                "repeatCell": {
+                                    "range": {
+                                        "sheetId": hoja_o.id,
+                                        "startRowIndex": idx + 1,
+                                        "endRowIndex": idx + 2,
+                                        "startColumnIndex": 0,
+                                        "endColumnIndex": 2
+                                    },
+                                    "cell": {"userEnteredFormat": {"backgroundColor": col}},
+                                    "fields": "userEnteredFormat.backgroundColor"
+                                }
+                            })
+                        if reqs_o:
+                            libro_m.batch_update({"requests": reqs_o})
+                            time_lib.sleep(1.0)
+
+                        # 2. Colorear SEPTIEMBRE
+                        hoja_s = libro_m.worksheet("SEPTIEMBRE")
+                        valores_s = hoja_s.get_all_values()
+                        reqs_s = []
+                        for row_idx, fila in enumerate(valores_s):
+                            if row_idx > 0 and len(fila) > 0 and fila[0].strip():
+                                nombre_txt = fila[0].strip().upper()
+                                if "HORA" not in nombre_txt:
+                                    for col_idx in range(1, min(32, len(fila))):
+                                        txt_celda = fila[col_idx].strip().upper()
+                                        if txt_celda:
+                                            col_c = COLORES_OBRAS_APP.get(txt_celda, {"red": 1.0, "green": 1.0, "blue": 1.0})
+                                            reqs_s.append({
+                                                "repeatCell": {
+                                                    "range": {
+                                                        "sheetId": hoja_s.id,
+                                                        "startRowIndex": row_idx,
+                                                        "endRowIndex": row_idx + 1,
+                                                        "startColumnIndex": col_idx,
+                                                        "endColumnIndex": col_idx + 1
+                                                    },
+                                                    "cell": {"userEnteredFormat": {"backgroundColor": col_c}},
+                                                    "fields": "userEnteredFormat.backgroundColor"
+                                                }
+                                            })
+                        if reqs_s:
+                            chunk = 500
+                            for i in range(0, len(reqs_s), chunk):
+                                libro_m.batch_update({"requests": reqs_s[i:i+chunk]})
+                                time_lib.sleep(0.5)
+
+                        st.success("¡Hojas OBRAS y SEPTIEMBRE coloreadas y sincronizadas con éxito!")
+                    except Exception as err_c:
+                        st.error(f"Error al colorear: {err_c}")
 
         with st.expander("🕒 Simulación de Fecha del Sistema"):
             c_s1, c_s2, c_s3 = st.columns([54, 23, 23])
