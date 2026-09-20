@@ -1146,7 +1146,7 @@ else:
                                 st.error(f"Error al guardar obra: {err_obr}")
 
         with st.expander("🎨 Herramientas de Mantenimiento"):
-            st.caption("Sincroniza, colorea masivamente y coloca ceros solo en las Horas Extra vacías de SEPTIEMBRE.")
+            st.caption("Sincroniza, colorea masivamente y coloca ceros solo en las filas de horas vacías de SEPTIEMBRE.")
             if st.button("🖌️ Ejecutar Sincronización y Rellenar Ceros", use_container_width=True):
                 with st.spinner("Procesando hojas OBRAS y SEPTIEMBRE de forma segura..."):
                     try:
@@ -1178,7 +1178,7 @@ else:
                             libro_m.batch_update({"requests": reqs_o})
                             time_lib.sleep(1.5)
 
-                        # 2. Sincronizar y colorear SEPTIEMBRE respetando filas de obras y rellenando ceros solo en Hora Extra
+                        # 2. Sincronizar SEPTIEMBRE: Ceros solo en filas "HORA", colores en filas de Obras
                         hoja_s = libro_m.worksheet("SEPTIEMBRE")
                         valores_s = hoja_s.get_all_values()
                         reqs_s = []
@@ -1187,20 +1187,21 @@ else:
                         for row_idx, fila in enumerate(valores_s):
                             if row_idx > 0 and len(fila) > 0 and fila[0].strip():
                                 nombre_txt = fila[0].strip().upper()
-                                if "HORA EXTRA" in nombre_txt:
+                                
+                                if "HORA" in nombre_txt:
                                     for col_idx in range(1, min(32, len(fila))):
                                         txt_celda = fila[col_idx].strip().upper() if col_idx < len(fila) else ""
-                                        if not txt_celda:
+                                        if not txt_celda or txt_celda == "NONE":
                                             letra_col = gspread.utils.rowcol_to_a1(row_idx + 1, col_idx + 1)
                                             letra_col_limpia = "".join([c for c in letra_col if c.isalpha()])
                                             celdas_a_actualizar.append({
                                                 'range': f"{letra_col_limpia}{row_idx + 1}",
                                                 'values': [[0]]
                                             })
-                                elif "HORA" not in nombre_txt:
+                                else:
                                     for col_idx in range(1, min(32, len(fila))):
                                         txt_celda = fila[col_idx].strip().upper() if col_idx < len(fila) else ""
-                                        if txt_celda:
+                                        if txt_celda and txt_celda != "0":
                                             col_c = COLORES_OBRAS_APP.get(txt_celda, {"red": 1.0, "green": 1.0, "blue": 1.0})
                                             reqs_s.append({
                                                 "repeatCell": {
@@ -1228,7 +1229,7 @@ else:
                                 hoja_s.batch_update(celdas_a_actualizar[i:i+chunk_c], value_input_option='USER_ENTERED')
                                 time_lib.sleep(1.2)
 
-                        st.success("¡Sincronización completada sin errores de cuota!")
+                        st.success("¡Sincronización completada sin errores de cuota y con ceros aplicados correctamente!")
                     except Exception as err_c:
                         st.error(f"Error en la sincronización: {err_c}")
 
