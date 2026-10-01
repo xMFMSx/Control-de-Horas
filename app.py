@@ -28,7 +28,7 @@ except ImportError:
 
 st.set_page_config(
     page_title="Control de Horas",
-    page_icon="⏱️",
+    page_icon="⏱️️",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -75,7 +75,33 @@ COLORES_OBRAS_APP = {
     "LICENCIA": {"red": 0.95, "green": 0.50, "blue": 0.50},
 }
 
-# Feriados legales de Chile para Octubre 2026: 12 (Encuentro de Dos Mundos) y 31 (Iglesias Evangélicas)
+# Diccionario maestro para traducir cualquier nombre completo a su sigla oficial
+DICCIONARIO_SIGLAS = {
+    "MONTESSORI": "M",
+    "SAN CARLOS": "SC",
+    "CURANIPE": "C",
+    "VICHUQUEN": "VI",
+    "OSORNO": "O",
+    "OFICINA CENTRAL": "OC",
+    "EDIFICIO LOS LEONES 1": "EL1",
+    "EDIFICIO LOS LEONES 2": "EL2",
+    "YUNGAY": "Y",
+    "MAULE NORTE": "MN",
+    "LOTE 1": "L1", "LOTE 2": "L2", "LOTE 3": "L3", "LOTE 4": "L4",
+    "LOTE 5": "L5", "LOTE 6": "L6", "LOTE 7": "L7", "LOTE 8": "L8",
+    "LOTE 9": "L9", "LOTE 10": "L10", "LOTE 11": "L11",
+    "PERMISO": "P",
+    "VACACIONES": "V",
+    "LICENCIA": "LICENCIA",
+    "NO TRABAJA": "NO TRABAJA"
+}
+
+def normalizar_sigla(obra_txt):
+    if not obra_txt:
+        return ""
+    limpio = str(obra_txt).strip().upper()
+    return DICCIONARIO_SIGLAS.get(limpio, limpio)
+
 FERIADOS = ["2026-10-12", "2026-10-31"]
 
 def pintar_celda_especifica_octubre(nombre_trabajador, num_dia, obra_asignada):
@@ -106,24 +132,13 @@ def pintar_celda_especifica_octubre(nombre_trabajador, num_dia, obra_asignada):
         if col_target_1idx == -1:
             return
 
-        obra_limpia = str(obra_asignada).strip().upper()
+        sigla_corta = normalizar_sigla(obra_asignada)
         color_rgb = None
 
-        if obra_limpia:
-            color_rgb = COLORES_OBRAS_APP.get(obra_limpia)
+        if sigla_corta:
+            color_rgb = COLORES_OBRAS_APP.get(sigla_corta)
             if not color_rgb:
-                try:
-                    hoja_obras = libro.worksheet("OBRAS")
-                    filas_obras = hoja_obras.get_all_values()[1:]
-                    for f_obra in filas_obras:
-                        if len(f_obra) >= 2:
-                            sigla_o = f_obra[0].strip().upper()
-                            nombre_o = f_obra[1].strip().upper()
-                            if obra_limpia == sigla_o or obra_limpia == nombre_o:
-                                color_rgb = COLORES_OBRAS_APP.get(sigla_o, COLORES_OBRAS_APP.get(nombre_o))
-                                break
-                except Exception:
-                    pass
+                color_rgb = COLORES_OBRAS_APP.get(str(obra_asignada).strip().upper())
 
         if not color_rgb:
             color_rgb = {"red": 1.0, "green": 1.0, "blue": 1.0}
@@ -630,13 +645,21 @@ def cargar_obras():
         libro = conectar_libro()
         hoja_o = libro.worksheet("OBRAS")
         filas = hoja_o.get_all_values()[1:]
-        obras_brutas = [r[1].strip() for r in filas if len(r) > 1 and r[1].strip()]
+        
         obras_unicas = []
         vistas = set()
-        for o in obras_brutas:
-            if o.upper() not in vistas:
-                vistas.add(o.upper())
-                obras_unicas.append(o)
+        
+        for r in filas:
+            nombre_obra = ""
+            if len(r) >= 2 and r[1].strip():
+                nombre_obra = r[1].strip()
+            elif len(r) >= 1 and r[0].strip():
+                nombre_obra = r[0].strip()
+                
+            if nombre_obra and nombre_obra.upper() not in vistas:
+                vistas.add(nombre_obra.upper())
+                obras_unicas.append(nombre_obra)
+                
         lista_final = obras_unicas if obras_unicas else ["LOTE 1", "LOTE 4", "LOTE 11", "MONTESSORI"]
         for opc in ["PERMISO", "NO TRABAJA", "VACACIONES", "LICENCIA"]:
             if not any(o.upper() == opc for o in lista_final):
@@ -1205,7 +1228,8 @@ else:
                                     for col_idx in range(1, min(32, len(fila))):
                                         txt_celda = fila[col_idx].strip().upper() if col_idx < len(fila) else ""
                                         if txt_celda and txt_celda != "0":
-                                            col_c = COLORES_OBRAS_APP.get(txt_celda, {"red": 1.0, "green": 1.0, "blue": 1.0})
+                                            sigla_c = normalizar_sigla(txt_celda)
+                                            col_c = COLORES_OBRAS_APP.get(sigla_c, COLORES_OBRAS_APP.get(txt_celda, {"red": 1.0, "green": 1.0, "blue": 1.0}))
                                             reqs_s.append({
                                                 "repeatCell": {
                                                     "range": {
@@ -1615,17 +1639,19 @@ else:
                                 else:
                                     try:
                                         fila_n = fila_segun_dia(num_dia)
+                                        sigla_final = normalizar_sigla(inp_ob)
+                                        
                                         if es_especial:
                                             hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["-", "-"]], value_input_option="RAW")
-                                            hoja_usuario.update(f"G{fila_n}", [[inp_ob]], value_input_option="RAW")
+                                            hoja_usuario.update(f"G{fila_n}", [[sigla_final]], value_input_option="RAW")
                                         else:
                                             ent_str = inp_ent.strftime("%H:%M")
                                             sal_str = inp_sal.strftime("%H:%M")
                                             hoja_usuario.update(f"C{fila_n}:D{fila_n}", [[ent_str, sal_str]], value_input_option="USER_ENTERED")
-                                            hoja_usuario.update(f"G{fila_n}", [[inp_ob]], value_input_option="USER_ENTERED")
+                                            hoja_usuario.update(f"G{fila_n}", [[sigla_final]], value_input_option="USER_ENTERED")
 
-                                        # PINTAR QUIRÚRGICAMENTE ESTE DÍA EN OCTUBRE
-                                        pintar_celda_especifica_octubre(nombre_trabajador, num_dia, inp_ob)
+                                        # PINTAR QUIRÚRGICAMENTE CON LA SIGLA CORTA EN OCTUBRE
+                                        pintar_celda_especifica_octubre(nombre_trabajador, num_dia, sigla_final)
 
                                         if "filas_planilla" in st.session_state:
                                             del st.session_state["filas_planilla"]
@@ -1719,7 +1745,7 @@ else:
                         ''', unsafe_allow_html=True)
 
                     with c_lapiz:
-                        if st.button("✏️", key=f"btn_lapiz_{clave_r}"):
+                        if st.button("✏️️", key=f"btn_lapiz_{clave_r}"):
                             if st.session_state.get("dia_en_edicion") == clave_r:
                                 st.session_state["dia_en_edicion"] = None
                             else:
@@ -1731,7 +1757,13 @@ else:
                         val_e = str_a_time(datos_d.get("entrada", ""))
                         val_s = str_a_time(datos_d.get("salida", ""))
                         val_o = datos_d.get("obra", "")
-                        idx_o = lista_obras.index(val_o) if val_o and val_o in lista_obras else 0
+                        
+                        # Buscar coincidencia tanto por nombre largo como por sigla corta
+                        idx_o = 0
+                        for i_opc, opc_txt in enumerate(lista_obras):
+                            if normalizar_sigla(opc_txt) == normalizar_sigla(val_o):
+                                idx_o = i_opc
+                                break
 
                         with st.form(key=f"form_inline_dia_{clave_r}"):
                             c1e, c2e = st.columns(2)
@@ -1757,17 +1789,19 @@ else:
                                     st.warning("⚠️ Debes completar Entrada y Salida.")
                                 else:
                                     fila_n = fila_segun_dia(d)
+                                    sigla_edit = normalizar_sigla(edit_ob)
+                                    
                                     if es_especial_edit:
                                         hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["-", "-"]], value_input_option="RAW")
-                                        hoja_usuario.update(f"G{fila_n}", [[edit_ob]], value_input_option="RAW")
+                                        hoja_usuario.update(f"G{fila_n}", [[sigla_edit]], value_input_option="RAW")
                                     else:
                                         ent_str = edit_ent.strftime("%H:%M")
                                         sal_str = edit_sal.strftime("%H:%M")
                                         hoja_usuario.update(f"C{fila_n}:D{fila_n}", [[ent_str, sal_str]], value_input_option="USER_ENTERED")
-                                        hoja_usuario.update(f"G{fila_n}", [[edit_ob]], value_input_option="USER_ENTERED")
+                                        hoja_usuario.update(f"G{fila_n}", [[sigla_edit]], value_input_option="USER_ENTERED")
 
-                                    # PINTAR QUIRÚRGICAMENTE ESTE DÍA (EDICIÓN EN OCTUBRE)
-                                    pintar_celda_especifica_octubre(nombre_trabajador, d, edit_ob)
+                                    # PINTAR QUIRÚRGICAMENTE CON SIGLA CORTA EN OCTUBRE
+                                    pintar_celda_especifica_octubre(nombre_trabajador, d, sigla_edit)
 
                                     if "filas_planilla" in st.session_state:
                                         del st.session_state["filas_planilla"]
@@ -1780,7 +1814,7 @@ else:
                                 hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["", ""]], value_input_option="USER_ENTERED")
                                 hoja_usuario.update(f"G{fila_n}", [[""]], value_input_option="USER_ENTERED")
 
-                                # PINTAR QUIRÚRGICAMENTE ESTE DÍA EN BLANCO (LIMPIEZA EN OCTUBRE)
+                                # PINTAR QUIRÚRGICAMENTE ESTE DÍA EN BLANCO
                                 pintar_celda_especifica_octubre(nombre_trabajador, d, "")
 
                                 if "filas_planilla" in st.session_state:
