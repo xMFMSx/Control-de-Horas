@@ -75,19 +75,20 @@ COLORES_OBRAS_APP = {
     "LICENCIA": {"red": 0.95, "green": 0.50, "blue": 0.50},
 }
 
-FERIADOS = ["2026-09-18", "2026-09-19", "2026-09-20"]
+# Feriados legales de Chile para Octubre 2026: 12 (Encuentro de Dos Mundos) y 31 (Iglesias Evangélicas)
+FERIADOS = ["2026-10-12", "2026-10-31"]
 
-def pintar_celda_especifica_septiembre(nombre_trabajador, num_dia, obra_asignada):
+def pintar_celda_especifica_octubre(nombre_trabajador, num_dia, obra_asignada):
     try:
         libro = conectar_libro()
-        hoja_sep = libro.worksheet("SEPTIEMBRE")
-        valores_sep = hoja_sep.get_all_values()
+        hoja_oct = libro.worksheet("OCTUBRE")
+        valores_oct = hoja_oct.get_all_values()
         
-        if not valores_sep:
+        if not valores_oct:
             return
             
         row_target = -1
-        for idx, fila in enumerate(valores_sep):
+        for idx, fila in enumerate(valores_oct):
             if len(fila) > 0 and str(fila[0]).strip().upper() == str(nombre_trabajador).strip().upper():
                 row_target = idx + 1
                 break
@@ -95,7 +96,7 @@ def pintar_celda_especifica_septiembre(nombre_trabajador, num_dia, obra_asignada
         if row_target == -1:
             return
 
-        cabecera_dias = valores_sep[0]
+        cabecera_dias = valores_oct[0]
         col_target_1idx = -1
         for col_idx, val_cab in enumerate(cabecera_dias):
             if str(val_cab).strip() == str(num_dia).strip():
@@ -127,7 +128,7 @@ def pintar_celda_especifica_septiembre(nombre_trabajador, num_dia, obra_asignada
         if not color_rgb:
             color_rgb = {"red": 1.0, "green": 1.0, "blue": 1.0}
 
-        numeric_sheet_id = int(hoja_sep._properties.get("sheetId", 0))
+        numeric_sheet_id = int(hoja_oct._properties.get("sheetId", 0))
 
         libro.batch_update({
             "requests": [{
@@ -429,7 +430,7 @@ div[data-testid="stPills"] button[aria-selected="true"] {
 .es-datos-6 { 
     color: var(--texto-principal); 
     font-size: 0.78rem !important; 
-    padding: 6px 8px !important;
+    padding: 6px 8px !important; 
     margin-bottom: -1px !important;
 }
 
@@ -697,8 +698,9 @@ def extrae_minutos_texto(t):
     except:
         return 0
 
+# En Octubre, el día 1 es la fila 2, el día 31 es la fila 32
 def fila_segun_dia(dia: int) -> int:
-    return 2 if dia == 31 else (2 + dia)
+    return 1 + dia
 
 def str_a_time(texto: str):
     if not texto or texto in ["-", "None", ""]:
@@ -880,10 +882,11 @@ if "mostrar_horas_admin" not in st.session_state:
 if "ver_pdf_embebido" not in st.session_state:
     st.session_state["ver_pdf_embebido"] = False
 
+# CICLO PREDETERMINADO: OCTUBRE 2026
 if "ciclo_inicio" not in st.session_state:
-    st.session_state["ciclo_inicio"] = date(2026, 8, 31)
+    st.session_state["ciclo_inicio"] = date(2026, 10, 1)
 if "ciclo_fin" not in st.session_state:
-    st.session_state["ciclo_fin"] = date(2026, 9, 30)
+    st.session_state["ciclo_fin"] = date(2026, 10, 31)
 
 token_url = query_params.get("session")
 
@@ -1148,7 +1151,7 @@ else:
         with st.expander("🎨 Herramientas de Mantenimiento"):
             st.caption("Sincroniza, colorea masivamente y coloca ceros en las filas de Hora Extra y Hora Recargo vacías.")
             if st.button("🖌️ Ejecutar Sincronización y Rellenar Ceros", use_container_width=True):
-                with st.spinner("Procesando hojas OBRAS y SEPTIEMBRE de forma segura..."):
+                with st.spinner("Procesando hojas OBRAS y OCTUBRE de forma segura..."):
                     try:
                         libro_m = conectar_libro()
                         
@@ -1178,8 +1181,8 @@ else:
                             libro_m.batch_update({"requests": reqs_o})
                             time_lib.sleep(1.5)
 
-                        # 2. Sincronizar SEPTIEMBRE: Ceros en filas HORA (Extra y Recargo), colores en Obras
-                        hoja_s = libro_m.worksheet("SEPTIEMBRE")
+                        # 2. Sincronizar OCTUBRE: Ceros en filas HORA (Extra y Recargo), colores en Obras
+                        hoja_s = libro_m.worksheet("OCTUBRE")
                         valores_s = hoja_s.get_all_values()
                         reqs_s = []
                         celdas_a_actualizar = []
@@ -1336,7 +1339,7 @@ else:
                     if num_dia is not None:
                         celdas_registro = [str(c).strip() for c in r[2:7] if str(c).strip() and str(c).strip() not in ["None", "0:00:00"]]
                         if len(celdas_registro) > 0:
-                            clave = "31_0" if (num_dia == 31 and idx_r == 0) else str(num_dia)
+                            clave = str(num_dia)
                             dias_con_registro_set.add(clave)
 
                         if len(r) > 4:
@@ -1352,7 +1355,7 @@ else:
                     if (f.weekday() == 6) or (f.strftime("%Y-%m-%d") in FERIADOS):
                         continue
                     
-                    clave_dia_esperado = "31_0" if (f.day == 31 and idx_f == 0) else str(f.day)
+                    clave_dia_esperado = str(f.day)
                     tiene_datos = clave_dia_esperado in dias_con_registro_set
                     
                     if f.weekday() == 5 and f < hoy:
@@ -1399,7 +1402,7 @@ else:
             if "vista_actual" not in st.session_state:
                 st.session_state["vista_actual"] = "REGISTRO"
 
-            val_default = etiqueta_mes if st.session_state["vista_actual"] in ["SEPTIEMBRE", "REGISTRO"] else "📊 RESUMEN DEL MES"
+            val_default = etiqueta_mes if st.session_state["vista_actual"] in ["OCTUBRE", "REGISTRO"] else "📊 RESUMEN DEL MES"
 
             seleccion = st.pills(
                 "",
@@ -1483,7 +1486,7 @@ else:
             hr_val = str(r[5]).strip() if len(r) > 5 and str(r[5]).strip() not in ["None", "0:00:00"] else ""
             obra_val = str(r[6]).strip() if len(r) > 6 and str(r[6]).strip() not in ["None"] else ""
 
-            clave_dia = "31_0" if (num_dia == 31 and idx == 0) else str(num_dia)
+            clave_dia = str(num_dia)
 
             dict_por_dia[clave_dia] = {
                 "num_dia": num_dia,
@@ -1495,7 +1498,7 @@ else:
             total_hr += extrae_minutos_texto(hr_val)
 
             try:
-                f_fila = date(2026, 8, 31) if (num_dia == 31 and idx == 0) else date(fin_mes.year, fin_mes.month, num_dia)
+                f_fila = date(fin_mes.year, fin_mes.month, num_dia)
             except Exception:
                 f_fila = None
 
@@ -1522,10 +1525,10 @@ else:
                     "HORA EXTRA": "", "HORA RECARGO": "", "OBRA": ""
                 })
 
-        registros_tabla = sorted(registros_tabla, key=lambda x: (0 if x["CLAVE"] == "31_0" else x["DÍA"]))
+        registros_tabla = sorted(registros_tabla, key=lambda x: x["DÍA"])
 
         # VISTA A: REGISTRO DIARIO
-        if st.session_state["vista_actual"] in ["SEPTIEMBRE", "REGISTRO"]:
+        if st.session_state["vista_actual"] in ["OCTUBRE", "REGISTRO"]:
             st.subheader(f"{nombre_mes_dinamico}")
             
             val_hn_str = minutos_a_hora_str(total_hn)
@@ -1548,7 +1551,7 @@ else:
             dias_pendientes = []
             for idx_f, f in enumerate(fechas_periodo):
                 num_dia = f.day
-                clave_f = "31_0" if (num_dia == 31 and idx_f == 0) else str(num_dia)
+                clave_f = str(num_dia)
                 fecha_iso = f.strftime("%Y-%m-%d")
                 es_domingo_o_feriado = (f.weekday() == 6) or (fecha_iso in FERIADOS)
 
@@ -1611,7 +1614,7 @@ else:
                                     st.warning("⚠️ Debes ingresar Entrada y Salida para las obras normales.")
                                 else:
                                     try:
-                                        fila_n = 2 + idx_f
+                                        fila_n = fila_segun_dia(num_dia)
                                         if es_especial:
                                             hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["-", "-"]], value_input_option="RAW")
                                             hoja_usuario.update(f"G{fila_n}", [[inp_ob]], value_input_option="RAW")
@@ -1621,8 +1624,8 @@ else:
                                             hoja_usuario.update(f"C{fila_n}:D{fila_n}", [[ent_str, sal_str]], value_input_option="USER_ENTERED")
                                             hoja_usuario.update(f"G{fila_n}", [[inp_ob]], value_input_option="USER_ENTERED")
 
-                                        # PINTAR QUIRÚRGICAMENTE ESTE DÍA
-                                        pintar_celda_especifica_septiembre(nombre_trabajador, num_dia, inp_ob)
+                                        # PINTAR QUIRÚRGICAMENTE ESTE DÍA EN OCTUBRE
+                                        pintar_celda_especifica_octubre(nombre_trabajador, num_dia, inp_ob)
 
                                         if "filas_planilla" in st.session_state:
                                             del st.session_state["filas_planilla"]
@@ -1676,7 +1679,7 @@ else:
                     d = r["DÍA"] 
                     clave_r = r["CLAVE"]
                     try:
-                        fecha_fila = date(2026, 8, 31) if clave_r == "31_0" else date(fin_mes.year, fin_mes.month, d)
+                        fecha_fila = date(fin_mes.year, fin_mes.month, d)
                         w_day = fecha_fila.weekday()
                         iso_f = fecha_fila.strftime("%Y-%m-%d")
                     except:
@@ -1763,8 +1766,8 @@ else:
                                         hoja_usuario.update(f"C{fila_n}:D{fila_n}", [[ent_str, sal_str]], value_input_option="USER_ENTERED")
                                         hoja_usuario.update(f"G{fila_n}", [[edit_ob]], value_input_option="USER_ENTERED")
 
-                                    # PINTAR QUIRÚRGICAMENTE ESTE DÍA (EDICIÓN)
-                                    pintar_celda_especifica_septiembre(nombre_trabajador, d, edit_ob)
+                                    # PINTAR QUIRÚRGICAMENTE ESTE DÍA (EDICIÓN EN OCTUBRE)
+                                    pintar_celda_especifica_octubre(nombre_trabajador, d, edit_ob)
 
                                     if "filas_planilla" in st.session_state:
                                         del st.session_state["filas_planilla"]
@@ -1777,8 +1780,8 @@ else:
                                 hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["", ""]], value_input_option="USER_ENTERED")
                                 hoja_usuario.update(f"G{fila_n}", [[""]], value_input_option="USER_ENTERED")
 
-                                # PINTAR QUIRÚRGICAMENTE ESTE DÍA EN BLANCO (LIMPIEZA)
-                                pintar_celda_especifica_septiembre(nombre_trabajador, d, "")
+                                # PINTAR QUIRÚRGICAMENTE ESTE DÍA EN BLANCO (LIMPIEZA EN OCTUBRE)
+                                pintar_celda_especifica_octubre(nombre_trabajador, d, "")
 
                                 if "filas_planilla" in st.session_state:
                                     del st.session_state["filas_planilla"]
