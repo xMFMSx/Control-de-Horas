@@ -34,7 +34,7 @@ st.set_page_config(
 )
 
 # ==========================================================
-# PALETA DE COLORES VIVOS Y PINTADO QUIRÚRGICO (SOLO LA CELDA MODIFICADA)
+# PALETA DE COLORES VIVOS Y PINTADO QUIRÚRGICO EN OCTUBRE
 # ==========================================================
 COLORES_OBRAS_APP = {
     "L1": {"red": 0.60, "green": 0.85, "blue": 0.60},
@@ -77,7 +77,7 @@ COLORES_OBRAS_APP = {
     "LICENCIA": {"red": 0.95, "green": 0.50, "blue": 0.50},
 }
 
-# Diccionario interno de conversión a Sigla corta
+# Diccionario para convertir el nombre completo a Sigla para la hoja OCTUBRE
 DICCIONARIO_SIGLAS = {
     "MONTESSORI": "M",
     "SAN CARLOS": "SC",
@@ -91,7 +91,7 @@ DICCIONARIO_SIGLAS = {
     "MAULE NORTE": "MN",
     "11 ORIENTE": "11 Ot",
     "LOTE 1": "L1", "LOTE 2": "L2", "LOTE 3": "L3", "LOTE 4": "L4",
-    "LOTE 5": "L5", "LOTE 6": "L6", "LOTE 7": "L7", "LOTE 8": "L8",
+    "LOTE 5": "L5", "LOTE 6": "L6", "LOTE 7": "L7", "L8": "L8", "LOTE 8": "L8",
     "LOTE 9": "L9", "LOTE 10": "L10", "LOTE 11": "L11",
     "PERMISO": "P",
     "VACACIONES": "V",
@@ -103,11 +103,12 @@ def obtener_sigla_obra(nombre_obra):
     if not nombre_obra:
         return ""
     limpio = str(nombre_obra).strip().upper()
-    return DICCIONARIO_SIGLAS.get(limpio, limpio)
+    return DICCIONARIO_SIGLAS.get(limpio, str(nombre_obra).strip())
 
 FERIADOS = ["2026-10-12", "2026-10-31"]
 
-def pintar_celda_especifica_octubre(nombre_trabajador, num_dia, obra_asignada):
+def actualizar_celda_octubre(nombre_trabajador, num_dia, obra_asignada):
+    """Escribe la SIGLA corta en la hoja OCTUBRE y le aplica su color de fondo oficial."""
     try:
         libro = conectar_libro()
         hoja_oct = libro.worksheet("OCTUBRE")
@@ -135,13 +136,21 @@ def pintar_celda_especifica_octubre(nombre_trabajador, num_dia, obra_asignada):
         if col_target_1idx == -1:
             return
 
-        sigla_corta = obtener_sigla_obra(obra_asignada)
+        sigla_corta = obtener_sigla_obra(obra_asignada) if obra_asignada else ""
         color_rgb = COLORES_OBRAS_APP.get(sigla_corta.upper())
-        if not color_rgb:
-            color_rgb = COLORES_OBRAS_APP.get(str(obra_asignada).strip().upper(), {"red": 1.0, "green": 1.0, "blue": 1.0})
+        if not color_rgb and obra_asignada:
+            color_rgb = COLORES_OBRAS_APP.get(str(obra_asignada).strip().upper())
+            
+        if not color_rgb or not obra_asignada:
+            color_rgb = {"red": 1.0, "green": 1.0, "blue": 1.0}
 
         numeric_sheet_id = int(hoja_oct._properties.get("sheetId", 0))
 
+        # 1. Actualiza el valor de la celda con la sigla corta
+        letra_col = gspread.utils.rowcol_to_a1(row_target, col_target_1idx)
+        hoja_oct.update(letra_col, [[sigla_corta]], value_input_option="USER_ENTERED")
+
+        # 2. Pinta la celda con el color de la sigla
         libro.batch_update({
             "requests": [{
                 "repeatCell": {
@@ -162,7 +171,7 @@ def pintar_celda_especifica_octubre(nombre_trabajador, num_dia, obra_asignada):
             }]
         })
     except Exception as e:
-        print(f"Error pintando celda: {e}")
+        print(f"Error actualizando celda en Octubre: {e}")
 
 # ==========================================================
 # FONDO DE PANTALLA PERSONALIZADO (BASE64)
@@ -1049,7 +1058,7 @@ else:
 
         st.caption("Ajustes del sistema y control global de personal.")
 
-        with st.expander("🏗️ Gestión de Personal y Obras"):
+        with st.expander("🏗️️ Gestión de Personal y Obras"):
             pestana_trab, pestana_obr = st.tabs(["👤 Agregar Trabajador", "🏗️ Agregar Obra"])
 
             with pestana_trab:
@@ -1201,7 +1210,7 @@ else:
                             libro_m.batch_update({"requests": reqs_o})
                             time_lib.sleep(1.5)
 
-                        # 2. Sincronizar OCTUBRE: Ceros en filas HORA (Extra y Recargo), colores en Obras
+                        # 2. Sincronizar OCTUBRE: Ceros en filas HORA (Extra y Recargo), siglas y colores en Obras
                         hoja_s = libro_m.worksheet("OCTUBRE")
                         valores_s = hoja_s.get_all_values()
                         reqs_s = []
@@ -1441,7 +1450,7 @@ else:
                 st.rerun()
 
         with c_gear:
-            with st.popover("⚙️"):
+            with st.popover("⚙️️"):
                 st.markdown(f"**👤 {nombre_trabajador}**")
                 if es_admin:
                     st.markdown("🔑 *Rol: Administrador*")
@@ -1636,20 +1645,20 @@ else:
                                 else:
                                     try:
                                         fila_n = fila_segun_dia(num_dia)
-                                        # Convertimos al guardar a la sigla corta oficial
-                                        sigla_final = obtener_sigla_obra(inp_ob)
+                                        obra_nombre_completo = str(inp_ob).strip()
                                         
+                                        # 1. GUARDA EL NOMBRE COMPLETO en la hoja personal del trabajador
                                         if es_especial:
                                             hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["-", "-"]], value_input_option="RAW")
-                                            hoja_usuario.update(f"G{fila_n}", [[sigla_final]], value_input_option="RAW")
+                                            hoja_usuario.update(f"G{fila_n}", [[obra_nombre_completo]], value_input_option="RAW")
                                         else:
                                             ent_str = inp_ent.strftime("%H:%M")
                                             sal_str = inp_sal.strftime("%H:%M")
                                             hoja_usuario.update(f"C{fila_n}:D{fila_n}", [[ent_str, sal_str]], value_input_option="USER_ENTERED")
-                                            hoja_usuario.update(f"G{fila_n}", [[sigla_final]], value_input_option="USER_ENTERED")
+                                            hoja_usuario.update(f"G{fila_n}", [[obra_nombre_completo]], value_input_option="USER_ENTERED")
 
-                                        # Pintar en OCTUBRE con la sigla y su color exacto
-                                        pintar_celda_especifica_octubre(nombre_trabajador, num_dia, sigla_final)
+                                        # 2. ESCRIBE LA SIGLA CORTA DIRECTAMENTE EN OCTUBRE Y LA PINTA
+                                        actualizar_celda_octubre(nombre_trabajador, num_dia, obra_nombre_completo)
 
                                         if "filas_planilla" in st.session_state:
                                             del st.session_state["filas_planilla"]
@@ -1758,7 +1767,7 @@ else:
                         
                         idx_o = 0
                         for i_opc, opc_txt in enumerate(lista_obras):
-                            if obtener_sigla_obra(opc_txt) == obtener_sigla_obra(val_o):
+                            if opc_txt.strip().upper() == val_o.strip().upper() or obtener_sigla_obra(opc_txt) == obtener_sigla_obra(val_o):
                                 idx_o = i_opc
                                 break
 
@@ -1786,19 +1795,20 @@ else:
                                     st.warning("⚠️ Debes completar Entrada y Salida.")
                                 else:
                                     fila_n = fila_segun_dia(d)
-                                    sigla_edit = obtener_sigla_obra(edit_ob)
+                                    obra_edit_completa = str(edit_ob).strip()
                                     
+                                    # 1. Guarda el nombre completo en la hoja personal del trabajador
                                     if es_especial_edit:
                                         hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["-", "-"]], value_input_option="RAW")
-                                        hoja_usuario.update(f"G{fila_n}", [[sigla_edit]], value_input_option="RAW")
+                                        hoja_usuario.update(f"G{fila_n}", [[obra_edit_completa]], value_input_option="RAW")
                                     else:
                                         ent_str = edit_ent.strftime("%H:%M")
                                         sal_str = edit_sal.strftime("%H:%M")
                                         hoja_usuario.update(f"C{fila_n}:D{fila_n}", [[ent_str, sal_str]], value_input_option="USER_ENTERED")
-                                        hoja_usuario.update(f"G{fila_n}", [[sigla_edit]], value_input_option="USER_ENTERED")
+                                        hoja_usuario.update(f"G{fila_n}", [[obra_edit_completa]], value_input_option="USER_ENTERED")
 
-                                    # Pintar con la sigla
-                                    pintar_celda_especifica_octubre(nombre_trabajador, d, sigla_edit)
+                                    # 2. Actualiza la sigla y el color en OCTUBRE
+                                    actualizar_celda_octubre(nombre_trabajador, d, obra_edit_completa)
 
                                     if "filas_planilla" in st.session_state:
                                         del st.session_state["filas_planilla"]
@@ -1811,7 +1821,7 @@ else:
                                 hoja_usuario.update(f"C{fila_n}:D{fila_n}", [["", ""]], value_input_option="USER_ENTERED")
                                 hoja_usuario.update(f"G{fila_n}", [[""]], value_input_option="USER_ENTERED")
 
-                                pintar_celda_especifica_octubre(nombre_trabajador, d, "")
+                                actualizar_celda_octubre(nombre_trabajador, d, "")
 
                                 if "filas_planilla" in st.session_state:
                                     del st.session_state["filas_planilla"]
