@@ -913,9 +913,9 @@ if "ver_pdf_embebido" not in st.session_state:
 
 # CICLO PREDETERMINADO: OCTUBRE 2026
 if "ciclo_inicio" not in st.session_state:
-    st.session_state["ciclo_inicio"] = date(2026, 10, 1)
+    st.session_state["ciclo_inicio"] = date(2026, 11, 1)
 if "ciclo_fin" not in st.session_state:
-    st.session_state["ciclo_fin"] = date(2026, 10, 31)
+    st.session_state["ciclo_fin"] = date(2026, 11, 30)
 
 token_url = query_params.get("session")
 
