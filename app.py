@@ -1300,47 +1300,48 @@ else:
                 st.info(f"Modo simulación: **{st.session_state['fecha_admin_simulada'].strftime('%d/%m/%Y')}**")
 
         with st.expander("📅 Ciclo de Cierre y Apertura Automática"):
-    c_f1, c_f2 = st.columns(2)
-    with c_f1:
-        nuevo_inicio = st.date_input("Inicio de Ciclo", value=st.session_state["ciclo_inicio"])
-    with c_f2:
-        nuevo_fin = st.date_input("Término de Ciclo", value=st.session_state["ciclo_fin"])
+            c_f1, c_f2 = st.columns(2)
+            with c_f1:
+                nuevo_inicio = st.date_input("Inicio de Ciclo", value=st.session_state["ciclo_inicio"])
+            with c_f2:
+                nuevo_fin = st.date_input("Término de Ciclo", value=st.session_state["ciclo_fin"])
 
-    if st.button("💾 Guardar Nuevo Rango de Fechas", use_container_width=True):
-        st.session_state["ciclo_inicio"] = nuevo_inicio
-        st.session_state["ciclo_fin"] = nuevo_fin
-        
-        # Guardamos las fechas en la URL de forma permanente para esta sesión/navegador
-        st.query_params["ciclo_ini"] = nuevo_inicio.strftime("%Y-%m-%d")
-        st.query_params["ciclo_fin"] = nuevo_fin.strftime("%Y-%m-%d")
-        
-        obtener_resumen_individual_optimizado.clear()
-        st.success("¡Rango de fechas actualizado y guardado!")
-        st.rerun()
+            if st.button("💾 Guardar Nuevo Rango de Fechas", use_container_width=True):
+                st.session_state["ciclo_inicio"] = nuevo_inicio
+                st.session_state["ciclo_fin"] = nuevo_fin
+                
+                # Guardamos las fechas en la URL de forma permanente para esta sesión/navegador
+                st.query_params["ciclo_ini"] = nuevo_inicio.strftime("%Y-%m-%d")
+                st.query_params["ciclo_fin"] = nuevo_fin.strftime("%Y-%m-%d")
+                
+                obtener_resumen_individual_optimizado.clear()
+                st.success("¡Rango de fechas actualizado y guardado!")
+                st.rerun()
 
-        st.write("")
-        col_b_ciclo1, col_b_ciclo2 = st.columns(2)
-        with col_b_ciclo1:
-            if OPENPYXL_DISPONIBLE:
-                libro_adm = conectar_libro()
-                datos_excel = generar_excel_mes(libro_adm, usuarios_autorizados, fechas_periodo)
-                st.download_button(
-                    label="📊 Descargar Excel Consolidado",
-                    data=datos_excel,
-                    file_name=f"Consolidado_Horas_{inicio_mes.strftime('%Y%m%d')}_{fin_mes.strftime('%Y%m%d')}.xlsx",
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    use_container_width=True
-                )
-            else:
-                st.button("📊 Descargar Excel (Requiere openpyxl)", disabled=True, use_container_width=True)
+            # Estas quedan alineadas con el 'if' de arriba (fuera del botón, pero dentro del expander)
+            st.write("")
+            col_b_ciclo1, col_b_ciclo2 = st.columns(2)
+            with col_b_ciclo1:
+                if OPENPYXL_DISPONIBLE:
+                    libro_adm = conectar_libro()
+                    datos_excel = generar_excel_mes(libro_adm, usuarios_autorizados, fechas_periodo)
+                    st.download_button(
+                        label="📊 Descargar Excel Consolidado",
+                        data=datos_excel,
+                        file_name=f"Consolidado_Horas_{inicio_mes.strftime('%Y%m%d')}_{fin_mes.strftime('%Y%m%d')}.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        use_container_width=True
+                    )
+                else:
+                    st.button("📊 Descargar Excel (Requiere openpyxl)", disabled=True, use_container_width=True)
 
-        with col_b_ciclo2:
-            if st.button("🔄 Reiniciar Hojas para Nuevo Ciclo", use_container_width=True):
-                with st.spinner("Reorganizando hojas de todo el personal en Google Sheets..."):
-                    reiniciar_hojas_nuevo_ciclo(nuevo_inicio, nuevo_fin, usuarios_autorizados)
-                    if "filas_planilla" in st.session_state: del st.session_state["filas_planilla"]
-                    obtener_resumen_individual_optimizado.clear()
-                    st.rerun()
+            with col_b_ciclo2:
+                if st.button("🔄 Reiniciar Hojas para Nuevo Ciclo", use_container_width=True):
+                    with st.spinner("Reorganizando hojas de todo el personal en Google Sheets..."):
+                        reiniciar_hojas_nuevo_ciclo(nuevo_inicio, nuevo_fin, usuarios_autorizados)
+                        if "filas_planilla" in st.session_state: del st.session_state["filas_planilla"]
+                        obtener_resumen_individual_optimizado.clear()
+                        st.rerun()
 
         with st.expander("👥 Resumen General del Personal"):
             txt_toggle_opc = "🙈 Ocultar Horas" if st.session_state["mostrar_horas_admin"] else "👁️ Ver Horas"
